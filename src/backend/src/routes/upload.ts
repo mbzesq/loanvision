@@ -3,7 +3,7 @@ import multer from 'multer';
 import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../db';
-import { ParsedLoan } from '../../shared/types';
+import { ParsedLoan } from '@loanvision/shared';
 
 const router = Router();
 

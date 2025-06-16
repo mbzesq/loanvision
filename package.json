@@ -5,13 +5,14 @@
   "private": true,
   "workspaces": [
     "src/backend",
-    "src/frontend"
+    "src/frontend",
+    "src/shared"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev --workspace=src/backend",
     "dev:frontend": "npm run dev --workspace=src/frontend",
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspace=@loanvision/shared && npm run build --workspaces --if-present",
     "start": "npm run start --workspace=src/backend"
   },
   "devDependencies": {
