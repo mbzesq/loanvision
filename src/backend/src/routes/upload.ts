@@ -3,6 +3,7 @@ import multer from 'multer';
 import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../db';
+import { ParsedLoan } from '../../shared/types';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
     
     // Convert sheet to JSON
     const jsonData = XLSX.utils.sheet_to_json(sheet);
+    const loans = jsonData as ParsedLoan[];
     
     // Create upload session
     const uploadSessionId = uuidv4();
@@ -32,13 +34,13 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
       `INSERT INTO upload_sessions (id, original_filename, file_type, record_count, status)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id`,
-      [uploadSessionId, req.file.originalname, 'excel', jsonData.length, 'completed']
+      [uploadSessionId, req.file.originalname, 'excel', loans.length, 'completed']
     );
 
     // Insert loans into database
     let insertedCount = 0;
     
-    for (const loan of jsonData) {
+    for (const loan of loans) {
       try {
         await pool.query(
           `INSERT INTO loans (
