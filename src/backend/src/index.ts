@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import uploadRouter from './routes/upload';
+import loansRouter from './routes/loans';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api', uploadRouter);
+app.use('/api', loansRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

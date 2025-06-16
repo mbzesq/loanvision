@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import UploadPage from './pages/UploadPage';
+import LoanExplorerPage from './pages/LoanExplorerPage';
 
 function App() {
   const [status, setStatus] = useState<string>('loading...');
@@ -13,11 +15,25 @@ function App() {
   }, []);
 
   return (
-    <div>
-      <h1>Backend Status: {status}</h1>
-      <hr />
-      <UploadPage />
-    </div>
+    <Router>
+      <div>
+        <header style={{ padding: '20px', borderBottom: '1px solid #ccc' }}>
+          <h1>LoanVision</h1>
+          <p>Backend Status: {status}</p>
+          <nav>
+            <Link to="/" style={{ marginRight: '20px' }}>Upload</Link>
+            <Link to="/loans">Loan Explorer</Link>
+          </nav>
+        </header>
+        
+        <main style={{ padding: '20px' }}>
+          <Routes>
+            <Route path="/" element={<UploadPage />} />
+            <Route path="/loans" element={<LoanExplorerPage />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
 
