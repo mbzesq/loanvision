@@ -1,0 +1,20 @@
+{
+  "name": "loanvision",
+  "version": "1.0.0",
+  "description": "LoanVision - AI-native platform for non-performing mortgage loan management",
+  "private": true,
+  "workspaces": [
+    "src/backend",
+    "src/frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=src/backend",
+    "dev:frontend": "npm run dev --workspace=src/frontend",
+    "build": "npm run build --workspaces",
+    "start": "npm run start --workspace=src/backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
