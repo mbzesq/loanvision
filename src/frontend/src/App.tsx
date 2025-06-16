@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import UploadPage from './pages/UploadPage';
 
 function App() {
   const [status, setStatus] = useState<string>('loading...');
@@ -11,7 +12,13 @@ function App() {
       .catch(() => setStatus('error'));
   }, []);
 
-  return <h1>Backend Status: {status}</h1>;
+  return (
+    <div>
+      <h1>Backend Status: {status}</h1>
+      <hr />
+      <UploadPage />
+    </div>
+  );
 }
 
 export default App;
