@@ -34,7 +34,7 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
       `INSERT INTO upload_sessions (id, original_filename, file_type, record_count, status)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id`,
-      [uploadSessionId, req.file.originalname, 'excel', loans.length, 'completed']
+      [String(uploadSessionId), String(req.file.originalname), String('excel'), String(loans.length), String('completed')]
     );
 
     // Insert loans into database
@@ -70,27 +70,27 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
             $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
           )`,
           [
-            uploadSessionId,
-            loan['Borrower Name'] || loan['BorrowerName'] || loan['borrower_name'],
-            loan['Co-Borrower Name'] || loan['CoBorrowerName'] || loan['co_borrower_name'],
-            loan['Property Address'] || loan['PropertyAddress'] || loan['property_address'],
-            loan['City'] || loan['property_city'],
-            loan['State'] || loan['property_state'],
-            loan['Zip Code'] || loan['ZipCode'] || loan['property_zip'],
-            parseFloat(loan['Original Loan Amount'] || loan['LoanAmount'] || loan['loan_amount'] || 0),
-            parseFloat(loan['Interest Rate'] || loan['InterestRate'] || loan['interest_rate'] || 0),
-            loan['Maturity Date'] || loan['MaturityDate'] || loan['maturity_date'],
-            loan['Original Lender'] || loan['OriginalLender'] || loan['original_lender'],
-            parseFloat(loan['UPB'] || loan['Unpaid Principal Balance'] || loan['unpaid_principal_balance'] || 0),
-            parseFloat(loan['Accrued Interest'] || loan['AccruedInterest'] || loan['accrued_interest'] || 0),
-            parseFloat(loan['Total Balance'] || loan['TotalBalance'] || loan['total_balance'] || 0),
-            loan['Last Payment Date'] || loan['LastPaymentDate'] || loan['last_paid_date'],
-            loan['Next Due Date'] || loan['NextDueDate'] || loan['next_due_date'],
-            parseInt(loan['Remaining Term'] || loan['RemainingTerm'] || loan['remaining_term_months'] || 0),
-            loan['Legal Status'] || loan['LegalStatus'] || loan['legal_status'],
-            loan['Lien Position'] || loan['LienPosition'] || loan['lien_position'],
-            loan['Investor Name'] || loan['InvestorName'] || loan['investor_name'],
-            req.file.originalname
+            String(uploadSessionId),
+            String(loan['Borrower Name'] || loan['BorrowerName'] || loan['borrower_name'] || ''),
+            String(loan['Co-Borrower Name'] || loan['CoBorrowerName'] || loan['co_borrower_name'] || ''),
+            String(loan['Property Address'] || loan['PropertyAddress'] || loan['property_address'] || ''),
+            String(loan['City'] || loan['property_city'] || ''),
+            String(loan['State'] || loan['property_state'] || ''),
+            String(loan['Zip Code'] || loan['ZipCode'] || loan['property_zip'] || ''),
+            String(parseFloat(loan['Original Loan Amount'] || loan['LoanAmount'] || loan['loan_amount'] || 0)),
+            String(parseFloat(loan['Interest Rate'] || loan['InterestRate'] || loan['interest_rate'] || 0)),
+            String(loan['Maturity Date'] || loan['MaturityDate'] || loan['maturity_date'] || ''),
+            String(loan['Original Lender'] || loan['OriginalLender'] || loan['original_lender'] || ''),
+            String(parseFloat(loan['UPB'] || loan['Unpaid Principal Balance'] || loan['unpaid_principal_balance'] || 0)),
+            String(parseFloat(loan['Accrued Interest'] || loan['AccruedInterest'] || loan['accrued_interest'] || 0)),
+            String(parseFloat(loan['Total Balance'] || loan['TotalBalance'] || loan['total_balance'] || 0)),
+            String(loan['Last Payment Date'] || loan['LastPaymentDate'] || loan['last_paid_date'] || ''),
+            String(loan['Next Due Date'] || loan['NextDueDate'] || loan['next_due_date'] || ''),
+            String(parseInt(loan['Remaining Term'] || loan['RemainingTerm'] || loan['remaining_term_months'] || 0)),
+            String(loan['Legal Status'] || loan['LegalStatus'] || loan['legal_status'] || ''),
+            String(loan['Lien Position'] || loan['LienPosition'] || loan['lien_position'] || ''),
+            String(loan['Investor Name'] || loan['InvestorName'] || loan['investor_name'] || ''),
+            String(req.file.originalname)
           ]
         );
         insertedCount++;
