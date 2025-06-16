@@ -11,105 +11,99 @@ const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Helper function to safely get a value from a loan object using multiple possible keys
+// and default to an empty string if none are found.
+const getLoanValue = (loan: ParsedLoan, keys: string[]): string => {
+    for (const key of keys) {
+        if (loan[key] !== undefined && loan[key] !== null) {
+            return String(loan[key]);
+        }
+    }
+    return ''; // Return an empty string as a safe default
+};
+
 router.post('/upload', upload.single('loanFile'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
 
-    // Parse the Excel file
-    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
-    
-    // Get the first sheet
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    
-    // Convert sheet to JSON
-    const jsonData = XLSX.utils.sheet_to_json(sheet);
-    const loans = jsonData as ParsedLoan[];
-    
-    // Create upload session
-    const uploadSessionId = uuidv4();
-    const sessionResult = await pool.query(
-      `INSERT INTO upload_sessions (id, original_filename, file_type, record_count, status)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id`,
-      [String(uploadSessionId), String(req.file.originalname), String('excel'), String(loans.length), String('completed')]
-    );
+        // Parse the Excel file
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+        const loans = jsonData as ParsedLoan[]; // Cast the parsed data to our ParsedLoan type
 
-    // Insert loans into database
-    let insertedCount = 0;
-    
-    for (const loan of loans) {
-      try {
+        // Create upload session
+        const uploadSessionId = uuidv4();
         await pool.query(
-          `INSERT INTO loans (
-            upload_session_id,
-            borrower_name,
-            co_borrower_name,
-            property_address,
-            property_city,
-            property_state,
-            property_zip,
-            loan_amount,
-            interest_rate,
-            maturity_date,
-            original_lender,
-            unpaid_principal_balance,
-            accrued_interest,
-            total_balance,
-            last_paid_date,
-            next_due_date,
-            remaining_term_months,
-            legal_status,
-            lien_position,
-            investor_name,
-            source_filename
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-            $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
-          )`,
-          [
-            String(uploadSessionId),
-            String(loan['Borrower Name'] || loan['BorrowerName'] || loan['borrower_name'] || ''),
-            String(loan['Co-Borrower Name'] || loan['CoBorrowerName'] || loan['co_borrower_name'] || ''),
-            String(loan['Property Address'] || loan['PropertyAddress'] || loan['property_address'] || ''),
-            String(loan['City'] || loan['property_city'] || ''),
-            String(loan['State'] || loan['property_state'] || ''),
-            String(loan['Zip Code'] || loan['ZipCode'] || loan['property_zip'] || ''),
-            String(parseFloat(loan['Original Loan Amount'] || loan['LoanAmount'] || loan['loan_amount'] || 0)),
-            String(parseFloat(loan['Interest Rate'] || loan['InterestRate'] || loan['interest_rate'] || 0)),
-            String(loan['Maturity Date'] || loan['MaturityDate'] || loan['maturity_date'] || ''),
-            String(loan['Original Lender'] || loan['OriginalLender'] || loan['original_lender'] || ''),
-            String(parseFloat(loan['UPB'] || loan['Unpaid Principal Balance'] || loan['unpaid_principal_balance'] || 0)),
-            String(parseFloat(loan['Accrued Interest'] || loan['AccruedInterest'] || loan['accrued_interest'] || 0)),
-            String(parseFloat(loan['Total Balance'] || loan['TotalBalance'] || loan['total_balance'] || 0)),
-            String(loan['Last Payment Date'] || loan['LastPaymentDate'] || loan['last_paid_date'] || ''),
-            String(loan['Next Due Date'] || loan['NextDueDate'] || loan['next_due_date'] || ''),
-            String(parseInt(loan['Remaining Term'] || loan['RemainingTerm'] || loan['remaining_term_months'] || 0)),
-            String(loan['Legal Status'] || loan['LegalStatus'] || loan['legal_status'] || ''),
-            String(loan['Lien Position'] || loan['LienPosition'] || loan['lien_position'] || ''),
-            String(loan['Investor Name'] || loan['InvestorName'] || loan['investor_name'] || ''),
-            String(req.file.originalname)
-          ]
+            `INSERT INTO upload_sessions (id, original_filename, file_type, record_count, status)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [uploadSessionId, req.file.originalname, 'excel', loans.length, 'completed']
         );
-        insertedCount++;
-      } catch (error) {
-        console.error('Error inserting loan:', error);
-        // Continue with next loan even if one fails
-      }
-    }
 
-    // Return success response
-    res.json({
-      status: 'success',
-      message: `Successfully imported ${insertedCount} loans.`,
-      record_count: insertedCount
-    });
-  } catch (error) {
-    console.error('Error processing file:', error);
-    res.status(500).json({ error: 'Failed to process file' });
-  }
+        // Insert loans into database
+        let insertedCount = 0;
+        const insertQuery = `
+            INSERT INTO loans (
+                upload_session_id, borrower_name, co_borrower_name, property_address,
+                property_city, property_state, property_zip, loan_amount,
+                interest_rate, maturity_date, original_lender, unpaid_principal_balance,
+                accrued_interest, total_balance, last_paid_date, next_due_date,
+                remaining_term_months, legal_status, lien_position, investor_name, source_filename
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+                $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
+            )
+        `;
+
+        for (const loan of loans) {
+            try {
+                // Use the helper function to safely get and convert all values
+                const values = [
+                    uploadSessionId,
+                    getLoanValue(loan, ['Borrower Name', 'BorrowerName', 'borrower_name']),
+                    getLoanValue(loan, ['Co-Borrower Name', 'CoBorrowerName', 'co_borrower_name']),
+                    getLoanValue(loan, ['Property Address', 'PropertyAddress', 'property_address']),
+                    getLoanValue(loan, ['City', 'property_city']),
+                    getLoanValue(loan, ['State', 'property_state']),
+                    getLoanValue(loan, ['Zip Code', 'ZipCode', 'property_zip']),
+                    getLoanValue(loan, ['Original Loan Amount', 'LoanAmount', 'loan_amount']),
+                    getLoanValue(loan, ['Interest Rate', 'InterestRate', 'interest_rate']),
+                    getLoanValue(loan, ['Maturity Date', 'MaturityDate', 'maturity_date']),
+                    getLoanValue(loan, ['Original Lender', 'OriginalLender', 'original_lender']),
+                    getLoanValue(loan, ['UPB', 'Unpaid Principal Balance', 'unpaid_principal_balance']),
+                    getLoanValue(loan, ['Accrued Interest', 'AccruedInterest', 'accrued_interest']),
+                    getLoanValue(loan, ['Total Balance', 'TotalBalance', 'total_balance']),
+                    getLoanValue(loan, ['Last Payment Date', 'LastPaymentDate', 'last_paid_date']),
+                    getLoanValue(loan, ['Next Due Date', 'NextDueDate', 'next_due_date']),
+                    getLoanValue(loan, ['Remaining Term', 'RemainingTerm', 'remaining_term_months']),
+                    getLoanValue(loan, ['Legal Status', 'LegalStatus', 'legal_status']),
+                    getLoanValue(loan, ['Lien Position', 'LienPosition', 'lien_position']),
+                    getLoanValue(loan, ['Investor Name', 'InvestorName', 'investor_name']),
+                    req.file.originalname,
+                ];
+
+                await pool.query(insertQuery, values);
+                insertedCount++;
+            } catch (error) {
+                console.error('Error inserting loan:', error);
+                // Continue with the next loan even if one fails
+            }
+        }
+
+        // Return success response
+        res.json({
+            status: 'success',
+            message: `Successfully imported ${insertedCount} of ${loans.length} loans.`,
+            record_count: insertedCount
+        });
+
+    } catch (error) {
+        console.error('Error processing file:', error);
+        res.status(500).json({ error: 'Failed to process file' });
+    }
 });
 
 export default router;
