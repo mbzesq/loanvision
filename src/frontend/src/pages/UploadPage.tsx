@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import axios from 'axios';
 
+interface UploadResponse {
+  status: string;
+  message: string;
+  record_count: number;
+}
+
 function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [uploadedData, setUploadedData] = useState<any[]>([]);
+  const [uploadResponse, setUploadResponse] = useState<UploadResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,19 +27,24 @@ function UploadPage() {
 
     setLoading(true);
     setError(null);
+    setUploadResponse(null);
 
     const formData = new FormData();
     formData.append('loanFile', file);
 
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await axios.post(`${apiUrl}/api/upload`, formData, {
+      const response = await axios.post<UploadResponse>(`${apiUrl}/api/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      setUploadedData(response.data);
+      setUploadResponse(response.data);
+      setFile(null);
+      // Reset file input
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
     } catch (err) {
       setError('Failed to upload file');
       console.error(err);
@@ -55,10 +66,9 @@ function UploadPage() {
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {uploadedData.length > 0 && (
-        <div>
-          <h2>Uploaded Data:</h2>
-          <pre>{JSON.stringify(uploadedData, null, 2)}</pre>
+      {uploadResponse && uploadResponse.status === 'success' && (
+        <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#d4edda', color: '#155724', border: '1px solid #c3e6cb', borderRadius: '4px' }}>
+          <strong>Success!</strong> {uploadResponse.message}
         </div>
       )}
     </div>
