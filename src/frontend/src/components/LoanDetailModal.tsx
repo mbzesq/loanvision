@@ -25,6 +25,20 @@ interface LoanDetails {
   [key: string]: any;
 }
 
+interface Enrichment {
+  id: number;
+  loan_id: number;
+  enrichment_type: string;
+  provider: string;
+  data: {
+    value: number;
+    date: string;
+    confidence?: number;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
 const fieldLabels: { [key: string]: string } = {
   servicer_loan_id: 'Loan Number',
   borrower_name: 'Borrower Name',
@@ -44,7 +58,9 @@ const fieldLabels: { [key: string]: string } = {
 
 function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   const [loan, setLoan] = useState<LoanDetails | null>(null);
+  const [enrichments, setEnrichments] = useState<Enrichment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [enrichmentsLoading, setEnrichmentsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,8 +77,26 @@ function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
       }
     };
 
+    const fetchEnrichments = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+        const response = await axios.get<Enrichment[]>(`${apiUrl}/api/loans/${loanId}/enrichments`);
+        setEnrichments(response.data);
+      } catch (err) {
+        console.error('Failed to fetch enrichments:', err);
+        // Don't set error for enrichments as they are optional
+      } finally {
+        setEnrichmentsLoading(false);
+      }
+    };
+
     fetchLoanDetails();
+    fetchEnrichments();
   }, [loanId]);
+
+  const getAvmEnrichment = (): Enrichment | null => {
+    return enrichments.find(e => e.enrichment_type === 'AVM') || null;
+  };
 
   const formatValue = (key: string, value: any): string => {
     if (value === null || value === undefined || value === '') {
@@ -82,6 +116,44 @@ function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
     }
 
     return String(value);
+  };
+
+  const renderAvmValue = (): JSX.Element => {
+    const avmEnrichment = getAvmEnrichment();
+    
+    if (enrichmentsLoading) {
+      return (
+        <div style={valueStyles}>
+          <div>Enriching...</div>
+          <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
+            Real-time AVM providers (e.g., ATTOM, Zillow) coming soon
+          </div>
+        </div>
+      );
+    }
+    
+    if (!avmEnrichment) {
+      return (
+        <div style={valueStyles}>
+          <div>Enriching...</div>
+          <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
+            Real-time AVM providers (e.g., ATTOM, Zillow) coming soon
+          </div>
+        </div>
+      );
+    }
+    
+    const value = avmEnrichment.data.value;
+    const formattedValue = value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    
+    return (
+      <div style={valueStyles}>
+        <div>{formattedValue} (Simulated Data)</div>
+        <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
+          Real-time AVM providers (e.g., ATTOM, Zillow) coming soon
+        </div>
+      </div>
+    );
   };
 
   const modalStyles: React.CSSProperties = {
@@ -183,6 +255,12 @@ function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
               </div>
             );
           })}
+          
+          {/* Add AVM enrichment row */}
+          <div style={fieldRowStyles}>
+            <div style={labelStyles}>Estimated Property Value:</div>
+            {renderAvmValue()}
+          </div>
         </div>
         
         <div style={{ marginTop: '24px', textAlign: 'center' }}>

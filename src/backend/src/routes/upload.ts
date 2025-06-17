@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../db';
 import { ParsedLoan } from '@loanvision/shared';
+import { runEnrichmentJob } from '../services/enrichmentService';
 
 const router = Router();
 const storage = multer.memoryStorage();
@@ -123,9 +124,14 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
           ['completed', uploadSessionId]
         );
 
+        // Trigger background enrichment job (don't await to make it truly background)
+        runEnrichmentJob(uploadSessionId).catch(error => {
+            console.error('Background enrichment job failed:', error);
+        });
+
         res.json({
             status: 'success',
-            message: `Successfully imported ${insertedCount} of ${loans.length} loans.`,
+            message: `Successfully imported ${insertedCount} of ${loans.length} loans. Enrichment job started.`,
             record_count: insertedCount
         });
 
