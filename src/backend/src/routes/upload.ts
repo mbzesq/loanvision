@@ -9,15 +9,41 @@ const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// This helper function now returns the found value or null if not found.
-const getLoanValue = (loan: ParsedLoan, keys: string[]): string | number | null => {
-    for (const key of keys) {
-        const value = loan[key];
-        if (value !== undefined && value !== null && value !== '') {
-            return value;
-        }
-    }
-    return null; // Return null for missing or empty values
+// Helper function to clean currency values (remove $ and ,)
+const cleanCurrency = (value: any): number | null => {
+    if (value === undefined || value === null || value === '') return null;
+    const cleaned = String(value).replace(/[$,]/g, '').trim();
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? null : num;
+};
+
+// Helper function to clean percentage values (remove % and convert to decimal)
+const cleanPercentage = (value: any): number | null => {
+    if (value === undefined || value === null || value === '') return null;
+    const cleaned = String(value).replace(/%/g, '').trim();
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? null : num / 100; // Convert to decimal (9.50% becomes 0.095)
+};
+
+// Helper function to combine first and last name
+const combineName = (firstName: any, lastName: any): string | null => {
+    const first = firstName ? String(firstName).trim() : '';
+    const last = lastName ? String(lastName).trim() : '';
+    if (!first && !last) return null;
+    return `${first} ${last}`.trim();
+};
+
+// Helper function to get a clean string value
+const getString = (value: any): string | null => {
+    if (value === undefined || value === null || value === '') return null;
+    return String(value).trim();
+};
+
+// Helper function to get a clean number value
+const getNumber = (value: any): number | null => {
+    if (value === undefined || value === null || value === '') return null;
+    const num = Number(value);
+    return isNaN(num) ? null : num;
 };
 
 router.post('/upload', upload.single('loanFile'), async (req, res) => {
@@ -29,7 +55,7 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
         const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: false }); // raw: false to get formatted strings
         const loans = jsonData as ParsedLoan[];
 
         const uploadSessionId = uuidv4();
@@ -52,34 +78,41 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
 
         for (const loan of loans) {
             try {
-                // The values array can now contain strings, numbers, or nulls, which the db driver handles correctly.
+                // Extract and clean all values according to the mapping
+                const borrowerName = combineName(loan['First Name'], loan['Last Name']) || 
+                                   getString(loan['Borrower Name']) || 
+                                   getString(loan['BorrowerName']) || 
+                                   getString(loan['borrower_name']);
+
                 const values = [
-                    getLoanValue(loan, ['upload_session_id']) || uploadSessionId,
-                    getLoanValue(loan, ['Borrower Name', 'BorrowerName', 'borrower_name']),
-                    getLoanValue(loan, ['Co-Borrower Name', 'CoBorrowerName', 'co_borrower_name']),
-                    getLoanValue(loan, ['Property Address', 'PropertyAddress', 'property_address']),
-                    getLoanValue(loan, ['City', 'property_city']),
-                    getLoanValue(loan, ['State', 'property_state']),
-                    getLoanValue(loan, ['Zip Code', 'ZipCode', 'property_zip']),
-                    getLoanValue(loan, ['Original Loan Amount', 'LoanAmount', 'loan_amount']),
-                    getLoanValue(loan, ['Interest Rate', 'InterestRate', 'interest_rate']),
-                    getLoanValue(loan, ['Maturity Date', 'MaturityDate', 'maturity_date']),
-                    getLoanValue(loan, ['Original Lender', 'OriginalLender', 'original_lender']),
-                    getLoanValue(loan, ['UPB', 'Unpaid Principal Balance', 'unpaid_principal_balance']),
-                    getLoanValue(loan, ['Accrued Interest', 'AccruedInterest', 'accrued_interest']),
-                    getLoanValue(loan, ['Total Balance', 'TotalBalance', 'total_balance']),
-                    getLoanValue(loan, ['Last Payment Date', 'LastPaymentDate', 'last_paid_date']),
-                    getLoanValue(loan, ['Next Due Date', 'NextDueDate', 'next_due_date']),
-                    getLoanValue(loan, ['Remaining Term', 'RemainingTerm', 'remaining_term_months']),
-                    getLoanValue(loan, ['Legal Status', 'LegalStatus', 'legal_status']),
-                    getLoanValue(loan, ['Lien Position', 'LienPosition', 'lien_position']),
-                    getLoanValue(loan, ['Investor Name', 'InvestorName', 'investor_name']),
+                    uploadSessionId,
+                    borrowerName,
+                    getString(loan['Co-Borrower Name']) || getString(loan['CoBorrowerName']) || getString(loan['co_borrower_name']),
+                    getString(loan['Address']) || getString(loan['Property Address']) || getString(loan['PropertyAddress']) || getString(loan['property_address']),
+                    getString(loan['City']) || getString(loan['property_city']),
+                    getString(loan['State']) || getString(loan['property_state']),
+                    getString(loan['Zip']) || getString(loan['Zip Code']) || getString(loan['ZipCode']) || getString(loan['property_zip']),
+                    cleanCurrency(loan['Org Amount']) || cleanCurrency(loan['Original Loan Amount']) || cleanCurrency(loan['LoanAmount']) || cleanCurrency(loan['loan_amount']),
+                    cleanPercentage(loan['Int Rate']) || cleanPercentage(loan['Interest Rate']) || cleanPercentage(loan['InterestRate']) || cleanPercentage(loan['interest_rate']),
+                    getString(loan['Maturity Date']) || getString(loan['MaturityDate']) || getString(loan['maturity_date']),
+                    getString(loan['Original Lender']) || getString(loan['OriginalLender']) || getString(loan['original_lender']),
+                    cleanCurrency(loan['Prin Bal']) || cleanCurrency(loan['UPB']) || cleanCurrency(loan['Unpaid Principal Balance']) || cleanCurrency(loan['unpaid_principal_balance']),
+                    cleanCurrency(loan['Accrued Interest']) || cleanCurrency(loan['AccruedInterest']) || cleanCurrency(loan['accrued_interest']),
+                    cleanCurrency(loan['Total Balance']) || cleanCurrency(loan['TotalBalance']) || cleanCurrency(loan['total_balance']),
+                    getString(loan['Last Pymt Received']) || getString(loan['Last Payment Date']) || getString(loan['LastPaymentDate']) || getString(loan['last_paid_date']),
+                    getString(loan['Next Pymt Due']) || getString(loan['Next Due Date']) || getString(loan['NextDueDate']) || getString(loan['next_due_date']),
+                    getNumber(loan['Remg Term']) || getNumber(loan['Remaining Term']) || getNumber(loan['RemainingTerm']) || getNumber(loan['remaining_term_months']),
+                    getString(loan['Legal Status']) || getString(loan['LegalStatus']) || getString(loan['legal_status']),
+                    getString(loan['Lien Pos']) || getString(loan['Lien Position']) || getString(loan['LienPosition']) || getString(loan['lien_position']),
+                    getString(loan['Investor Name']) || getString(loan['InvestorName']) || getString(loan['investor_name']),
                     req.file.originalname,
                 ];
+                
                 await pool.query(insertQuery, values);
                 insertedCount++;
             } catch (error) {
                 console.error('Error inserting loan:', error);
+                console.error('Loan data:', loan); // Log the problematic loan for debugging
             }
         }
 
