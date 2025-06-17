@@ -43,6 +43,24 @@ const getValue = (loan: Loan, keys: string[]): any | null => {
     return null;
 };
 
+const parseExcelDate = (excelDate: any): string | null => {
+  if (typeof excelDate === 'number') {
+    const jsDate = XLSX.SSF.parse_date_code(excelDate);
+    if (jsDate) {
+      // Format to YYYY-MM-DD for PostgreSQL
+      const year = jsDate.y;
+      const month = String(jsDate.m).padStart(2, '0');
+      const day = String(jsDate.d).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+  }
+  // If it's already a string, try to use it as is (or return null if invalid)
+  if (typeof excelDate === 'string' && new Date(excelDate).toString() !== 'Invalid Date') {
+    return excelDate;
+  }
+  return null;
+};
+
 // --- Main Upload Endpoint ---
 router.post('/upload', upload.single('loanFile'), async (req, res) => {
   if (!req.file) {
@@ -88,10 +106,10 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
           getValue(loan, ['Zip']), // $7 property_zip
           cleanCurrency(getValue(loan, ['Org Amount'])), // $8 loan_amount
           cleanPercentage(getValue(loan, ['Int Rate'])), // $9 interest_rate
-          getValue(loan, ['Maturity Date']), // $10 maturity_date
+          parseExcelDate(getValue(loan, ['Maturity Date'])), // $10 maturity_date
           cleanCurrency(getValue(loan, ['Prin Bal', 'UPB'])), // $11 unpaid_principal_balance
-          getValue(loan, ['Last Pymt Received']), // $12 last_paid_date
-          getValue(loan, ['Next Pymt Due']), // $13 next_due_date
+          parseExcelDate(getValue(loan, ['Last Pymt Received'])), // $12 last_paid_date
+          parseExcelDate(getValue(loan, ['Next Pymt Due'])), // $13 next_due_date
           getValue(loan, ['Remg Term']), // $14 remaining_term_months
           getValue(loan, ['Legal Status']), // $15 legal_status
           getValue(loan, ['Lien Pos']), // $16 lien_position
