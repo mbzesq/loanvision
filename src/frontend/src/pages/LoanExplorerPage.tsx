@@ -3,6 +3,7 @@ import axios from 'axios';
 
 interface Loan {
   id: number;
+  servicer_loan_id: string;
   borrower_name: string;
   property_address: string;
   property_city: string;
@@ -13,6 +14,7 @@ interface Loan {
   interest_rate: string;
   legal_status: string;
   last_paid_date: string;
+  next_due_date: string;
   remaining_term_months: string;
   created_at: string;
 }
@@ -50,35 +52,35 @@ function LoanExplorerPage() {
       <table border={1} style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
         <thead>
           <tr style={{ backgroundColor: '#f0f0f0' }}>
-            <th style={{ padding: '8px', textAlign: 'left' }}>Loan ID</th>
+            <th style={{ padding: '8px', textAlign: 'left' }}>Loan Number</th>
             <th style={{ padding: '8px', textAlign: 'left' }}>Borrower Name</th>
             <th style={{ padding: '8px', textAlign: 'left' }}>Property Address</th>
-            <th style={{ padding: '8px', textAlign: 'left' }}>City</th>
-            <th style={{ padding: '8px', textAlign: 'left' }}>State</th>
             <th style={{ padding: '8px', textAlign: 'left' }}>UPB</th>
-            <th style={{ padding: '8px', textAlign: 'left' }}>Interest Rate</th>
-            <th style={{ padding: '8px', textAlign: 'left' }}>Legal Status</th>
+            <th style={{ padding: '8px', textAlign: 'left' }}>Next Due Date</th>
+            <th style={{ padding: '8px', textAlign: 'left' }}>Last Paid Date</th>
           </tr>
         </thead>
         <tbody>
           {loans.map((loan) => (
             <tr key={loan.id}>
-              <td style={{ padding: '8px' }}>{loan.id || 'N/A'}</td>
+              <td style={{ padding: '8px' }}>{loan.servicer_loan_id || 'N/A'}</td>
               <td style={{ padding: '8px' }}>{loan.borrower_name || 'N/A'}</td>
               <td style={{ padding: '8px' }}>{loan.property_address || 'N/A'}</td>
-              <td style={{ padding: '8px' }}>{loan.property_city || 'N/A'}</td>
-              <td style={{ padding: '8px' }}>{loan.property_state || 'N/A'}</td>
               <td style={{ padding: '8px' }}>
                 {loan.unpaid_principal_balance 
-                  ? `$${parseFloat(loan.unpaid_principal_balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  ? parseFloat(loan.unpaid_principal_balance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                   : 'N/A'}
               </td>
               <td style={{ padding: '8px' }}>
-                {loan.interest_rate 
-                  ? `${(parseFloat(loan.interest_rate) * 100).toFixed(2)}%`
+                {loan.next_due_date 
+                  ? new Date(loan.next_due_date).toLocaleDateString('en-US')
                   : 'N/A'}
               </td>
-              <td style={{ padding: '8px' }}>{loan.legal_status || 'N/A'}</td>
+              <td style={{ padding: '8px' }}>
+                {loan.last_paid_date 
+                  ? new Date(loan.last_paid_date).toLocaleDateString('en-US')
+                  : 'N/A'}
+              </td>
             </tr>
           ))}
         </tbody>

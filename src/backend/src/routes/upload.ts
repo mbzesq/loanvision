@@ -68,12 +68,12 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
         let insertedCount = 0;
         const insertQuery = `
             INSERT INTO loans (
-                upload_session_id, borrower_name, co_borrower_name, property_address,
+                upload_session_id, servicer_loan_id, borrower_name, co_borrower_name, property_address,
                 property_city, property_state, property_zip, loan_amount,
                 interest_rate, maturity_date, original_lender, unpaid_principal_balance,
                 accrued_interest, total_balance, last_paid_date, next_due_date,
                 remaining_term_months, legal_status, lien_position, investor_name, source_filename
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
         `;
 
         for (const loan of loans) {
@@ -86,6 +86,7 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
 
                 const values = [
                     uploadSessionId,
+                    getString(loan['Loan ID']) || getString(loan['LoanID']) || getString(loan['loan_id']),
                     borrowerName,
                     getString(loan['Co-Borrower Name']) || getString(loan['CoBorrowerName']) || getString(loan['co_borrower_name']),
                     getString(loan['Address']) || getString(loan['Property Address']) || getString(loan['PropertyAddress']) || getString(loan['property_address']),
