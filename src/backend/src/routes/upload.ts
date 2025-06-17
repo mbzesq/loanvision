@@ -6,44 +6,39 @@ import pool from '../db';
 import { ParsedLoan } from '@loanvision/shared';
 
 const router = Router();
-
-// Configure multer for memory storage
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Helper function to safely get a value from a loan object using multiple possible keys
-// and default to an empty string if none are found.
-const getLoanValue = (loan: ParsedLoan, keys: string[]): string => {
+// This helper function now returns the found value or null if not found.
+const getLoanValue = (loan: ParsedLoan, keys: string[]): string | number | null => {
     for (const key of keys) {
-        if (loan[key] !== undefined && loan[key] !== null) {
-            return String(loan[key]);
+        const value = loan[key];
+        if (value !== undefined && value !== null && value !== '') {
+            return value;
         }
     }
-    return ''; // Return an empty string as a safe default
+    return null; // Return null for missing or empty values
 };
 
 router.post('/upload', upload.single('loanFile'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
-        }
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
 
-        // Parse the Excel file
+    try {
         const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(sheet);
-        const loans = jsonData as ParsedLoan[]; // Cast the parsed data to our ParsedLoan type
+        const loans = jsonData as ParsedLoan[];
 
-        // Create upload session
         const uploadSessionId = uuidv4();
         await pool.query(
             `INSERT INTO upload_sessions (id, original_filename, file_type, record_count, status)
              VALUES ($1, $2, $3, $4, $5)`,
-            [uploadSessionId, req.file.originalname, 'excel', loans.length, 'completed']
+            [uploadSessionId, req.file.originalname, 'excel', loans.length, 'processing']
         );
 
-        // Insert loans into database
         let insertedCount = 0;
         const insertQuery = `
             INSERT INTO loans (
@@ -52,17 +47,14 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
                 interest_rate, maturity_date, original_lender, unpaid_principal_balance,
                 accrued_interest, total_balance, last_paid_date, next_due_date,
                 remaining_term_months, legal_status, lien_position, investor_name, source_filename
-            ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-                $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
-            )
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
         `;
 
         for (const loan of loans) {
             try {
-                // Use the helper function to safely get and convert all values
+                // The values array can now contain strings, numbers, or nulls, which the db driver handles correctly.
                 const values = [
-                    uploadSessionId,
+                    getLoanValue(loan, ['upload_session_id']) || uploadSessionId,
                     getLoanValue(loan, ['Borrower Name', 'BorrowerName', 'borrower_name']),
                     getLoanValue(loan, ['Co-Borrower Name', 'CoBorrowerName', 'co_borrower_name']),
                     getLoanValue(loan, ['Property Address', 'PropertyAddress', 'property_address']),
@@ -84,16 +76,19 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
                     getLoanValue(loan, ['Investor Name', 'InvestorName', 'investor_name']),
                     req.file.originalname,
                 ];
-
                 await pool.query(insertQuery, values);
                 insertedCount++;
             } catch (error) {
                 console.error('Error inserting loan:', error);
-                // Continue with the next loan even if one fails
             }
         }
 
-        // Return success response
+        // Update session status
+        await pool.query(
+          `UPDATE upload_sessions SET status = $1 WHERE id = $2`,
+          ['completed', uploadSessionId]
+        );
+
         res.json({
             status: 'success',
             message: `Successfully imported ${insertedCount} of ${loans.length} loans.`,
