@@ -89,3 +89,6 @@ export interface ParsedLoan {
   // Allow any additional fields
   [key: string]: any;
 }
+
+// Alias for backward compatibility
+export type Loan = ParsedLoan;
