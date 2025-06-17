@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import SummaryCard from '../components/Dashboard/SummaryCard';
 
 interface PortfolioSummary {
@@ -96,8 +97,8 @@ function DashboardPage() {
       }}>
         <h2 style={{ marginBottom: '16px' }}>Quick Actions</h2>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          <a 
-            href="/upload" 
+          <Link 
+            to="/upload" 
             style={{
               display: 'inline-block',
               padding: '10px 20px',
@@ -109,9 +110,9 @@ function DashboardPage() {
             }}
           >
             Upload New File
-          </a>
-          <a 
-            href="/loans" 
+          </Link>
+          <Link 
+            to="/loans" 
             style={{
               display: 'inline-block',
               padding: '10px 20px',
@@ -123,7 +124,7 @@ function DashboardPage() {
             }}
           >
             View All Loans
-          </a>
+          </Link>
         </div>
       </div>
     </div>
