@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import UploadPage from './pages/UploadPage';
 import LoanExplorerPage from './pages/LoanExplorerPage';
+import DashboardPage from './pages/DashboardPage';
 
 function App() {
   const [status, setStatus] = useState<string>('loading...');
@@ -21,14 +22,16 @@ function App() {
           <h1>LoanVision</h1>
           <p>Backend Status: {status}</p>
           <nav>
-            <Link to="/" style={{ marginRight: '20px' }}>Upload</Link>
+            <Link to="/" style={{ marginRight: '20px' }}>Dashboard</Link>
+            <Link to="/upload" style={{ marginRight: '20px' }}>Upload</Link>
             <Link to="/loans">Loan Explorer</Link>
           </nav>
         </header>
         
         <main style={{ padding: '20px' }}>
           <Routes>
-            <Route path="/" element={<UploadPage />} />
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/upload" element={<UploadPage />} />
             <Route path="/loans" element={<LoanExplorerPage />} />
           </Routes>
         </main>
