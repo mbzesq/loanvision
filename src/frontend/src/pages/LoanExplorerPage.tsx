@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import LoanDetailModal from '../components/LoanDetailModal';
 
 interface Loan {
   id: number;
@@ -23,6 +24,7 @@ function LoanExplorerPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLoans = async () => {
@@ -62,7 +64,17 @@ function LoanExplorerPage() {
         </thead>
         <tbody>
           {loans.map((loan) => (
-            <tr key={loan.id}>
+            <tr 
+              key={loan.id}
+              onClick={() => setSelectedLoanId(loan.servicer_loan_id)}
+              style={{ 
+                cursor: 'pointer',
+                backgroundColor: 'transparent',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
               <td style={{ padding: '8px' }}>{loan.servicer_loan_id || 'N/A'}</td>
               <td style={{ padding: '8px' }}>{loan.borrower_name || 'N/A'}</td>
               <td style={{ padding: '8px' }}>{loan.property_address || 'N/A'}</td>
@@ -88,6 +100,13 @@ function LoanExplorerPage() {
       
       {loans.length === 0 && (
         <p>No loans found. Upload a file to see loans here.</p>
+      )}
+      
+      {selectedLoanId && (
+        <LoanDetailModal 
+          loanId={selectedLoanId} 
+          onClose={() => setSelectedLoanId(null)} 
+        />
       )}
     </div>
   );
