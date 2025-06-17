@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
+import { saveAs } from 'file-saver';
 import LoanDetailModal from '../components/LoanDetailModal';
 import {
   createColumnHelper,
@@ -38,6 +39,8 @@ function LoanExplorerPage() {
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const fetchLoans = async () => {
@@ -130,6 +133,32 @@ function LoanExplorerPage() {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
+  const handleExport = async (format: 'pdf' | 'excel') => {
+    setExporting(true);
+    setShowExportDropdown(false);
+    
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const endpoint = format === 'pdf' ? '/api/reports/pdf' : '/api/reports/excel';
+      const params = globalFilter ? `?filter=${encodeURIComponent(globalFilter)}` : '';
+      
+      const response = await axios.get(`${apiUrl}${endpoint}${params}`, {
+        responseType: 'blob'
+      });
+      
+      const filename = format === 'pdf' 
+        ? `loan_report_${new Date().toISOString().split('T')[0]}.pdf`
+        : `loan_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      
+      saveAs(response.data, filename);
+    } catch (err) {
+      console.error(`Error exporting ${format}:`, err);
+      alert(`Failed to export ${format.toUpperCase()} report`);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) return <div>Loading loans...</div>;
   if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
@@ -137,7 +166,7 @@ function LoanExplorerPage() {
     <div>
       <h1>Loan Explorer</h1>
       
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
         <input
           type="text"
           value={globalFilter ?? ''}
@@ -151,6 +180,79 @@ function LoanExplorerPage() {
             borderRadius: '4px',
           }}
         />
+        
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setShowExportDropdown(!showExportDropdown)}
+            disabled={exporting}
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: exporting ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            {exporting ? 'Exporting...' : 'Export'}
+            <span style={{ fontSize: '12px' }}>▼</span>
+          </button>
+          
+          {showExportDropdown && !exporting && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              right: 0,
+              marginTop: '4px',
+              backgroundColor: 'white',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              zIndex: 10
+            }}>
+              <button
+                onClick={() => handleExport('pdf')}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px 16px',
+                  textAlign: 'left',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                Download as PDF
+              </button>
+              <button
+                onClick={() => handleExport('excel')}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px 16px',
+                  textAlign: 'left',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                Download as Excel
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <p>Total loans: {table.getFilteredRowModel().rows.length} of {loans.length}</p>
