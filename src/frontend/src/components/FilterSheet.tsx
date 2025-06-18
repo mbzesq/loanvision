@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@loanvision/shared/comp
 import { Calendar } from '@loanvision/shared/components/ui/calendar';
 import { cn } from '@loanvision/shared/lib/utils';
 
-export type FilterValues = {
+export type FilterSheetValues = {
   principalBalance: [number, number];
   interestRate: [number, number];
   propertyState: string;
@@ -18,12 +18,12 @@ export type FilterValues = {
   maturityDate: Date | undefined;
 };
 
-interface FilterPanelProps {
-  onApplyFilters: (filters: FilterValues) => void;
+interface FilterSheetProps {
+  onApplyFilters: (filters: FilterSheetValues) => void;
 }
 
-const FilterPanel: React.FC<FilterPanelProps> = ({ onApplyFilters }) => {
-  const defaultFilters: FilterValues = {
+const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters }) => {
+  const defaultFilters: FilterSheetValues = {
     principalBalance: [0, 1000000],
     interestRate: [0, 20],
     propertyState: '',
@@ -31,7 +31,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ onApplyFilters }) => {
     maturityDate: undefined,
   };
 
-  const [filters, setFilters] = useState<FilterValues>(defaultFilters);
+  const [filters, setFilters] = useState<FilterSheetValues>(defaultFilters);
 
   const handlePrincipalBalanceChange = (value: number[]) => {
     setFilters(prev => ({ ...prev, principalBalance: value as [number, number] }));
@@ -173,4 +173,4 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ onApplyFilters }) => {
   );
 };
 
-export default FilterPanel;
+export default FilterSheet;
