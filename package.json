@@ -16,6 +16,7 @@
     "start": "npm run start --workspace=src/backend"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.10",
     "concurrently": "^8.2.2"
   }
 }
