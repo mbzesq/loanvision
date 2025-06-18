@@ -241,7 +241,7 @@ function LoanExplorerPage() {
           <FilterPanel 
             onApplyFilters={handleApplyFilters} 
             availableStates={uniqueStates}
-            availableLegalStatuses={uniqueLegalStatuses}
+            availableLoanTypes={uniqueLegalStatuses}
           />
         </div>
         

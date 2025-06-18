@@ -1,156 +1,154 @@
 // src/frontend/src/components/FilterPanel.tsx
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@loanvision/shared/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@loanvision/shared/components/ui/select';
-import { Button } from '@loanvision/shared/components/ui/button';
-import { Slider } from '@loanvision/shared/components/ui/slider';
-import { Label } from '@loanvision/shared/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@loanvision/shared/components/ui/popover';
-import { Calendar } from '@loanvision/shared/components/ui/calendar';
 import { useState } from 'react';
-import { format } from 'date-fns';
+import { Button } from '@loanvision/shared/components/ui/button';
+import { Checkbox } from '@loanvision/shared/components/ui/checkbox';
+import { Input } from '@loanvision/shared/components/ui/input';
+import { Label } from '@loanvision/shared/components/ui/label';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@loanvision/shared/components/ui/accordion';
 
-// Define the shape of the filter values
+// Define the shape of the filter values for state management
 export type FilterValues = {
-  principalBalance: [number, number];
-  interestRate: [number, number];
-  propertyState: string;
-  legalStatus: string;
-  maturityDate: Date | undefined;
+  propertyState: string[];
+  loanType: string[];
+  principalBalance: { min: number | ''; max: number | '' };
 };
 
 // Define the component's props
 interface FilterPanelProps {
   onApplyFilters: (filters: FilterValues) => void;
   availableStates: string[];
-  availableLegalStatuses: string[]; // Assuming we will add this
+  availableLoanTypes: string[];
 }
 
 // Define the initial state for the filters
 const initialFilters: FilterValues = {
-  principalBalance: [0, 1000000],
-  interestRate: [0, 20],
-  propertyState: '',
-  legalStatus: '',
-  maturityDate: undefined,
+  propertyState: [],
+  loanType: [],
+  principalBalance: { min: '', max: '' },
 };
 
 export function FilterPanel({
   onApplyFilters,
   availableStates,
-  availableLegalStatuses,
+  availableLoanTypes,
 }: FilterPanelProps) {
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
 
-  const handleClearFilters = () => {
+  // Handler for multi-select checkbox groups
+  const handleCheckboxChange = (
+    field: 'propertyState' | 'loanType',
+    value: string,
+    checked: boolean
+  ) => {
+    setFilters((prev) => {
+      const currentValues = prev[field];
+      const newValues = checked
+        ? [...currentValues, value]
+        : currentValues.filter((item) => item !== value);
+      return { ...prev, [field]: newValues };
+    });
+  };
+
+  // Handler for min/max range input fields
+  const handleRangeChange = (
+    field: 'principalBalance',
+    type: 'min' | 'max',
+    value: string
+  ) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: {
+        ...prev[field],
+        [type]: value === '' ? '' : Number(value),
+      },
+    }));
+  };
+
+  const handleApply = () => onApplyFilters(filters);
+  const handleClear = () => {
     setFilters(initialFilters);
     onApplyFilters(initialFilters);
   };
 
-  const handleApply = () => {
-    onApplyFilters(filters);
-  };
-
   return (
-    <Card className="sticky top-4">
-      <CardHeader>
-        <CardTitle>Filter Loans</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-6">
-        {/* === Financial Filters === */}
-        <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-gray-500">Financial Filters</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <Label htmlFor="principal-balance">Principal Balance</Label>
-              <span>${filters.principalBalance[0].toLocaleString()} - ${filters.principalBalance[1].toLocaleString()}</span>
-            </div>
-            <Slider
-              id="principal-balance"
-              min={0}
-              max={1000000}
-              step={10000}
-              value={filters.principalBalance}
-              onValueChange={(value) => setFilters({ ...filters, principalBalance: value as [number, number] })}
-            />
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <Label htmlFor="interest-rate">Interest Rate</Label>
-              <span>{filters.interestRate[0]}% - {filters.interestRate[1]}%</span>
-            </div>
-            <Slider
-              id="interest-rate"
-              min={0}
-              max={20}
-              step={0.5}
-              value={filters.interestRate}
-              onValueChange={(value) => setFilters({ ...filters, interestRate: value as [number, number] })}
-            />
-          </div>
-        </div>
+    <div className="flex flex-col h-full">
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold">Filter Criteria</h2>
+      </div>
 
-        {/* === Location & Status Filters === */}
-        <div className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold text-gray-500">Property & Status Filters</h3>
-             <div className="space-y-2">
-                <Label>Property State</Label>
-                <Select value={filters.propertyState} onValueChange={(value) => setFilters({ ...filters, propertyState: value })}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a state" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {availableStates.map(state => <SelectItem key={state} value={state}>{state}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-            </div>
-             <div className="space-y-2">
-                <Label>Legal Status</Label>
-                <Select value={filters.legalStatus} onValueChange={(value) => setFilters({ ...filters, legalStatus: value })}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {availableLegalStatuses.map(status => <SelectItem key={status} value={status}>{status}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-            </div>
-             <div className="space-y-2">
-                <Label>Maturity Date</Label>
-                 <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start font-normal">
-                            {filters.maturityDate ? format(filters.maturityDate, 'PPP') : <span>Pick a date</span>}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar
-                            mode="single"
-                            selected={filters.maturityDate}
-                            onSelect={(date) => setFilters({ ...filters, maturityDate: date })}
-                            initialFocus
-                        />
-                    </PopoverContent>
-                </Popover>
-            </div>
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="ghost" onClick={handleClearFilters}>Clear</Button>
-        <Button onClick={handleApply}>Apply Filters</Button>
-      </CardFooter>
-    </Card>
+      <div className="flex-grow overflow-y-auto">
+        <Accordion type="multiple" className="w-full">
+          {/* Property State Filter */}
+          <AccordionItem value="state">
+            <AccordionTrigger>Property State</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-2 p-2 max-h-48 overflow-y-auto">
+                {availableStates.map((state) => (
+                  <div key={state} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`state-${state}`}
+                      checked={filters.propertyState.includes(state)}
+                      onCheckedChange={(checked) => handleCheckboxChange('propertyState', state, !!checked)}
+                    />
+                    <Label htmlFor={`state-${state}`}>{state}</Label>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Loan Type Filter */}
+          <AccordionItem value="loan-type">
+            <AccordionTrigger>Loan Type</AccordionTrigger>
+            <AccordionContent>
+               <div className="flex flex-col gap-2 p-2 max-h-48 overflow-y-auto">
+                {availableLoanTypes.map((type) => (
+                  <div key={type} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`type-${type}`}
+                      checked={filters.loanType.includes(type)}
+                      onCheckedChange={(checked) => handleCheckboxChange('loanType', type, !!checked)}
+                    />
+                    <Label htmlFor={`type-${type}`}>{type}</Label>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Principal Balance Filter */}
+          <AccordionItem value="balance">
+            <AccordionTrigger>Principal Balance</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex gap-2 p-2">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={filters.principalBalance.min}
+                  onChange={(e) => handleRangeChange('principalBalance', 'min', e.target.value)}
+                />
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={filters.principalBalance.max}
+                  onChange={(e) => handleRangeChange('principalBalance', 'max', e.target.value)}
+                />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+
+      <div className="p-4 border-t flex gap-2">
+        <Button variant="ghost" className="w-full" onClick={handleClear}>Reset</Button>
+        <Button className="w-full" onClick={handleApply}>Apply</Button>
+      </div>
+    </div>
   );
 }
