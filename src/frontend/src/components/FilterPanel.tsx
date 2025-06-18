@@ -110,12 +110,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ onApplyFilters }) => {
                 <SelectValue placeholder="Select a state" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All States</SelectItem>
-                <SelectItem value="CA">California</SelectItem>
                 <SelectItem value="FL">Florida</SelectItem>
-                <SelectItem value="TX">Texas</SelectItem>
                 <SelectItem value="NY">New York</SelectItem>
-                <SelectItem value="IL">Illinois</SelectItem>
+                <SelectItem value="TX">Texas</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -158,12 +155,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ onApplyFilters }) => {
                 <SelectValue placeholder="Select loan type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
-                <SelectItem value="fixed">Fixed Rate</SelectItem>
-                <SelectItem value="arm">Adjustable Rate</SelectItem>
-                <SelectItem value="jumbo">Jumbo</SelectItem>
-                <SelectItem value="fha">FHA</SelectItem>
-                <SelectItem value="va">VA</SelectItem>
+                <SelectItem value="Bridge">Bridge</SelectItem>
+                <SelectItem value="New Construction">New Construction</SelectItem>
+                <SelectItem value="Refinance">Refinance</SelectItem>
               </SelectContent>
             </Select>
           </div>
