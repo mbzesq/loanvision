@@ -1,251 +1,162 @@
 import { Router } from 'express';
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
 import ExcelJS from 'exceljs';
 import pool from '../db';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
 
 const router = Router();
 
-// Helper function to build filter query
-const buildFilterQuery = (filter?: string) => {
+// Helper function to build a WHERE clause and values for filtering
+const buildFilter = (filter?: string) => {
   if (!filter || filter.trim() === '') {
-    return { query: 'SELECT * FROM loans ORDER BY created_at DESC', params: [] };
+    return { whereClause: '', values: [] };
   }
-  
-  const searchTerm = `%${filter.toLowerCase()}%`;
-  const query = `
-    SELECT * FROM loans 
-    WHERE 
-      LOWER(servicer_loan_id) LIKE $1 OR
-      LOWER(borrower_name) LIKE $1 OR
-      LOWER(property_address) LIKE $1 OR
-      LOWER(property_city) LIKE $1 OR
-      LOWER(property_state) LIKE $1 OR
-      LOWER(legal_status) LIKE $1
-    ORDER BY created_at DESC
+
+  const searchTerm = `%${filter}%`;
+  const whereClause = `
+    WHERE
+      servicer_loan_id ILIKE $1 OR
+      borrower_name ILIKE $1 OR
+      property_address ILIKE $1 OR
+      property_city ILIKE $1 OR
+      property_state ILIKE $1 OR
+      legal_status ILIKE $1
   `;
-  
-  return { query, params: [searchTerm] };
+  return { whereClause, values: [searchTerm] };
 };
 
-// Format currency for display
-const formatCurrency = (value: any): string => {
-  const num = parseFloat(value || 0);
-  return num.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-};
+// Helper to generate a basic HTML report from loan data
+const generateHtmlReport = (loans: any[], filter?: string): string => {
+    const tableRows = loans.map(loan => `
+        <tr>
+            <td>${loan.servicer_loan_id || ''}</td>
+            <td>${loan.borrower_name || ''}</td>
+            <td>${loan.property_address || ''}</td>
+            <td>${loan.unpaid_principal_balance ? parseFloat(loan.unpaid_principal_balance).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</td>
+            <td>${loan.next_due_date ? new Date(loan.next_due_date).toLocaleDateString() : ''}</td>
+            <td>${loan.last_paid_date ? new Date(loan.last_paid_date).toLocaleDateString() : ''}</td>
+        </tr>
+    `).join('');
 
-// Format date for display
-const formatDate = (value: any): string => {
-  if (!value) return 'N/A';
-  try {
-    return new Date(value).toLocaleDateString('en-US');
-  } catch {
-    return 'N/A';
-  }
-};
-
-// PDF Export endpoint
-router.get('/reports/pdf', async (req, res) => {
-  let browser;
-  try {
-    const filter = req.query.filter as string;
-    const { query, params } = buildFilterQuery(filter);
-    const result = await pool.query(query, params);
-    const loans = result.rows;
-
-    // Generate HTML table
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          h1 { color: #333; font-size: 24px; margin-bottom: 20px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f5f5f5; font-weight: bold; }
-          tr:nth-child(even) { background-color: #f9f9f9; }
-          .info { margin-bottom: 10px; color: #666; }
-        </style>
-      </head>
-      <body>
-        <h1>Loan Portfolio Report</h1>
-        <div class="info">Generated on: ${new Date().toLocaleDateString('en-US')}</div>
-        <div class="info">Total loans: ${loans.length}</div>
-        ${filter ? `<div class="info">Filter applied: "${filter}"</div>` : ''}
-        
-        <table>
-          <thead>
-            <tr>
-              <th>Loan Number</th>
-              <th>Borrower Name</th>
-              <th>Property Address</th>
-              <th>City</th>
-              <th>State</th>
-              <th>UPB</th>
-              <th>Interest Rate</th>
-              <th>Next Due Date</th>
-              <th>Last Paid Date</th>
-              <th>Legal Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${loans.map(loan => `
-              <tr>
-                <td>${loan.servicer_loan_id || 'N/A'}</td>
-                <td>${loan.borrower_name || 'N/A'}</td>
-                <td>${loan.property_address || 'N/A'}</td>
-                <td>${loan.property_city || 'N/A'}</td>
-                <td>${loan.property_state || 'N/A'}</td>
-                <td>${formatCurrency(loan.unpaid_principal_balance)}</td>
-                <td>${loan.interest_rate ? (parseFloat(loan.interest_rate) * 100).toFixed(2) + '%' : 'N/A'}</td>
-                <td>${formatDate(loan.next_due_date)}</td>
-                <td>${formatDate(loan.last_paid_date)}</td>
-                <td>${loan.legal_status || 'N/A'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: sans-serif; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+            </style>
+        </head>
+        <body>
+            <h1>Loan Portfolio Report</h1>
+            <p><strong>Generated:</strong> ${new Date().toUTCString()}</p>
+            <p><strong>Filter Applied:</strong> ${filter || 'None'}</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Loan Number</th>
+                        <th>Borrower Name</th>
+                        <th>Property Address</th>
+                        <th>UPB</th>
+                        <th>Next Due Date</th>
+                        <th>Last Paid Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+        </body>
+        </html>
     `;
+};
 
-    // Launch puppeteer and generate PDF
-    // Final, corrected launch configuration for server environment
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
-    const page = await browser.newPage();
-    await page.setContent(html);
-    const pdf = await page.pdf({
-      format: 'A4',
-      landscape: true,
-      margin: { top: 20, right: 20, bottom: 20, left: 20 }
-    });
 
-    // Set response headers for file download
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="loan_report_${new Date().toISOString().split('T')[0]}.pdf"`);
-    res.send(pdf);
+// --- PDF EXPORT ENDPOINT ---
+router.get('/reports/pdf', async (req, res) => {
+    const filter = req.query.filter as string | undefined;
+    let browser = null;
 
-  } catch (error) {
-    console.error('Error generating PDF report:', error);
-    res.status(500).json({ error: 'Failed to generate PDF report' });
-  } finally {
-    if (browser) {
-      await browser.close();
+    try {
+        const { whereClause, values } = buildFilter(filter);
+        const query = `SELECT * FROM loans ${whereClause} ORDER BY created_at DESC`;
+        const result = await pool.query(query, values);
+
+        // Correct, minimal launch configuration
+        browser = await puppeteer.launch({
+            args: chromium.args,
+            executablePath: await chromium.executablePath(),
+            headless: true,
+        });
+
+        const page = await browser.newPage();
+        const htmlContent = generateHtmlReport(result.rows, filter);
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+        
+        const pdfBuffer = await page.pdf({ format: 'A4', landscape: true });
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=loan-report-${Date.now()}.pdf`);
+        res.send(pdfBuffer);
+
+    } catch (error) {
+        console.error('Error generating PDF report:', error);
+        res.status(500).send('Error generating PDF report');
+    } finally {
+        if (browser) {
+            await browser.close();
+        }
     }
-  }
 });
 
-// Excel Export endpoint
+
+// --- EXCEL EXPORT ENDPOINT ---
 router.get('/reports/excel', async (req, res) => {
-  try {
-    const filter = req.query.filter as string;
-    const { query, params } = buildFilterQuery(filter);
-    const result = await pool.query(query, params);
-    const loans = result.rows;
+    const filter = req.query.filter as string | undefined;
+    try {
+        const { whereClause, values } = buildFilter(filter);
+        const query = `SELECT * FROM loans ${whereClause} ORDER BY created_at DESC`;
+        const result = await pool.query(query, values);
 
-    // Create workbook and worksheet
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Loan Portfolio');
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'LoanVision';
+        workbook.created = new Date();
+        
+        const worksheet = workbook.addWorksheet('Loans');
 
-    // Add title and metadata
-    worksheet.mergeCells('A1:J1');
-    worksheet.getCell('A1').value = 'Loan Portfolio Report';
-    worksheet.getCell('A1').font = { size: 16, bold: true };
-    worksheet.getCell('A1').alignment = { horizontal: 'center' };
+        worksheet.columns = [
+            { header: 'Loan Number', key: 'servicer_loan_id', width: 15 },
+            { header: 'Borrower Name', key: 'borrower_name', width: 30 },
+            { header: 'Property Address', key: 'property_address', width: 40 },
+            { header: 'UPB', key: 'unpaid_principal_balance', width: 15, style: { numFmt: '$#,##0.00' } },
+            { header: 'Interest Rate', key: 'interest_rate', width: 12, style: { numFmt: '0.00%' } },
+            { header: 'Next Due Date', key: 'next_due_date', width: 15, style: { numFmt: 'yyyy-mm-dd' } },
+            { header: 'Last Paid Date', key: 'last_paid_date', width: 15, style: { numFmt: 'yyyy-mm-dd' } },
+            { header: 'Legal Status', key: 'legal_status', width: 15 },
+        ];
 
-    worksheet.getCell('A2').value = `Generated on: ${new Date().toLocaleDateString('en-US')}`;
-    worksheet.getCell('A3').value = `Total loans: ${loans.length}`;
-    if (filter) {
-      worksheet.getCell('A4').value = `Filter applied: "${filter}"`;
+        result.rows.forEach(loan => {
+            worksheet.addRow({
+                ...loan,
+                unpaid_principal_balance: loan.unpaid_principal_balance ? parseFloat(loan.unpaid_principal_balance) : null,
+                interest_rate: loan.interest_rate ? parseFloat(loan.interest_rate) : null,
+                next_due_date: loan.next_due_date ? new Date(loan.next_due_date) : null,
+                last_paid_date: loan.last_paid_date ? new Date(loan.last_paid_date) : null,
+            });
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=loan-report-${Date.now()}.xlsx`);
+
+        await workbook.xlsx.write(res);
+        res.end();
+
+    } catch (error) {
+        console.error('Error generating Excel report:', error);
+        res.status(500).send('Error generating Excel report');
     }
-
-    // Define columns
-    worksheet.columns = [
-      { header: 'Loan Number', key: 'servicer_loan_id', width: 15 },
-      { header: 'Borrower Name', key: 'borrower_name', width: 25 },
-      { header: 'Property Address', key: 'property_address', width: 30 },
-      { header: 'City', key: 'property_city', width: 15 },
-      { header: 'State', key: 'property_state', width: 10 },
-      { header: 'UPB', key: 'unpaid_principal_balance', width: 15 },
-      { header: 'Interest Rate', key: 'interest_rate', width: 12 },
-      { header: 'Next Due Date', key: 'next_due_date', width: 15 },
-      { header: 'Last Paid Date', key: 'last_paid_date', width: 15 },
-      { header: 'Legal Status', key: 'legal_status', width: 15 }
-    ];
-
-    // Add header row (skip rows used for title and metadata)
-    const headerRow = worksheet.addRow([]);
-    worksheet.addRow([]);
-    if (filter) worksheet.addRow([]);
-    worksheet.addRow([]);
-    
-    const headers = worksheet.addRow([
-      'Loan Number',
-      'Borrower Name',
-      'Property Address',
-      'City',
-      'State',
-      'UPB',
-      'Interest Rate',
-      'Next Due Date',
-      'Last Paid Date',
-      'Legal Status'
-    ]);
-    
-    // Style header row
-    headers.font = { bold: true };
-    headers.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFE0E0E0' }
-    };
-
-    // Add data rows
-    loans.forEach(loan => {
-      const row = worksheet.addRow({
-        servicer_loan_id: loan.servicer_loan_id || 'N/A',
-        borrower_name: loan.borrower_name || 'N/A',
-        property_address: loan.property_address || 'N/A',
-        property_city: loan.property_city || 'N/A',
-        property_state: loan.property_state || 'N/A',
-        unpaid_principal_balance: loan.unpaid_principal_balance ? parseFloat(loan.unpaid_principal_balance) : 0,
-        interest_rate: loan.interest_rate ? parseFloat(loan.interest_rate) : 0,
-        next_due_date: loan.next_due_date || 'N/A',
-        last_paid_date: loan.last_paid_date || 'N/A',
-        legal_status: loan.legal_status || 'N/A'
-      });
-
-      // Format currency cell
-      const upbCell = row.getCell('unpaid_principal_balance');
-      upbCell.numFmt = '$#,##0';
-
-      // Format percentage cell
-      const rateCell = row.getCell('interest_rate');
-      rateCell.numFmt = '0.00%';
-    });
-
-    // Generate Excel buffer
-    const buffer = await workbook.xlsx.writeBuffer();
-
-    // Set response headers for file download
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="loan_report_${new Date().toISOString().split('T')[0]}.xlsx"`);
-    res.send(buffer);
-
-  } catch (error) {
-    console.error('Error generating Excel report:', error);
-    res.status(500).json({ error: 'Failed to generate Excel report' });
-  }
 });
 
 export default router;
