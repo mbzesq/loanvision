@@ -1,11 +1,9 @@
-# LoanVision Project State - 2025-06-17 #
+# LoanVision Project State - 2025-06-18
 
-## 1. High-Level Objective ##
-
-To build a SaaS platform for ingesting, enriching, and analyzing non-performing mortgage loan portfolios. The core idea is to provide automated data cleaning, enrichment, and an AI-powered query interface##
+## 1. High-Level Objective
+To build a SaaS platform for ingesting, enriching, and analyzing non-performing mortgage loan portfolios. The core idea is to provide automated data cleaning, enrichment, and an AI-powered query interface.
 
 ## 2. Core Technology Stack
-
 - Backend: Node.js with Express, TypeScript
 
 - Frontend: React with Vite, TypeScript
@@ -17,8 +15,7 @@ To build a SaaS platform for ingesting, enriching, and analyzing non-performing 
 - Code Repository: GitHub (https://github.com/mbzesq/loanvision)
 
 ## 3. Current Deployed State (What Works)
-
-The application is successfully deployed on Render and the following features are confirmed to be working on the live URLs:
+- The application is successfully deployed on Render and the following features are confirmed to be working on the live URLs:
 
 - Robust Data Ingestion: The POST /api/upload endpoint successfully parses real-world CSV/Excel files, handling data cleaning and saving records to the database.
 
@@ -30,10 +27,9 @@ The application is successfully deployed on Render and the following features ar
 
 - V1 Dashboard: The homepage (/) displays live portfolio summary cards for Total UPB, Loan Count, and Average Balance, with working links to other pages.
 
-- Excel Export: The "Download as Excel" feature works correctly from the Loan Explorer, respecting any active filters.
+- Report Exporting: The "Download as Excel" and "Download as PDF" features work correctly from the Loan Explorer.
 
 ## 4. Evergreen Rules & Guardrails for the AI
-
 This section contains the permanent rules of our project. These rules must be followed in every session to ensure consistency and prevent repeating past errors.
 
 **Workflow Rules:**
@@ -42,13 +38,13 @@ This section contains the permanent rules of our project. These rules must be fo
 
 - Human-in-the-Loop: A human project lead (Gemini) oversees the process, provides high-level feature instructions, and performs a final code review before commits are pushed by the AI engineer (Claude Code).
 
-- Single Source of Truth: This claude.md document is the definitive record of the project's state.
+- Single Source of Truth: This project state document is the definitive record of the project's state.
 
 **Technical Guardrails:**
 
-- Final Action: After completing a development task, you must commit the changes and push them to the main branch on GitHub.
+- **Final Action:** After completing a development task, you must commit the changes and push them to the main branch on GitHub.
 
-- Render Backend (loanvision-backend):
+- **Render Backend (loanvision-backend):**
 
   - Root Directory: Must be blank.
 
@@ -56,7 +52,7 @@ This section contains the permanent rules of our project. These rules must be fo
 
   - Start Command: npm start --workspace=@loanvision/backend
 
-- Render Frontend (loanvision-frontend):
+- **Render Frontend (loanvision-frontend):**
 
   - Root Directory: Must be blank.
 
@@ -66,32 +62,47 @@ This section contains the permanent rules of our project. These rules must be fo
 
   - Rewrite Rule: A rewrite rule for /* to /index.html is required for client-side routing.
 
-**Database Schema:** All schema changes must be performed using the psql command-line tool, as graphical clients (pgAdmin, DBeaver) have proven unreliable on the local machine. All schema changes must be done via a complete DROP and CREATE script to ensure a clean state.
+- **Database Schema:** All schema changes must be performed using the psql command-line tool. All schema changes must be done via a complete DROP and CREATE script to ensure a clean state.
 
 ## 5. Last Session Summary
-
-- Successfully debugged and fixed the entire data ingestion pipeline, adding robust handling for real-world Excel/CSV data, including currency, percentage, and Excel's serial number date formats.
-
-- Implemented and deployed the interactive Loan Explorer table, the Loan Detail Modal, and the Dashboard V1.
-
-- Implemented and verified the "Export to Excel" feature.
-
-- Diagnosed that the "Export to PDF" feature is failing with a Could not find Chrome error on the Render server.
+Attempted to implement the initial UI shell for the new FilterPanel component using shadcn/ui components. This action introduced new dependencies and configurations which have resulted in a frontend build failure in the deployment environment. The initial failure was a PostCSS/Tailwind configuration issue, which was fixed, only to reveal a subsequent module resolution error.
 
 ## 6. Immediate Next Task
+- Fix the Frontend Build Path Resolution Error.
 
-- To fix the PDF export feature.
+- The deployment is currently failing with a Vite/Rollup error: Rollup failed to resolve import "@loanvision/shared/components/ui/card" from "/opt/render/project/src/src/frontend/src/components/FilterPanel.tsx".
 
-- The plan is to refactor the backend to stop using the default puppeteer package and instead use the combination of puppeteer-core and @sparticuz/chromium, which is designed for serverless/cloud environments. This will involve updating dependencies and changing the puppeteer.launch() configuration in src/backend/src/routes/reports.ts.
+- This indicates the frontend application cannot locate the shadcn/ui components that were installed in the @loanvision/shared workspace. The immediate task is to fix this by adding a path alias to the src/frontend/vite.config.ts file, enabling the build process to correctly resolve imports from the shared directory.
 
 ## 7. Future Roadmap
+**Phase 1: "Now" - Implement Loan Explorer V1 Filters**
 
-This section outlines the next major features to be built after the immediate task is complete.
+- (Currently Blocked by Build Error)
 
-- Data Enrichment Engine: Revisit and fix the postponed automatic AVM enrichment feature.
+- Build the FilterPanel UI shell using shadcn/ui.
 
-- LLM Assistant V1: Integrate with an LLM API and build the chat interface to allow natural language queries about the portfolio.
+- Implement state management within the FilterPanel component.
 
-- UI/UX Polish: Begin integrating a professional component library (e.g., ShadCN/UI) and applying consistent Tailwind CSS styling to align with final designs.
+- Connect the FilterPanel state to the LoanExplorerPage to perform real-time data filtering on the TanStack Table.
 
-- User Authentication: Add a full user login/logout system to make the platform secure and multi-tenant.
+- Ensure report exporting respects all active filters.
+
+**Phase 2: "Next" - Enhanced Insights & UX**
+
+- Calculated & Derived Insights: Enhance the frontend and backend to filter on calculated fields (e.g., "loans with less than 50% equity").
+
+- UI/UX Polish: Continue integrating shadcn/ui to create a polished and consistent design system.
+
+- Data Enrichment Engine: Revisit and productionize the AVM enrichment feature.
+
+- Smart Search V1: Introduce a keyword-based search bar as a precursor to full natural language search.
+
+**Phase 3: "Later" - Intelligent Platform & Automation**
+
+- LLM Assistant (True Natural Language Search): Integrate with an LLM API for conversational portfolio queries.
+
+- Workflow & Action Management: Build features for assigning tasks, leaving notes, and tracking loan workout status.
+
+- Strategic Recommendations & Alerts: Create a system to proactively flag loans and alert users to critical events.
+
+- User Authentication: Implement a full user login/logout system.
