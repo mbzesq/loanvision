@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
 import FilterSheet, { FilterSheetValues } from '../components/FilterSheet';
 import { Input } from '@loanvision/shared/components/ui/input';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@loanvision/shared/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@loanvision/shared/components/ui/sheet';
 import { Button } from '@loanvision/shared/components/ui/button';
 import {
   createColumnHelper,
@@ -243,12 +243,24 @@ function LoanExplorerPage() {
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
         <div className="flex items-center gap-2">
-          <Button onClick={() => {
-            console.log('Filter button clicked!');
-            setSheetOpen(true);
-          }}>
-            Filter
-          </Button>
+          <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger asChild>
+              <Button onClick={() => {
+                console.log('Filter button clicked!');
+              }}>
+                Filter
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="bg-white border-l border-gray-200 shadow-lg" style={{ backgroundColor: 'white', zIndex: 9999 }}>
+              <SheetHeader>
+                <SheetTitle className="text-gray-900">Filter Loans</SheetTitle>
+                <SheetDescription className="text-gray-600">
+                  Apply filters to find specific loans in your portfolio.
+                </SheetDescription>
+              </SheetHeader>
+              <FilterSheet onApplyFilters={handleApplyFilters} />
+            </SheetContent>
+          </Sheet>
           <div style={{ position: 'relative' }}>
           <button
             onClick={() => setShowExportDropdown(!showExportDropdown)}
@@ -393,18 +405,6 @@ function LoanExplorerPage() {
           onClose={() => setSelectedLoanId(null)} 
         />
       )}
-
-      <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="bg-white border-l border-gray-200 shadow-lg" style={{ backgroundColor: 'white', zIndex: 9999 }}>
-          <SheetHeader>
-            <SheetTitle className="text-gray-900">Filter Loans</SheetTitle>
-            <SheetDescription className="text-gray-600">
-              Apply filters to find specific loans in your portfolio.
-            </SheetDescription>
-          </SheetHeader>
-          <FilterSheet onApplyFilters={handleApplyFilters} />
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
