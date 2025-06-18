@@ -78,6 +78,16 @@ function LoanExplorerPage() {
     fetchLoans();
   }, []);
 
+  const uniqueStates = useMemo(() => {
+    const states = new Set(loans?.map(loan => loan.property_state).filter(Boolean) ?? []);
+    return Array.from(states).sort();
+  }, [loans]);
+
+  const uniqueLoanTypes = useMemo(() => {
+    const types = new Set(loans?.map(loan => loan.legal_status).filter(Boolean) ?? []);
+    return Array.from(types).sort();
+  }, [loans]);
+
   const columns = useMemo(
     () => [
       columnHelper.accessor('servicer_loan_id', {
@@ -258,7 +268,11 @@ function LoanExplorerPage() {
                   Apply filters to find specific loans in your portfolio.
                 </SheetDescription>
               </SheetHeader>
-              <FilterSheet onApplyFilters={handleApplyFilters} />
+              <FilterSheet 
+                onApplyFilters={handleApplyFilters} 
+                availableStates={uniqueStates}
+                availableLoanTypes={uniqueLoanTypes}
+              />
             </SheetContent>
           </Sheet>
           <div style={{ position: 'relative' }}>
