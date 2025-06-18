@@ -4,7 +4,10 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
-import FilterPanel, { FilterValues } from '../components/FilterPanel';
+import FilterSheet, { FilterSheetValues } from '../components/FilterSheet';
+import { Input } from '@loanvision/shared/components/ui/input';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@loanvision/shared/components/ui/sheet';
+import { Button } from '@loanvision/shared/components/ui/button';
 import {
   createColumnHelper,
   flexRender,
@@ -44,8 +47,9 @@ function LoanExplorerPage() {
   const [globalFilter, setGlobalFilter] = useState('');
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [isSheetOpen, setSheetOpen] = useState(false);
 
-  const handleApplyFilters = (filters: FilterValues) => {
+  const handleApplyFilters = (filters: FilterSheetValues) => {
     console.log('Filters applied from parent:', filters);
     // Filtering logic will be added here in a future step
   };
@@ -224,25 +228,20 @@ function LoanExplorerPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Loan Explorer</h1>
       
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-        <div className="lg:col-span-1">
-          <FilterPanel onApplyFilters={handleApplyFilters} />
-        </div>
-        <div className="lg:col-span-3">
-          <div style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <input
-          type="text"
+      <div className="flex items-center justify-between mb-4">
+        <Input 
+          placeholder="Search loans..." 
+          className="max-w-sm"
           value={globalFilter ?? ''}
-          onChange={e => setGlobalFilter(e.target.value)}
-          placeholder="Search loans..."
-          style={{
-            padding: '8px 12px',
-            fontSize: '14px',
-            width: '300px',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-          }}
+          onChange={(e) => setGlobalFilter(e.target.value)}
         />
+        <Button onClick={() => setSheetOpen(true)}>
+          Filter
+        </Button>
+      </div>
+
+      <div className="flex items-center justify-between mb-4">
+        <p>Total loans: {table.getFilteredRowModel().rows.length} of {loans.length}</p>
         
         <div style={{ position: 'relative' }}>
           <button
@@ -317,8 +316,6 @@ function LoanExplorerPage() {
           )}
         </div>
       </div>
-
-      <p>Total loans: {table.getFilteredRowModel().rows.length} of {loans.length}</p>
       
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
         <thead>
@@ -379,14 +376,24 @@ function LoanExplorerPage() {
         </p>
       )}
       
-          {selectedLoanId && (
-            <LoanDetailModal 
-              loanId={selectedLoanId} 
-              onClose={() => setSelectedLoanId(null)} 
-            />
-          )}
-        </div>
-      </div>
+      {selectedLoanId && (
+        <LoanDetailModal 
+          loanId={selectedLoanId} 
+          onClose={() => setSelectedLoanId(null)} 
+        />
+      )}
+
+      <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Filter Loans</SheetTitle>
+            <SheetDescription>
+              Apply filters to find specific loans in your portfolio.
+            </SheetDescription>
+          </SheetHeader>
+          <FilterSheet onApplyFilters={handleApplyFilters} />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
