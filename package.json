@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.10",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
