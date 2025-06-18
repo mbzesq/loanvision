@@ -1,56 +1,97 @@
-# LoanVision Project State - 2025-06-17
+# LoanVision Project State - 2025-06-17 #
 
-## 1. High-Level Objective
-To build a SaaS platform for ingesting, enriching, and analyzing non-performing mortgage loan portfolios. The core idea is to provide automated data cleaning, enrichment, and an AI-powered query interface.
+## 1. High-Level Objective ##
+
+To build a SaaS platform for ingesting, enriching, and analyzing non-performing mortgage loan portfolios. The core idea is to provide automated data cleaning, enrichment, and an AI-powered query interface##
 
 ## 2. Core Technology Stack
-- **Backend:** Node.js with Express, TypeScript
-- **Frontend:** React with Vite, TypeScript
-- **Database:** PostgreSQL
-- **Deployment:** Render (as separate Backend and Frontend services from a monorepo)
-- **Code Repository:** GitHub (https://github.com/mbzesq/loanvision)
+
+- Backend: Node.js with Express, TypeScript
+
+- Frontend: React with Vite, TypeScript
+
+- Database: PostgreSQL
+
+- Deployment: Render (as separate Backend and Frontend services from a monorepo)
+
+- Code Repository: GitHub (https://github.com/mbzesq/loanvision)
 
 ## 3. Current Deployed State (What Works)
+
 The application is successfully deployed on Render and the following features are confirmed to be working on the live URLs:
 
-- **Robust Data Ingestion:** The `POST /api/upload` endpoint successfully parses real-world CSV/Excel files. It correctly handles complex data cleaning for currency (removing $, ,), percentages (converting to decimal), and various date formats (including Excel serial numbers).
-- **Core Data Endpoints:** The backend provides working endpoints to get all loans (`/api/loans`) and a single loan by its servicer ID (`/api/loans/:loanId`).
-- **Interactive Loan Explorer:** The `/loans` page successfully fetches and displays all loans in a powerful data grid powered by TanStack Table, featuring client-side sorting and global text filtering.
-- **Loan Detail Modal:** Clicking any loan row in the explorer opens a modal dialog that fetches and displays the complete data for that specific loan.
-- **V1 Dashboard:** The homepage (`/`) displays live portfolio summary cards for Total UPB, Loan Count, and Average Balance, with working links to other pages.
-- **Excel Export:** The "Download as Excel" feature works correctly from the Loan Explorer, respecting any active filters.
+- Robust Data Ingestion: The POST /api/upload endpoint successfully parses real-world CSV/Excel files, handling data cleaning and saving records to the database.
 
-## 4. Key Architectural Decisions (Our Workflow)
-- **Production-First:** Every new feature is built, deployed to a live URL, and tested by the project lead before moving to the next.
-- **Monorepo Structure:** The project uses npm workspaces for backend, frontend, and shared packages to ensure code organization and type safety.
-- **Human-in-the-Loop:** A human project lead (Gemini) oversees the process, provides high-level feature instructions, and performs a final code review before commits are pushed by the AI engineer (Claude Code). This is our primary method for preventing deployment failures.
+- Core Data Endpoints: The backend provides working endpoints to get all loans (/api/loans) and a single loan by its servicer ID (/api/loans/:loanId).
 
-## 5. Critical Configurations (Guardrails for the AI)
-These settings were discovered through extensive debugging and must be respected:
+- Interactive Loan Explorer: The /loans page successfully fetches and displays all loans in a powerful data grid powered by TanStack Table, featuring client-side sorting and global text filtering.
 
-**Render Backend (loanvision-backend):**
-- Root Directory: Must be blank.
-- Build Command: `npm install && npm run build --workspace=@loanvision/shared && npm run build --workspace=@loanvision/backend`
-- Start Command: `npm start --workspace=@loanvision/backend`
+- Loan Detail Modal: Clicking any loan row in the explorer opens a modal dialog that fetches and displays the complete data for that specific loan.
 
-**Render Frontend (loanvision-frontend):**
-- Root Directory: Must be blank.
-- Build Command: `npm install && npm run build --workspace=@loanvision/shared && npm run build --workspace=@loanvision/frontend`
-- Publish Directory: `src/frontend/dist`
-- Rewrite Rule: Source: `/*, Destination: /index.html` must be in place for client-side routing.
+- V1 Dashboard: The homepage (/) displays live portfolio summary cards for Total UPB, Loan Count, and Average Balance, with working links to other pages.
 
-**Database Schema:** All schema changes must be performed using the psql command-line tool, as graphical clients have proven unreliable. The final `database_reset_complete.sql` script is the source of truth for the schema.
+- Excel Export: The "Download as Excel" feature works correctly from the Loan Explorer, respecting any active filters.
 
-## 6. Last Session Summary
-In this session, we successfully implemented several major features that significantly enhanced the LoanVision platform:
+## 4. Evergreen Rules & Guardrails for the AI
 
-We first disabled the broken enrichment job to prioritize UI interactivity, then upgraded the Loan Explorer with TanStack Table to provide powerful sorting and real-time global filtering capabilities. This transformed the static table into a fully interactive data grid.
+This section contains the permanent rules of our project. These rules must be followed in every session to ensure consistency and prevent repeating past errors.
 
-We then implemented the V1 Dashboard feature with a new `/api/portfolio/summary` endpoint that calculates key portfolio statistics (loan count, total UPB, average balance) and displays them in professional summary cards on the homepage. We also fixed a critical routing bug by replacing `<a>` tags with React Router's `<Link>` components to enable proper client-side navigation.
+**Workflow Rules:**
 
-Finally, we implemented the comprehensive reporting feature with both PDF and Excel export functionality. This included creating a new `/api/reports/pdf` and `/api/reports/excel` endpoints with intelligent filtering capabilities that respect the user's current search terms. On the frontend, we added a polished Export dropdown button to the Loan Explorer that allows users to download their filtered data in either format. The Excel export is fully functional, while the PDF export has been implemented but may require serverless-compatible adjustments for production deployment.
+- Production-First: Every new feature is built, deployed to a live URL, and tested by the project lead before moving on. We do not batch features locally.
 
-## 7. Immediate Next Task
-The next priority is to fix the PDF export feature, which is likely to fail in the Render production environment due to Chrome/Chromium dependencies.
+- Human-in-the-Loop: A human project lead (Gemini) oversees the process, provides high-level feature instructions, and performs a final code review before commits are pushed by the AI engineer (Claude Code).
 
-The plan is to refactor the backend to stop using the default `puppeteer` package and instead use the combination of `puppeteer-core` and `@sparticuz/chromium`, which is designed for serverless/cloud environments. This will involve updating dependencies and changing the `puppeteer.launch()` configuration in `src/backend/src/routes/reports.ts` to use the serverless-compatible Chromium binary.
+- Single Source of Truth: This claude.md document is the definitive record of the project's state.
+
+**Technical Guardrails:**
+
+- Final Action: After completing a development task, you must commit the changes and push them to the main branch on GitHub.
+
+- Render Backend (loanvision-backend):
+
+  - Root Directory: Must be blank.
+
+  - Build Command: npm install && npm run build --workspace=@loanvision/shared && npm run build --workspace=@loanvision/backend
+
+  - Start Command: npm start --workspace=@loanvision/backend
+
+- Render Frontend (loanvision-frontend):
+
+  - Root Directory: Must be blank.
+
+  - Build Command: npm install && npm run build --workspace=@loanvision/shared && npm run build --workspace=@loanvision/frontend
+
+  - Publish Directory: src/frontend/dist
+
+  - Rewrite Rule: A rewrite rule for /* to /index.html is required for client-side routing.
+
+**Database Schema:** All schema changes must be performed using the psql command-line tool, as graphical clients (pgAdmin, DBeaver) have proven unreliable on the local machine. All schema changes must be done via a complete DROP and CREATE script to ensure a clean state.
+
+## 5. Last Session Summary
+
+- Successfully debugged and fixed the entire data ingestion pipeline, adding robust handling for real-world Excel/CSV data, including currency, percentage, and Excel's serial number date formats.
+
+- Implemented and deployed the interactive Loan Explorer table, the Loan Detail Modal, and the Dashboard V1.
+
+- Implemented and verified the "Export to Excel" feature.
+
+- Diagnosed that the "Export to PDF" feature is failing with a Could not find Chrome error on the Render server.
+
+## 6. Immediate Next Task
+
+- To fix the PDF export feature.
+
+- The plan is to refactor the backend to stop using the default puppeteer package and instead use the combination of puppeteer-core and @sparticuz/chromium, which is designed for serverless/cloud environments. This will involve updating dependencies and changing the puppeteer.launch() configuration in src/backend/src/routes/reports.ts.
+
+## 7. Future Roadmap
+
+This section outlines the next major features to be built after the immediate task is complete.
+
+- Data Enrichment Engine: Revisit and fix the postponed automatic AVM enrichment feature.
+
+- LLM Assistant V1: Integrate with an LLM API and build the chat interface to allow natural language queries about the portfolio.
+
+- UI/UX Polish: Begin integrating a professional component library (e.g., ShadCN/UI) and applying consistent Tailwind CSS styling to align with final designs.
+
+- User Authentication: Add a full user login/logout system to make the platform secure and multi-tenant.
