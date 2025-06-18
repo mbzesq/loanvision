@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
-import FilterPanel from '../components/FilterPanel';
+import FilterPanel, { FilterValues } from '../components/FilterPanel';
 import {
   createColumnHelper,
   flexRender,
@@ -44,6 +44,11 @@ function LoanExplorerPage() {
   const [globalFilter, setGlobalFilter] = useState('');
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [exporting, setExporting] = useState(false);
+
+  const handleApplyFilters = (filters: FilterValues) => {
+    console.log('Filters applied from parent:', filters);
+    // Filtering logic will be added here in a future step
+  };
 
   useEffect(() => {
     const fetchLoans = async () => {
@@ -221,7 +226,7 @@ function LoanExplorerPage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
         <div className="lg:col-span-1">
-          <FilterPanel />
+          <FilterPanel onApplyFilters={handleApplyFilters} />
         </div>
         <div className="lg:col-span-3">
           <div style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
