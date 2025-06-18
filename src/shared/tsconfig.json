@@ -8,7 +8,12 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "composite": true
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@loanvision/shared/*": ["src/*"]
+    }
   },
-  "include": ["src/**/*"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }
