@@ -21,7 +21,10 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
+    "@radix-ui/react-label": "^2.1.7",
+    "class-variance-authority": "^0.7.1",
     "date-fns": "^4.1.0",
-    "lucide-react": "^0.517.0"
+    "lucide-react": "^0.517.0",
+    "tailwindcss-animate": "^1.0.7"
   }
 }
