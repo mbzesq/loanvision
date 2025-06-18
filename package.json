@@ -19,5 +19,9 @@
     "@tailwindcss/postcss": "^4.1.10",
     "concurrently": "^8.2.2",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.517.0"
   }
 }
