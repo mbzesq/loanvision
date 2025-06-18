@@ -49,6 +49,13 @@ function LoanExplorerPage() {
   const [exporting, setExporting] = useState(false);
   const [isSheetOpen, setSheetOpen] = useState(false);
 
+  useEffect(() => {
+    console.log('isSheetOpen state changed to:', isSheetOpen);
+    if (isSheetOpen) {
+      console.log('Sheet should be visible now');
+    }
+  }, [isSheetOpen]);
+
   const handleApplyFilters = (filters: FilterSheetValues) => {
     console.log('Filters applied from parent:', filters);
     // Filtering logic will be added here in a future step
@@ -235,7 +242,10 @@ function LoanExplorerPage() {
           value={globalFilter ?? ''}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
-        <Button onClick={() => setSheetOpen(true)}>
+        <Button onClick={() => {
+          console.log('Filter button clicked!');
+          setSheetOpen(true);
+        }}>
           Filter
         </Button>
       </div>
@@ -384,10 +394,10 @@ function LoanExplorerPage() {
       )}
 
       <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent>
+        <SheetContent className="bg-white border-l border-gray-200 shadow-lg" style={{ backgroundColor: 'white', zIndex: 9999 }}>
           <SheetHeader>
-            <SheetTitle>Filter Loans</SheetTitle>
-            <SheetDescription>
+            <SheetTitle className="text-gray-900">Filter Loans</SheetTitle>
+            <SheetDescription className="text-gray-600">
               Apply filters to find specific loans in your portfolio.
             </SheetDescription>
           </SheetHeader>
