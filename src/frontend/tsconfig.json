@@ -15,9 +15,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@loanvision/shared": ["../../shared/src"]
+      "@loanvision/shared/*": ["../shared/src/*"]
     }
   },
   "include": ["src"],
