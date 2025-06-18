@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
-import { FilterPanel, FilterValues } from '../components/FilterPanel';
+import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { Input } from '@loanvision/shared/components/ui/input';
 import {
   createColumnHelper,
@@ -45,10 +45,10 @@ function LoanExplorerPage() {
   const [globalFilter, setGlobalFilter] = useState('');
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<FilterValues>(initialFilters);
 
   const handleApplyFilters = (filters: FilterValues) => {
-    console.log('Filters applied from parent:', filters);
-    // Filtering logic will be added here in a future step
+    setActiveFilters(filters);
   };
 
   useEffect(() => {
@@ -77,6 +77,35 @@ function LoanExplorerPage() {
     const statuses = new Set(loans?.map(loan => loan.legal_status).filter(Boolean) ?? []);
     return Array.from(statuses).sort();
   }, [loans]);
+
+  const filteredData = useMemo(() => {
+    if (!loans) return []; // Return empty array if loans is not yet loaded
+
+    return loans.filter(loan => {
+      const { propertyState, loanType, principalBalance } = activeFilters;
+
+      // State filter
+      if (propertyState.length > 0 && !propertyState.includes(loan.property_state)) {
+        return false;
+      }
+
+      // Loan type filter
+      if (loanType.length > 0 && !loanType.includes(loan.legal_status)) {
+        return false;
+      }
+
+      // Principal balance filter
+      const loanBalance = parseFloat(loan.unpaid_principal_balance) || 0;
+      const minBalance = principalBalance.min !== '' ? principalBalance.min : -Infinity;
+      const maxBalance = principalBalance.max !== '' ? principalBalance.max : Infinity;
+
+      if (loanBalance < minBalance || loanBalance > maxBalance) {
+        return false;
+      }
+
+      return true; // If all checks pass, include the loan
+    });
+  }, [loans, activeFilters]);
 
   const columns = useMemo(
     () => [
@@ -139,7 +168,7 @@ function LoanExplorerPage() {
   );
 
   const table = useReactTable({
-    data: loans,
+    data: filteredData ?? [],
     columns,
     state: {
       sorting,

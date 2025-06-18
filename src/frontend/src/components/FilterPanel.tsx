@@ -27,7 +27,7 @@ interface FilterPanelProps {
 }
 
 // Define the initial state for the filters
-const initialFilters: FilterValues = {
+export const initialFilters: FilterValues = {
   propertyState: [],
   loanType: [],
   principalBalance: { min: '', max: '' },
@@ -77,7 +77,7 @@ export function FilterPanel({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full border rounded-lg">
       <div className="p-4 border-b">
         <h2 className="text-lg font-semibold">Filter Criteria</h2>
       </div>
