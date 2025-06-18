@@ -242,18 +242,14 @@ function LoanExplorerPage() {
           value={globalFilter ?? ''}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
-        <Button onClick={() => {
-          console.log('Filter button clicked!');
-          setSheetOpen(true);
-        }}>
-          Filter
-        </Button>
-      </div>
-
-      <div className="flex items-center justify-between mb-4">
-        <p>Total loans: {table.getFilteredRowModel().rows.length} of {loans.length}</p>
-        
-        <div style={{ position: 'relative' }}>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => {
+            console.log('Filter button clicked!');
+            setSheetOpen(true);
+          }}>
+            Filter
+          </Button>
+          <div style={{ position: 'relative' }}>
           <button
             onClick={() => setShowExportDropdown(!showExportDropdown)}
             disabled={exporting}
@@ -324,7 +320,12 @@ function LoanExplorerPage() {
               </button>
             </div>
           )}
+          </div>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-4">
+        <p>Total loans: {table.getFilteredRowModel().rows.length} of {loans.length}</p>
       </div>
       
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
