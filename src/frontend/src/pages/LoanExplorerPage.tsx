@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
-import FilterPanel, { FilterPanelValues } from '../components/FilterPanel';
+import { FilterPanel, FilterValues } from '../components/FilterPanel';
 import { Input } from '@loanvision/shared/components/ui/input';
 import {
   createColumnHelper,
@@ -46,7 +46,7 @@ function LoanExplorerPage() {
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  const handleApplyFilters = (filters: FilterPanelValues) => {
+  const handleApplyFilters = (filters: FilterValues) => {
     console.log('Filters applied from parent:', filters);
     // Filtering logic will be added here in a future step
   };
@@ -73,9 +73,9 @@ function LoanExplorerPage() {
     return Array.from(states).sort();
   }, [loans]);
 
-  const uniqueLoanTypes = useMemo(() => {
-    const types = new Set(loans?.map(loan => loan.legal_status).filter(Boolean) ?? []);
-    return Array.from(types).sort();
+  const uniqueLegalStatuses = useMemo(() => {
+    const statuses = new Set(loans?.map(loan => loan.legal_status).filter(Boolean) ?? []);
+    return Array.from(statuses).sort();
   }, [loans]);
 
   const columns = useMemo(
@@ -241,7 +241,7 @@ function LoanExplorerPage() {
           <FilterPanel 
             onApplyFilters={handleApplyFilters} 
             availableStates={uniqueStates}
-            availableLoanTypes={uniqueLoanTypes}
+            availableLegalStatuses={uniqueLegalStatuses}
           />
         </div>
         
