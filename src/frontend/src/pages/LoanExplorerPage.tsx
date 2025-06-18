@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
 import {
   createColumnHelper,
@@ -138,19 +140,69 @@ function LoanExplorerPage() {
     setShowExportDropdown(false);
     
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const endpoint = format === 'pdf' ? '/api/reports/pdf' : '/api/reports/excel';
-      const params = globalFilter ? `?filter=${encodeURIComponent(globalFilter)}` : '';
-      
-      const response = await axios.get(`${apiUrl}${endpoint}${params}`, {
-        responseType: 'blob'
-      });
-      
-      const filename = format === 'pdf' 
-        ? `loan_report_${new Date().toISOString().split('T')[0]}.pdf`
-        : `loan_report_${new Date().toISOString().split('T')[0]}.xlsx`;
-      
-      saveAs(response.data, filename);
+      if (format === 'pdf') {
+        // Client-side PDF generation
+        const doc = new jsPDF('landscape');
+        
+        // Add title
+        doc.setFontSize(18);
+        doc.text('Loan Portfolio Report', 14, 20);
+        
+        // Add metadata
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30);
+        doc.text(`Total loans: ${table.getFilteredRowModel().rows.length}`, 14, 36);
+        if (globalFilter) {
+          doc.text(`Filter applied: "${globalFilter}"`, 14, 42);
+        }
+        
+        // Prepare table data
+        const filteredRows = table.getFilteredRowModel().rows;
+        const tableData = filteredRows.map(row => [
+          row.original.servicer_loan_id || 'N/A',
+          row.original.borrower_name || 'N/A',
+          row.original.property_address || 'N/A',
+          row.original.property_city || 'N/A',
+          row.original.property_state || 'N/A',
+          row.original.unpaid_principal_balance 
+            ? parseFloat(row.original.unpaid_principal_balance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+            : 'N/A',
+          row.original.interest_rate 
+            ? (parseFloat(row.original.interest_rate) * 100).toFixed(2) + '%'
+            : 'N/A',
+          row.original.next_due_date 
+            ? new Date(row.original.next_due_date).toLocaleDateString('en-US')
+            : 'N/A',
+          row.original.last_paid_date 
+            ? new Date(row.original.last_paid_date).toLocaleDateString('en-US')
+            : 'N/A',
+          row.original.legal_status || 'N/A'
+        ]);
+        
+        // Add table
+        autoTable(doc, {
+          head: [['Loan Number', 'Borrower Name', 'Property Address', 'City', 'State', 'UPB', 'Interest Rate', 'Next Due Date', 'Last Paid Date', 'Legal Status']],
+          body: tableData,
+          startY: globalFilter ? 48 : 42,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [100, 100, 100] }
+        });
+        
+        // Save the PDF
+        const filename = `loan_report_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
+      } else {
+        // Excel export - still server-side
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+        const params = globalFilter ? `?filter=${encodeURIComponent(globalFilter)}` : '';
+        
+        const response = await axios.get(`${apiUrl}/api/reports/excel${params}`, {
+          responseType: 'blob'
+        });
+        
+        const filename = `loan_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+        saveAs(response.data, filename);
+      }
     } catch (err) {
       console.error(`Error exporting ${format}:`, err);
       alert(`Failed to export ${format.toUpperCase()} report`);
