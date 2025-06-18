@@ -116,12 +116,11 @@ router.get('/reports/pdf', async (req, res) => {
     `;
 
     // Launch puppeteer and generate PDF
-    // This is the corrected launch configuration
+    // Final, corrected launch configuration for server environment
     const browser = await puppeteer.launch({
       args: chromium.args,
       executablePath: await chromium.executablePath(),
-      headless: true, // Use the boolean `true` directly
-      ignoreHTTPSErrors: true
+      headless: chromium.headless,
     });
     const page = await browser.newPage();
     await page.setContent(html);
