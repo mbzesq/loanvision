@@ -1,16 +1,16 @@
-// Force re-bundle to defeat cache v2
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
 import { Button } from '@loanvision/shared/components/ui/button';
+import { Label } from '@loanvision/shared/components/ui/label';
 import { Slider } from '@loanvision/shared/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@loanvision/shared/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@loanvision/shared/components/ui/popover';
 import { Calendar } from '@loanvision/shared/components/ui/calendar';
 import { cn } from '@loanvision/shared/lib/utils';
 
-export type FilterSheetValues = {
+export type FilterPanelValues = {
   principalBalance: [number, number];
   interestRate: [number, number];
   propertyState: string;
@@ -18,14 +18,14 @@ export type FilterSheetValues = {
   maturityDate: Date | undefined;
 };
 
-interface FilterSheetProps {
-  onApplyFilters: (filters: FilterSheetValues) => void;
+interface FilterPanelProps {
+  onApplyFilters: (filters: FilterPanelValues) => void;
   availableStates: string[];
   availableLoanTypes: string[];
 }
 
-const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters, availableStates, availableLoanTypes }) => {
-  const defaultFilters: FilterSheetValues = {
+const FilterPanel: React.FC<FilterPanelProps> = ({ onApplyFilters, availableStates, availableLoanTypes }) => {
+  const defaultFilters: FilterPanelValues = {
     principalBalance: [0, 1000000],
     interestRate: [0, 20],
     propertyState: '',
@@ -33,7 +33,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters, availableStat
     maturityDate: undefined,
   };
 
-  const [filters, setFilters] = useState<FilterSheetValues>(defaultFilters);
+  const [filters, setFilters] = useState<FilterPanelValues>(defaultFilters);
 
   const handlePrincipalBalanceChange = (value: number[]) => {
     setFilters(prev => ({ ...prev, principalBalance: value as [number, number] }));
@@ -74,9 +74,9 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters, availableStat
           <h3 className="text-sm font-semibold text-gray-700">Financial Filters</h3>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <Label className="text-sm font-medium">
               Principal Balance: ${filters.principalBalance[0].toLocaleString()} - ${filters.principalBalance[1].toLocaleString()}
-            </label>
+            </Label>
             <Slider 
               value={filters.principalBalance}
               onValueChange={handlePrincipalBalanceChange}
@@ -88,9 +88,9 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters, availableStat
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <Label className="text-sm font-medium">
               Interest Rate: {filters.interestRate[0]}% - {filters.interestRate[1]}%
-            </label>
+            </Label>
             <Slider 
               value={filters.interestRate}
               onValueChange={handleInterestRateChange}
@@ -107,7 +107,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters, availableStat
           <h3 className="text-sm font-semibold text-gray-700">Location Filters</h3>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Property State</label>
+            <Label className="text-sm font-medium">Property State</Label>
             <Select value={filters.propertyState} onValueChange={handlePropertyStateChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a state" />
@@ -126,7 +126,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters, availableStat
           <h3 className="text-sm font-semibold text-gray-700">Status Filters</h3>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Maturity Date</label>
+            <Label className="text-sm font-medium">Maturity Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -152,7 +152,7 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters, availableStat
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Legal Status</label>
+            <Label className="text-sm font-medium">Legal Status</Label>
             <Select value={filters.loanType} onValueChange={handleLoanTypeChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select legal status" />
@@ -175,4 +175,4 @@ const FilterSheet: React.FC<FilterSheetProps> = ({ onApplyFilters, availableStat
   );
 };
 
-export default FilterSheet;
+export default FilterPanel;

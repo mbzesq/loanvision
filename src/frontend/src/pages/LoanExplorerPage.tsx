@@ -4,10 +4,8 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
-import FilterSheet, { FilterSheetValues } from '../components/FilterSheet';
+import FilterPanel, { FilterPanelValues } from '../components/FilterPanel';
 import { Input } from '@loanvision/shared/components/ui/input';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@loanvision/shared/components/ui/sheet';
-import { Button } from '@loanvision/shared/components/ui/button';
 import {
   createColumnHelper,
   flexRender,
@@ -47,16 +45,8 @@ function LoanExplorerPage() {
   const [globalFilter, setGlobalFilter] = useState('');
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [isSheetOpen, setSheetOpen] = useState(false);
 
-  useEffect(() => {
-    console.log('isSheetOpen state changed to:', isSheetOpen);
-    if (isSheetOpen) {
-      console.log('Sheet should be visible now');
-    }
-  }, [isSheetOpen]);
-
-  const handleApplyFilters = (filters: FilterSheetValues) => {
+  const handleApplyFilters = (filters: FilterPanelValues) => {
     console.log('Filters applied from parent:', filters);
     // Filtering logic will be added here in a future step
   };
@@ -245,38 +235,27 @@ function LoanExplorerPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Loan Explorer</h1>
       
-      <div className="flex items-center justify-between mb-4">
-        <Input 
-          placeholder="Search loans..." 
-          className="max-w-sm"
-          value={globalFilter ?? ''}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-        />
-        <div className="flex items-center gap-2">
-          <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-              <Button onClick={() => {
-                console.log('Filter button clicked!');
-              }}>
-                Filter
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="bg-white border-l border-gray-200 shadow-lg" style={{ backgroundColor: 'white', zIndex: 9999 }}>
-              <SheetHeader>
-                <SheetTitle className="text-gray-900">Filter Loans</SheetTitle>
-                <SheetDescription className="text-gray-600">
-                  Apply filters to find specific loans in your portfolio.
-                </SheetDescription>
-              </SheetHeader>
-              <FilterSheet 
-                onApplyFilters={handleApplyFilters} 
-                availableStates={uniqueStates}
-                availableLoanTypes={uniqueLoanTypes}
-              />
-            </SheetContent>
-          </Sheet>
-          <div style={{ position: 'relative' }}>
-          <button
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Filter Panel - Left Column */}
+        <div className="lg:col-span-1">
+          <FilterPanel 
+            onApplyFilters={handleApplyFilters} 
+            availableStates={uniqueStates}
+            availableLoanTypes={uniqueLoanTypes}
+          />
+        </div>
+        
+        {/* Main Content - Right Column */}
+        <div className="lg:col-span-3">
+          <div className="flex items-center justify-between mb-4">
+            <Input 
+              placeholder="Search loans..." 
+              className="max-w-sm"
+              value={globalFilter ?? ''}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+            />
+            <div style={{ position: 'relative' }}>
+              <button
             onClick={() => setShowExportDropdown(!showExportDropdown)}
             disabled={exporting}
             style={{
@@ -346,79 +325,80 @@ function LoanExplorerPage() {
               </button>
             </div>
           )}
+            </div>
           </div>
+
+          <div className="flex items-center justify-between mb-4">
+            <p>Total loans: {table.getFilteredRowModel().rows.length} of {loans.length}</p>
+          </div>
+          
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+            <thead>
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id} style={{ backgroundColor: '#f0f0f0' }}>
+                  {headerGroup.headers.map(header => (
+                    <th
+                      key={header.id}
+                      style={{
+                        padding: '8px',
+                        textAlign: 'left',
+                        cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                        userSelect: 'none',
+                      }}
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {{
+                          asc: ' ↑',
+                          desc: ' ↓',
+                        }[header.column.getIsSorted() as string] ?? null}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map(row => (
+                <tr
+                  key={row.id}
+                  onClick={() => setSelectedLoanId(row.original.servicer_loan_id)}
+                  style={{
+                    cursor: 'pointer',
+                    backgroundColor: 'transparent',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id} style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          
+          {table.getRowModel().rows.length === 0 && (
+            <p style={{ textAlign: 'center', marginTop: '20px' }}>
+              {globalFilter ? 'No loans found matching your search.' : 'No loans found. Upload a file to see loans here.'}
+            </p>
+          )}
+          
+          {selectedLoanId && (
+            <LoanDetailModal 
+              loanId={selectedLoanId} 
+              onClose={() => setSelectedLoanId(null)} 
+            />
+          )}
         </div>
       </div>
-
-      <div className="flex items-center justify-between mb-4">
-        <p>Total loans: {table.getFilteredRowModel().rows.length} of {loans.length}</p>
-      </div>
-      
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-        <thead>
-          {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id} style={{ backgroundColor: '#f0f0f0' }}>
-              {headerGroup.headers.map(header => (
-                <th
-                  key={header.id}
-                  style={{
-                    padding: '8px',
-                    textAlign: 'left',
-                    cursor: header.column.getCanSort() ? 'pointer' : 'default',
-                    userSelect: 'none',
-                  }}
-                  onClick={header.column.getToggleSortingHandler()}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                    {{
-                      asc: ' ↑',
-                      desc: ' ↓',
-                    }[header.column.getIsSorted() as string] ?? null}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map(row => (
-            <tr
-              key={row.id}
-              onClick={() => setSelectedLoanId(row.original.servicer_loan_id)}
-              style={{
-                cursor: 'pointer',
-                backgroundColor: 'transparent',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              {row.getVisibleCells().map(cell => (
-                <td key={cell.id} style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      
-      {table.getRowModel().rows.length === 0 && (
-        <p style={{ textAlign: 'center', marginTop: '20px' }}>
-          {globalFilter ? 'No loans found matching your search.' : 'No loans found. Upload a file to see loans here.'}
-        </p>
-      )}
-      
-      {selectedLoanId && (
-        <LoanDetailModal 
-          loanId={selectedLoanId} 
-          onClose={() => setSelectedLoanId(null)} 
-        />
-      )}
     </div>
   );
 }
