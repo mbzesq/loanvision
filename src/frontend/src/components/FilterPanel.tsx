@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@loanvision/shared/comp
 import { Calendar } from '@loanvision/shared/components/ui/calendar';
 import { cn } from '@loanvision/shared/lib/utils';
 
-type FilterValues = {
+export type FilterValues = {
   principalBalance: [number, number];
   interestRate: [number, number];
   propertyState: string;
