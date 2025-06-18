@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
+import FilterPanel from '../components/FilterPanel';
 import {
   createColumnHelper,
   flexRender,
@@ -215,10 +216,15 @@ function LoanExplorerPage() {
   if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
   return (
-    <div>
-      <h1>Loan Explorer</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6">Loan Explorer</h1>
       
-      <div style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+        <div className="lg:col-span-1">
+          <FilterPanel />
+        </div>
+        <div className="lg:col-span-3">
+          <div style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
         <input
           type="text"
           value={globalFilter ?? ''}
@@ -368,12 +374,14 @@ function LoanExplorerPage() {
         </p>
       )}
       
-      {selectedLoanId && (
-        <LoanDetailModal 
-          loanId={selectedLoanId} 
-          onClose={() => setSelectedLoanId(null)} 
-        />
-      )}
+          {selectedLoanId && (
+            <LoanDetailModal 
+              loanId={selectedLoanId} 
+              onClose={() => setSelectedLoanId(null)} 
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
