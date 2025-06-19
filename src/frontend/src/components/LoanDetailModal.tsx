@@ -1,3 +1,4 @@
+// Forcing cache invalidation v1
 // src/frontend/src/components/LoanDetailModal.tsx
 import {
   Dialog,
