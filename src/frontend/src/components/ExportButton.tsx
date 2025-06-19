@@ -1,11 +1,5 @@
 // src/frontend/src/components/ExportButton.tsx
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@loanvision/shared/components/ui/dropdown-menu';
+import { useState } from 'react';
 import { Button } from '@loanvision/shared/components/ui/button';
 
 interface ExportButtonProps {
@@ -14,26 +8,52 @@ interface ExportButtonProps {
 }
 
 export function ExportButton({ onExport, exporting }: ExportButtonProps) {
-  // NOTE: We have removed the useState for 'open'
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleSelect = (format: 'pdf' | 'excel') => {
+    onExport(format);
+    setIsOpen(false); // Close the menu after selection
+  };
+
   return (
-    // NOTE: We have removed the 'open' and 'onOpenChange' props
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" disabled={exporting}>
+    // The parent div needs to be relative for positioning the dropdown
+    <div className="relative inline-block text-left">
+      <div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsOpen(!isOpen)}
+          disabled={exporting}
+        >
           {exporting ? 'Exporting...' : 'Export'}
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="bg-white shadow-md border rounded-md z-50"
-      >
-        <DropdownMenuItem onClick={() => onExport('excel')} disabled={exporting}>
-          Download as Excel
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onExport('pdf')} disabled={exporting}>
-          Download as PDF
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </div>
+
+      {/* Conditionally render the dropdown menu */}
+      {isOpen && (
+        <div
+          className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+        >
+          <div className="py-1" role="menu" aria-orientation="vertical">
+            <button
+              onClick={() => handleSelect('excel')}
+              disabled={exporting}
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+              role="menuitem"
+            >
+              Download as Excel
+            </button>
+            <button
+              onClick={() => handleSelect('pdf')}
+              disabled={exporting}
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+              role="menuitem"
+            >
+              Download as PDF
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
