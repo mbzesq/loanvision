@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@loanvision/shared/components/ui/dialog';
 import { Button } from '@loanvision/shared/components/ui/button';
 import { useEffect, useState } from 'react';
@@ -26,6 +27,7 @@ interface Loan {
     next_due_date: string;
     investor_name: string;
     lien_position: string;
+    maturity_date: string;
     // Add any other fields you expect from the API
 }
 
@@ -106,9 +108,13 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
           <>
             <DialogHeader>
               <DialogTitle>Details for Loan: {loan.servicer_loan_id}</DialogTitle>
+              <DialogDescription>
+                A summary of the loan's borrower, property, and financial information.
+              </DialogDescription>
             </DialogHeader>
 
-            <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            {/* Main Content Body */}
+            <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 max-h-[70vh] overflow-y-auto">
               {/* === Section 1: Loan & Borrower === */}
               <section className="space-y-4">
                  <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Loan & Borrower</h3>
@@ -125,7 +131,7 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
                  <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Property & Collateral</h3>
                  <DetailItem label="Property Address">
                    <a href={generateZillowUrl(loan)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                     {`${loan.property_address}, ${loan.property_city}, ${loan.property_state} ${loan.property_zip}`}
+                     {`${loan.property_address || ''}, ${loan.property_city || ''}, ${loan.property_state || ''} ${loan.property_zip || ''}`}
                    </a>
                  </DetailItem>
                  <DetailItem label="Lien Position">{formatValue(loan.lien_position)}</DetailItem>
@@ -142,7 +148,7 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
                     <DetailItem label="Legal Status">{formatValue(loan.legal_status)}</DetailItem>
                     <DetailItem label="Last Paid Date">{formatDate(loan.last_paid_date)}</DetailItem>
                     <DetailItem label="Next Due Date">{formatDate(loan.next_due_date)}</DetailItem>
-                    <DetailItem label="Maturity Date">{formatDate(loan.next_due_date)}</DetailItem>
+                    <DetailItem label="Maturity Date">{formatDate(loan.maturity_date)}</DetailItem> {/* Corrected this field name */}
                   </div>
               </section>
             </div>
