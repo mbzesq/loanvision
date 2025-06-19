@@ -5,6 +5,7 @@ import { Button } from '@loanvision/shared/components/ui/button';
 import { Checkbox } from '@loanvision/shared/components/ui/checkbox';
 import { Input } from '@loanvision/shared/components/ui/input';
 import { Label } from '@loanvision/shared/components/ui/label';
+import { Badge } from '@loanvision/shared/components/ui/badge';
 import {
   Accordion,
   AccordionContent,
@@ -77,7 +78,7 @@ export function FilterPanel({
   };
 
   return (
-    <div className="flex flex-col h-full border rounded-lg">
+    <div className="flex flex-col h-full">
       <div className="p-4 border-b">
         <h2 className="text-lg font-semibold">Filter Criteria</h2>
       </div>
@@ -86,7 +87,14 @@ export function FilterPanel({
         <Accordion type="multiple" className="w-full">
           {/* Property State Filter */}
           <AccordionItem value="state">
-            <AccordionTrigger>Property State</AccordionTrigger>
+            <AccordionTrigger className="hover:no-underline border-b">
+              <div className="flex justify-between w-full items-center pr-4">
+                <span>Property State</span>
+                {filters.propertyState.length > 0 && (
+                  <Badge variant="secondary">{filters.propertyState.length}</Badge>
+                )}
+              </div>
+            </AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-2 p-2 max-h-48 overflow-y-auto">
                 {availableStates.map((state) => (
@@ -105,7 +113,14 @@ export function FilterPanel({
 
           {/* Loan Type Filter */}
           <AccordionItem value="loan-type">
-            <AccordionTrigger>Loan Type</AccordionTrigger>
+            <AccordionTrigger className="hover:no-underline border-b">
+              <div className="flex justify-between w-full items-center pr-4">
+                <span>Loan Type</span>
+                {filters.loanType.length > 0 && (
+                  <Badge variant="secondary">{filters.loanType.length}</Badge>
+                )}
+              </div>
+            </AccordionTrigger>
             <AccordionContent>
                <div className="flex flex-col gap-2 p-2 max-h-48 overflow-y-auto">
                 {availableLoanTypes.map((type) => (
@@ -124,7 +139,14 @@ export function FilterPanel({
 
           {/* Principal Balance Filter */}
           <AccordionItem value="balance">
-            <AccordionTrigger>Principal Balance</AccordionTrigger>
+            <AccordionTrigger className="hover:no-underline border-b">
+              <div className="flex justify-between w-full items-center pr-4">
+                <span>Principal Balance</span>
+                {(filters.principalBalance.min !== '' || filters.principalBalance.max !== '') && (
+                  <Badge variant="secondary">Active</Badge>
+                )}
+              </div>
+            </AccordionTrigger>
             <AccordionContent>
               <div className="flex gap-2 p-2">
                 <Input
