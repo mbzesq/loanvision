@@ -44,7 +44,10 @@ export function DataToolbar({
         <Button variant="outline" size="sm" disabled>Compare</Button>
 
         {/* Existing Export Button */}
-        <ExportButton onExport={onExport} exporting={exporting} />
+        <ExportButton
+          onExport={onExport || (() => {})}
+          exporting={exporting || false}
+        />
       </div>
     </div>
   );
