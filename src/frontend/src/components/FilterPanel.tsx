@@ -107,6 +107,11 @@ export function FilterPanel({
         <h2 className="text-base font-semibold">Filter Criteria</h2>
       </div>
 
+      <div className="p-4 border-b flex gap-2">
+        <Button variant="ghost" className="w-full text-slate-600" onClick={handleClear}>Reset</Button>
+        <Button className="w-full" onClick={handleApply}>Apply</Button>
+      </div>
+
       <div className="flex-grow overflow-y-auto">
         <Accordion type="multiple" className="w-full">
           {/* Property State Filter */}
@@ -238,11 +243,6 @@ export function FilterPanel({
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </div>
-
-      <div className="p-4 border-t flex gap-2">
-        <Button variant="ghost" className="w-full text-slate-600" onClick={handleClear}>Reset</Button>
-        <Button className="w-full" onClick={handleApply}>Apply</Button>
       </div>
     </div>
   );
