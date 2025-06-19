@@ -2,7 +2,12 @@ LoanVision Project State - 2025-06-19
 1. High-Level Objective
 To build a SaaS platform for ingesting, enriching, and analyzing non-performing mortgage loan portfolios. The core idea is to provide automated data cleaning, enrichment, and an AI-powered query interface.
 
-2. Core Technology Stack
+2. Core User Personas
+Alex the Active Manager: The primary persona for our current development phase. Alex is a hands-on loan analyst or portfolio manager whose daily job is to monitor portfolio health, identify risk, and manage individual assets. They need powerful, granular filtering tools and at-a-glance data to make quick, informed decisions.
+
+Sarah the Passive Investor: A future persona. Sarah is a capital partner or stakeholder who needs high-level, easily digestible reports and visualizations to track the overall performance of their investment without getting into the day-to-day operational details.
+
+3. Core Technology Stack
 Backend: Node.js with Express, TypeScript
 
 Frontend: React with Vite, TypeScript
@@ -13,7 +18,7 @@ Deployment: Render (as separate Backend and Frontend services from a monorepo)
 
 Code Repository: GitHub (https://github.com/mbzesq/loanvision)
 
-3. Current Deployed State (What Works)
+4. Current Deployed State (What Works)
 The application is fully functional, with a stable UI and several key features implemented and verified:
 
 Data Ingestion: Successful uploads via CSV/Excel.
@@ -42,13 +47,13 @@ A clickable (stubbed) link for the investor name.
 
 Report Exporting: The "Export" button is fully functional, allowing users to download data in PDF and Excel formats.
 
-4. Evergreen Rules & Guardrails for the AI
+5. Evergreen Rules & Guardrails for the AI
 This section remains unchanged.
 
-5. Last Session Summary
+6. Last Session Summary
 After a series of persistent and frustrating bugs with library components (DropdownMenu, Dialog), we successfully pivoted to a new strategy: building our own custom components. This was a major breakthrough. We successfully diagnosed and fixed a critical backend API bug. The session culminated in the successful deployment of a fully-functional, custom-built LoanDetailModal that incorporates numerous UI/UX improvements and bug fixes, aligning with our new professional aesthetic.
 
-6. Immediate Next Task
+7. Immediate Next Task
 Refactor the Data Table for Professional Aesthetic.
 
 This is the next step in our "UI/UX Polish" phase. To continue aligning the platform with our "Schwab-inspired" design, we will refactor the main TanStack Table. The goal is to make it more data-dense and professional-looking by implementing:
@@ -61,7 +66,7 @@ Subtle row hover effects.
 
 Improved styling for the table headers.
 
-7. Future Roadmap
+8. Future Roadmap
 Phase 1: "Now" - Complete the Aesthetic Overhaul
 
 (Current) Refactor the Data Table for a professional aesthetic.
@@ -70,16 +75,20 @@ Add a "Search Within Filter" feature for long lists.
 
 Add more filter types, such as a proper Maturity Date range picker.
 
-Phase 2: "Next" - High-Value Features
+Phase 2: "Next" - High-Value Features & Reporting
 
 Implement the RentCast API integration for property value enrichment.
 
 Build "soft delete" functionality for loans.
 
-Begin building the "Reports" page with pre-canned charts and summaries.
+Begin building the "Reports" page, starting with a dynamic pie chart for loan status mix and a table for expected monthly cashflow.
 
-Phase 3: "Later" - Intelligent Platform & Automation
+Phase 3: "Later" - Decision Engine & Automation
 
-Implement the LLM Assistant for natural language search.
+Risk Assessment Rulesets: Implement logic to flag loans as "risky" based on criteria like LTV, delinquency, and other factors.
 
-Build workflow, alerting, and user authentication features.
+Workout Path Recommendations: Build a system to suggest optimal workout paths (e.g., "Foreclosure Candidate," "Modification Candidate") based on state-specific rulesets and loan data.
+
+Financial Outcome Modeling: Create backend services to project the financial impact (NPV, IRR, costs) of different workout trajectories.
+
+LLM Assistant: Implement natural language search for portfolio queries.
