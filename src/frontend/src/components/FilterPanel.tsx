@@ -32,7 +32,7 @@ interface FilterPanelProps {
 }
 
 // Define the initial state for the filters
-const initialFilters: FilterValues = {
+export const initialFilters: FilterValues = {
   propertyState: [],
   assetStatus: [],
   investor: [],
