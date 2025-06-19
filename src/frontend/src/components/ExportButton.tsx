@@ -1,5 +1,4 @@
 // src/frontend/src/components/ExportButton.tsx
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,29 +7,24 @@ import {
 } from '@loanvision/shared/components/ui/dropdown-menu';
 import { Button } from '@loanvision/shared/components/ui/button';
 
-// Placeholder functions for the export logic.
-// In the future, these will trigger API calls.
-const handleExportExcel = () => {
-  console.log('Exporting to Excel...');
-};
+interface ExportButtonProps {
+  onExport: (format: 'pdf' | 'excel') => void;
+  exporting: boolean;
+}
 
-const handleExportPdf = () => {
-  console.log('Exporting to PDF...');
-};
-
-export function ExportButton() {
+export function ExportButton({ onExport, exporting }: ExportButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          Export
+        <Button variant="outline" size="sm" disabled={exporting}>
+          {exporting ? 'Exporting...' : 'Export'}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleExportExcel}>
+        <DropdownMenuItem onClick={() => onExport('excel')} disabled={exporting}>
           Download as Excel
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleExportPdf}>
+        <DropdownMenuItem onClick={() => onExport('pdf')} disabled={exporting}>
           Download as PDF
         </DropdownMenuItem>
       </DropdownMenuContent>
