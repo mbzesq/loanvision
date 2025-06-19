@@ -78,33 +78,33 @@ export function FilterPanel({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">Filter Criteria</h2>
+    <div className="flex flex-col h-full border rounded-lg">
+      <div className="p-4 border-b bg-slate-50">
+        <h2 className="text-base font-semibold">Filter Criteria</h2>
       </div>
 
       <div className="flex-grow overflow-y-auto">
         <Accordion type="multiple" className="w-full">
           {/* Property State Filter */}
           <AccordionItem value="state">
-            <AccordionTrigger className="hover:no-underline border-b">
-              <div className="flex justify-between w-full items-center pr-4">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline border-b">
+              <div className="flex justify-between w-full items-center pr-2">
                 <span>Property State</span>
                 {filters.propertyState.length > 0 && (
                   <Badge variant="secondary">{filters.propertyState.length}</Badge>
                 )}
               </div>
             </AccordionTrigger>
-            <AccordionContent>
-              <div className="flex flex-col gap-2 p-2 max-h-48 overflow-y-auto">
+            <AccordionContent className="pt-0">
+              <div className="flex flex-col gap-2 p-4 max-h-48 overflow-y-auto">
                 {availableStates.map((state) => (
-                  <div key={state} className="flex items-center gap-2">
+                  <div key={state} className="flex items-center space-x-2">
                     <Checkbox
                       id={`state-${state}`}
                       checked={filters.propertyState.includes(state)}
                       onCheckedChange={(checked) => handleCheckboxChange('propertyState', state, !!checked)}
                     />
-                    <Label htmlFor={`state-${state}`}>{state}</Label>
+                    <Label htmlFor={`state-${state}`} className="font-normal">{state}</Label>
                   </div>
                 ))}
               </div>
@@ -113,24 +113,24 @@ export function FilterPanel({
 
           {/* Loan Type Filter */}
           <AccordionItem value="loan-type">
-            <AccordionTrigger className="hover:no-underline border-b">
-              <div className="flex justify-between w-full items-center pr-4">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline border-b">
+              <div className="flex justify-between w-full items-center pr-2">
                 <span>Loan Type</span>
                 {filters.loanType.length > 0 && (
                   <Badge variant="secondary">{filters.loanType.length}</Badge>
                 )}
               </div>
             </AccordionTrigger>
-            <AccordionContent>
-               <div className="flex flex-col gap-2 p-2 max-h-48 overflow-y-auto">
+            <AccordionContent className="pt-0">
+               <div className="flex flex-col gap-2 p-4 max-h-48 overflow-y-auto">
                 {availableLoanTypes.map((type) => (
-                  <div key={type} className="flex items-center gap-2">
+                  <div key={type} className="flex items-center space-x-2">
                     <Checkbox
                       id={`type-${type}`}
                       checked={filters.loanType.includes(type)}
                       onCheckedChange={(checked) => handleCheckboxChange('loanType', type, !!checked)}
                     />
-                    <Label htmlFor={`type-${type}`}>{type}</Label>
+                    <Label htmlFor={`type-${type}`} className="font-normal">{type}</Label>
                   </div>
                 ))}
               </div>
@@ -139,16 +139,16 @@ export function FilterPanel({
 
           {/* Principal Balance Filter */}
           <AccordionItem value="balance">
-            <AccordionTrigger className="hover:no-underline border-b">
-              <div className="flex justify-between w-full items-center pr-4">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline border-b">
+              <div className="flex justify-between w-full items-center pr-2">
                 <span>Principal Balance</span>
                 {(filters.principalBalance.min !== '' || filters.principalBalance.max !== '') && (
                   <Badge variant="secondary">Active</Badge>
                 )}
               </div>
             </AccordionTrigger>
-            <AccordionContent>
-              <div className="flex gap-2 p-2">
+            <AccordionContent className="pt-0">
+              <div className="flex gap-2 p-4">
                 <Input
                   type="number"
                   placeholder="Min"
@@ -168,7 +168,7 @@ export function FilterPanel({
       </div>
 
       <div className="p-4 border-t flex gap-2">
-        <Button variant="ghost" className="w-full" onClick={handleClear}>Reset</Button>
+        <Button variant="ghost" className="w-full text-slate-600" onClick={handleClear}>Reset</Button>
         <Button className="w-full" onClick={handleApply}>Apply</Button>
       </div>
     </div>
