@@ -20,12 +20,6 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
     return null; // Don't render anything if there's no loan data
   }
 
-  // Helper functions can be moved here or kept in a separate utils file
-  const formatDate = (value: string | null | undefined) => {
-     if (!value) return "—";
-     const date = new Date(value);
-     return isNaN(date.getTime()) ? "—" : date.toLocaleDateString('en-US');
-  };
 
   return (
     <Dialog open={!!loan} onOpenChange={(open) => !open && onClose()}>
