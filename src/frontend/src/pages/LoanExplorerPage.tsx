@@ -6,7 +6,6 @@ import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { DataToolbar } from '../components/DataToolbar';
-import { Input } from '@loanvision/shared/components/ui/input';
 import { states } from '@loanvision/shared/lib/states';
 import {
   createColumnHelper,
