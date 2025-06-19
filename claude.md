@@ -81,11 +81,11 @@ Connect the Export button to actual export functionality by integrating it with 
 * ✅ Add "Search Within Filter" feature for long lists (COMPLETED) 
 * ✅ Add more filter types: Investor and Lien Position (COMPLETED)
 * ✅ Implement DataToolbar component and page header redesign (COMPLETED)
-* ✅ Apply global professional theme with Inter font and blue accent (COMPLETED)
 * **(Current)** Connect Export button functionality with real export handlers
 * Add filters for calculated fields (e.g., LTV, equity percentage)
 * Add Maturity Date range picker filter
 * Revisit and productionize the AVM data enrichment engine
+* Apply global professional theme with Inter font and blue accent
 
 **Phase 2: "Next" - Enhanced Insights & UX**
 * Add loan comparison functionality
