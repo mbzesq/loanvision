@@ -1,6 +1,7 @@
 // src/frontend/src/components/ExportButton.tsx
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@loanvision/shared/components/ui/button';
+import { useOnClickOutside } from '../hooks/useOnClickOutside';
 
 interface ExportButtonProps {
   onExport: (format: 'pdf' | 'excel') => void;
@@ -9,6 +10,9 @@ interface ExportButtonProps {
 
 export function ExportButton({ onExport, exporting }: ExportButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useOnClickOutside(dropdownRef, () => setIsOpen(false));
 
   const handleSelect = (format: 'pdf' | 'excel') => {
     onExport(format);
@@ -17,7 +21,7 @@ export function ExportButton({ onExport, exporting }: ExportButtonProps) {
 
   return (
     // The parent div needs to be relative for positioning the dropdown
-    <div className="relative inline-block text-left">
+    <div ref={dropdownRef} className="relative inline-block text-left">
       <div>
         <Button
           variant="outline"
