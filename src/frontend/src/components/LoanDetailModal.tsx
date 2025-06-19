@@ -102,61 +102,29 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
 
   return (
     <Dialog open={!!loanId} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-3xl">
-        {loading && <div className="p-8 text-center">Loading details...</div>}
+      <DialogContent className="sm:max-w-md">
+        {loading && <div className="p-8 text-center">Loading...</div>}
         {!loading && loan && (
           <>
             <DialogHeader>
-              <DialogTitle>Details for Loan: {loan.servicer_loan_id}</DialogTitle>
+              <DialogTitle>Debug Modal: Loan {loan.servicer_loan_id}</DialogTitle>
               <DialogDescription>
-                A summary of the loan's borrower, property, and financial information.
+                This is a test to see if the basic dialog renders.
               </DialogDescription>
             </DialogHeader>
 
-            {/* Main Content Body */}
-            <div className="py-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 max-h-[70vh] overflow-y-auto">
-              {/* === Section 1: Loan & Borrower === */}
-              <section className="space-y-4">
-                 <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Loan & Borrower</h3>
-                 <DetailItem label="Borrower Name">{formatValue(loan.borrower_name)}</DetailItem>
-                 <DetailItem label="Investor Name">
-                   <button onClick={() => handleInvestorClick(loan.investor_name)} className="text-blue-600 hover:underline font-medium">
-                     {formatValue(loan.investor_name)}
-                   </button>
-                 </DetailItem>
-              </section>
-
-              {/* === Section 2: Property & Collateral === */}
-               <section className="space-y-4">
-                 <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Property & Collateral</h3>
-                 <DetailItem label="Property Address">
-                   <a href={generateZillowUrl(loan)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                     {`${loan.property_address || ''}, ${loan.property_city || ''}, ${loan.property_state || ''} ${loan.property_zip || ''}`}
-                   </a>
-                 </DetailItem>
-                 <DetailItem label="Lien Position">{formatValue(loan.lien_position)}</DetailItem>
-              </section>
-
-              {/* === Section 3: Financials & Status === */}
-              <section className="md:col-span-2 space-y-4 pt-4">
-                 <h3 className="text-lg font-semibold text-slate-800 border-b pb-2">Financials & Status</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 pt-2">
-                    <DetailItem label="Unpaid Principal Balance">
-                        <span className="text-xl font-bold text-slate-900">{formatCurrency(loan.unpaid_principal_balance)}</span>
-                    </DetailItem>
-                    <DetailItem label="Interest Rate">{formatPercent(loan.interest_rate)}</DetailItem>
-                    <DetailItem label="Legal Status">{formatValue(loan.legal_status)}</DetailItem>
-                    <DetailItem label="Last Paid Date">{formatDate(loan.last_paid_date)}</DetailItem>
-                    <DetailItem label="Next Due Date">{formatDate(loan.next_due_date)}</DetailItem>
-                    <DetailItem label="Maturity Date">{formatDate(loan.maturity_date)}</DetailItem> {/* Corrected this field name */}
-                  </div>
-              </section>
+            <div className="py-4">
+              <p>If you can see this text, the Dialog component itself is working.</p>
+              <p className="mt-4 font-mono">Borrower: {loan.borrower_name}</p>
             </div>
 
             <DialogFooter>
               <Button variant="outline" onClick={onClose}>Close</Button>
             </DialogFooter>
           </>
+        )}
+        {!loading && !loan && (
+           <div className="p-8 text-center text-red-500">Error: Loan data could not be loaded.</div>
         )}
       </DialogContent>
     </Dialog>
