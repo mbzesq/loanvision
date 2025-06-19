@@ -16,9 +16,15 @@ router.get('/loans', async (req, res) => {
 router.get('/loans/:loanId', async (req, res) => {
   try {
     const { loanId } = req.params;
-    const result = await pool.query('SELECT * FROM loans WHERE servicer_loan_id = $1', [loanId]);
+    console.log(`[Backend] Fetching loan with ID: ${loanId}`); // Add this log
+
+    const result = await pool.query(
+      'SELECT * FROM loans WHERE servicer_loan_id::text = $1', // Modify this query
+      [loanId]
+    );
 
     if (result.rows.length === 0) {
+      console.warn(`[Backend] No loan found for ID: ${loanId}`); // Add this log
       return res.status(404).json({ error: 'Loan not found' });
     }
 

@@ -462,7 +462,10 @@ function LoanExplorerPage() {
                       {table.getRowModel().rows.map((row, index) => (
                         <tr
                           key={row.id}
-                          onClick={() => setSelectedLoanId(row.original.servicer_loan_id)}
+                          onClick={() => {
+                            console.log(`[Frontend] Row clicked. Selecting loan ID: ${row.original.servicer_loan_id}`); // Add this log
+                            setSelectedLoanId(row.original.servicer_loan_id);
+                          }}
                           className={`
                             cursor-pointer transition-colors duration-150
                             hover:bg-slate-50 border-b border-slate-100
