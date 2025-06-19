@@ -1,11 +1,12 @@
 // src/frontend/src/components/FilterPanel.tsx
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@loanvision/shared/components/ui/button';
 import { Checkbox } from '@loanvision/shared/components/ui/checkbox';
 import { Input } from '@loanvision/shared/components/ui/input';
 import { Label } from '@loanvision/shared/components/ui/label';
 import { Badge } from '@loanvision/shared/components/ui/badge';
+import { X } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -40,6 +41,10 @@ export function FilterPanel({
   availableLoanTypes,
 }: FilterPanelProps) {
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
+  const [searchTerms, setSearchTerms] = useState({
+    propertyState: '',
+    loanType: '',
+  });
 
   // Handler for multi-select checkbox groups
   const handleCheckboxChange = (
@@ -54,6 +59,11 @@ export function FilterPanel({
         : currentValues.filter((item) => item !== value);
       return { ...prev, [field]: newValues };
     });
+  };
+
+  // Handler for search input changes
+  const handleSearchChange = (field: 'propertyState' | 'loanType', value: string) => {
+    setSearchTerms(prev => ({ ...prev, [field]: value }));
   };
 
   // Handler for min/max range input fields
@@ -71,9 +81,21 @@ export function FilterPanel({
     }));
   };
 
+  // Create filtered lists based on search terms
+  const filteredStates = useMemo(() =>
+    availableStates.filter(state =>
+      state.toLowerCase().includes(searchTerms.propertyState.toLowerCase())
+    ), [availableStates, searchTerms.propertyState]);
+
+  const filteredLoanTypes = useMemo(() =>
+    availableLoanTypes.filter(type =>
+      type.toLowerCase().includes(searchTerms.loanType.toLowerCase())
+    ), [availableLoanTypes, searchTerms.loanType]);
+
   const handleApply = () => onApplyFilters(filters);
   const handleClear = () => {
     setFilters(initialFilters);
+    setSearchTerms({ propertyState: '', loanType: '' });
     onApplyFilters(initialFilters);
   };
 
@@ -95,18 +117,41 @@ export function FilterPanel({
                 )}
               </div>
             </AccordionTrigger>
-            <AccordionContent className="pt-0">
-              <div className="flex flex-col gap-2 p-4 max-h-48 overflow-y-auto">
-                {availableStates.map((state) => (
-                  <div key={state} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`state-${state}`}
-                      checked={filters.propertyState.includes(state)}
-                      onCheckedChange={(checked) => handleCheckboxChange('propertyState', state, !!checked)}
-                    />
-                    <Label htmlFor={`state-${state}`} className="font-normal">{state}</Label>
-                  </div>
+            {filters.propertyState.length > 0 && (
+              <div className="px-4 pb-2 flex flex-wrap gap-1">
+                {filters.propertyState.map((state) => (
+                  <Badge key={state} variant="secondary" className="flex items-center gap-1">
+                    {state}
+                    <button
+                      onClick={() => handleCheckboxChange('propertyState', state, false)}
+                      className="rounded-full hover:bg-slate-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
                 ))}
+              </div>
+            )}
+            <AccordionContent className="pt-0">
+              <div className="p-2">
+                <Input
+                  placeholder="Search states..."
+                  value={searchTerms.propertyState}
+                  onChange={(e) => handleSearchChange('propertyState', e.target.value)}
+                  className="mb-2"
+                />
+                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                  {filteredStates.map((state) => (
+                    <div key={state} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`state-${state}`}
+                        checked={filters.propertyState.includes(state)}
+                        onCheckedChange={(checked) => handleCheckboxChange('propertyState', state, !!checked)}
+                      />
+                      <Label htmlFor={`state-${state}`} className="font-normal">{state}</Label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -121,18 +166,41 @@ export function FilterPanel({
                 )}
               </div>
             </AccordionTrigger>
-            <AccordionContent className="pt-0">
-               <div className="flex flex-col gap-2 p-4 max-h-48 overflow-y-auto">
-                {availableLoanTypes.map((type) => (
-                  <div key={type} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`type-${type}`}
-                      checked={filters.loanType.includes(type)}
-                      onCheckedChange={(checked) => handleCheckboxChange('loanType', type, !!checked)}
-                    />
-                    <Label htmlFor={`type-${type}`} className="font-normal">{type}</Label>
-                  </div>
+            {filters.loanType.length > 0 && (
+              <div className="px-4 pb-2 flex flex-wrap gap-1">
+                {filters.loanType.map((type) => (
+                  <Badge key={type} variant="secondary" className="flex items-center gap-1">
+                    {type}
+                    <button
+                      onClick={() => handleCheckboxChange('loanType', type, false)}
+                      className="rounded-full hover:bg-slate-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
                 ))}
+              </div>
+            )}
+            <AccordionContent className="pt-0">
+              <div className="p-2">
+                <Input
+                  placeholder="Search loan types..."
+                  value={searchTerms.loanType}
+                  onChange={(e) => handleSearchChange('loanType', e.target.value)}
+                  className="mb-2"
+                />
+                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                  {filteredLoanTypes.map((type) => (
+                    <div key={type} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`type-${type}`}
+                        checked={filters.loanType.includes(type)}
+                        onCheckedChange={(checked) => handleCheckboxChange('loanType', type, !!checked)}
+                      />
+                      <Label htmlFor={`type-${type}`} className="font-normal">{type}</Label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
