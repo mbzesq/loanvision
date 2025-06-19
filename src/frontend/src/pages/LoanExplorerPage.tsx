@@ -5,6 +5,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
+import { DataToolbar } from '../components/DataToolbar';
 import { Input } from '@loanvision/shared/components/ui/input';
 import { states } from '@loanvision/shared/lib/states';
 import {
@@ -46,7 +47,6 @@ function LoanExplorerPage() {
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
-  const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterValues>(initialFilters);
 
@@ -207,7 +207,6 @@ function LoanExplorerPage() {
 
   const handleExport = async (format: 'pdf' | 'excel') => {
     setExporting(true);
-    setShowExportDropdown(false);
     
     try {
       if (format === 'pdf') {
@@ -302,90 +301,14 @@ function LoanExplorerPage() {
         
         {/* Main Content - Right Column */}
         <div className="lg:col-span-3">
-          <div className="flex items-center justify-between mb-4">
-            <Input 
-              placeholder="Search loans..." 
-              className="max-w-sm"
-              value={globalFilter ?? ''}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-            />
-            <div style={{ position: 'relative' }}>
-              <button
-            onClick={() => setShowExportDropdown(!showExportDropdown)}
-            disabled={exporting}
-            style={{
-              padding: '8px 16px',
-              fontSize: '14px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: exporting ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            {exporting ? 'Exporting...' : 'Export'}
-            <span style={{ fontSize: '12px' }}>▼</span>
-          </button>
-          
-          {showExportDropdown && !exporting && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              right: 0,
-              marginTop: '4px',
-              backgroundColor: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              zIndex: 10
-            }}>
-              <button
-                onClick={() => handleExport('pdf')}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '8px 16px',
-                  textAlign: 'left',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  whiteSpace: 'nowrap'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                Download as PDF
-              </button>
-              <button
-                onClick={() => handleExport('excel')}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '8px 16px',
-                  textAlign: 'left',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  whiteSpace: 'nowrap'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                Download as Excel
-              </button>
-            </div>
-          )}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between mb-4">
-            <p>Total loans: {table.getFilteredRowModel().rows.length} of {loans.length}</p>
-          </div>
+          <DataToolbar
+            globalFilter={globalFilter}
+            setGlobalFilter={setGlobalFilter}
+            filteredLoanCount={table.getFilteredRowModel().rows.length}
+            totalLoanCount={loans.length}
+            onExport={handleExport}
+            exporting={exporting}
+          />
           
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
             <thead>
