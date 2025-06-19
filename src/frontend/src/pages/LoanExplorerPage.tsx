@@ -33,6 +33,8 @@ interface Loan {
   next_due_date: string;
   remaining_term_months: string;
   created_at: string;
+  investorName: string;
+  lienPos: number;
 }
 
 const columnHelper = createColumnHelper<Loan>();
@@ -81,16 +83,12 @@ function LoanExplorerPage() {
 
   // Add derived data for new filters
   const uniqueInvestors = useMemo(() => {
-    // Placeholder - using borrower_name as investor for demo purposes
-    // Replace with actual investor field when available
-    const investors = new Set(loans?.map(loan => loan.borrower_name).filter(Boolean) ?? []);
+    const investors = new Set(loans?.map(loan => loan.investorName).filter(Boolean) ?? []);
     return Array.from(investors).sort();
   }, [loans]);
 
   const uniqueLienPositions = useMemo(() => {
-    // Placeholder - using remaining_term_months as lien position for demo purposes
-    // Replace with actual lien position field when available
-    const positions = new Set(loans?.map(loan => parseInt(loan.remaining_term_months) || 1).filter(Boolean) ?? []);
+    const positions = new Set(loans?.map(loan => loan.lienPos).filter(Boolean) ?? []);
     return Array.from(positions).sort((a, b) => a - b);
   }, [loans]);
 
@@ -111,13 +109,12 @@ function LoanExplorerPage() {
       }
 
       // Investor filter
-      if (investor.length > 0 && !investor.includes(loan.borrower_name)) {
+      if (investor.length > 0 && !investor.includes(loan.investorName)) {
         return false;
       }
 
       // Lien Position filter
-      const loanLienPosition = parseInt(loan.remaining_term_months) || 1;
-      if (lienPosition.length > 0 && !lienPosition.includes(loanLienPosition)) {
+      if (lienPosition.length > 0 && !lienPosition.includes(loan.lienPos)) {
         return false;
       }
 
