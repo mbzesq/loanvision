@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import LoanDetailModal from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { Input } from '@loanvision/shared/components/ui/input';
+import { states, State } from '@loanvision/shared/lib/states';
 import {
   createColumnHelper,
   flexRender,
@@ -69,8 +70,8 @@ function LoanExplorerPage() {
   }, []);
 
   const uniqueStates = useMemo(() => {
-    const states = new Set(loans?.map(loan => loan.property_state).filter(Boolean) ?? []);
-    return Array.from(states).sort();
+    const loanStateAbbrs = new Set(loans?.map(loan => loan.property_state).filter(Boolean) ?? []);
+    return states.filter(state => loanStateAbbrs.has(state.abbr)).sort((a, b) => a.name.localeCompare(b.name));
   }, [loans]);
 
   const uniqueLegalStatuses = useMemo(() => {
