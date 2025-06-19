@@ -18,7 +18,9 @@ import {
 // Define the shape of the filter values for state management
 export type FilterValues = {
   propertyState: string[];
-  loanType: string[];
+  assetStatus: string[]; // Renamed from loanType
+  investor: string[];    // New
+  lienPosition: number[]; // New
   principalBalance: { min: number | ''; max: number | '' };
 };
 
@@ -26,31 +28,39 @@ export type FilterValues = {
 interface FilterPanelProps {
   onApplyFilters: (filters: FilterValues) => void;
   availableStates: State[];
-  availableLoanTypes: string[];
+  availableAssetStatuses: string[]; // Renamed
+  availableInvestors: string[];     // New
+  availableLienPositions: number[]; // New
 }
 
 // Define the initial state for the filters
 export const initialFilters: FilterValues = {
   propertyState: [],
-  loanType: [],
+  assetStatus: [], // Renamed
+  investor: [],    // New
+  lienPosition: [], // New
   principalBalance: { min: '', max: '' },
 };
 
 export function FilterPanel({
   onApplyFilters,
   availableStates,
-  availableLoanTypes,
+  availableAssetStatuses,
+  availableInvestors,
+  availableLienPositions,
 }: FilterPanelProps) {
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
   const [searchTerms, setSearchTerms] = useState({
     propertyState: '',
-    loanType: '',
+    assetStatus: '',
+    investor: '',
+    lienPosition: '',
   });
 
   // Handler for multi-select checkbox groups
   const handleCheckboxChange = (
-    field: 'propertyState' | 'loanType',
-    value: string,
+    field: 'propertyState' | 'assetStatus' | 'investor' | 'lienPosition',
+    value: string | number,
     checked: boolean
   ) => {
     setFilters((prev) => {
@@ -63,7 +73,7 @@ export function FilterPanel({
   };
 
   // Handler for search input changes
-  const handleSearchChange = (field: 'propertyState' | 'loanType', value: string) => {
+  const handleSearchChange = (field: 'propertyState' | 'assetStatus' | 'investor' | 'lienPosition', value: string) => {
     setSearchTerms(prev => ({ ...prev, [field]: value }));
   };
 
@@ -89,15 +99,25 @@ export function FilterPanel({
       state.abbr.toLowerCase().includes(searchTerms.propertyState.toLowerCase())
     ), [availableStates, searchTerms.propertyState]);
 
-  const filteredLoanTypes = useMemo(() =>
-    availableLoanTypes.filter(type =>
-      type.toLowerCase().includes(searchTerms.loanType.toLowerCase())
-    ), [availableLoanTypes, searchTerms.loanType]);
+  const filteredAssetStatuses = useMemo(() =>
+    availableAssetStatuses.filter(status =>
+      status.toLowerCase().includes(searchTerms.assetStatus.toLowerCase())
+    ), [availableAssetStatuses, searchTerms.assetStatus]);
+
+  const filteredInvestors = useMemo(() =>
+    availableInvestors.filter(investor =>
+      investor.toLowerCase().includes(searchTerms.investor.toLowerCase())
+    ), [availableInvestors, searchTerms.investor]);
+
+  const filteredLienPositions = useMemo(() =>
+    availableLienPositions.filter(position =>
+      position.toString().includes(searchTerms.lienPosition)
+    ), [availableLienPositions, searchTerms.lienPosition]);
 
   const handleApply = () => onApplyFilters(filters);
   const handleClear = () => {
     setFilters(initialFilters);
-    setSearchTerms({ propertyState: '', loanType: '' });
+    setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPosition: '' });
     onApplyFilters(initialFilters);
   };
 
@@ -166,23 +186,23 @@ export function FilterPanel({
             </AccordionContent>
           </AccordionItem>
 
-          {/* Loan Type Filter */}
-          <AccordionItem value="loan-type">
+          {/* Asset Status Filter */}
+          <AccordionItem value="asset-status">
             <AccordionTrigger className="text-sm font-medium hover:no-underline border-b">
               <div className="flex justify-between w-full items-center pr-2">
-                <span>Loan Type</span>
-                {filters.loanType.length > 0 && (
-                  <Badge variant="secondary">{filters.loanType.length}</Badge>
+                <span>Asset Status</span>
+                {filters.assetStatus.length > 0 && (
+                  <Badge variant="secondary">{filters.assetStatus.length}</Badge>
                 )}
               </div>
             </AccordionTrigger>
-            {filters.loanType.length > 0 && (
+            {filters.assetStatus.length > 0 && (
               <div className="px-4 pb-2 flex flex-wrap gap-1">
-                {filters.loanType.map((type) => (
-                  <Badge key={type} variant="secondary" className="flex items-center gap-1">
-                    {type}
+                {filters.assetStatus.map((status) => (
+                  <Badge key={status} variant="secondary" className="flex items-center gap-1">
+                    {status}
                     <button
-                      onClick={() => handleCheckboxChange('loanType', type, false)}
+                      onClick={() => handleCheckboxChange('assetStatus', status, false)}
                       className="rounded-full hover:bg-slate-300"
                     >
                       <X className="h-3 w-3" />
@@ -194,20 +214,118 @@ export function FilterPanel({
             <AccordionContent className="pt-0">
               <div className="p-2">
                 <Input
-                  placeholder="Search loan types..."
-                  value={searchTerms.loanType}
-                  onChange={(e) => handleSearchChange('loanType', e.target.value)}
+                  placeholder="Search asset statuses..."
+                  value={searchTerms.assetStatus}
+                  onChange={(e) => handleSearchChange('assetStatus', e.target.value)}
                   className="mb-2"
                 />
                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
-                  {filteredLoanTypes.map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
+                  {filteredAssetStatuses.map((status) => (
+                    <div key={status} className="flex items-center space-x-2">
                       <Checkbox
-                        id={`type-${type}`}
-                        checked={filters.loanType.includes(type)}
-                        onCheckedChange={(checked) => handleCheckboxChange('loanType', type, !!checked)}
+                        id={`status-${status}`}
+                        checked={filters.assetStatus.includes(status)}
+                        onCheckedChange={(checked) => handleCheckboxChange('assetStatus', status, !!checked)}
                       />
-                      <Label htmlFor={`type-${type}`} className="font-normal">{type}</Label>
+                      <Label htmlFor={`status-${status}`} className="font-normal">{status}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Investor Filter */}
+          <AccordionItem value="investor">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline border-b">
+              <div className="flex justify-between w-full items-center pr-2">
+                <span>Investor</span>
+                {filters.investor.length > 0 && (
+                  <Badge variant="secondary">{filters.investor.length}</Badge>
+                )}
+              </div>
+            </AccordionTrigger>
+            {filters.investor.length > 0 && (
+              <div className="px-4 pb-2 flex flex-wrap gap-1">
+                {filters.investor.map((investor) => (
+                  <Badge key={investor} variant="secondary" className="flex items-center gap-1">
+                    {investor}
+                    <button
+                      onClick={() => handleCheckboxChange('investor', investor, false)}
+                      className="rounded-full hover:bg-slate-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+            <AccordionContent className="pt-0">
+              <div className="p-2">
+                <Input
+                  placeholder="Search investors..."
+                  value={searchTerms.investor}
+                  onChange={(e) => handleSearchChange('investor', e.target.value)}
+                  className="mb-2"
+                />
+                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                  {filteredInvestors.map((investor) => (
+                    <div key={investor} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`investor-${investor}`}
+                        checked={filters.investor.includes(investor)}
+                        onCheckedChange={(checked) => handleCheckboxChange('investor', investor, !!checked)}
+                      />
+                      <Label htmlFor={`investor-${investor}`} className="font-normal">{investor}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Lien Position Filter */}
+          <AccordionItem value="lien-position">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline border-b">
+              <div className="flex justify-between w-full items-center pr-2">
+                <span>Lien Position</span>
+                {filters.lienPosition.length > 0 && (
+                  <Badge variant="secondary">{filters.lienPosition.length}</Badge>
+                )}
+              </div>
+            </AccordionTrigger>
+            {filters.lienPosition.length > 0 && (
+              <div className="px-4 pb-2 flex flex-wrap gap-1">
+                {filters.lienPosition.map((position) => (
+                  <Badge key={position} variant="secondary" className="flex items-center gap-1">
+                    {position}
+                    <button
+                      onClick={() => handleCheckboxChange('lienPosition', position, false)}
+                      className="rounded-full hover:bg-slate-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+            <AccordionContent className="pt-0">
+              <div className="p-2">
+                <Input
+                  placeholder="Search lien positions..."
+                  value={searchTerms.lienPosition}
+                  onChange={(e) => handleSearchChange('lienPosition', e.target.value)}
+                  className="mb-2"
+                />
+                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                  {filteredLienPositions.map((position) => (
+                    <div key={position} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`position-${position}`}
+                        checked={filters.lienPosition.includes(position)}
+                        onCheckedChange={(checked) => handleCheckboxChange('lienPosition', position, !!checked)}
+                      />
+                      <Label htmlFor={`position-${position}`} className="font-normal">{position}</Label>
                     </div>
                   ))}
                 </div>
