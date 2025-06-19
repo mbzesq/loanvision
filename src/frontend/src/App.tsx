@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import UploadPage from './pages/UploadPage';
 import LoanExplorerPage from './pages/LoanExplorerPage';
 import DashboardPage from './pages/DashboardPage';
+import { TestExportPage } from './pages/TestExportPage';
 
 function App() {
   const [status, setStatus] = useState<string>('loading...');
@@ -24,7 +25,10 @@ function App() {
           <nav>
             <Link to="/" style={{ marginRight: '20px' }}>Dashboard</Link>
             <Link to="/upload" style={{ marginRight: '20px' }}>Upload</Link>
-            <Link to="/loans">Loan Explorer</Link>
+            <Link to="/loans" style={{ marginRight: '20px' }}>Loan Explorer</Link>
+            <Link to="/test-export" className="text-sm font-medium text-red-500 hover:underline">
+              (Test Page)
+            </Link>
           </nav>
         </header>
         
@@ -33,6 +37,7 @@ function App() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/loans" element={<LoanExplorerPage />} />
+            <Route path="/test-export" element={<TestExportPage />} />
           </Routes>
         </main>
       </div>
