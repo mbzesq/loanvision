@@ -18,7 +18,7 @@ export type FilterValues = {
   propertyState: string[];
   assetStatus: string[];
   investor: string[];
-  lienPosition: number[];
+  lienPosition: string[];
   principalBalance: { min: number | ''; max: number | '' };
 };
 
@@ -28,7 +28,7 @@ interface FilterPanelProps {
   availableStates: { name: string; abbr: string }[];
   availableAssetStatuses: string[];
   availableInvestors: string[];
-  availableLienPositions: number[];
+  availableLienPositions: string[];
 }
 
 // Define the initial state for the filters
@@ -73,7 +73,7 @@ export function FilterPanel({
     });
   };
 
-  const handleLienPosChange = (value: number, checked: boolean) => {
+  const handleLienPosChange = (value: string, checked: boolean) => {
       setFilters((prev) => {
       const currentValues = prev.lienPosition;
       const newValues = checked
@@ -108,7 +108,7 @@ export function FilterPanel({
   const filteredStates = useMemo(() => availableStates.filter(state => state.name.toLowerCase().includes(searchTerms.propertyState.toLowerCase()) || state.abbr.toLowerCase().includes(searchTerms.propertyState.toLowerCase())), [availableStates, searchTerms.propertyState]);
   const filteredAssetStatuses = useMemo(() => availableAssetStatuses.filter(status => status.toLowerCase().includes(searchTerms.assetStatus.toLowerCase())), [availableAssetStatuses, searchTerms.assetStatus]);
   const filteredInvestors = useMemo(() => availableInvestors.filter(inv => inv.toLowerCase().includes(searchTerms.investor.toLowerCase())), [availableInvestors, searchTerms.investor]);
-  const filteredLienPositions = useMemo(() => availableLienPositions.filter(pos => String(pos).includes(searchTerms.lienPosition)), [availableLienPositions, searchTerms.lienPosition]);
+  const filteredLienPositions = useMemo(() => availableLienPositions.filter(pos => pos.toLowerCase().includes(searchTerms.lienPosition.toLowerCase())), [availableLienPositions, searchTerms.lienPosition]);
 
 
   return (
