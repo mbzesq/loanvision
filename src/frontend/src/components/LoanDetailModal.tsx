@@ -92,7 +92,6 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
           <DetailItem label="Last Paid Date">{formatDate(loan.last_paid_date)}</DetailItem>
           <DetailItem label="Next Due Date">{formatDate(loan.next_due_date)}</DetailItem>
           <DetailItem label="Legal Status">{formatValue(loan.legal_status)}</DetailItem>
-          <DetailItem label="Maturity Date">{formatDate(loan.maturity_date)}</DetailItem>
         </div>
 
         <DialogFooter>
