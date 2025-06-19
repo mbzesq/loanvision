@@ -28,42 +28,11 @@ interface LoanDetails {
   [key: string]: any;
 }
 
-interface Enrichment {
-  id: number;
-  loan_id: number;
-  enrichment_type: string;
-  provider: string;
-  data: {
-    value: number;
-    date: string;
-    confidence?: number;
-  };
-  created_at: string;
-  updated_at: string;
-}
 
-const fieldLabels: { [key: string]: string } = {
-  servicer_loan_id: 'Loan Number',
-  borrower_name: 'Borrower Name',
-  property_address: 'Property Address',
-  property_city: 'City',
-  property_state: 'State',
-  property_zip: 'ZIP Code',
-  unpaid_principal_balance: 'Unpaid Principal Balance',
-  loan_amount: 'Original Loan Amount',
-  interest_rate: 'Interest Rate',
-  legal_status: 'Legal Status',
-  last_paid_date: 'Last Paid Date',
-  next_due_date: 'Next Due Date',
-  remaining_term_months: 'Remaining Term (Months)',
-  created_at: 'Date Uploaded'
-};
 
 function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   const [loan, setLoan] = useState<LoanDetails | null>(null);
-  const [enrichments, setEnrichments] = useState<Enrichment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [enrichmentsLoading, setEnrichmentsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const formatCurrency = (value: string | null | undefined) => {
@@ -108,26 +77,9 @@ function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
       }
     };
 
-    const fetchEnrichments = async () => {
-      try {
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-        const response = await axios.get<Enrichment[]>(`${apiUrl}/api/loans/${loanId}/enrichments`);
-        setEnrichments(response.data);
-      } catch (err) {
-        console.error('Failed to fetch enrichments:', err);
-        // Don't set error for enrichments as they are optional
-      } finally {
-        setEnrichmentsLoading(false);
-      }
-    };
-
     fetchLoanDetails();
-    fetchEnrichments();
   }, [loanId]);
 
-  const getAvmEnrichment = (): Enrichment | null => {
-    return enrichments.find(e => e.enrichment_type === 'AVM') || null;
-  };
 
   const modalStyles: React.CSSProperties = {
     position: 'fixed',
