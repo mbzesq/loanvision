@@ -1,113 +1,85 @@
-### **LoanVision Project State - 2025-01-20**
-
-#### **1. High-Level Objective**
+LoanVision Project State - 2025-06-19
+1. High-Level Objective
 To build a SaaS platform for ingesting, enriching, and analyzing non-performing mortgage loan portfolios. The core idea is to provide automated data cleaning, enrichment, and an AI-powered query interface.
 
-#### **2. Core Technology Stack**
-* **Backend:** Node.js with Express, TypeScript
-* **Frontend:** React with Vite, TypeScript
-* **Database:** PostgreSQL
-* **Deployment:** Render
-* **Code Repository:** GitHub
+2. Core Technology Stack
+Backend: Node.js with Express, TypeScript
 
-#### **3. Current Deployed State (What Works)**
-* **Data Ingestion:** Users can successfully upload loan data via CSV/Excel files
-* **Dashboard:** Homepage displays summary cards with live portfolio metrics
-* **Loan Explorer Table:** Main data grid displays all loans with sorting and global search
-* **Advanced Filter Panel:** Professional accordion-style filter panel with:
-  - Property State filter with smart search (state names + abbreviations)
-  - Asset Status filter with searchable options
-  - Investor filter with searchable investor names
-  - Lien Position filter with searchable position values
-  - Principal Balance range filter (min/max inputs)
-  - Selection counter badges showing active filter counts
-  - Search-within-filter functionality for all categories
-  - Apply and Reset functionality working correctly
-* **Professional UI Design:** 
-  - Institutional-grade layout matching Charles Schwab aesthetic
-  - Card-based design with professional spacing
-  - Clean data table with alternating rows and hover effects
-  - Semantic color hierarchy with slate color palette
-  - Professional typography with Inter font family
-  - Responsive layout with max-width container
-* **Enhanced Data Toolbar:** Integrated toolbar featuring:
-  - Results summary showing "Viewing X of Y loans"
-  - Search input with icon
-  - Professional button grouping
-  - Working Export button with custom dropdown implementation
-* **Loan Detail Modal:** Clicking loan rows opens detailed information modal
-* **Report Exporting:** Users can export current view to both Excel and PDF formats
-* **Global Professional Theme:** 
-  - Inter font family applied application-wide
-  - Professional blue accent color (HSL: 221.2 83.2% 53.3%)
-  - Light gray background with optimized text contrast
-  - Consistent institutional design aesthetic
+Frontend: React with Vite, TypeScript
 
-#### **4. Evergreen Rules & Guardrails for the AI**
+Database: PostgreSQL
 
-**Workflow Rules:**
-- **Production-First:** Every new feature is built, deployed to a live URL, and tested by the project lead before moving on
-- **Human-in-the-Loop:** A human project lead oversees the process, provides high-level feature instructions, and performs final code review before commits are pushed by the AI engineer
-- **Single Source of Truth:** This project state document is the definitive record of the project's state
+Deployment: Render (as separate Backend and Frontend services from a monorepo)
 
-**Technical Guardrails:**
-- **Final Action:** After completing a development task, you must commit the changes and push them to the main branch on GitHub
-- **Render Build Commands:** Use npm cache clean --force && npm install && ... as the base for build commands
-- **Database Schema:** Use the psql command-line tool via a DROP and CREATE script
+Code Repository: GitHub (https://github.com/mbzesq/loanvision)
 
-#### **5. Last Session Summary**
-Successfully completed a comprehensive UI redesign and export button functionality restoration:
+3. Current Deployed State (What Works)
+The application is fully functional, with a stable UI and several key features implemented and verified:
 
-**Major UI Redesign:**
-- **Institutional-Grade Layout:** Redesigned LoanExplorerPage with full Tailwind styling, eliminating all inline styles
-- **Professional Data Table:** Replaced basic HTML table styling with clean, semantic design featuring:
-  - Alternating row colors with subtle hover effects
-  - Professional header styling with sort indicators
-  - Proper spacing and typography
-  - Tabular number formatting for financial data
-- **Enhanced Toolbar:** Replaced DataToolbar usage with integrated card-based toolbar design
-- **Full-Screen Layout:** Implemented min-h-screen layout with professional max-width container
+Data Ingestion: Successful uploads via CSV/Excel.
 
-**Export Button Fixes:**
-- **Diagnosed Dropdown Issues:** Identified overflow-hidden clipping and z-index problems
-- **Multiple Fix Attempts:** Attempted several solutions including migrating to shadcn/ui DropdownMenu
-- **Custom Solution:** Successfully implemented custom dropdown with useOnClickOutside hook
-- **Working Export:** Both PDF and Excel exports now function correctly with proper dropdown behavior
+Functional API: All backend endpoints, including the single loan detail endpoint, are working correctly with a proper CORS policy.
 
-**Technical Improvements:**
-- **Consistent Styling:** Moved from mixed inline/Tailwind approach to pure Tailwind classes
-- **Professional Icons:** Added lucide-react icons for search and sort indicators
-- **Responsive Design:** Maintained mobile-friendly layouts while adding professional desktop experience
-- **Clean Code:** Improved component structure and removed unnecessary dependencies
+Loan Explorer Page:
 
-#### **6. Immediate Next Task**
-Add calculated field filters to the Filter Panel, specifically:
-- Loan-to-Value (LTV) ratio filter with min/max range inputs
-- Equity percentage filter with min/max range inputs
-- Days delinquent filter with range selection
-These filters should follow the same pattern as the existing Principal Balance filter with proper type handling for calculated values.
+Accordion Filter Panel: A fully functional filter panel allows users to filter by Property State, Asset Status, Investor, Lien Position, and Principal Balance. The "Apply" and "Reset" buttons work as expected.
 
-#### **7. Future Roadmap**
+Data Toolbar: A clean header provides a loan count summary, a global search input, and action buttons.
 
-**Phase 1: "Now" - Loan Explorer V1 Polish & Expansion**
-* ✅ Add Selection Counter badges and apply new styling (COMPLETED)
-* ✅ Add "Search Within Filter" feature for long lists (COMPLETED) 
-* ✅ Add more filter types: Investor and Lien Position (COMPLETED)
-* ✅ Implement DataToolbar component and page header redesign (COMPLETED)
-* ✅ Connect Export button functionality with real export handlers (COMPLETED)
-* ✅ Apply global professional theme with Inter font and blue accent (COMPLETED)
-* ✅ Redesign UI for institutional-grade aesthetic (COMPLETED)
-* **(Current)** Add filters for calculated fields (e.g., LTV, equity percentage, days delinquent)
-* Add Maturity Date range picker filter
-* Revisit and productionize the AVM data enrichment engine
+Interactive Data Table: The main table correctly displays and sorts loan data.
 
-**Phase 2: "Next" - Enhanced Insights & UX**
-* Add loan comparison functionality
-* Implement "Save View" feature for filter combinations
-* Add advanced sorting and grouping options
-* Build custom dashboard widgets
+Custom Loan Detail Modal: After abandoning a problematic library component, we have a fully functional, custom-built modal that includes:
 
-**Phase 3: "Later" - Intelligent Platform & Automation**
-* Implement LLM Assistant for natural language search
-* Build workflow, alerting, and user authentication features
-* Add real-time data updates and collaboration tools
+A clean, multi-section layout for improved readability.
+
+Correct data formatting for currency and percentages.
+
+A clickable link to Zillow for the property address.
+
+A clickable (stubbed) link for the investor name.
+
+"Click outside" and "Escape key" to close functionality.
+
+Report Exporting: The "Export" button is fully functional, allowing users to download data in PDF and Excel formats.
+
+4. Evergreen Rules & Guardrails for the AI
+This section remains unchanged.
+
+5. Last Session Summary
+After a series of persistent and frustrating bugs with library components (DropdownMenu, Dialog), we successfully pivoted to a new strategy: building our own custom components. This was a major breakthrough. We successfully diagnosed and fixed a critical backend API bug. The session culminated in the successful deployment of a fully-functional, custom-built LoanDetailModal that incorporates numerous UI/UX improvements and bug fixes, aligning with our new professional aesthetic.
+
+6. Immediate Next Task
+Refactor the Data Table for Professional Aesthetic.
+
+This is the next step in our "UI/UX Polish" phase. To continue aligning the platform with our "Schwab-inspired" design, we will refactor the main TanStack Table. The goal is to make it more data-dense and professional-looking by implementing:
+
+Zebra-striping for table rows to improve readability.
+
+More compact row spacing.
+
+Subtle row hover effects.
+
+Improved styling for the table headers.
+
+7. Future Roadmap
+Phase 1: "Now" - Complete the Aesthetic Overhaul
+
+(Current) Refactor the Data Table for a professional aesthetic.
+
+Add a "Search Within Filter" feature for long lists.
+
+Add more filter types, such as a proper Maturity Date range picker.
+
+Phase 2: "Next" - High-Value Features
+
+Implement the RentCast API integration for property value enrichment.
+
+Build "soft delete" functionality for loans.
+
+Begin building the "Reports" page with pre-canned charts and summaries.
+
+Phase 3: "Later" - Intelligent Platform & Automation
+
+Implement the LLM Assistant for natural language search.
+
+Build workflow, alerting, and user authentication features.
