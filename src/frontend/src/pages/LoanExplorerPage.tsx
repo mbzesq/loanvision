@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import LoanDetailModal from '../components/LoanDetailModal';
+import { LoanDetailModal } from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { ExportButton } from '../components/ExportButton';
 import { states } from '@loanvision/shared/lib/states';
