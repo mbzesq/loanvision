@@ -7,6 +7,7 @@ import { Input } from '@loanvision/shared/components/ui/input';
 import { Label } from '@loanvision/shared/components/ui/label';
 import { Badge } from '@loanvision/shared/components/ui/badge';
 import { X } from 'lucide-react';
+import { State } from '@loanvision/shared/lib/states';
 import {
   Accordion,
   AccordionContent,
@@ -24,7 +25,7 @@ export type FilterValues = {
 // Define the component's props
 interface FilterPanelProps {
   onApplyFilters: (filters: FilterValues) => void;
-  availableStates: string[];
+  availableStates: State[];
   availableLoanTypes: string[];
 }
 
@@ -84,7 +85,8 @@ export function FilterPanel({
   // Create filtered lists based on search terms
   const filteredStates = useMemo(() =>
     availableStates.filter(state =>
-      state.toLowerCase().includes(searchTerms.propertyState.toLowerCase())
+      state.name.toLowerCase().includes(searchTerms.propertyState.toLowerCase()) ||
+      state.abbr.toLowerCase().includes(searchTerms.propertyState.toLowerCase())
     ), [availableStates, searchTerms.propertyState]);
 
   const filteredLoanTypes = useMemo(() =>
@@ -119,17 +121,20 @@ export function FilterPanel({
             </AccordionTrigger>
             {filters.propertyState.length > 0 && (
               <div className="px-4 pb-2 flex flex-wrap gap-1">
-                {filters.propertyState.map((state) => (
-                  <Badge key={state} variant="secondary" className="flex items-center gap-1">
-                    {state}
-                    <button
-                      onClick={() => handleCheckboxChange('propertyState', state, false)}
-                      className="rounded-full hover:bg-slate-300"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
+                {filters.propertyState.map((stateAbbr) => {
+                  const stateObj = availableStates.find(s => s.abbr === stateAbbr);
+                  return (
+                    <Badge key={stateAbbr} variant="secondary" className="flex items-center gap-1">
+                      {stateObj ? `${stateObj.name} (${stateObj.abbr})` : stateAbbr}
+                      <button
+                        onClick={() => handleCheckboxChange('propertyState', stateAbbr, false)}
+                        className="rounded-full hover:bg-slate-300"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  );
+                })}
               </div>
             )}
             <AccordionContent className="pt-0">
@@ -142,13 +147,13 @@ export function FilterPanel({
                 />
                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                   {filteredStates.map((state) => (
-                    <div key={state} className="flex items-center space-x-2">
+                    <div key={state.abbr} className="flex items-center space-x-2">
                       <Checkbox
-                        id={`state-${state}`}
-                        checked={filters.propertyState.includes(state)}
-                        onCheckedChange={(checked) => handleCheckboxChange('propertyState', state, !!checked)}
+                        id={`state-${state.abbr}`}
+                        checked={filters.propertyState.includes(state.abbr)}
+                        onCheckedChange={(checked) => handleCheckboxChange('propertyState', state.abbr, !!checked)}
                       />
-                      <Label htmlFor={`state-${state}`} className="font-normal">{state}</Label>
+                      <Label htmlFor={`state-${state.abbr}`} className="font-normal">{state.name} ({state.abbr})</Label>
                     </div>
                   ))}
                 </div>
