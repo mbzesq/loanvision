@@ -21,7 +21,7 @@ import {
   SortingState,
 } from '@tanstack/react-table';
 
-interface Loan {
+export interface Loan {
   id: number;
   servicer_loan_id: string;
   borrower_name: string;
@@ -48,6 +48,8 @@ function LoanExplorerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
+  const [modalLoanData, setModalLoanData] = useState<Loan | null>(null);
+  const [isModalLoading, setIsModalLoading] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [exporting, setExporting] = useState(false);
@@ -73,6 +75,26 @@ function LoanExplorerPage() {
 
     fetchLoans();
   }, []);
+
+  useEffect(() => {
+    const fetchLoanDetails = async () => {
+      if (selectedLoanId) {
+        setIsModalLoading(true);
+        setModalLoanData(null); // Clear old data
+        try {
+          const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+          const response = await axios.get(`${apiUrl}/api/loans/${selectedLoanId}`);
+          setModalLoanData(response.data);
+        } catch (error) {
+          console.error('Failed to fetch loan details:', error);
+        } finally {
+          setIsModalLoading(false);
+        }
+      }
+    };
+
+    fetchLoanDetails();
+  }, [selectedLoanId]);
 
   const uniqueStates = useMemo(() => {
     const loanStateAbbrs = new Set(loans?.map(loan => loan.property_state).filter(Boolean) ?? []);
@@ -473,11 +495,17 @@ function LoanExplorerPage() {
         </div>
         
         {/* Loan Detail Modal */}
-        {selectedLoanId && (
-          <LoanDetailModal 
-            loanId={selectedLoanId} 
-            onClose={() => setSelectedLoanId(null)} 
+        {(selectedLoanId && !isModalLoading) && (
+          <LoanDetailModal
+            loan={modalLoanData}
+            onClose={() => setSelectedLoanId(null)}
           />
+        )}
+        {/* Optional: Add a loading indicator for the modal */}
+        {(selectedLoanId && isModalLoading) && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="text-white">Loading loan details...</div>
+            </div>
         )}
       </div>
     </div>
