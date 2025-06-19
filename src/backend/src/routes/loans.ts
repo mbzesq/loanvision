@@ -16,14 +16,7 @@ router.get('/loans', async (req, res) => {
 router.get('/loans/:loanId', async (req, res) => {
   try {
     const { loanId } = req.params;
-    const parsedLoanId = parseInt(loanId, 10); // Convert string to number
-
-    // Check if parsing was successful
-    if (isNaN(parsedLoanId)) {
-      return res.status(400).json({ error: 'Invalid loan ID format' });
-    }
-
-    const result = await pool.query('SELECT * FROM loans WHERE servicer_loan_id = $1', [parsedLoanId]);
+    const result = await pool.query('SELECT * FROM loans WHERE servicer_loan_id = $1', [loanId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Loan not found' });
