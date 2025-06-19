@@ -401,7 +401,7 @@ function LoanExplorerPage() {
             {/* Data Table */}
             <Card>
               <CardContent className="p-0">
-                <div className="overflow-hidden">
+                <div className="overflow-visible relative">
                   <table className="w-full">
                     <thead>
                       {table.getHeaderGroups().map(headerGroup => (

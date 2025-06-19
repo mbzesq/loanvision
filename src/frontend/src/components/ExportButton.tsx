@@ -20,7 +20,7 @@ export function ExportButton({ onExport, exporting }: ExportButtonProps) {
           {exporting ? 'Exporting...' : 'Export'}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48">
+      <DropdownMenuContent className="w-48 z-50">
         <DropdownMenuItem
           onClick={() => onExport('excel')}
           disabled={exporting}
