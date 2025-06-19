@@ -6,16 +6,11 @@ import autoTable from 'jspdf-autotable';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import LoanDetailModal from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
+import { ExportButton } from '../components/ExportButton';
 import { states } from '@loanvision/shared/lib/states';
 import { Input } from '@loanvision/shared/components/ui/input';
 import { Button } from '@loanvision/shared/components/ui/button';
 import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@loanvision/shared/components/ui/dropdown-menu';
 import {
   createColumnHelper,
   flexRender,
@@ -393,28 +388,11 @@ function LoanExplorerPage() {
                       Compare
                     </Button>
 
-                    {/* Export Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" disabled={exporting}>
-                          {exporting ? 'Exporting...' : 'Export'}
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem 
-                          onClick={() => handleExport('excel')} 
-                          disabled={exporting}
-                        >
-                          Download as Excel
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleExport('pdf')} 
-                          disabled={exporting}
-                        >
-                          Download as PDF
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {/* Export Button */}
+                    <ExportButton
+                      onExport={handleExport}
+                      exporting={exporting}
+                    />
                   </div>
                 </div>
               </CardHeader>
