@@ -3,10 +3,19 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import LoanDetailModal from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
-import { DataToolbar } from '../components/DataToolbar';
 import { states } from '@loanvision/shared/lib/states';
+import { Input } from '@loanvision/shared/components/ui/input';
+import { Button } from '@loanvision/shared/components/ui/button';
+import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@loanvision/shared/components/ui/dropdown-menu';
 import {
   createColumnHelper,
   flexRender,
@@ -134,23 +143,39 @@ function LoanExplorerPage() {
     () => [
       columnHelper.accessor('servicer_loan_id', {
         header: 'Loan Number',
-        cell: info => info.getValue() || 'N/A',
+        cell: info => (
+          <span className="font-medium text-primary">
+            {info.getValue() || 'N/A'}
+          </span>
+        ),
       }),
       columnHelper.accessor('borrower_name', {
         header: 'Borrower Name',
-        cell: info => info.getValue() || 'N/A',
+        cell: info => (
+          <span className="text-slate-900">
+            {info.getValue() || 'N/A'}
+          </span>
+        ),
       }),
       columnHelper.accessor('property_address', {
         header: 'Property Address',
-        cell: info => info.getValue() || 'N/A',
+        cell: info => (
+          <span className="text-slate-700">
+            {info.getValue() || 'N/A'}
+          </span>
+        ),
       }),
       columnHelper.accessor('unpaid_principal_balance', {
         header: 'UPB',
         cell: info => {
           const value = info.getValue();
-          return value 
-            ? parseFloat(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-            : 'N/A';
+          return (
+            <span className="font-semibold text-slate-900 tabular-nums">
+              {value 
+                ? parseFloat(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+                : 'N/A'}
+            </span>
+          );
         },
         sortingFn: (rowA, rowB, columnId) => {
           const a = parseFloat(rowA.getValue(columnId) || '0');
@@ -162,9 +187,13 @@ function LoanExplorerPage() {
         header: 'Next Due Date',
         cell: info => {
           const value = info.getValue();
-          return value 
-            ? new Date(value).toLocaleDateString('en-US')
-            : 'N/A';
+          return (
+            <span className="text-slate-700 tabular-nums">
+              {value 
+                ? new Date(value).toLocaleDateString('en-US')
+                : 'N/A'}
+            </span>
+          );
         },
         sortingFn: (rowA, rowB, columnId) => {
           const a = rowA.getValue(columnId) ? new Date(rowA.getValue(columnId)).getTime() : 0;
@@ -176,9 +205,13 @@ function LoanExplorerPage() {
         header: 'Last Paid Date',
         cell: info => {
           const value = info.getValue();
-          return value 
-            ? new Date(value).toLocaleDateString('en-US')
-            : 'N/A';
+          return (
+            <span className="text-slate-700 tabular-nums">
+              {value 
+                ? new Date(value).toLocaleDateString('en-US')
+                : 'N/A'}
+            </span>
+          );
         },
         sortingFn: (rowA, rowB, columnId) => {
           const a = rowA.getValue(columnId) ? new Date(rowA.getValue(columnId)).getTime() : 0;
@@ -209,14 +242,11 @@ function LoanExplorerPage() {
     
     try {
       if (format === 'pdf') {
-        // Client-side PDF generation
         const doc = new jsPDF('landscape');
         
-        // Add title
         doc.setFontSize(18);
         doc.text('Loan Portfolio Report', 14, 20);
         
-        // Add metadata
         doc.setFontSize(10);
         doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30);
         doc.text(`Total loans: ${table.getFilteredRowModel().rows.length}`, 14, 36);
@@ -224,7 +254,6 @@ function LoanExplorerPage() {
           doc.text(`Filter applied: "${globalFilter}"`, 14, 42);
         }
         
-        // Prepare table data
         const filteredRows = table.getFilteredRowModel().rows;
         const tableData = filteredRows.map(row => [
           row.original.servicer_loan_id || 'N/A',
@@ -247,7 +276,6 @@ function LoanExplorerPage() {
           row.original.legal_status || 'N/A'
         ]);
         
-        // Add table
         autoTable(doc, {
           head: [['Loan Number', 'Borrower Name', 'Property Address', 'City', 'State', 'UPB', 'Interest Rate', 'Next Due Date', 'Last Paid Date', 'Legal Status']],
           body: tableData,
@@ -256,11 +284,9 @@ function LoanExplorerPage() {
           headStyles: { fillColor: [100, 100, 100] }
         });
         
-        // Save the PDF
         const filename = `loan_report_${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(filename);
       } else {
-        // Excel export - still server-side
         const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
         const params = globalFilter ? `?filter=${encodeURIComponent(globalFilter)}` : '';
         
@@ -279,102 +305,202 @@ function LoanExplorerPage() {
     }
   };
 
-  if (loading) return <div>Loading loans...</div>;
-  if (error) return <div style={{ color: 'red' }}>{error}</div>;
+  const getSortIcon = (isSorted: false | 'asc' | 'desc') => {
+    if (isSorted === 'asc') return <ArrowUp className="h-4 w-4" />;
+    if (isSorted === 'desc') return <ArrowDown className="h-4 w-4" />;
+    return <ArrowUpDown className="h-4 w-4 opacity-50" />;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-slate-600">Loading loans...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-red-600">{error}</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Loan Explorer</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filter Panel - Left Column */}
-        <div className="lg:col-span-1">
-          <FilterPanel 
-            onApplyFilters={handleApplyFilters} 
-            availableStates={uniqueStates}
-            availableAssetStatuses={uniqueLegalStatuses}
-            availableInvestors={uniqueInvestors}
-            availableLienPositions={uniqueLienPositions}
-          />
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-screen-xl mx-auto p-6 space-y-6">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Loan Explorer</h1>
+            <p className="text-slate-600 mt-1">
+              Analyze and filter your loan portfolio
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filter Panel - Left Column */}
+          <div className="lg:col-span-1">
+            <FilterPanel 
+              onApplyFilters={handleApplyFilters} 
+              availableStates={uniqueStates}
+              availableAssetStatuses={uniqueLegalStatuses}
+              availableInvestors={uniqueInvestors}
+              availableLienPositions={uniqueLienPositions}
+            />
+          </div>
+          
+          {/* Main Content - Right Column */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Data Toolbar */}
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    {/* Results Summary */}
+                    <div className="text-sm text-slate-600">
+                      Viewing{' '}
+                      <span className="font-semibold text-slate-900">
+                        {table.getFilteredRowModel().rows.length.toLocaleString()}
+                      </span>{' '}
+                      of{' '}
+                      <span className="font-semibold text-slate-900">
+                        {loans.length.toLocaleString()}
+                      </span>{' '}
+                      loans
+                    </div>
+
+                    {/* Search Input */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input
+                        placeholder="Search all loans..."
+                        value={globalFilter ?? ''}
+                        onChange={(event) => setGlobalFilter(event.target.value)}
+                        className="pl-10 w-64 h-9"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Future Feature Buttons */}
+                    <Button variant="outline" size="sm" disabled>
+                      Save View
+                    </Button>
+                    <Button variant="outline" size="sm" disabled>
+                      Compare
+                    </Button>
+
+                    {/* Export Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" disabled={exporting}>
+                          {exporting ? 'Exporting...' : 'Export'}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem 
+                          onClick={() => handleExport('excel')} 
+                          disabled={exporting}
+                        >
+                          Download as Excel
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleExport('pdf')} 
+                          disabled={exporting}
+                        >
+                          Download as PDF
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Data Table */}
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-hidden">
+                  <table className="w-full">
+                    <thead>
+                      {table.getHeaderGroups().map(headerGroup => (
+                        <tr key={headerGroup.id} className="border-b border-slate-200 bg-slate-50">
+                          {headerGroup.headers.map(header => (
+                            <th
+                              key={header.id}
+                              className="text-left p-3 text-sm font-semibold text-slate-700 select-none"
+                            >
+                              {header.isPlaceholder ? null : (
+                                <div
+                                  className={`flex items-center gap-2 ${
+                                    header.column.getCanSort()
+                                      ? 'cursor-pointer hover:text-slate-900'
+                                      : ''
+                                  }`}
+                                  onClick={header.column.getToggleSortingHandler()}
+                                >
+                                  {flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
+                                  {header.column.getCanSort() && (
+                                    <span className="ml-1">
+                                      {getSortIcon(header.column.getIsSorted())}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody>
+                      {table.getRowModel().rows.map((row, index) => (
+                        <tr
+                          key={row.id}
+                          onClick={() => setSelectedLoanId(row.original.servicer_loan_id)}
+                          className={`
+                            cursor-pointer transition-colors duration-150
+                            hover:bg-slate-50 border-b border-slate-100
+                            ${index % 2 === 0 ? 'bg-white' : 'bg-slate-25'}
+                          `}
+                        >
+                          {row.getVisibleCells().map(cell => (
+                            <td key={cell.id} className="p-3 text-sm">
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  
+                  {table.getRowModel().rows.length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-slate-500">
+                        {globalFilter 
+                          ? 'No loans found matching your search criteria.' 
+                          : 'No loans found. Upload a file to see loans here.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
         
-        {/* Main Content - Right Column */}
-        <div className="lg:col-span-3">
-          <DataToolbar
-            globalFilter={globalFilter}
-            setGlobalFilter={setGlobalFilter}
-            filteredLoanCount={table.getFilteredRowModel().rows.length}
-            totalLoanCount={loans.length}
-            onExport={handleExport}
-            exporting={exporting}
+        {/* Loan Detail Modal */}
+        {selectedLoanId && (
+          <LoanDetailModal 
+            loanId={selectedLoanId} 
+            onClose={() => setSelectedLoanId(null)} 
           />
-          
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-            <thead>
-              {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id} style={{ backgroundColor: '#f0f0f0' }}>
-                  {headerGroup.headers.map(header => (
-                    <th
-                      key={header.id}
-                      style={{
-                        padding: '8px',
-                        textAlign: 'left',
-                        cursor: header.column.getCanSort() ? 'pointer' : 'default',
-                        userSelect: 'none',
-                      }}
-                      onClick={header.column.getToggleSortingHandler()}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {{
-                          asc: ' ↑',
-                          desc: ' ↓',
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map(row => (
-                <tr
-                  key={row.id}
-                  onClick={() => setSelectedLoanId(row.original.servicer_loan_id)}
-                  style={{
-                    cursor: 'pointer',
-                    backgroundColor: 'transparent',
-                    transition: 'background-color 0.2s',
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  {row.getVisibleCells().map(cell => (
-                    <td key={cell.id} style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {table.getRowModel().rows.length === 0 && (
-            <p style={{ textAlign: 'center', marginTop: '20px' }}>
-              {globalFilter ? 'No loans found matching your search.' : 'No loans found. Upload a file to see loans here.'}
-            </p>
-          )}
-          
-          {selectedLoanId && (
-            <LoanDetailModal 
-              loanId={selectedLoanId} 
-              onClose={() => setSelectedLoanId(null)} 
-            />
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
