@@ -79,19 +79,45 @@ function LoanExplorerPage() {
     return Array.from(statuses).sort();
   }, [loans]);
 
+  // Add derived data for new filters
+  const uniqueInvestors = useMemo(() => {
+    // Placeholder - using borrower_name as investor for demo purposes
+    // Replace with actual investor field when available
+    const investors = new Set(loans?.map(loan => loan.borrower_name).filter(Boolean) ?? []);
+    return Array.from(investors).sort();
+  }, [loans]);
+
+  const uniqueLienPositions = useMemo(() => {
+    // Placeholder - using remaining_term_months as lien position for demo purposes
+    // Replace with actual lien position field when available
+    const positions = new Set(loans?.map(loan => parseInt(loan.remaining_term_months) || 1).filter(Boolean) ?? []);
+    return Array.from(positions).sort((a, b) => a - b);
+  }, [loans]);
+
   const filteredData = useMemo(() => {
     if (!loans) return []; // Return empty array if loans is not yet loaded
 
     return loans.filter(loan => {
-      const { propertyState, loanType, principalBalance } = activeFilters;
+      const { propertyState, assetStatus, investor, lienPosition, principalBalance } = activeFilters;
 
       // State filter
       if (propertyState.length > 0 && !propertyState.includes(loan.property_state)) {
         return false;
       }
 
-      // Loan type filter
-      if (loanType.length > 0 && !loanType.includes(loan.legal_status)) {
+      // Asset status filter (renamed from loan type)
+      if (assetStatus.length > 0 && !assetStatus.includes(loan.legal_status)) {
+        return false;
+      }
+
+      // Investor filter
+      if (investor.length > 0 && !investor.includes(loan.borrower_name)) {
+        return false;
+      }
+
+      // Lien Position filter
+      const loanLienPosition = parseInt(loan.remaining_term_months) || 1;
+      if (lienPosition.length > 0 && !lienPosition.includes(loanLienPosition)) {
         return false;
       }
 
@@ -271,7 +297,9 @@ function LoanExplorerPage() {
           <FilterPanel 
             onApplyFilters={handleApplyFilters} 
             availableStates={uniqueStates}
-            availableLoanTypes={uniqueLegalStatuses}
+            availableAssetStatuses={uniqueLegalStatuses}
+            availableInvestors={uniqueInvestors}
+            availableLienPositions={uniqueLienPositions}
           />
         </div>
         
