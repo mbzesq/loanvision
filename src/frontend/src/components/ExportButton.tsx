@@ -1,6 +1,5 @@
 // src/frontend/src/components/ExportButton.tsx
 
-import { useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,35 +7,31 @@ import {
   DropdownMenuTrigger,
 } from '@loanvision/shared/components/ui/dropdown-menu';
 import { Button } from '@loanvision/shared/components/ui/button';
-import { ChevronDown } from 'lucide-react';
 
-interface ExportButtonProps {
-  onExport?: (format: 'pdf' | 'excel') => void;
-  exporting?: boolean;
-}
+// Placeholder functions for the export logic.
+// In the future, these will trigger API calls.
+const handleExportExcel = () => {
+  console.log('Exporting to Excel...');
+};
 
-export function ExportButton({ onExport, exporting = false }: ExportButtonProps) {
-  const [isOpen, setOpen] = useState(false);
+const handleExportPdf = () => {
+  console.log('Exporting to PDF...');
+};
 
-  const handleExport = (format: 'pdf' | 'excel') => {
-    setOpen(false);
-    onExport?.(format);
-  };
-
+export function ExportButton() {
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setOpen}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" disabled={exporting}>
-          {exporting ? 'Exporting...' : 'Export'}
-          <ChevronDown className="ml-1 h-3 w-3" />
+        <Button variant="outline" size="sm">
+          Export
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => handleExport('pdf')}>
-          Download as PDF
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleExport('excel')}>
+        <DropdownMenuItem onClick={handleExportExcel}>
           Download as Excel
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExportPdf}>
+          Download as PDF
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
