@@ -1,4 +1,5 @@
 // src/frontend/src/components/ExportButton.tsx
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,16 +14,17 @@ interface ExportButtonProps {
 }
 
 export function ExportButton({ onExport, exporting }: ExportButtonProps) {
+  // NOTE: We have removed the useState for 'open'
   return (
+    // NOTE: We have removed the 'open' and 'onOpenChange' props
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" disabled={exporting}>
           {exporting ? 'Exporting...' : 'Export'}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
+      <DropdownMenuContent
         align="end"
-        // The following className is the critical fix
         className="bg-white shadow-md border rounded-md z-50"
       >
         <DropdownMenuItem onClick={() => onExport('excel')} disabled={exporting}>
