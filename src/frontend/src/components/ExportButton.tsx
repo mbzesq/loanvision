@@ -1,4 +1,5 @@
 // src/frontend/src/components/ExportButton.tsx
+import { useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,18 +14,25 @@ interface ExportButtonProps {
 }
 
 export function ExportButton({ onExport, exporting }: ExportButtonProps) {
+  const [open, setOpen] = useState(false);
+
+  const handleExport = (format: 'pdf' | 'excel') => {
+    setOpen(false); // Close dropdown after selection
+    onExport(format);
+  };
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" disabled={exporting}>
           {exporting ? 'Exporting...' : 'Export'}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onExport('excel')} disabled={exporting}>
+        <DropdownMenuItem onClick={() => handleExport('excel')} disabled={exporting}>
           Download as Excel
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onExport('pdf')} disabled={exporting}>
+        <DropdownMenuItem onClick={() => handleExport('pdf')} disabled={exporting}>
           Download as PDF
         </DropdownMenuItem>
       </DropdownMenuContent>
