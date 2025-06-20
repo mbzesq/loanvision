@@ -161,7 +161,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('servicer_loan_id', {
         header: 'Loan Number',
         cell: info => (
-          <span className="font-medium text-primary">
+          <span className="font-medium text-blue-600 hover:underline">
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -187,7 +187,7 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span className="font-semibold text-slate-900 tabular-nums">
+            <span className="font-semibold text-slate-800 tabular-nums">
               {value 
                 ? parseFloat(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                 : 'N/A'}
@@ -427,11 +427,11 @@ function LoanExplorerPage() {
                   <table className="w-full">
                     <thead>
                       {table.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id} className="border-b border-slate-200 bg-slate-50">
+                        <tr key={headerGroup.id} className="border-b-2 border-slate-200 bg-slate-50">
                           {headerGroup.headers.map(header => (
                             <th
                               key={header.id}
-                              className="text-left p-3 text-sm font-semibold text-slate-700 select-none"
+                              className="text-left p-2 text-xs font-semibold text-blue-700 uppercase tracking-wider select-none"
                             >
                               {header.isPlaceholder ? null : (
                                 <div
@@ -466,14 +466,13 @@ function LoanExplorerPage() {
                             console.log(`[Frontend] Row clicked. Selecting loan ID: ${row.original.servicer_loan_id}`); // Add this log
                             setSelectedLoanId(row.original.servicer_loan_id);
                           }}
-                          className={`
-                            cursor-pointer transition-colors duration-150
-                            hover:bg-slate-50 border-b border-slate-100
-                            ${index % 2 === 0 ? 'bg-white' : 'bg-slate-25'}
-                          `}
+                          className={`border-b border-slate-100 transition-colors duration-150 cursor-pointer 
+  ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} 
+  hover:bg-blue-50
+`}
                         >
                           {row.getVisibleCells().map(cell => (
-                            <td key={cell.id} className="p-3 text-sm">
+                            <td key={cell.id} className="p-2 text-sm">
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </td>
                           ))}
