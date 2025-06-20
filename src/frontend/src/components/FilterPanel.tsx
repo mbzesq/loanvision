@@ -31,7 +31,6 @@ interface FilterPanelProps {
   availableLienPositions: string[];
   onShowAll: () => void;
   onClearView: () => void;
-  onResetFilters: () => void;
 }
 
 // Define the initial state for the filters
@@ -51,7 +50,6 @@ export function FilterPanel({
   availableLienPositions,
   onShowAll,
   onClearView,
-  onResetFilters,
 }: FilterPanelProps) {
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
   const [searchTerms, setSearchTerms] = useState({
