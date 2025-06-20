@@ -76,13 +76,48 @@ export interface ForeclosureEventData {
 
 // Load milestone benchmarks from JSON file
 let milestoneBenchmarks: MilestoneBenchmark[] = [];
+
+// Helper function to try multiple possible paths for the JSON file
+function loadMilestoneBenchmarks(): MilestoneBenchmark[] {
+  const possiblePaths = [
+    // From dist/services/ to dist/ - copied by build script
+    path.resolve(__dirname, '../fcl_milestones_by_state.json'),
+    // From dist/services/ - local development after build
+    path.resolve(__dirname, '../../../../fcl_milestones_by_state.json'),
+    // From dist/services/ - alternative structure
+    path.resolve(__dirname, '../../../fcl_milestones_by_state.json'),
+    // From project root using process.cwd() - fallback
+    path.resolve(process.cwd(), 'fcl_milestones_by_state.json'),
+    // For Render deployment structure
+    path.resolve(__dirname, '../../fcl_milestones_by_state.json'),
+  ];
+
+  console.log(`Current __dirname: ${__dirname}`);
+  
+  for (const benchmarkPath of possiblePaths) {
+    try {
+      console.log(`Attempting to load milestone benchmarks from: ${benchmarkPath}`);
+      if (fs.existsSync(benchmarkPath)) {
+        const benchmarkData = fs.readFileSync(benchmarkPath, 'utf8');
+        const data = JSON.parse(benchmarkData);
+        console.log(`Successfully loaded ${data.length} milestone benchmarks from: ${benchmarkPath}`);
+        return data;
+      } else {
+        console.log(`File does not exist at: ${benchmarkPath}`);
+      }
+    } catch (error) {
+      console.log(`Failed to load from ${benchmarkPath}:`, error instanceof Error ? error.message : String(error));
+    }
+  }
+  
+  console.error('Unable to load milestone benchmarks from any attempted path');
+  return [];
+}
+
 try {
-  const benchmarkPath = path.resolve(__dirname, '../../../fcl_milestones_by_state.json');
-  const benchmarkData = fs.readFileSync(benchmarkPath, 'utf8');
-  milestoneBenchmarks = JSON.parse(benchmarkData);
-  console.log(`Loaded ${milestoneBenchmarks.length} milestone benchmarks`);
+  milestoneBenchmarks = loadMilestoneBenchmarks();
 } catch (error) {
-  console.error('Error loading milestone benchmarks:', error);
+  console.error('Critical error loading milestone benchmarks:', error);
 }
 
 // Map milestone names from file columns to benchmark milestone names
