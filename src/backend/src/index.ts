@@ -11,25 +11,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// This entire block should be added right after const app = express();
 const allowedOrigins = ['https://loanvision-frontend.onrender.com'];
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // The 'origin' can be 'undefined' for server-to-server requests or browser extensions.
-    // We can allow these or block them based on our security needs.
-    // For now, we'll proceed if there's no origin or if it's in our allowed list.
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.error(`CORS error: Origin ${origin} not allowed.`);
-      callback(new Error('Not allowed by CORS'));
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
     }
-  },
-  credentials: true, // This allows cookies to be sent
-  optionsSuccessStatus: 200 // For legacy browser support
+    return callback(null, true);
+  }
 };
 
-app.use(cors(corsOptions)); // CORS MUST BE THE FIRST MIDDLEWARE
+app.use(cors(corsOptions)); // This must be the first middleware
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
