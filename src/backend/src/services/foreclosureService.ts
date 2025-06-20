@@ -77,7 +77,7 @@ export interface ForeclosureEventData {
 // Load milestone benchmarks from JSON file
 let milestoneBenchmarks: MilestoneBenchmark[] = [];
 try {
-  const benchmarkPath = path.join(process.cwd(), 'fcl_milestones_by_state.json');
+  const benchmarkPath = path.resolve(__dirname, '../../../fcl_milestones_by_state.json');
   const benchmarkData = fs.readFileSync(benchmarkPath, 'utf8');
   milestoneBenchmarks = JSON.parse(benchmarkData);
   console.log(`Loaded ${milestoneBenchmarks.length} milestone benchmarks`);
@@ -308,10 +308,10 @@ async function getStateForLoan(loanId: string): Promise<string | null> {
     return loansResult.rows[0].property_state;
   }
   
-  // If not found, try daily_metrics table
+  // If not found, try daily_metrics_current table
   const metricsQuery = `
     SELECT state 
-    FROM daily_metrics 
+    FROM daily_metrics_current 
     WHERE loan_id = $1 
     ORDER BY created_at DESC 
     LIMIT 1
