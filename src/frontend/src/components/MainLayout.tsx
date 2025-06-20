@@ -9,25 +9,34 @@ export function MainLayout() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-slate-50">
-      {/* Persistent Sidebar for Desktop */}
-      <div className="hidden lg:block">
-        <SideNav />
+    <div className="min-h-screen w-full bg-slate-50">
+      {/* Desktop Layout: Sidebar + Content */}
+      <div className="hidden lg:flex lg:h-screen">
+        {/* Fixed Sidebar */}
+        <div className="w-64 flex-shrink-0">
+          <SideNav />
+        </div>
+        
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
       </div>
 
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-          {/* Mobile Header and Menu Trigger */}
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
+        {/* Mobile Header and Menu Trigger */}
         <MobileHeader onMenuClick={() => setMobileMenuOpen(true)} />
 
-          {/* Mobile Slide-out Menu */}
+        {/* Mobile Slide-out Menu */}
         <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetContent side="left" className="p-0 w-64">
             <SideNav onLinkClick={() => setMobileMenuOpen(false)} />
           </SheetContent>
         </Sheet>
 
-        {/* Main Page Content */}
-        <main className="flex-1 overflow-y-auto">
+        {/* Main Page Content for Mobile */}
+        <main className="overflow-y-auto">
           <Outlet />
         </main>
       </div>
