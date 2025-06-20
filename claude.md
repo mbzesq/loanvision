@@ -63,26 +63,25 @@ Code Repository: GitHub (https://github.com/mbzesq/loanvision)
 - ChatGPT is the product and engineering lead, and must review all architectural decisions, error debugging, or unresolved logic questions before Claude proceeds.
 - Claude must follow instructions strictly and escalate ambiguity to Michael or ChatGPT for clarification.
 
-6. Last Session Summary
-- Completed visual and functional enhancements to the Loan Explorer page.
-- Successfully deployed layout fixes and quality-of-life improvements such as the clearable search input.
-- Integrated `fcl-timelines-costs.xlsx` into the project to support foreclosure step ordering.
-- Began testing new ingestion of foreclosure and daily metrics files via the Upload page.
+6. Last Milestone Summary
+We successfully:
 
-7. Immediate Next Task
-- Create `foreclosure_events` table in the database to resolve ingestion failure.
-- Successfully complete ingestion of foreclosure data using the updated file upload pipeline.
-- Begin surfacing foreclosure indicators in the Loan Explorer and Dashboard views.
+Built and deployed full support for daily_metrics and foreclosure uploads with current/history table structure.
 
-8. Future Roadmap
-Phase 1: "Now" - Complete Upload Testing and LoanExplorer Enhancements
-- Finalize file ingestion logic and error handling.
-- Display foreclosure status and latest legal step in Loan Explorer.
+Migrated SQL changes to Render DB via psql.
 
-Phase 2: "Next" - High-Value Features & Reporting
-- Build foreclosure analytics into the Dashboard (e.g., # of loans by FC step).
-- Begin building the "Reports" page with pre-canned charts and summaries.
+Enhanced upload logging, status tracking, and reporting.
 
-Phase 3: "Later" - Decision Engine & Automation
-- Implement Risk Assessment Rulesets, Workout Path Recommendations, and Financial Outcome Modeling.
-- Implement the LLM Assistant for natural language search.
+7. Immediate Next Tasks
+✅ Test uploads of real data (completed).
+
+🔲 Wire daily_metrics_current and/or foreclosure_events data into Loan Explorer and Dashboard.
+
+🔲 Determine visual display strategy for historical trends (e.g., delinquency over time, foreclosure pipeline velocity).
+
+8. Roadmap Highlights
+Now: Visual integration of newly uploaded data (Loan Explorer, Loan Detail, Dashboard).
+
+Next: Summary reports, RentCast API enrichment, decision support tooling.
+
+Later: LLM Assistant, automation, predictive analytics.
