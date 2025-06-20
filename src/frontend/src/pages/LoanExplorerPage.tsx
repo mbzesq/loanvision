@@ -357,37 +357,44 @@ function LoanExplorerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-screen-xl mx-auto p-6 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Filter Panel - Left Column */}
-          <div className="lg:col-span-1">
-            <FilterPanel 
-              onApplyFilters={handleApplyFilters} 
-              availableStates={uniqueStates}
-              availableAssetStatuses={uniqueLegalStatuses}
-              availableInvestors={uniqueInvestors}
-              availableLienPositions={uniqueLienPositions}
-              onShowAll={handleShowAll}
-              onClearView={handleClearView}
-            />
-          </div>
-          
-          {/* Main Content - Right Column */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <DataToolbar
-                  globalFilter={globalFilter}
-                  setGlobalFilter={setGlobalFilter}
-                  filteredLoanCount={table.getFilteredRowModel().rows.length}
-                  totalLoanCount={loans.length}
-                  onExport={handleExport}
-                  exporting={exporting}
-                />
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
+    <div className="p-6 space-y-4">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Loan Explorer</h1>
+        <p className="text-slate-600 mt-1">
+          Analyze and filter your loan portfolio
+        </p>
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Filter Panel (Left) */}
+        <div className="lg:col-span-1">
+          <FilterPanel 
+            onApplyFilters={handleApplyFilters} 
+            availableStates={uniqueStates}
+            availableAssetStatuses={uniqueLegalStatuses}
+            availableInvestors={uniqueInvestors}
+            availableLienPositions={uniqueLienPositions}
+            onShowAll={handleShowAll}
+            onClearView={handleClearView}
+          />
+        </div>
+        {/* Main Content (Right) */}
+        <div className="lg:col-span-3">
+          <Card>
+            <CardHeader>
+              <DataToolbar
+                globalFilter={globalFilter}
+                setGlobalFilter={setGlobalFilter}
+                filteredLoanCount={table.getFilteredRowModel().rows.length}
+                totalLoanCount={loans.length}
+                onExport={handleExport}
+                exporting={exporting}
+              />
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       {table.getHeaderGroups().map(headerGroup => (
@@ -461,21 +468,21 @@ function LoanExplorerPage() {
               </CardContent>
             </Card>
           </div>
+      </div>
+
+      {/* Modal */}
+      {(selectedLoanId && !isModalLoading) && (
+        <LoanDetailModal
+          loan={modalLoanData}
+          onClose={() => setSelectedLoanId(null)}
+        />
+      )}
+      {/* Optional: Add a loading indicator for the modal */}
+      {(selectedLoanId && isModalLoading) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="text-white">Loading loan details...</div>
         </div>
-        
-        {/* Loan Detail Modal */}
-        {(selectedLoanId && !isModalLoading) && (
-          <LoanDetailModal
-            loan={modalLoanData}
-            onClose={() => setSelectedLoanId(null)}
-          />
-        )}
-        {/* Optional: Add a loading indicator for the modal */}
-        {(selectedLoanId && isModalLoading) && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="text-white">Loading loan details...</div>
-            </div>
-        )}
+      )}
       </div>
     </div>
   );
