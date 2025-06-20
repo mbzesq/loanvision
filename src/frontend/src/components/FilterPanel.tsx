@@ -116,7 +116,7 @@ export function FilterPanel({
 
 
   return (
-    <div className="flex flex-col h-full border rounded-lg bg-white">
+    <div className="flex flex-col h-full border rounded-lg bg-white overflow-hidden relative z-10">
       {/* Header */}
       <div className="p-4 border-b">
         <div className="flex justify-between items-center">
@@ -126,10 +126,10 @@ export function FilterPanel({
       </div>
 
       {/* Action Buttons */}
-      <div className="p-4 border-b flex gap-2">
-        <Button variant="outline" className="w-full" onClick={onClearView}>Clear</Button>
-        <Button className="w-full bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
-        <Button variant="outline" className="w-full" onClick={handleClear}>Reset</Button>
+      <div className="p-4 border-b flex flex-col sm:flex-row gap-2 flex-shrink-0">
+        <Button variant="outline" className="w-full sm:w-1/3" onClick={onClearView}>Clear</Button>
+        <Button className="w-full sm:w-1/3 bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
+        <Button variant="outline" className="w-full sm:w-1/3" onClick={handleClear}>Reset</Button>
       </div>
 
       {/* Accordion Container */}
