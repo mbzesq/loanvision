@@ -6,7 +6,6 @@ import autoTable from 'jspdf-autotable';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { LoanDetailModal } from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
-import { ExportButton } from '../components/ExportButton';
 import { DataToolbar } from '../components/DataToolbar';
 import { states } from '@loanvision/shared/lib/states';
 import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
