@@ -17,7 +17,13 @@ import {
   parseExcelDate,
   getValue
 } from '../services/columnMappers';
-import { processForeclosureRecord } from '../services/foreclosureService';
+import { 
+  processForeclosureRecord,
+  extractForeclosureEventData,
+  upsertForeclosureEvent,
+  insertMilestoneStatuses,
+  getStateForLoan
+} from '../services/foreclosureService';
 import { 
   insertDailyMetricsHistory, 
   upsertDailyMetricsCurrent 
@@ -339,36 +345,101 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
     console.log(`Processing ${detection.fileType} upload with report date: ${reportDate}`);
 
     if (detection.fileType === 'foreclosure_data') {
-      // Process foreclosure records with current/history schema
+      // Process foreclosure records with enhanced logic for multiple entries per loan
       console.log(`Starting foreclosure data processing for ${jsonData.length} records`);
+      
+      // Step 1: Filter and group foreclosure records
+      const validForeclosureRecords: any[] = [];
+      const loanGroups: { [loanId: string]: any[] } = {};
       
       for (let i = 0; i < jsonData.length; i++) {
         const row = jsonData[i];
+        
+        // Dynamic header lookup
+        const loanId = getValue(row, ['Loan ID', 'loan_id']);
+        const fcJurisdiction = getValue(row, ['FC Jurisdiction', 'fc_jurisdiction']);
+        
+        if (!loanId) {
+          console.warn(`Row ${i + 1}: Skipping foreclosure record with missing loan_id`);
+          skippedCount++;
+          continue;
+        }
+        
+        // Filter out bankruptcy rows - only process Judicial and NonJudicial
+        if (!fcJurisdiction || 
+            (!fcJurisdiction.toLowerCase().includes('judicial') && 
+             !fcJurisdiction.toLowerCase().includes('nonjudicial'))) {
+          console.log(`Row ${i + 1}: Skipping non-foreclosure record with jurisdiction: ${fcJurisdiction}`);
+          skippedCount++;
+          continue;
+        }
+        
+        validForeclosureRecords.push({ ...row, _rowIndex: i + 1 });
+        
+        // Group by loan ID
+        if (!loanGroups[loanId]) {
+          loanGroups[loanId] = [];
+        }
+        loanGroups[loanId].push({ ...row, _rowIndex: i + 1 });
+      }
+      
+      console.log(`Filtered ${validForeclosureRecords.length} valid foreclosure records from ${jsonData.length} total rows`);
+      console.log(`Found ${Object.keys(loanGroups).length} unique loans with foreclosure data`);
+      
+      // Step 2: Process each loan group
+      for (const [loanId, loanRecords] of Object.entries(loanGroups)) {
         try {
-          // Validate required fields
-          const loanId = getValue(row, ['Loan ID']);
-          if (!loanId) {
-            console.warn(`Row ${i + 1}: Skipping foreclosure record with missing loan_id`);
-            skippedCount++;
-            continue;
+          // Insert all records into history table
+          for (const record of loanRecords) {
+            try {
+              const { insertForeclosureEventsHistory, createForeclosureHistoryRecord } = await import('../services/currentHistoryService');
+              const eventData = extractForeclosureEventData(record);
+              const historyRecord = createForeclosureHistoryRecord(eventData, reportDate);
+              await insertForeclosureEventsHistory(historyRecord);
+            } catch (error) {
+              console.error(`Error inserting history record for loan ${loanId}, row ${record._rowIndex}:`, error);
+              errorCount++;
+            }
           }
-
-          // The state will be fetched from existing loan data within processForeclosureRecord
-          await processForeclosureRecord(row, 'NY', reportDate);
+          
+          // Step 3: Determine active foreclosure (FC Closed Date is blank/null)
+          const activeRecord = loanRecords.find(record => {
+            const fcClosedDate = getValue(record, ['FC Closed Date', 'fc_closed_date']);
+            return !fcClosedDate || fcClosedDate.toString().trim() === '';
+          });
+          
+          if (activeRecord) {
+            try {
+              // Insert active foreclosure into current table
+              const eventData = extractForeclosureEventData(activeRecord);
+              await upsertForeclosureEvent(eventData);
+              
+              // Process milestone statuses for active foreclosure
+              const state = await getStateForLoan(eventData.loan_id) || 'NY';
+              await insertMilestoneStatuses(eventData.loan_id, state, activeRecord);
+              
+              console.log(`Processed active foreclosure for loan ${loanId}`);
+            } catch (error) {
+              console.error(`Error processing active foreclosure for loan ${loanId}:`, error);
+              errorCount++;
+            }
+          } else {
+            console.log(`No active foreclosure found for loan ${loanId} (all have closed dates)`);
+          }
+          
           insertedCount++;
           
-          if (insertedCount % 100 === 0) {
-            console.log(`Processed ${insertedCount} foreclosure records...`);
+          if (insertedCount % 50 === 0) {
+            console.log(`Processed ${insertedCount} loan foreclosure groups...`);
           }
         } catch (error) {
           errorCount++;
-          console.error(`Row ${i + 1}: Error processing foreclosure record for loan ${getValue(row, ['Loan ID'])}:`, error);
-          // Continue processing other records even if one fails
+          console.error(`Error processing foreclosure group for loan ${loanId}:`, error);
         }
       }
       
-      console.log(`Foreclosure processing complete: ${insertedCount} inserted, ${skippedCount} skipped, ${errorCount} errors`);
-      successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} foreclosure records (${skippedCount} skipped, ${errorCount} errors).`;
+      console.log(`Foreclosure processing complete: ${insertedCount} loan groups processed, ${skippedCount} rows skipped, ${errorCount} errors`);
+      successMessage = `Successfully processed ${insertedCount} loans with foreclosure data (${validForeclosureRecords.length} total records, ${skippedCount} skipped, ${errorCount} errors).`;
     } 
     else if (detection.fileType === 'daily_metrics') {
       // Process daily metrics with current/history schema
