@@ -370,14 +370,14 @@ function LoanExplorerPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Filter Panel (Left) */}
         <div className="lg:col-span-1">
-          <FilterPanel 
-            onApplyFilters={handleApplyFilters} 
+          <FilterPanel
+            onApplyFilters={handleApplyFilters}
+            onShowAll={handleShowAll}
+            onClearView={handleClearView}
             availableStates={uniqueStates}
             availableAssetStatuses={uniqueLegalStatuses}
             availableInvestors={uniqueInvestors}
             availableLienPositions={uniqueLienPositions}
-            onShowAll={handleShowAll}
-            onClearView={handleClearView}
           />
         </div>
         {/* Main Content (Right) */}
@@ -395,33 +395,20 @@ function LoanExplorerPage() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
+                <table className="w-full">
+                  {/* ... thead and tbody ... */}
+                   <thead>
                       {table.getHeaderGroups().map(headerGroup => (
                         <tr key={headerGroup.id} className="border-b-2 border-slate-200 bg-slate-50">
                           {headerGroup.headers.map(header => (
-                            <th
-                              key={header.id}
-                              className="text-left p-2 text-xs font-semibold text-blue-700 uppercase tracking-wider select-none"
-                            >
+                            <th key={header.id} className="text-left p-2 text-xs font-semibold text-blue-700 uppercase tracking-wider select-none">
                               {header.isPlaceholder ? null : (
                                 <div
-                                  className={`flex items-center gap-2 ${
-                                    header.column.getCanSort()
-                                      ? 'cursor-pointer hover:text-slate-900'
-                                      : ''
-                                  }`}
+                                  className={`flex items-center gap-2 ${header.column.getCanSort() ? 'cursor-pointer hover:text-blue-900' : ''}`}
                                   onClick={header.column.getToggleSortingHandler()}
                                 >
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                  {header.column.getCanSort() && (
-                                    <span className="ml-1">
-                                      {getSortIcon(header.column.getIsSorted())}
-                                    </span>
-                                  )}
+                                  {flexRender(header.column.columnDef.header, header.getContext())}
+                                  {getSortIcon(header.column.getIsSorted())}
                                 </div>
                               )}
                             </th>
@@ -433,14 +420,11 @@ function LoanExplorerPage() {
                       {table.getRowModel().rows.map((row, index) => (
                         <tr
                           key={row.id}
-                          onClick={() => {
-                            console.log(`[Frontend] Row clicked. Selecting loan ID: ${row.original.servicer_loan_id}`); // Add this log
-                            setSelectedLoanId(row.original.servicer_loan_id);
-                          }}
+                          onClick={() => setSelectedLoanId(row.original.servicer_loan_id)}
                           className={`border-b border-slate-100 transition-colors duration-150 cursor-pointer 
-  ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} 
-  hover:bg-blue-50
-`}
+                            ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} 
+                            hover:bg-blue-50
+                          `}
                         >
                           {row.getVisibleCells().map(cell => (
                             <td key={cell.id} className="p-2 text-sm">
@@ -450,10 +434,10 @@ function LoanExplorerPage() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                  
-                  {table.getRowModel().rows.length === 0 && (
-                    <div className="text-center py-12 px-6">
+                </table>
+              </div>
+               {table.getRowModel().rows.length === 0 && (
+                  <div className="text-center py-12 px-6">
                       <h3 className="text-lg font-semibold text-slate-800">
                         {hasAppliedFilter ? "No Loans Found" : "Begin Your Search"}
                       </h3>
@@ -462,12 +446,11 @@ function LoanExplorerPage() {
                           ? "No loans match your current filter criteria."
                           : "Use the filters on the left to find specific loans in your portfolio."}
                       </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </div>
+               )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Modal */}
@@ -477,13 +460,11 @@ function LoanExplorerPage() {
           onClose={() => setSelectedLoanId(null)}
         />
       )}
-      {/* Optional: Add a loading indicator for the modal */}
       {(selectedLoanId && isModalLoading) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="text-white">Loading loan details...</div>
-        </div>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="text-white">Loading loan details...</div>
+          </div>
       )}
-      </div>
     </div>
   );
 }
