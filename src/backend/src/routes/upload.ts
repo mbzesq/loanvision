@@ -68,6 +68,34 @@ function getReportDate(filename: string): string {
   return new Date().toISOString().split('T')[0];
 }
 
+// Helper function to parse CSV data
+function parseCsvData(buffer: Buffer): any[] {
+  const csvText = buffer.toString('utf-8');
+  const lines = csvText.split('\n').filter(line => line.trim());
+  
+  if (lines.length === 0) {
+    return [];
+  }
+  
+  // Parse headers
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  
+  // Parse data rows
+  const records: any[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+    if (values.length >= headers.length) {
+      const record: any = {};
+      headers.forEach((header, index) => {
+        record[header] = values[index] || '';
+      });
+      records.push(record);
+    }
+  }
+  
+  return records;
+}
+
 // --- Existing Data Cleaning Helpers for Legacy Loans ---
 const combineName = (loan: Loan, firstKeys: string[], lastKeys: string[]): string | null => {
     const first = firstKeys.map(k => loan[k]).find(v => v) || '';
@@ -254,10 +282,24 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
   }
 
   try {
-    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(sheet);
+    // Parse file based on extension
+    let jsonData: any[];
+    const fileExtension = req.file.originalname.toLowerCase();
+    
+    if (fileExtension.endsWith('.xlsx') || fileExtension.endsWith('.xls')) {
+      // Parse Excel file
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    } else if (fileExtension.endsWith('.csv')) {
+      // Parse CSV file
+      jsonData = parseCsvData(req.file.buffer);
+    } else {
+      return res.status(400).json({ 
+        error: 'Unsupported file type. Please upload a .csv, .xlsx, or .xls file.' 
+      });
+    }
 
     if (jsonData.length === 0) {
       return res.status(400).json({ error: 'No data found in the uploaded file' });
