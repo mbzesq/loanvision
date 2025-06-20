@@ -27,6 +27,47 @@ const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Helper function to extract report date from filename or default to today
+function getReportDate(filename: string): string {
+  try {
+    // Try to extract date from filename patterns like:
+    // daily_metrics_2024-01-15.xlsx
+    // foreclosure_data_20240115.xlsx
+    // metrics-2024.01.15.xlsx
+    const datePatterns = [
+      /(\d{4}-\d{2}-\d{2})/,           // YYYY-MM-DD
+      /(\d{4})(\d{2})(\d{2})/,         // YYYYMMDD
+      /(\d{4})\.(\d{2})\.(\d{2})/,     // YYYY.MM.DD
+      /(\d{4})_(\d{2})_(\d{2})/        // YYYY_MM_DD
+    ];
+    
+    for (const pattern of datePatterns) {
+      const match = filename.match(pattern);
+      if (match) {
+        if (match.length === 2) {
+          // Already in YYYY-MM-DD format
+          const date = new Date(match[1]);
+          if (!isNaN(date.getTime())) {
+            return match[1];
+          }
+        } else if (match.length === 4) {
+          // Year, month, day captured separately
+          const dateStr = `${match[1]}-${match[2]}-${match[3]}`;
+          const date = new Date(dateStr);
+          if (!isNaN(date.getTime())) {
+            return dateStr;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('Error extracting date from filename:', error);
+  }
+  
+  // Default to today's date
+  return new Date().toISOString().split('T')[0];
+}
+
 // --- Existing Data Cleaning Helpers for Legacy Loans ---
 const combineName = (loan: Loan, firstKeys: string[], lastKeys: string[]): string | null => {
     const first = firstKeys.map(k => loan[k]).find(v => v) || '';
@@ -247,62 +288,99 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
     );
 
     let insertedCount = 0;
+    let skippedCount = 0;
+    let errorCount = 0;
     let successMessage = '';
 
-    // Get report date (default to today if not provided in the request)
-    const reportDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    // Extract report date from filename or default to today  
+    const reportDate = getReportDate(req.file.originalname);
+    console.log(`Processing ${detection.fileType} upload with report date: ${reportDate}`);
 
     if (detection.fileType === 'foreclosure_data') {
-      // Process foreclosure records with new current/history schema
-      for (const row of jsonData) {
+      // Process foreclosure records with current/history schema
+      console.log(`Starting foreclosure data processing for ${jsonData.length} records`);
+      
+      for (let i = 0; i < jsonData.length; i++) {
+        const row = jsonData[i];
         try {
+          // Validate required fields
+          const loanId = getValue(row, ['Loan ID']);
+          if (!loanId) {
+            console.warn(`Row ${i + 1}: Skipping foreclosure record with missing loan_id`);
+            skippedCount++;
+            continue;
+          }
+
           // The state will be fetched from existing loan data within processForeclosureRecord
-          await processForeclosureRecord(row, 'NY', reportDate); // Pass reportDate for history tracking
+          await processForeclosureRecord(row, 'NY', reportDate);
           insertedCount++;
+          
+          if (insertedCount % 100 === 0) {
+            console.log(`Processed ${insertedCount} foreclosure records...`);
+          }
         } catch (error) {
-          console.error('Error processing foreclosure record:', error);
+          errorCount++;
+          console.error(`Row ${i + 1}: Error processing foreclosure record for loan ${getValue(row, ['Loan ID'])}:`, error);
           // Continue processing other records even if one fails
         }
       }
-      successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} foreclosure records.`;
+      
+      console.log(`Foreclosure processing complete: ${insertedCount} inserted, ${skippedCount} skipped, ${errorCount} errors`);
+      successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} foreclosure records (${skippedCount} skipped, ${errorCount} errors).`;
     } 
     else if (detection.fileType === 'daily_metrics') {
-      // Process daily metrics with new current/history schema
-      for (const row of jsonData) {
+      // Process daily metrics with current/history schema
+      console.log(`Starting daily metrics processing for ${jsonData.length} records`);
+      
+      for (let i = 0; i < jsonData.length; i++) {
+        const row = jsonData[i];
         try {
           // Map the data using new structure
           const historyRecord = mapDailyMetricsHistoryData(row, reportDate);
           const currentRecord = mapDailyMetricsCurrentData(row, reportDate);
           
-          // Skip if no loan_id
+          // Validate required fields
           if (!historyRecord.loan_id) {
-            console.warn('Skipping daily metrics record with no loan_id');
+            console.warn(`Row ${i + 1}: Skipping daily metrics record with missing loan_id`);
+            skippedCount++;
             continue;
           }
           
-          // Insert into history table
+          // Insert into history table (idempotent with ON CONFLICT)
           await insertDailyMetricsHistory(historyRecord);
           
-          // Upsert into current table
+          // Upsert into current table (idempotent by design)
           await upsertDailyMetricsCurrent(currentRecord);
           
           insertedCount++;
+          
+          if (insertedCount % 100 === 0) {
+            console.log(`Processed ${insertedCount} daily metrics records...`);
+          }
         } catch (error) {
-          console.error('Error processing daily metrics record:', error);
+          errorCount++;
+          console.error(`Row ${i + 1}: Error processing daily metrics record for loan ${getValue(row, ['Loan ID'])}:`, error);
           // Continue processing other records even if one fails
         }
       }
-      successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} daily metrics records.`;
+      
+      console.log(`Daily metrics processing complete: ${insertedCount} inserted, ${skippedCount} skipped, ${errorCount} errors`);
+      successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} daily metrics records (${skippedCount} skipped, ${errorCount} errors).`;
     }
     else if (detection.fileType === 'loan_portfolio') {
       const loans = jsonData as Loan[];
       insertedCount = await insertLoanRecords(loans, uploadSessionId, req.file.originalname);
       successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} loans.`;
+      // No skipped/error counts for legacy loan portfolio processing
+      skippedCount = 0;
+      errorCount = 0;
     }
 
+    // Update upload session with final status
+    const finalStatus = errorCount > 0 ? 'completed_with_errors' : 'completed';
     await pool.query(
       `UPDATE upload_sessions SET status = $1 WHERE id = $2`,
-      ['completed', uploadSessionId]
+      [finalStatus, uploadSessionId]
     );
 
     res.json({
@@ -311,6 +389,10 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
       fileType: detection.fileType,
       confidence: detection.confidence,
       record_count: insertedCount,
+      skipped_count: skippedCount || 0,
+      error_count: errorCount || 0,
+      total_records: jsonData.length,
+      report_date: reportDate,
       upload_session_id: uploadSessionId
     });
 
