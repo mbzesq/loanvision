@@ -357,7 +357,7 @@ function LoanExplorerPage() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-3">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Loan Explorer</h1>
@@ -367,7 +367,7 @@ function LoanExplorerPage() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Filter Panel (Left) */}
         <div className="lg:col-span-1">
           <FilterPanel
@@ -382,8 +382,8 @@ function LoanExplorerPage() {
         </div>
         {/* Main Content (Right) */}
         <div className="lg:col-span-3">
-          <Card>
-            <CardHeader>
+          <Card className="py-0">
+            <CardHeader className="pb-4">
               <DataToolbar
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
@@ -393,7 +393,7 @@ function LoanExplorerPage() {
                 exporting={exporting}
               />
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="p-0 pt-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   {/* ... thead and tbody ... */}
