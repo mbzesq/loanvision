@@ -15,6 +15,14 @@ This migration creates:
 
 **Note**: This migration will DROP and recreate the existing `foreclosure_events` table if it exists.
 
+After running the main migration, also run:
+```sql
+-- File: add_foreclosure_constraints.sql
+ALTER TABLE foreclosure_milestone_statuses 
+ADD CONSTRAINT unique_loan_milestone 
+UNIQUE (loan_id, milestone_name);
+```
+
 ## Previous Migrations
 
 ### Enrichments Table Migration
