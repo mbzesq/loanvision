@@ -345,16 +345,6 @@ function LoanExplorerPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-screen-xl mx-auto p-6 space-y-6">
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Loan Explorer</h1>
-            <p className="text-slate-600 mt-1">
-              Analyze and filter your loan portfolio
-            </p>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Filter Panel - Left Column */}
           <div className="lg:col-span-1">
