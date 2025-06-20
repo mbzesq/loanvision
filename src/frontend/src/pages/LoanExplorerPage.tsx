@@ -14,7 +14,6 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
   useReactTable,
   SortingState,
 } from '@tanstack/react-table';

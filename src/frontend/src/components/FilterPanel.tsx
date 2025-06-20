@@ -104,12 +104,6 @@ export function FilterPanel({
   };
 
   const handleApply = () => onApplyFilters(filters);
-  const handleReset = () => {
-    setFilters(initialFilters);
-    setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPosition: '' });
-    onResetFilters();
-  };
-
   const handleClear = () => {
     setFilters(initialFilters);
     setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPosition: '' });
