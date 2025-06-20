@@ -367,9 +367,9 @@ function LoanExplorerPage() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start min-h-[600px]">
         {/* Filter Panel (Left) */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 h-full">
           <FilterPanel
             onApplyFilters={handleApplyFilters}
             onShowAll={handleShowAll}
@@ -381,9 +381,9 @@ function LoanExplorerPage() {
           />
         </div>
         {/* Main Content (Right) */}
-        <div className="lg:col-span-3">
-          <Card className="py-0">
-            <CardHeader className="pb-4">
+        <div className="lg:col-span-3 relative z-0">
+          <Card className="py-0 gap-0">
+            <CardHeader className="pb-4 flex flex-col gap-0 grid-rows-none">
               <DataToolbar
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
