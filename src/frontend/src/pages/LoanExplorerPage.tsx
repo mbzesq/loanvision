@@ -64,6 +64,11 @@ function LoanExplorerPage() {
     setHasAppliedFilter(true);
   };
 
+  const handleClearView = () => {
+    setActiveFilters(initialFilters); // Reset the filters
+    setHasAppliedFilter(false);       // This will cause the table to empty
+  };
+
   useEffect(() => {
     const fetchLoans = async () => {
       try {
@@ -364,6 +369,7 @@ function LoanExplorerPage() {
               availableInvestors={uniqueInvestors}
               availableLienPositions={uniqueLienPositions}
               onShowAll={handleShowAll}
+              onClearView={handleClearView}
             />
           </div>
           

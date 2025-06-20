@@ -30,6 +30,7 @@ interface FilterPanelProps {
   availableInvestors: string[];
   availableLienPositions: string[];
   onShowAll: () => void;
+  onClearView: () => void;
 }
 
 // Define the initial state for the filters
@@ -48,6 +49,7 @@ export function FilterPanel({
   availableInvestors,
   availableLienPositions,
   onShowAll,
+  onClearView,
 }: FilterPanelProps) {
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
   const [searchTerms, setSearchTerms] = useState({
@@ -120,8 +122,9 @@ export function FilterPanel({
         <Button variant="link" size="sm" onClick={onShowAll}>Show All</Button>
       </div>
       <div className="p-4 border-b flex gap-2">
-        <Button className="w-full bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
+        <Button variant="outline" className="w-full" onClick={onClearView}>Clear</Button>
         <Button variant="ghost" className="w-full" onClick={handleClear}>Reset</Button>
+        <Button className="w-full bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
       </div>
       <div className="flex-grow overflow-y-auto">
         <Accordion type="multiple" className="w-full">
