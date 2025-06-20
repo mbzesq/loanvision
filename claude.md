@@ -77,6 +77,8 @@ Add more filter types, such as a proper Maturity Date range picker.
 
 Phase 2: "Next" - High-Value Features & Reporting
 
+Investigate and fix backend interest rate data ingestion logic. (This is the real fix for the interest rate issue).
+
 Implement the RentCast API integration for property value enrichment.
 
 Build "soft delete" functionality for loans.
