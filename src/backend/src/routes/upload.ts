@@ -10,12 +10,18 @@ import {
   mapDailyMetricsData, 
   ForeclosureRecord, 
   DailyMetricsRecord,
+  mapDailyMetricsCurrentData,
+  mapDailyMetricsHistoryData,
   cleanCurrency,
   cleanPercentage,
   parseExcelDate,
   getValue
 } from '../services/columnMappers';
 import { processForeclosureRecord } from '../services/foreclosureService';
+import { 
+  insertDailyMetricsHistory, 
+  upsertDailyMetricsCurrent 
+} from '../services/currentHistoryService';
 
 const router = Router();
 const storage = multer.memoryStorage();
@@ -243,12 +249,15 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
     let insertedCount = 0;
     let successMessage = '';
 
+    // Get report date (default to today if not provided in the request)
+    const reportDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
     if (detection.fileType === 'foreclosure_data') {
-      // Process foreclosure records with new schema
+      // Process foreclosure records with new current/history schema
       for (const row of jsonData) {
         try {
           // The state will be fetched from existing loan data within processForeclosureRecord
-          await processForeclosureRecord(row, 'NY'); // NY as fallback default
+          await processForeclosureRecord(row, 'NY', reportDate); // Pass reportDate for history tracking
           insertedCount++;
         } catch (error) {
           console.error('Error processing foreclosure record:', error);
@@ -258,10 +267,31 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
       successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} foreclosure records.`;
     } 
     else if (detection.fileType === 'daily_metrics') {
-      const metricsRecords = jsonData.map(row => 
-        mapDailyMetricsData(row, uploadSessionId, req.file!.originalname)
-      );
-      insertedCount = await insertDailyMetricsRecords(metricsRecords);
+      // Process daily metrics with new current/history schema
+      for (const row of jsonData) {
+        try {
+          // Map the data using new structure
+          const historyRecord = mapDailyMetricsHistoryData(row, reportDate);
+          const currentRecord = mapDailyMetricsCurrentData(row, reportDate);
+          
+          // Skip if no loan_id
+          if (!historyRecord.loan_id) {
+            console.warn('Skipping daily metrics record with no loan_id');
+            continue;
+          }
+          
+          // Insert into history table
+          await insertDailyMetricsHistory(historyRecord);
+          
+          // Upsert into current table
+          await upsertDailyMetricsCurrent(currentRecord);
+          
+          insertedCount++;
+        } catch (error) {
+          console.error('Error processing daily metrics record:', error);
+          // Continue processing other records even if one fails
+        }
+      }
       successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} daily metrics records.`;
     }
     else if (detection.fileType === 'loan_portfolio') {

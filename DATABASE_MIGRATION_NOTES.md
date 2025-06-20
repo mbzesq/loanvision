@@ -1,6 +1,24 @@
 # Database Migration Required
 
-## Latest Migration (2025-01-20): Foreclosure Tracking Tables
+## Latest Migration (2025-01-20): Current/History Table Structure
+
+Run the following migration to implement current/history tracking for daily metrics and foreclosure data:
+
+```sql
+-- File: create_current_history_tables.sql
+-- Run this entire file in your PostgreSQL database
+```
+
+This migration creates:
+- `daily_metrics_current`: Current daily metrics (one row per loan)
+- `daily_metrics_history`: Historical daily metrics (all uploads with report dates)
+- `foreclosure_events_history`: Historical foreclosure events (all uploads with report dates)
+
+The `foreclosure_events` table serves as the "current" table for foreclosure data.
+
+**Important**: This migration adds new tables alongside existing ones. The upload logic will now use the new current/history structure.
+
+## Previous Migration: Foreclosure Tracking Tables
 
 Run the following migration to create enhanced foreclosure tracking tables:
 
