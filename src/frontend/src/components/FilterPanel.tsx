@@ -116,16 +116,23 @@ export function FilterPanel({
 
 
   return (
-    <div className="flex flex-col h-full border rounded-lg bg-white shadow-sm">
-      <div className="p-4 border-b bg-slate-50/75 flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Filter Criteria</h2>
-        <Button variant="link" size="sm" onClick={onShowAll}>Show All</Button>
+    <div className="flex flex-col h-full border rounded-lg bg-white">
+      {/* Header */}
+      <div className="p-4 border-b">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Filter Criteria</h2>
+          <Button variant="link" size="sm" onClick={onShowAll}>Show All</Button>
+        </div>
       </div>
+
+      {/* Action Buttons */}
       <div className="p-4 border-b flex gap-2">
         <Button variant="outline" className="w-full" onClick={onClearView}>Clear</Button>
-        <Button variant="ghost" className="w-full" onClick={handleClear}>Reset</Button>
         <Button className="w-full bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
+        <Button variant="ghost" className="w-full" onClick={handleClear}>Reset</Button>
       </div>
+
+      {/* Accordion Container */}
       <div className="flex-grow overflow-y-auto">
         <Accordion type="multiple" className="w-full">
 
