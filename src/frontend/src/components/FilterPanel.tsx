@@ -129,7 +129,7 @@ export function FilterPanel({
       <div className="p-4 border-b flex gap-2">
         <Button variant="outline" className="w-full" onClick={onClearView}>Clear</Button>
         <Button className="w-full bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
-        <Button variant="ghost" className="w-full" onClick={handleClear}>Reset</Button>
+        <Button variant="outline" className="w-full" onClick={handleClear}>Reset</Button>
       </div>
 
       {/* Accordion Container */}
