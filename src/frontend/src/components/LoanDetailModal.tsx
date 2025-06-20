@@ -71,6 +71,8 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
     alert(`Functionality to view details for "${investorName}" is coming soon!`);
   };
 
+  console.log('Raw interest_rate value received by modal:', loan.interest_rate);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div ref={modalRef} className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col">
