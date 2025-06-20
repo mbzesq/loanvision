@@ -56,7 +56,7 @@ interface MilestoneBenchmark {
   standardSpend: number;
 }
 
-interface ForeclosureEventData {
+export interface ForeclosureEventData {
   loan_id: string;
   fc_status?: string | null;
   fc_jurisdiction?: string | null;
@@ -326,11 +326,18 @@ async function getStateForLoan(loanId: string): Promise<string | null> {
 }
 
 // Process a complete foreclosure record
-export async function processForeclosureRecord(row: any, defaultState?: string): Promise<void> {
+export async function processForeclosureRecord(row: any, defaultState?: string, reportDate?: string): Promise<void> {
   try {
     // First, insert/update the foreclosure event
     const eventData = extractForeclosureEventData(row);
     await upsertForeclosureEvent(eventData);
+    
+    // If reportDate is provided, also insert into history table
+    if (reportDate) {
+      const { insertForeclosureEventsHistory, createForeclosureHistoryRecord } = await import('./currentHistoryService');
+      const historyRecord = createForeclosureHistoryRecord(eventData, reportDate);
+      await insertForeclosureEventsHistory(historyRecord);
+    }
     
     // Get the state for this loan
     const state = await getStateForLoan(eventData.loan_id) || defaultState || 'NY';

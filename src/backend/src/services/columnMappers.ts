@@ -227,7 +227,7 @@ export function mapForeclosureData(row: any, uploadSessionId: string, sourceFile
   };
 }
 
-// Daily Metrics Column Mapping
+// Daily Metrics Column Mapping - Legacy interface (for old daily_metrics table)
 export interface DailyMetricsRecord {
   upload_session_id: string;
   loan_id?: string | null;
@@ -321,5 +321,132 @@ export function mapDailyMetricsData(row: any, uploadSessionId: string, sourceFil
     dec_25: cleanCurrency(getValue(row, ['Dec-25'])),
     source_filename: sourceFilename,
     data_issues: null
+  };
+}
+
+// New interfaces for current/history table structure
+
+// Daily Metrics Current Record (for daily_metrics_current table)
+export interface DailyMetricsCurrentRecord {
+  loan_id: string;
+  investor?: string | null;
+  investor_name?: string | null;
+  inv_loan?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  prin_bal?: number | null;
+  unapplied_bal?: number | null;
+  int_rate?: number | null;
+  pi_pmt?: number | null;
+  remg_term?: number | null;
+  origination_date?: string | null;
+  org_term?: number | null;
+  org_amount?: number | null;
+  lien_pos?: string | null;
+  next_pymt_due?: string | null;
+  last_pymt_received?: string | null;
+  first_pymt_due?: string | null;
+  maturity_date?: string | null;
+  loan_type?: string | null;
+  legal_status?: string | null;
+  warning?: string | null;
+  pymt_method?: string | null;
+  draft_day?: string | null;
+  spoc?: string | null;
+  january_2025?: number | null;
+  february_2025?: number | null;
+  march_2025?: number | null;
+  april_2025?: number | null;
+  may_2025?: number | null;
+  june_2025?: number | null;
+  july_2025?: number | null;
+  august_2025?: number | null;
+  september_2025?: number | null;
+  october_2025?: number | null;
+  november_2025?: number | null;
+  december_2025?: number | null;
+}
+
+// Daily Metrics History Record (for daily_metrics_history table)
+export interface DailyMetricsHistoryRecord extends DailyMetricsCurrentRecord {
+  report_date: string;
+}
+
+// Foreclosure Events History Record (for foreclosure_events_history table)
+export interface ForeclosureEventsHistoryRecord {
+  loan_id: string;
+  report_date: string;
+  fc_status?: string | null;
+  fc_jurisdiction?: string | null;
+  fc_start_date?: string | null;
+  current_attorney?: string | null;
+  referral_date?: string | null;
+  title_ordered_date?: string | null;
+  title_received_date?: string | null;
+  complaint_filed_date?: string | null;
+  service_completed_date?: string | null;
+  judgment_date?: string | null;
+  sale_scheduled_date?: string | null;
+  sale_held_date?: string | null;
+  real_estate_owned_date?: string | null;
+  eviction_completed_date?: string | null;
+}
+
+// Mapping function for new daily metrics structure
+export function mapDailyMetricsCurrentData(row: any, reportDate: string): DailyMetricsCurrentRecord {
+  return {
+    loan_id: getValue(row, ['Loan ID']),
+    investor: getValue(row, ['Investor']),
+    investor_name: getValue(row, ['Investor Name']),
+    inv_loan: getValue(row, ['Inv Loan']),
+    first_name: getValue(row, ['First Name']),
+    last_name: getValue(row, ['Last Name']),
+    address: getValue(row, ['Address']),
+    city: getValue(row, ['City']),
+    state: getValue(row, ['State']),
+    zip: getValue(row, ['Zip']),
+    prin_bal: cleanCurrency(getValue(row, ['Prin Bal'])),
+    unapplied_bal: cleanCurrency(getValue(row, ['Unapplied Bal'])),
+    int_rate: cleanPercentage(getValue(row, ['Int Rate'])),
+    pi_pmt: cleanCurrency(getValue(row, ['PI Pmt'])),
+    remg_term: cleanInteger(getValue(row, ['Remg Term'])),
+    origination_date: parseExcelDate(getValue(row, ['Origination Date'])),
+    org_term: cleanInteger(getValue(row, ['Org Term'])),
+    org_amount: cleanCurrency(getValue(row, ['Org Amount'])),
+    lien_pos: getValue(row, ['Lien Pos']),
+    next_pymt_due: parseExcelDate(getValue(row, ['Next Pymt Due'])),
+    last_pymt_received: parseExcelDate(getValue(row, ['Last Pymt Received'])),
+    first_pymt_due: parseExcelDate(getValue(row, ['First Pymt Due'])),
+    maturity_date: parseExcelDate(getValue(row, ['Maturity Date'])),
+    loan_type: getValue(row, ['Loan Type']),
+    legal_status: getValue(row, ['Legal Status']),
+    warning: getValue(row, ['Warning']),
+    pymt_method: getValue(row, ['Pymt Method']),
+    draft_day: getValue(row, ['Draft Day']),
+    spoc: getValue(row, ['SPOC']),
+    january_2025: cleanCurrency(getValue(row, ['Jan-25'])),
+    february_2025: cleanCurrency(getValue(row, ['Feb-25'])),
+    march_2025: cleanCurrency(getValue(row, ['Mar-25'])),
+    april_2025: cleanCurrency(getValue(row, ['Apr-25'])),
+    may_2025: cleanCurrency(getValue(row, ['May-25'])),
+    june_2025: cleanCurrency(getValue(row, ['Jun-25'])),
+    july_2025: cleanCurrency(getValue(row, ['Jul-25'])),
+    august_2025: cleanCurrency(getValue(row, ['Aug-25'])),
+    september_2025: cleanCurrency(getValue(row, ['Sep-25'])),
+    october_2025: cleanCurrency(getValue(row, ['Oct-25'])),
+    november_2025: cleanCurrency(getValue(row, ['Nov-25'])),
+    december_2025: cleanCurrency(getValue(row, ['Dec-25']))
+  };
+}
+
+// Mapping function for daily metrics history data
+export function mapDailyMetricsHistoryData(row: any, reportDate: string): DailyMetricsHistoryRecord {
+  return {
+    ...mapDailyMetricsCurrentData(row, reportDate),
+    report_date: reportDate
   };
 }
