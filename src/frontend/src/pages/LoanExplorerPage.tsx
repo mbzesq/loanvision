@@ -367,7 +367,7 @@ function LoanExplorerPage() {
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Filter Panel (Left) */}
         <div className="lg:col-span-1">
           <FilterPanel
@@ -382,8 +382,8 @@ function LoanExplorerPage() {
         </div>
         {/* Main Content (Right) */}
         <div className="lg:col-span-3">
-          <Card className="py-0 gap-0">
-            <CardHeader className="pb-4 flex flex-col gap-0 grid-rows-none">
+          <Card className="py-0">
+            <CardHeader className="pb-4">
               <DataToolbar
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
