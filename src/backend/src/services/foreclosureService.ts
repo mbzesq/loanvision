@@ -135,22 +135,26 @@ const milestoneMappings: Record<string, string> = {
 
 // Extract foreclosure event data from the row based on new schema
 export function extractForeclosureEventData(row: any): ForeclosureEventData {
-  // Extract and parse dates from various milestone columns
-  const referralDate = parseDate(row['First Legal Actual Start'] || row['Title Received Actual Start']);
-  const titleOrderedDate = parseDate(row['Title Received Expected Start']);
-  const titleReceivedDate = parseDate(row['Title Received Actual Completion']);
-  const complaintFiledDate = parseDate(row['First Legal Actual Start'] || row['First Legal Actual Completion']);
-  const serviceCompletedDate = parseDate(row['Service Perfected Actual Completion']);
-  const judgmentDate = parseDate(row['Judgment Entered Actual Completion']);
-  const saleScheduledDate = parseDate(row['Sale Held Expected Completion']);
-  const saleHeldDate = parseDate(row['Sale Held Actual Completion']);
+  // Import getValue for dynamic header lookup
+  const { getValue } = require('./columnMappers');
+  
+  // Use dynamic header lookup and Title Received Actual Start as fc_start_date
+  const fcStartDate = parseDate(getValue(row, ['Title Received Actual Start', 'title_received_actual_start']));
+  const referralDate = parseDate(getValue(row, ['First Legal Actual Start', 'Title Received Actual Start', 'referral_date']));
+  const titleOrderedDate = parseDate(getValue(row, ['Title Received Expected Start', 'title_received_expected_start']));
+  const titleReceivedDate = parseDate(getValue(row, ['Title Received Actual Completion', 'title_received_actual_completion']));
+  const complaintFiledDate = parseDate(getValue(row, ['First Legal Actual Start', 'First Legal Actual Completion', 'complaint_filed_date']));
+  const serviceCompletedDate = parseDate(getValue(row, ['Service Perfected Actual Completion', 'service_completed_date']));
+  const judgmentDate = parseDate(getValue(row, ['Judgment Entered Actual Completion', 'judgment_date']));
+  const saleScheduledDate = parseDate(getValue(row, ['Sale Held Expected Completion', 'sale_scheduled_date']));
+  const saleHeldDate = parseDate(getValue(row, ['Sale Held Actual Completion', 'sale_held_date']));
   
   return {
-    loan_id: row['Loan ID'],
-    fc_status: row['FC Status'],
-    fc_jurisdiction: row['FC Jurisdiction'],
-    fc_start_date: referralDate,
-    current_attorney: row['FC Atty POC'],
+    loan_id: getValue(row, ['Loan ID', 'loan_id']),
+    fc_status: getValue(row, ['FC Status', 'fc_status']),
+    fc_jurisdiction: getValue(row, ['FC Jurisdiction', 'fc_jurisdiction']),
+    fc_start_date: fcStartDate, // Use Title Received Actual Start as proxy
+    current_attorney: getValue(row, ['FC Atty POC', 'current_attorney']),
     referral_date: referralDate,
     title_ordered_date: titleOrderedDate,
     title_received_date: titleReceivedDate,
@@ -159,7 +163,7 @@ export function extractForeclosureEventData(row: any): ForeclosureEventData {
     judgment_date: judgmentDate,
     sale_scheduled_date: saleScheduledDate,
     sale_held_date: saleHeldDate,
-    real_estate_owned_date: parseDate(row['RRC Actual Completion']),
+    real_estate_owned_date: parseDate(getValue(row, ['RRC Actual Completion', 'real_estate_owned_date'])),
     eviction_completed_date: null // Not in current data
   };
 }
@@ -329,7 +333,7 @@ export async function insertMilestoneStatuses(
 }
 
 // Get state for a loan from loans or daily_metrics table
-async function getStateForLoan(loanId: string): Promise<string | null> {
+export async function getStateForLoan(loanId: string): Promise<string | null> {
   // First try to get state from loans table
   const loansQuery = `
     SELECT property_state 
