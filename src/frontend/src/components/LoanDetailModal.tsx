@@ -55,7 +55,7 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
   const formatPercent = (value: string | null | undefined) => {
     if (!value) return <span className="text-slate-500">—</span>;
     const numberValue = parseFloat(value);
-    return isNaN(numberValue) ? <span className="text-slate-500">—</span> : `${(numberValue * 100).toFixed(2)}%`;
+    return isNaN(numberValue) ? <span className="text-slate-500">—</span> : `${(numberValue * 10000).toFixed(2)}%`;
   };
 
   const formatValue = (value: string | number | null | undefined) => {
