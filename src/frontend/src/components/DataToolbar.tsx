@@ -37,7 +37,7 @@ export function DataToolbar({
             placeholder="Search all loans..."
             value={globalFilter ?? ''}
             onChange={(event) => setGlobalFilter(event.target.value)}
-            className="h-9 w-[250px] pl-10"
+            className="h-9 w-[250px] pl-10 mr-2"
           />
         </div>
       </div>

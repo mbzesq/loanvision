@@ -31,6 +31,7 @@ interface FilterPanelProps {
   availableLienPositions: string[];
   onShowAll: () => void;
   onClearView: () => void;
+  onResetFilters: () => void;
 }
 
 // Define the initial state for the filters
@@ -50,6 +51,7 @@ export function FilterPanel({
   availableLienPositions,
   onShowAll,
   onClearView,
+  onResetFilters,
 }: FilterPanelProps) {
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
   const [searchTerms, setSearchTerms] = useState({
@@ -102,10 +104,16 @@ export function FilterPanel({
   };
 
   const handleApply = () => onApplyFilters(filters);
+  const handleReset = () => {
+    setFilters(initialFilters);
+    setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPosition: '' });
+    onResetFilters();
+  };
+
   const handleClear = () => {
     setFilters(initialFilters);
     setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPosition: '' });
-    onApplyFilters(initialFilters);
+    onClearView();
   };
 
   // Memoized search results
@@ -126,10 +134,9 @@ export function FilterPanel({
       </div>
 
       {/* Action Buttons */}
-      <div className="p-4 border-b flex flex-col sm:flex-row gap-2 flex-shrink-0">
-        <Button variant="outline" className="w-full sm:w-1/3" onClick={onClearView}>Clear</Button>
-        <Button className="w-full sm:w-1/3 bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
-        <Button variant="outline" className="w-full sm:w-1/3" onClick={handleClear}>Reset</Button>
+      <div className="p-4 border-b flex flex-col sm:flex-row gap-2 flex-shrink-0 pr-6">
+        <Button variant="outline" className="w-full sm:w-1/2" onClick={handleClear}>Clear Filters</Button>
+        <Button className="w-full sm:w-1/2 bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
       </div>
 
       {/* Accordion Container */}

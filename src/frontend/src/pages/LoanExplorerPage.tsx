@@ -69,6 +69,11 @@ function LoanExplorerPage() {
     setHasAppliedFilter(false);       // This will cause the table to empty
   };
 
+  const handleResetFilters = () => {
+    setActiveFilters(initialFilters); // Reset the filters
+    // Don't change hasAppliedFilter - keep current view state
+  };
+
   useEffect(() => {
     const fetchLoans = async () => {
       try {
@@ -128,9 +133,21 @@ function LoanExplorerPage() {
   }, [loans]);
 
   const filteredData = useMemo(() => {
-    if (!hasAppliedFilter) return []; // If no search yet, return empty
-
     if (!loans) return []; // If data is loading, return empty
+    
+    // If global search is active, search across all loans regardless of filters
+    if (globalFilter && globalFilter.length > 0) {
+      const searchTerm = globalFilter.toLowerCase();
+      return loans.filter(loan => 
+        loan.servicer_loan_id?.toLowerCase().includes(searchTerm) ||
+        loan.borrower_name?.toLowerCase().includes(searchTerm) ||
+        loan.property_address?.toLowerCase().includes(searchTerm) ||
+        loan.investor_name?.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    // If no filters applied and no search, return empty
+    if (!hasAppliedFilter) return [];
 
     return loans.filter(loan => {
       const { propertyState, assetStatus, investor, lienPosition, principalBalance } = activeFilters;
@@ -166,7 +183,7 @@ function LoanExplorerPage() {
 
       return true; // If all checks pass, include the loan
     });
-  }, [loans, activeFilters, hasAppliedFilter]);
+  }, [loans, activeFilters, hasAppliedFilter, globalFilter]);
 
   const columns = useMemo(
     () => [
@@ -257,13 +274,10 @@ function LoanExplorerPage() {
     columns,
     state: {
       sorting,
-      globalFilter,
     },
     onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   });
 
   const handleExport = async (format: 'pdf' | 'excel') => {
@@ -357,7 +371,7 @@ function LoanExplorerPage() {
   }
 
   return (
-    <div className="p-6 space-y-3">
+    <div className="p-6 space-y-2">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Loan Explorer</h1>
@@ -374,6 +388,7 @@ function LoanExplorerPage() {
             onApplyFilters={handleApplyFilters}
             onShowAll={handleShowAll}
             onClearView={handleClearView}
+            onResetFilters={handleResetFilters}
             availableStates={uniqueStates}
             availableAssetStatuses={uniqueLegalStatuses}
             availableInvestors={uniqueInvestors}
@@ -383,11 +398,11 @@ function LoanExplorerPage() {
         {/* Main Content (Right) */}
         <div className="lg:col-span-3 relative z-0">
           <Card className="py-0 gap-0">
-            <CardHeader className="pb-4 flex flex-col gap-0 grid-rows-none">
+            <CardHeader className="pb-2 flex flex-col gap-0 grid-rows-none">
               <DataToolbar
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
-                filteredLoanCount={table.getFilteredRowModel().rows.length}
+                filteredLoanCount={filteredData.length}
                 totalLoanCount={loans.length}
                 onExport={handleExport}
                 exporting={exporting}
