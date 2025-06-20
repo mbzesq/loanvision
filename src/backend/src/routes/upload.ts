@@ -15,6 +15,7 @@ import {
   parseExcelDate,
   getValue
 } from '../services/columnMappers';
+import { processForeclosureRecord } from '../services/foreclosureService';
 
 const router = Router();
 const storage = multer.memoryStorage();
@@ -243,10 +244,17 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
     let successMessage = '';
 
     if (detection.fileType === 'foreclosure_data') {
-      const foreclosureRecords = jsonData.map(row => 
-        mapForeclosureData(row, uploadSessionId, req.file!.originalname)
-      );
-      insertedCount = await insertForeclosureRecords(foreclosureRecords);
+      // Process foreclosure records with new schema
+      for (const row of jsonData) {
+        try {
+          // The state will be fetched from existing loan data within processForeclosureRecord
+          await processForeclosureRecord(row, 'NY'); // NY as fallback default
+          insertedCount++;
+        } catch (error) {
+          console.error('Error processing foreclosure record:', error);
+          // Continue processing other records even if one fails
+        }
+      }
       successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} foreclosure records.`;
     } 
     else if (detection.fileType === 'daily_metrics') {
