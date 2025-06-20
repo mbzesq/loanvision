@@ -1,4 +1,5 @@
-LoanVision Project State - 2025-06-20
+LoanVision Project State - 2025-06-20B
+
 1. High-Level Objective
 To build a SaaS platform for ingesting, enriching, and analyzing non-performing mortgage loan portfolios. The core idea is to provide automated data cleaning, enrichment, and an AI-powered query interface.
 
@@ -9,58 +10,79 @@ Sarah the Passive Investor: A future persona. Sarah is a capital partner or stak
 
 3. Core Technology Stack
 Backend: Node.js with Express, TypeScript
-
 Frontend: React with Vite, TypeScript
-
 Database: PostgreSQL
-
 Deployment: Render (as separate Backend and Frontend services from a monorepo)
-
 Code Repository: GitHub (https://github.com/mbzesq/loanvision)
 
 4. Current Deployed State (What Works)
-The application backend is functional, but the frontend is in a visually broken state due to a failed layout refactor.
-
-Functional Backend & API: All backend services are working correctly.
-
-Broken LoanExplorerPage: The main data exploration page has significant layout regressions. The filter action buttons ("Apply", "Reset") are missing, and the main content area is misaligned on the page. Other pages like the Dashboard and Upload page are likely still functional.
+- Functional Backend & API: All backend services are working correctly.
+- LoanExplorerPage Visual & Functional Enhancements:
+  - Filter panel layout and spacing has been corrected.
+  - "Apply", "Reset", and "Clear" buttons are correctly aligned.
+  - Search bar includes a working "X" button to clear search input.
+  - Content layout issues and vertical spacing bugs resolved.
+- Upload Feature: Updated to ingest and map both Daily Portfolio Metrics and Foreclosure data files.
+- We are currently testing the enhanced file upload functionality to validate that new foreclosure-related data points are correctly parsed and stored.
 
 5. Evergreen Rules & Guardrails for the AI
-This section remains unchanged.
+
+🛡️ A. Stability is Paramount
+- Never break existing functionality. All new code must be additive, isolated, or backward-compatible.
+- If a change could affect deployed pages (especially Upload, Loan Explorer, Dashboard), call it out explicitly.
+- When uncertain, create new components/functions alongside existing ones and test before replacing.
+
+🧠 B. The AI is Not Omniscient
+- Claude Code cannot access uploaded files or spreadsheets. All file-related logic must be implemented via:
+  - Explicit column names and definitions provided in prompts.
+  - Parsing and mapping logic handled via the upload engine.
+- Do not assume Claude “knows” the content of prior uploads unless explicitly shared via prompt.
+
+🧪 C. Nothing Is Trusted Until Tested
+- All data pipeline changes (upload parsing, ingestion, DB writes) must be tested with a real file using the Upload feature.
+- No change is considered complete until the data is successfully displayed in the app or stored in the DB.
+- Deployment to Render must follow successful local or dev environment testing if possible.
+
+🧱 D. Prefer Clear Prompts & Modular Code
+- Break large prompts into smaller, testable pieces where possible.
+- Avoid monolithic logic. Use helper functions, modular React components, and clearly named database models.
+- Use TypeScript types and interfaces whenever new data types are introduced.
+
+🧭 E. Versioning and Project State Matter
+- Always begin each coding session with an up-to-date `LoanVision Project State` document.
+- Significant milestones should be time-stamped and optionally versioned (`v2025-06-20B`, etc.).
+- Key architectural or structural changes should be reflected in a changelog or the `project_state.md`.
+
+🧰 F. Build for the Road Ahead
+- Code should assume future data delivery via daily FTP ingestion, but rely on manual upload for now.
+- Use config flags or stubs where needed to allow for easy extension in future phases (e.g., multiple investors, dashboards by servicer, etc.).
+- Do not over-engineer now, but design with extensibility in mind.
+
+⚙️ G. Claude Code Roles & Limits
+- Claude Code is the primary implementation engine, not the architect.
+- ChatGPT is the product and engineering lead, and must review all architectural decisions, error debugging, or unresolved logic questions before Claude proceeds.
+- Claude must follow instructions strictly and escalate ambiguity to Michael or ChatGPT for clarification.
 
 6. Last Session Summary
-Attempted a major aesthetic refactor of the LoanExplorerPage layout. This refactor failed, resulting in a significant visual regression. The key filter action buttons disappeared from the FilterPanel, and the main content area's alignment was broken, pushing it down the page.
+- Completed visual and functional enhancements to the Loan Explorer page.
+- Successfully deployed layout fixes and quality-of-life improvements such as the clearable search input.
+- Integrated `fcl-timelines-costs.xlsx` into the project to support foreclosure step ordering.
+- Began testing new ingestion of foreclosure and daily metrics files via the Upload page.
 
 7. Immediate Next Task
-Fix the Layout Regression on LoanExplorerPage.
-
-This is the top priority. The goal is to restore the page to a correct and professional layout. This requires two main fixes:
-
-Restore the "Apply," "Reset," and "Clear" buttons to their correct position within the FilterPanel, directly below the header.
-
-Correct the main page container's styling to fix the alignment issue that is pushing the content grid down the page.
+- Create `foreclosure_events` table in the database to resolve ingestion failure.
+- Successfully complete ingestion of foreclosure data using the updated file upload pipeline.
+- Begin surfacing foreclosure indicators in the Loan Explorer and Dashboard views.
 
 8. Future Roadmap
-Phase 1: "Now" - Complete the Aesthetic Overhaul
-
-(Current) Fix the critical layout regression.
-
-Complete the professional styling of the Data Table and FilterPanel.
-
-Add a "Search Within Filter" feature for long lists.
-
-Add more filter types, such as a proper Maturity Date range picker.
+Phase 1: "Now" - Complete Upload Testing and LoanExplorer Enhancements
+- Finalize file ingestion logic and error handling.
+- Display foreclosure status and latest legal step in Loan Explorer.
 
 Phase 2: "Next" - High-Value Features & Reporting
-
-Implement the RentCast API integration for property value enrichment.
-
-Build "soft delete" functionality for loans.
-
-Begin building the "Reports" page with pre-canned charts and summaries.
+- Build foreclosure analytics into the Dashboard (e.g., # of loans by FC step).
+- Begin building the "Reports" page with pre-canned charts and summaries.
 
 Phase 3: "Later" - Decision Engine & Automation
-
-Implement Risk Assessment Rulesets, Workout Path Recommendations, and Financial Outcome Modeling.
-
-Implement the LLM Assistant for natural language search.
+- Implement Risk Assessment Rulesets, Workout Path Recommendations, and Financial Outcome Modeling.
+- Implement the LLM Assistant for natural language search.
