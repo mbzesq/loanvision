@@ -112,12 +112,12 @@ export function FilterPanel({
 
 
   return (
-    <div className="flex flex-col h-full border rounded-lg bg-white">
-      <div className="p-4 border-b">
+    <div className="flex flex-col h-full border rounded-lg bg-white shadow-sm">
+      <div className="p-4 border-b bg-slate-50/75">
         <h2 className="text-lg font-semibold">Filter Criteria</h2>
       </div>
       <div className="p-4 border-b flex gap-2">
-        <Button className="w-full" onClick={handleApply}>Apply</Button>
+        <Button className="w-full bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
         <Button variant="ghost" className="w-full" onClick={handleClear}>Reset</Button>
       </div>
       <div className="flex-grow overflow-y-auto">
@@ -125,14 +125,14 @@ export function FilterPanel({
 
           {/* Property State */}
           <AccordionItem value="state">
-            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4">
-              <div className="flex justify-between w-full items-center pr-2">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+              <div className="flex justify-between w-full items-center">
                 <span>Property State</span>
                 {filters.propertyState.length > 0 && <Badge variant="secondary">{filters.propertyState.length}</Badge>}
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="p-2 bg-slate-50">
+              <div className="p-2 bg-slate-50/75 border-t">
                 <Input placeholder="Search states..." value={searchTerms.propertyState} onChange={(e) => handleSearchChange('propertyState', e.target.value)} className="mb-2" />
                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                   {filteredStates.map((state) => (
@@ -148,14 +148,14 @@ export function FilterPanel({
 
           {/* Asset Status */}
           <AccordionItem value="asset-status">
-            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4">
-                <div className="flex justify-between w-full items-center pr-2">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+                <div className="flex justify-between w-full items-center">
                     <span>Asset Status</span>
                     {filters.assetStatus.length > 0 && <Badge variant="secondary">{filters.assetStatus.length}</Badge>}
                 </div>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="p-2 bg-slate-50">
+                <div className="p-2 bg-slate-50/75 border-t">
                     <Input placeholder="Search statuses..." value={searchTerms.assetStatus} onChange={(e) => handleSearchChange('assetStatus', e.target.value)} className="mb-2" />
                     <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                         {filteredAssetStatuses.map((status) => (
@@ -171,14 +171,14 @@ export function FilterPanel({
 
           {/* Investor */}
           <AccordionItem value="investor">
-            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4">
-                <div className="flex justify-between w-full items-center pr-2">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+                <div className="flex justify-between w-full items-center">
                     <span>Investor</span>
                     {filters.investor.length > 0 && <Badge variant="secondary">{filters.investor.length}</Badge>}
                 </div>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="p-2 bg-slate-50">
+                <div className="p-2 bg-slate-50/75 border-t">
                     <Input placeholder="Search investors..." value={searchTerms.investor} onChange={(e) => handleSearchChange('investor', e.target.value)} className="mb-2" />
                     <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                         {filteredInvestors.map((inv) => (
@@ -194,14 +194,14 @@ export function FilterPanel({
 
           {/* Lien Position */}
            <AccordionItem value="lien-position">
-            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4">
-                <div className="flex justify-between w-full items-center pr-2">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+                <div className="flex justify-between w-full items-center">
                     <span>Lien Position</span>
                     {filters.lienPosition.length > 0 && <Badge variant="secondary">{filters.lienPosition.length}</Badge>}
                 </div>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="p-2 bg-slate-50">
+                <div className="p-2 bg-slate-50/75 border-t">
                      <Input placeholder="Search positions..." value={searchTerms.lienPosition} onChange={(e) => handleSearchChange('lienPosition', e.target.value)} className="mb-2" />
                     <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                         {filteredLienPositions.map((pos) => (
@@ -217,14 +217,14 @@ export function FilterPanel({
 
           {/* Principal Balance */}
           <AccordionItem value="balance">
-            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4">
-              <div className="flex justify-between w-full items-center pr-2">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+              <div className="flex justify-between w-full items-center">
                 <span>Principal Balance</span>
                 {(filters.principalBalance.min !== '' || filters.principalBalance.max !== '') && <Badge variant="secondary">Active</Badge>}
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="flex gap-2 p-4 bg-slate-50">
+              <div className="flex gap-2 p-2 bg-slate-50/75 border-t">
                 <Input type="number" placeholder="Min" value={filters.principalBalance.min} onChange={(e) => handleRangeChange('principalBalance', 'min', e.target.value)} />
                 <Input type="number" placeholder="Max" value={filters.principalBalance.max} onChange={(e) => handleRangeChange('principalBalance', 'max', e.target.value)} />
               </div>
