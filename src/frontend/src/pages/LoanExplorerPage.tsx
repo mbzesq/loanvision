@@ -52,9 +52,16 @@ function LoanExplorerPage() {
   const [globalFilter, setGlobalFilter] = useState('');
   const [exporting, setExporting] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterValues>(initialFilters);
+  const [hasAppliedFilter, setHasAppliedFilter] = useState(false);
 
   const handleApplyFilters = (filters: FilterValues) => {
     setActiveFilters(filters);
+    setHasAppliedFilter(true);
+  };
+
+  const handleShowAll = () => {
+    setActiveFilters(initialFilters);
+    setHasAppliedFilter(true);
   };
 
   useEffect(() => {
@@ -116,7 +123,9 @@ function LoanExplorerPage() {
   }, [loans]);
 
   const filteredData = useMemo(() => {
-    if (!loans) return []; // Return empty array if loans is not yet loaded
+    if (!hasAppliedFilter) return []; // If no search yet, return empty
+
+    if (!loans) return []; // If data is loading, return empty
 
     return loans.filter(loan => {
       const { propertyState, assetStatus, investor, lienPosition, principalBalance } = activeFilters;
@@ -152,7 +161,7 @@ function LoanExplorerPage() {
 
       return true; // If all checks pass, include the loan
     });
-  }, [loans, activeFilters]);
+  }, [loans, activeFilters, hasAppliedFilter]);
 
   const columns = useMemo(
     () => [
@@ -354,6 +363,7 @@ function LoanExplorerPage() {
               availableAssetStatuses={uniqueLegalStatuses}
               availableInvestors={uniqueInvestors}
               availableLienPositions={uniqueLienPositions}
+              onShowAll={handleShowAll}
             />
           </div>
           
@@ -430,11 +440,14 @@ function LoanExplorerPage() {
                   </table>
                   
                   {table.getRowModel().rows.length === 0 && (
-                    <div className="text-center py-12">
-                      <p className="text-slate-500">
-                        {globalFilter 
-                          ? 'No loans found matching your search criteria.' 
-                          : 'No loans found. Upload a file to see loans here.'}
+                    <div className="text-center py-12 px-6">
+                      <h3 className="text-lg font-semibold text-slate-800">
+                        {hasAppliedFilter ? "No Loans Found" : "Begin Your Search"}
+                      </h3>
+                      <p className="text-slate-500 mt-2">
+                        {hasAppliedFilter
+                          ? "No loans match your current filter criteria."
+                          : "Use the filters on the left to find specific loans in your portfolio."}
                       </p>
                     </div>
                   )}

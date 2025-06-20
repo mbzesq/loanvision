@@ -29,6 +29,7 @@ interface FilterPanelProps {
   availableAssetStatuses: string[];
   availableInvestors: string[];
   availableLienPositions: string[];
+  onShowAll: () => void;
 }
 
 // Define the initial state for the filters
@@ -46,6 +47,7 @@ export function FilterPanel({
   availableAssetStatuses,
   availableInvestors,
   availableLienPositions,
+  onShowAll,
 }: FilterPanelProps) {
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
   const [searchTerms, setSearchTerms] = useState({
@@ -113,8 +115,9 @@ export function FilterPanel({
 
   return (
     <div className="flex flex-col h-full border rounded-lg bg-white shadow-sm">
-      <div className="p-4 border-b bg-slate-50/75">
+      <div className="p-4 border-b bg-slate-50/75 flex justify-between items-center">
         <h2 className="text-lg font-semibold">Filter Criteria</h2>
+        <Button variant="link" size="sm" onClick={onShowAll}>Show All</Button>
       </div>
       <div className="p-4 border-b flex gap-2">
         <Button className="w-full bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
