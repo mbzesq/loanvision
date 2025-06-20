@@ -1,5 +1,24 @@
 # Database Migration Required
 
+## Latest Migration (2025-01-20): Foreclosure Tracking Tables
+
+Run the following migration to create enhanced foreclosure tracking tables:
+
+```sql
+-- File: create_foreclosure_tracking_tables.sql
+-- Run this entire file in your PostgreSQL database
+```
+
+This migration creates:
+- `foreclosure_events`: Main table for loan-level foreclosure data
+- `foreclosure_milestone_statuses`: Child table for milestone tracking with benchmarks
+
+**Note**: This migration will DROP and recreate the existing `foreclosure_events` table if it exists.
+
+## Previous Migrations
+
+### Enrichments Table Migration
+
 Before deploying this version, you must run the enrichments table migration:
 
 ```sql
