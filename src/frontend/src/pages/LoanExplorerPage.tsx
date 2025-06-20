@@ -3,13 +3,12 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { LoanDetailModal } from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { ExportButton } from '../components/ExportButton';
+import { DataToolbar } from '../components/DataToolbar';
 import { states } from '@loanvision/shared/lib/states';
-import { Input } from '@loanvision/shared/components/ui/input';
-import { Button } from '@loanvision/shared/components/ui/button';
 import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
 import {
   createColumnHelper,
@@ -370,60 +369,20 @@ function LoanExplorerPage() {
           </div>
           
           {/* Main Content - Right Column */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Data Toolbar */}
+          <div className="lg:col-span-3">
             <Card>
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    {/* Results Summary */}
-                    <div className="text-sm text-slate-600">
-                      Viewing{' '}
-                      <span className="font-semibold text-slate-900">
-                        {table.getFilteredRowModel().rows.length.toLocaleString()}
-                      </span>{' '}
-                      of{' '}
-                      <span className="font-semibold text-slate-900">
-                        {loans.length.toLocaleString()}
-                      </span>{' '}
-                      loans
-                    </div>
-
-                    {/* Search Input */}
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input
-                        placeholder="Search all loans..."
-                        value={globalFilter ?? ''}
-                        onChange={(event) => setGlobalFilter(event.target.value)}
-                        className="pl-10 w-64 h-9"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {/* Future Feature Buttons */}
-                    <Button variant="outline" size="sm" disabled>
-                      Save View
-                    </Button>
-                    <Button variant="outline" size="sm" disabled>
-                      Compare
-                    </Button>
-
-                    {/* Export Button */}
-                    <ExportButton
-                      onExport={handleExport}
-                      exporting={exporting}
-                    />
-                  </div>
-                </div>
+              <CardHeader>
+                <DataToolbar
+                  globalFilter={globalFilter}
+                  setGlobalFilter={setGlobalFilter}
+                  filteredLoanCount={table.getFilteredRowModel().rows.length}
+                  totalLoanCount={loans.length}
+                  onExport={handleExport}
+                  exporting={exporting}
+                />
               </CardHeader>
-            </Card>
-
-            {/* Data Table */}
-            <Card>
               <CardContent className="p-0">
-                <div className="overflow-visible relative">
+                <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       {table.getHeaderGroups().map(headerGroup => (
