@@ -17,18 +17,36 @@ export const cleanPercentage = (value: any): number | null => {
 };
 
 export const parseExcelDate = (excelDate: any): string | null => {
-  if (typeof excelDate === 'number') {
-    const jsDate = XLSX.SSF.parse_date_code(excelDate);
-    if (jsDate) {
-      const year = jsDate.y;
-      const month = String(jsDate.m).padStart(2, '0');
-      const day = String(jsDate.d).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+  if (!excelDate) return null;
+  
+  // Handle numeric values and numeric strings (e.g., "45323")
+  if (typeof excelDate === 'number' || (typeof excelDate === 'string' && /^\d+(\.\d+)?$/.test(excelDate))) {
+    const numericValue = typeof excelDate === 'string' ? parseFloat(excelDate) : excelDate;
+    if (!isNaN(numericValue) && numericValue > 0) {
+      const jsDate = XLSX.SSF.parse_date_code(numericValue);
+      if (jsDate) {
+        const year = jsDate.y;
+        const month = String(jsDate.m).padStart(2, '0');
+        const day = String(jsDate.d).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
     }
   }
-  if (typeof excelDate === 'string' && new Date(excelDate).toString() !== 'Invalid Date') {
-    return excelDate;
+  
+  // Handle string dates
+  if (typeof excelDate === 'string') {
+    // Check if already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(excelDate)) {
+      return excelDate;
+    }
+    
+    // Try to parse other date formats
+    const date = new Date(excelDate);
+    if (!isNaN(date.getTime())) {
+      return date.toISOString().split('T')[0];
+    }
   }
+  
   return null;
 };
 
