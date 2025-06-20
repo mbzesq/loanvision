@@ -2,6 +2,48 @@ import pool from '../db';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// Helper function to convert Excel serial date to ISO format
+function excelDateToISO(serial: number): string {
+  const utc_days = Math.floor(serial - 25569);
+  const utc_value = utc_days * 86400; // seconds in a day
+  const date = new Date(utc_value * 1000);
+  return date.toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+// Enhanced date parser that handles Excel serial numbers and date strings
+function parseDate(value: any): string | null {
+  if (!value) return null;
+  
+  // If it's a number, treat it as Excel serial date
+  if (typeof value === 'number' || (typeof value === 'string' && /^\d+(\.\d+)?$/.test(value))) {
+    const serial = typeof value === 'string' ? parseFloat(value) : value;
+    if (!isNaN(serial) && serial > 0) {
+      try {
+        return excelDateToISO(serial);
+      } catch (error) {
+        console.error('Error converting Excel date:', error);
+        return null;
+      }
+    }
+  }
+  
+  // If it's already a string date, validate it
+  if (typeof value === 'string') {
+    // Check if it's already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+    
+    // Try to parse other date formats
+    const date = new Date(value);
+    if (!isNaN(date.getTime())) {
+      return date.toISOString().split('T')[0];
+    }
+  }
+  
+  return null;
+}
+
 interface MilestoneBenchmark {
   state: string;
   jurisdiction: string;
@@ -58,15 +100,15 @@ const milestoneMappings: Record<string, string> = {
 
 // Extract foreclosure event data from the row based on new schema
 export function extractForeclosureEventData(row: any): ForeclosureEventData {
-  // Extract dates from various milestone columns
-  const referralDate = row['First Legal Actual Start'] || row['Title Received Actual Start'];
-  const titleOrderedDate = row['Title Received Expected Start'];
-  const titleReceivedDate = row['Title Received Actual Completion'];
-  const complaintFiledDate = row['First Legal Actual Start'] || row['First Legal Actual Completion'];
-  const serviceCompletedDate = row['Service Perfected Actual Completion'];
-  const judgmentDate = row['Judgment Entered Actual Completion'];
-  const saleScheduledDate = row['Sale Held Expected Completion'];
-  const saleHeldDate = row['Sale Held Actual Completion'];
+  // Extract and parse dates from various milestone columns
+  const referralDate = parseDate(row['First Legal Actual Start'] || row['Title Received Actual Start']);
+  const titleOrderedDate = parseDate(row['Title Received Expected Start']);
+  const titleReceivedDate = parseDate(row['Title Received Actual Completion']);
+  const complaintFiledDate = parseDate(row['First Legal Actual Start'] || row['First Legal Actual Completion']);
+  const serviceCompletedDate = parseDate(row['Service Perfected Actual Completion']);
+  const judgmentDate = parseDate(row['Judgment Entered Actual Completion']);
+  const saleScheduledDate = parseDate(row['Sale Held Expected Completion']);
+  const saleHeldDate = parseDate(row['Sale Held Actual Completion']);
   
   return {
     loan_id: row['Loan ID'],
@@ -82,7 +124,7 @@ export function extractForeclosureEventData(row: any): ForeclosureEventData {
     judgment_date: judgmentDate,
     sale_scheduled_date: saleScheduledDate,
     sale_held_date: saleHeldDate,
-    real_estate_owned_date: row['RRC Actual Completion'],
+    real_estate_owned_date: parseDate(row['RRC Actual Completion']),
     eviction_completed_date: null // Not in current data
   };
 }
@@ -196,10 +238,10 @@ export async function insertMilestoneStatuses(
     const actualCompletionKey = `${filePrefix} Actual Completion`;
     const expectedCompletionKey = `${filePrefix} Expected Completion`;
 
-    const actualStart = row[actualStartKey] ? row[actualStartKey] : null;
-    const expectedStart = row[expectedStartKey] ? row[expectedStartKey] : null;
-    const actualCompletion = row[actualCompletionKey] ? row[actualCompletionKey] : null;
-    const expectedCompletion = row[expectedCompletionKey] ? row[expectedCompletionKey] : null;
+    const actualStart = parseDate(row[actualStartKey]);
+    const expectedStart = parseDate(row[expectedStartKey]);
+    const actualCompletion = parseDate(row[actualCompletionKey]);
+    const expectedCompletion = parseDate(row[expectedCompletionKey]);
 
     // Skip if no data for this milestone
     if (!actualStart && !expectedStart && !actualCompletion && !expectedCompletion) {
