@@ -8,7 +8,11 @@ const navLinks = [
   { to: '/upload', text: 'Upload', icon: Upload },
 ];
 
-export function SideNav() {
+interface SideNavProps {
+  onLinkClick?: () => void;
+}
+
+export function SideNav({ onLinkClick }: SideNavProps) {
   return (
     <aside className="w-64 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col">
       {/* Logo / App Name */}
@@ -24,6 +28,7 @@ export function SideNav() {
             key={link.to}
             to={link.to}
             end // Use 'end' for the root path to prevent it from always being active
+            onClick={onLinkClick}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActive
