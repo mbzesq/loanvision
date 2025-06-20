@@ -1,9 +1,9 @@
 // src/frontend/src/components/LoanDetailModal.tsx
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@loanvision/shared/components/ui/button';
 import { Loan } from '../pages/LoanExplorerPage'; // Assuming Loan type is exported
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
-import { X } from 'lucide-react';
+import { X, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface LoanDetailModalProps {
   loan: Loan | null;
@@ -17,6 +17,161 @@ const DetailItem = ({ label, children }: { label: string; children: React.ReactN
     <div className="font-medium text-slate-900 mt-1">{children}</div>
   </div>
 );
+
+// TODO: REMOVE AFTER DATA VALIDATION - Temporary debug section for new data types
+const DebugSection = ({ loan }: { loan: Loan }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const formatDebugValue = (value: any) => {
+    if (value === null || value === undefined || value === '') {
+      return <span className="text-slate-400 italic">No data</span>;
+    }
+    return <span className="text-slate-700">{String(value)}</span>;
+  };
+
+  const formatDebugDate = (value: any) => {
+    if (!value) return <span className="text-slate-400 italic">No date</span>;
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? 
+      <span className="text-slate-400 italic">Invalid date</span> : 
+      <span className="text-slate-700">{date.toLocaleDateString('en-US')}</span>;
+  };
+
+  const DebugField = ({ label, value, isDate = false }: { label: string; value: any; isDate?: boolean }) => (
+    <div className="flex justify-between items-center py-1 border-b border-slate-100 last:border-b-0">
+      <span className="text-xs text-slate-600 font-medium">{label}:</span>
+      <span className="text-xs">{isDate ? formatDebugDate(value) : formatDebugValue(value)}</span>
+    </div>
+  );
+
+  const MilestoneGroup = ({ title, actualStart, expectedCompletion, actualCompletion }: {
+    title: string;
+    actualStart: any;
+    expectedCompletion: any;
+    actualCompletion: any;
+  }) => (
+    <div className="bg-slate-50 p-2 rounded border">
+      <h5 className="text-xs font-semibold text-slate-700 mb-2">{title}</h5>
+      <div className="space-y-1">
+        <DebugField label="Actual Start" value={actualStart} isDate />
+        <DebugField label="Expected Completion" value={expectedCompletion} isDate />
+        <DebugField label="Actual Completion" value={actualCompletion} isDate />
+      </div>
+    </div>
+  );
+
+  return (
+    <section className="md:col-span-2 mt-6 pt-4 border-t-2 border-orange-200">
+      <div 
+        className="flex items-center cursor-pointer p-3 bg-orange-50 rounded-lg border border-orange-200"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <span className="text-lg mr-2">⚠️</span>
+        <h3 className="text-sm font-semibold text-orange-800 flex-1">
+          Debug: Servicer & Foreclosure Data (Temporary)
+        </h3>
+        {isExpanded ? 
+          <ChevronDown className="h-4 w-4 text-orange-600" /> : 
+          <ChevronRight className="h-4 w-4 text-orange-600" />
+        }
+      </div>
+      
+      {isExpanded && (
+        <div className="mt-3 p-4 bg-gray-50 rounded border space-y-4">
+          {/* Daily Metrics Data */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+              📊 Daily Metrics Data
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <DebugField label="Loan Status (B)" value={(loan as any).loan_status} />
+                <DebugField label="Legal Status (Y)" value={loan.legal_status} />
+                <DebugField label="Next Due Date (T)" value={loan.next_due_date} isDate />
+              </div>
+              <div className="space-y-1">
+                <DebugField label="Monthly P&I (U)" value={(loan as any).pi_pmt} />
+                <DebugField label="UPB (AA)" value={loan.unpaid_principal_balance} />
+                <DebugField label="Servicer Comments (W)" value={(loan as any).servicer_comments} />
+              </div>
+            </div>
+          </div>
+
+          {/* Foreclosure Data */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+              🏛️ Foreclosure Data
+            </h4>
+            
+            {/* Basic Foreclosure Info */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+              <DebugField label="FC Status (I)" value={(loan as any).fc_status} />
+              <DebugField label="FC Jurisdiction (H)" value={(loan as any).fc_jurisdiction} />
+              <DebugField label="Legal State (F)" value={(loan as any).legal_state} />
+            </div>
+            
+            <DebugField label="Foreclosure Referral Date (G)" value={(loan as any).foreclosure_referral_date} isDate />
+
+            {/* Legal Milestones */}
+            <div className="mt-4">
+              <h5 className="text-sm font-medium text-gray-600 mb-3">Legal Milestones</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <MilestoneGroup
+                  title="1st: Judgment Application"
+                  actualStart={(loan as any).judgment_application_actual_start}
+                  expectedCompletion={(loan as any).judgment_application_expected_completion}
+                  actualCompletion={(loan as any).judgment_application_actual_completion}
+                />
+                <MilestoneGroup
+                  title="2nd: Judgment Entry"
+                  actualStart={(loan as any).judgment_entry_actual_start}
+                  expectedCompletion={(loan as any).judgment_entry_expected_completion}
+                  actualCompletion={(loan as any).judgment_entry_actual_completion}
+                />
+                <MilestoneGroup
+                  title="3rd: Sheriff Sale Scheduled"
+                  actualStart={(loan as any).sheriff_sale_scheduled_actual_start}
+                  expectedCompletion={(loan as any).sheriff_sale_scheduled_expected_completion}
+                  actualCompletion={(loan as any).sheriff_sale_scheduled_actual_completion}
+                />
+                <MilestoneGroup
+                  title="4th: Sheriff Sale Held"
+                  actualStart={(loan as any).sheriff_sale_held_actual_start}
+                  expectedCompletion={(loan as any).sheriff_sale_held_expected_completion}
+                  actualCompletion={(loan as any).sheriff_sale_held_actual_completion}
+                />
+                <MilestoneGroup
+                  title="5th: EV/Lockout Filed"
+                  actualStart={(loan as any).ev_lockout_filed_actual_start}
+                  expectedCompletion={(loan as any).ev_lockout_filed_expected_completion}
+                  actualCompletion={(loan as any).ev_lockout_filed_actual_completion}
+                />
+                <MilestoneGroup
+                  title="6th: EV/Lockout Approved"
+                  actualStart={(loan as any).ev_lockout_approved_actual_start}
+                  expectedCompletion={(loan as any).ev_lockout_approved_expected_completion}
+                  actualCompletion={(loan as any).ev_lockout_approved_actual_completion}
+                />
+                <MilestoneGroup
+                  title="7th: EV/Lockout Executed"
+                  actualStart={(loan as any).ev_lockout_executed_actual_start}
+                  expectedCompletion={(loan as any).ev_lockout_executed_expected_completion}
+                  actualCompletion={(loan as any).ev_lockout_executed_actual_completion}
+                />
+                <MilestoneGroup
+                  title="8th: Deed Recorded"
+                  actualStart={(loan as any).deed_recorded_actual_start}
+                  expectedCompletion={(loan as any).deed_recorded_expected_completion}
+                  actualCompletion={(loan as any).deed_recorded_actual_completion}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
 
 export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -122,6 +277,9 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
                 {/* Maturity Date will be added back when the data field exists */}
               </div>
           </section>
+
+          {/* DEBUG SECTION - TEMPORARY: Remove after data validation */}
+          <DebugSection loan={loan} />
         </div>
 
         {/* Modal Footer */}
