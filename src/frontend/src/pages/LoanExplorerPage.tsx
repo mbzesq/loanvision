@@ -178,6 +178,21 @@ function LoanExplorerPage() {
     });
   }, [loans, activeFilters, hasAppliedFilter, globalFilter]);
 
+  // Helper function for proper date formatting
+  const formatDate = (value: string | null | undefined) => {
+    if (!value) return 'N/A';
+    const date = new Date(value);
+    // Add timezone offset to counteract browser conversion
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const correctedDate = new Date(date.getTime() + userTimezoneOffset);
+    
+    return isNaN(correctedDate.getTime()) ? 'N/A' : correctedDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  };
+
   const columns = useMemo(
     () => [
       columnHelper.accessor('loan_id', {
@@ -229,9 +244,7 @@ function LoanExplorerPage() {
           const value = info.getValue();
           return (
             <span className="text-slate-700 tabular-nums">
-              {value 
-                ? new Date(value).toLocaleDateString('en-US')
-                : 'N/A'}
+              {formatDate(value)}
             </span>
           );
         },
@@ -247,9 +260,7 @@ function LoanExplorerPage() {
           const value = info.getValue();
           return (
             <span className="text-slate-700 tabular-nums">
-              {value 
-                ? new Date(value).toLocaleDateString('en-US')
-                : 'N/A'}
+              {formatDate(value)}
             </span>
           );
         },

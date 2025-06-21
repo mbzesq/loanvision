@@ -204,7 +204,15 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
   const formatDate = (value: string | null | undefined) => {
     if (!value) return <span className="text-slate-500">—</span>;
     const date = new Date(value);
-    return isNaN(date.getTime()) ? <span className="text-slate-500">—</span> : date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    // Add timezone offset to counteract browser conversion
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const correctedDate = new Date(date.getTime() + userTimezoneOffset);
+
+    return isNaN(correctedDate.getTime()) ? <span className="text-slate-500">—</span> : correctedDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
   };
 
   const formatPercent = (value: string | null | undefined) => {
