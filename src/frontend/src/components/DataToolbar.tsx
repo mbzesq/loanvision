@@ -11,6 +11,7 @@ interface DataToolbarProps {
   totalLoanCount: number;
   filteredLoanCount: number;
   onExport?: (format: 'pdf' | 'excel') => void;
+  onCustomize?: () => void;
   exporting?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function DataToolbar({
   totalLoanCount,
   filteredLoanCount,
   onExport,
+  onCustomize,
   exporting,
 }: DataToolbarProps) {
   const handleClearSearch = () => {
@@ -73,6 +75,7 @@ export function DataToolbar({
         {/* Export Button */}
         <ExportButton
           onExport={onExport || (() => {})}
+          onCustomize={onCustomize || (() => {})}
           exporting={exporting || false}
         />
       </div>

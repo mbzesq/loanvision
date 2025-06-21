@@ -5,10 +5,11 @@ import { useOnClickOutside } from '../hooks/useOnClickOutside';
 
 interface ExportButtonProps {
   onExport: (format: 'pdf' | 'excel') => void;
+  onCustomize: () => void; // Add this new prop
   exporting: boolean;
 }
 
-export function ExportButton({ onExport, exporting }: ExportButtonProps) {
+export function ExportButton({ onExport, onCustomize, exporting }: ExportButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -55,6 +56,14 @@ export function ExportButton({ onExport, exporting }: ExportButtonProps) {
               role="menuitem"
             >
               Download as PDF
+            </button>
+            <div className="border-t my-1"></div> {/* Separator */}
+            <button
+              onClick={onCustomize}
+              className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+              role="menuitem"
+            >
+              Customize Export...
             </button>
           </div>
         </div>
