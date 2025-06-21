@@ -112,7 +112,9 @@ export function FilterPanel({
   const filteredStates = useMemo(() => availableStates.filter(state => state.name.toLowerCase().includes(searchTerms.propertyState.toLowerCase()) || state.abbr.toLowerCase().includes(searchTerms.propertyState.toLowerCase())), [availableStates, searchTerms.propertyState]);
   const filteredAssetStatuses = useMemo(() => availableAssetStatuses.filter(status => status.toLowerCase().includes(searchTerms.assetStatus.toLowerCase())), [availableAssetStatuses, searchTerms.assetStatus]);
   const filteredInvestors = useMemo(() => availableInvestors.filter(inv => inv.toLowerCase().includes(searchTerms.investor.toLowerCase())), [availableInvestors, searchTerms.investor]);
-  const filteredLienPositions = useMemo(() => availableLienPositions.filter(pos => pos.toLowerCase().includes(searchTerms.lienPosition.toLowerCase())), [availableLienPositions, searchTerms.lienPosition]);
+  const filteredLienPositions = useMemo(() => availableLienPositions.filter(pos => 
+    String(pos).toLowerCase().includes(searchTerms.lienPosition.toLowerCase())
+  ), [availableLienPositions, searchTerms.lienPosition]);
 
 
   return (
