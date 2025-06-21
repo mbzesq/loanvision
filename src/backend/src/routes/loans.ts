@@ -61,4 +61,31 @@ router.get('/loans/:loanId/enrichments', async (req, res) => {
   }
 });
 
+// Add this new route handler in routes/loans.ts
+
+router.get('/v2/loans', async (req, res) => {
+  try {
+    const query = `
+      SELECT
+        dmc.*,
+        fe.fc_status,
+        fe.fc_jurisdiction,
+        fe.fc_start_date
+      FROM
+        daily_metrics_current AS dmc
+      LEFT JOIN
+        foreclosure_events AS fe
+      ON
+        dmc.loan_id = fe.loan_id
+      ORDER BY
+        dmc.loan_id;
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching V2 loans data:', error);
+    res.status(500).json({ error: 'Failed to fetch consolidated loan data' });
+  }
+});
+
 export default router;
