@@ -3,7 +3,6 @@ import multer from 'multer';
 import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../db';
-import { Loan } from '@loanvision/shared';
 import { detectFileType, FileType } from '../services/fileTypeDetector';
 import { 
   mapForeclosureData, 
@@ -101,14 +100,6 @@ function parseCsvData(buffer: Buffer): any[] {
   
   return records;
 }
-
-// --- Existing Data Cleaning Helpers for Legacy Loans ---
-const combineName = (loan: Loan, firstKeys: string[], lastKeys: string[]): string | null => {
-    const first = firstKeys.map(k => loan[k]).find(v => v) || '';
-    const last = lastKeys.map(k => loan[k]).find(v => v) || '';
-    const combined = `${first} ${last}`.trim();
-    return combined || null;
-};
 
 // --- Database Insertion Functions ---
 async function insertForeclosureRecords(records: ForeclosureRecord[]): Promise<number> {
@@ -233,54 +224,6 @@ async function insertDailyMetricsRecords(records: DailyMetricsRecord[]): Promise
   return insertedCount;
 }
 
-async function insertLoanRecords(loans: Loan[], uploadSessionId: string, sourceFilename: string): Promise<number> {
-  let insertedCount = 0;
-  const insertQuery = `
-    INSERT INTO loans (
-      upload_session_id, servicer_loan_id, borrower_name, property_address,
-      property_city, property_state, property_zip, loan_amount,
-      interest_rate, maturity_date, unpaid_principal_balance, last_paid_date,
-      next_due_date, remaining_term_months, legal_status, lien_position,
-      investor_name, source_filename, data_issues
-    ) VALUES (
-      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
-    )
-  `;
-
-  for (const loan of loans) {
-    try {
-      const values = [
-        uploadSessionId, // $1
-        getValue(loan, ['Loan ID']), // $2 servicer_loan_id
-        combineName(loan, ['First Name'], ['Last Name']), // $3 borrower_name
-        getValue(loan, ['Address', 'Property Address']), // $4 property_address
-        getValue(loan, ['City']), // $5 property_city
-        getValue(loan, ['State']), // $6 property_state
-        getValue(loan, ['Zip']), // $7 property_zip
-        cleanCurrency(getValue(loan, ['Org Amount'])), // $8 loan_amount
-        cleanPercentage(getValue(loan, ['Int Rate'])), // $9 interest_rate
-        parseExcelDate(getValue(loan, ['Maturity Date'])), // $10 maturity_date
-        cleanCurrency(getValue(loan, ['Prin Bal', 'UPB'])), // $11 unpaid_principal_balance
-        parseExcelDate(getValue(loan, ['Last Pymt Received'])), // $12 last_paid_date
-        parseExcelDate(getValue(loan, ['Next Pymt Due'])), // $13 next_due_date
-        getValue(loan, ['Remg Term']), // $14 remaining_term_months
-        getValue(loan, ['Legal Status']), // $15 legal_status
-        getValue(loan, ['Lien Pos']), // $16 lien_position
-        getValue(loan, ['Investor Name']), // $17 investor_name
-        sourceFilename, // $18 source_filename
-        null, // $19 data_issues (for now)
-      ];
-
-      await pool.query(insertQuery, values);
-      insertedCount++;
-    } catch (error) {
-      console.error('Error inserting loan:', error, 'Loan data:', loan);
-    }
-  }
-
-  return insertedCount;
-}
-
 // --- Main Upload Endpoint ---
 router.post('/upload', upload.single('loanFile'), async (req, res) => {
   if (!req.file) {
@@ -323,7 +266,7 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
         error: 'Unable to identify file type. Please ensure your file contains the expected column headers.',
         details: {
           detectedConfidence: detection.confidence,
-          supportedTypes: ['loan_portfolio', 'foreclosure_data', 'daily_metrics']
+          supportedTypes: ['foreclosure_data', 'daily_metrics']
         }
       });
     }
@@ -484,14 +427,6 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
       
       console.log(`Daily metrics processing complete: ${insertedCount} inserted, ${skippedCount} skipped, ${errorCount} errors`);
       successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} daily metrics records (${skippedCount} skipped, ${errorCount} errors).`;
-    }
-    else if (detection.fileType === 'loan_portfolio') {
-      const loans = jsonData as Loan[];
-      insertedCount = await insertLoanRecords(loans, uploadSessionId, req.file.originalname);
-      successMessage = `Successfully imported ${insertedCount} of ${jsonData.length} loans.`;
-      // No skipped/error counts for legacy loan portfolio processing
-      skippedCount = 0;
-      errorCount = 0;
     }
 
     // Update upload session with final status

@@ -1,5 +1,5 @@
 // File Type Detection Service
-export type FileType = 'loan_portfolio' | 'foreclosure_data' | 'daily_metrics' | 'unknown';
+export type FileType = 'foreclosure_data' | 'daily_metrics' | 'unknown';
 
 export interface FileTypeDetectionResult {
   fileType: FileType;
@@ -19,10 +19,6 @@ const DAILY_METRICS_KEY_HEADERS = [
   'PI Pmt', 'Origination Date', 'Maturity Date', 'Jan-25', 'Feb-25'
 ];
 
-const LOAN_PORTFOLIO_KEY_HEADERS = [
-  'Loan ID', 'First Name', 'Last Name', 'Address', 'City', 'State',
-  'Prin Bal', 'Legal Status', 'Investor Name'
-];
 
 export function detectFileType(headers: string[]): FileTypeDetectionResult {
   // Normalize headers (trim and handle case variations)
@@ -44,64 +40,34 @@ export function detectFileType(headers: string[]): FileTypeDetectionResult {
     )
   );
   
-  // Check for standard loan portfolio file
-  const loanMatches = LOAN_PORTFOLIO_KEY_HEADERS.filter(keyHeader =>
-    normalizedHeaders.some(header => 
-      header.toLowerCase() === keyHeader.toLowerCase() ||
-      header.toLowerCase().includes(keyHeader.toLowerCase())
-    )
-  );
-  
   // Calculate confidence scores
   const foreclosureConfidence = (foreclosureMatches.length / FORECLOSURE_KEY_HEADERS.length) * 100;
   const metricsConfidence = (metricsMatches.length / DAILY_METRICS_KEY_HEADERS.length) * 100;
-  const loanConfidence = (loanMatches.length / LOAN_PORTFOLIO_KEY_HEADERS.length) * 100;
   
-  // Determine the best match, prioritizing the most specific formats
-  const confidences = [
-    { type: 'foreclosure_data', score: foreclosureConfidence },
-    { type: 'daily_metrics', score: metricsConfidence },
-    { type: 'loan_portfolio', score: loanConfidence },
-  ];
-
-  // Sort by confidence score, descending
-  confidences.sort((a, b) => b.score - a.score);
-
-  // Find the first type that meets the minimum confidence threshold
-  const bestMatch = confidences.find(c => c.score >= 60);
-
-  if (bestMatch) {
-    let matchedHeaders: string[] = [];
-    let missingHeaders: string[] = [];
-
-    switch (bestMatch.type) {
-      case 'foreclosure_data':
-        matchedHeaders = foreclosureMatches;
-        missingHeaders = FORECLOSURE_KEY_HEADERS.filter(h => !foreclosureMatches.includes(h));
-        break;
-      case 'daily_metrics':
-        matchedHeaders = metricsMatches;
-        missingHeaders = DAILY_METRICS_KEY_HEADERS.filter(h => !metricsMatches.includes(h));
-        break;
-      case 'loan_portfolio':
-        matchedHeaders = loanMatches;
-        missingHeaders = LOAN_PORTFOLIO_KEY_HEADERS.filter(h => !loanMatches.includes(h));
-        break;
-    }
-
+  // Determine file type based on highest confidence (minimum 60% match required)
+  if (foreclosureConfidence >= 60 && foreclosureConfidence >= metricsConfidence) {
     return {
-      fileType: bestMatch.type as FileType,
-      confidence: bestMatch.score,
-      matchedHeaders: matchedHeaders,
-      missingHeaders: missingHeaders,
+      fileType: 'foreclosure_data',
+      confidence: foreclosureConfidence,
+      matchedHeaders: foreclosureMatches,
+      missingHeaders: FORECLOSURE_KEY_HEADERS.filter(h => !foreclosureMatches.includes(h))
     };
   }
-
+  
+  if (metricsConfidence >= 60) {
+    return {
+      fileType: 'daily_metrics',
+      confidence: metricsConfidence,
+      matchedHeaders: metricsMatches,
+      missingHeaders: DAILY_METRICS_KEY_HEADERS.filter(h => !metricsMatches.includes(h))
+    };
+  }
+  
   // If no clear match, return unknown
   return {
     fileType: 'unknown',
-    confidence: confidences[0]?.score || 0, // Highest score even if below threshold
+    confidence: Math.max(foreclosureConfidence, metricsConfidence),
     matchedHeaders: [],
-    missingHeaders: [],
+    missingHeaders: []
   };
 }
