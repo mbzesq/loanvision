@@ -124,7 +124,10 @@ function LoanExplorerPage() {
 
   const uniqueLienPositions = useMemo(() => {
     const positions = new Set(loans?.map(loan => loan.lien_position).filter(Boolean) ?? []);
-    return Array.from(positions).sort();
+    const positionsArray = Array.from(positions).sort();
+    console.log('[Frontend] Unique lien positions found:', positionsArray);
+    console.log('[Frontend] Sample loan lien_position values:', loans?.slice(0, 5).map(l => ({ loan_id: l.loan_id, lien_position: l.lien_position })));
+    return positionsArray;
   }, [loans]);
 
   const filteredData = useMemo(() => {
