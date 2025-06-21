@@ -235,6 +235,7 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
   };
 
   console.log('Raw int_rate value received by modal:', loan.int_rate);
+  console.log('Raw lien_position value received by modal:', loan.lien_position);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

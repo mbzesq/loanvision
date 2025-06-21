@@ -149,12 +149,18 @@ export function FilterPanel({
               <div className="p-2 bg-slate-50/75 border-t">
                 <Input placeholder="Search states..." value={searchTerms.propertyState} onChange={(e) => handleSearchChange('propertyState', e.target.value)} className="mb-2" />
                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
-                  {filteredStates.map((state) => (
-                    <div key={state.abbr} className="flex items-center space-x-2">
-                      <Checkbox id={`state-${state.abbr}`} checked={filters.propertyState.includes(state.abbr)} onCheckedChange={(checked) => handleCheckboxChange('propertyState', state.abbr, !!checked)} />
-                      <Label htmlFor={`state-${state.abbr}`} className="font-normal">{state.name} ({state.abbr})</Label>
+                  {filteredStates.length === 0 ? (
+                    <div className="text-sm text-slate-500 italic p-2">
+                      No states match your search
                     </div>
-                  ))}
+                  ) : (
+                    filteredStates.map((state) => (
+                      <div key={state.abbr} className="flex items-center space-x-2">
+                        <Checkbox id={`state-${state.abbr}`} checked={filters.propertyState.includes(state.abbr)} onCheckedChange={(checked) => handleCheckboxChange('propertyState', state.abbr, !!checked)} />
+                        <Label htmlFor={`state-${state.abbr}`} className="font-normal">{state.name} ({state.abbr})</Label>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </AccordionContent>
@@ -223,16 +229,22 @@ export function FilterPanel({
                   className="mb-2"
                 />
                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
-                  {filteredLienPositions.map((pos) => (
-                    <div key={pos} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`pos-${pos}`}
-                        checked={filters.lienPosition.includes(pos)}
-                        onCheckedChange={(checked) => handleLienPosChange(pos, !!checked)}
-                      />
-                      <Label htmlFor={`pos-${pos}`} className="font-normal">{pos}</Label>
+                  {filteredLienPositions.length === 0 ? (
+                    <div className="text-sm text-slate-500 italic p-2">
+                      No lien positions available
                     </div>
-                  ))}
+                  ) : (
+                    filteredLienPositions.map((pos) => (
+                      <div key={pos} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`pos-${pos}`}
+                          checked={filters.lienPosition.includes(pos)}
+                          onCheckedChange={(checked) => handleLienPosChange(pos, !!checked)}
+                        />
+                        <Label htmlFor={`pos-${pos}`} className="font-normal">{pos}</Label>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </AccordionContent>
