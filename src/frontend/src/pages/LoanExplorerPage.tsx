@@ -93,7 +93,7 @@ function LoanExplorerPage() {
         setModalLoanData(null); // Clear old data
         try {
           const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-          const response = await axios.get(`${apiUrl}/api/loans/${selectedLoanId}`);
+          const response = await axios.get(`${apiUrl}/api/v2/loans/${selectedLoanId}`);
           setModalLoanData(response.data);
         } catch (error) {
           console.error('Failed to fetch loan details:', error);
@@ -161,7 +161,7 @@ function LoanExplorerPage() {
       }
 
       // Lien Position filter
-      if (lienPosition.length > 0 && !lienPosition.includes(loan.lien_position)) {
+      if (lienPosition.length > 0 && !lienPosition.includes(String(loan.lien_position))) {
         return false;
       }
 

@@ -13,27 +13,6 @@ router.get('/loans', async (req, res) => {
   }
 });
 
-router.get('/loans/:loanId', async (req, res) => {
-  try {
-    const { loanId } = req.params;
-    console.log(`[Backend] Fetching loan with ID: ${loanId}`); // Add this log
-
-    const result = await pool.query(
-      'SELECT * FROM loans WHERE servicer_loan_id::text = $1', // Modify this query
-      [loanId]
-    );
-
-    if (result.rows.length === 0) {
-      console.warn(`[Backend] No loan found for ID: ${loanId}`); // Add this log
-      return res.status(404).json({ error: 'Loan not found' });
-    }
-
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error fetching loan:', error);
-    res.status(500).json({ error: 'Failed to fetch loan' });
-  }
-});
 
 router.get('/loans/:loanId/enrichments', async (req, res) => {
   try {
@@ -61,8 +40,24 @@ router.get('/loans/:loanId/enrichments', async (req, res) => {
   }
 });
 
-// Add this new route handler in routes/loans.ts
+// V2 endpoint for single loan details
+router.get('/v2/loans/:loanId', async (req, res) => {
+  try {
+    const { loanId } = req.params;
+    const query = 'SELECT * FROM daily_metrics_current WHERE loan_id = $1';
+    const result = await pool.query(query, [loanId]);
 
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Loan not found in current metrics' });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching V2 loan detail:', error);
+    res.status(500).json({ error: 'Failed to fetch loan detail' });
+  }
+});
+
+// V2 endpoint for all loans
 router.get('/v2/loans', async (req, res) => {
   try {
     const query = `
