@@ -19,23 +19,23 @@ import {
 } from '@tanstack/react-table';
 
 export interface Loan {
-  id: number;
-  servicer_loan_id: string;
-  borrower_name: string;
-  property_address: string;
-  property_city: string;
-  property_state: string;
-  property_zip: string;
-  unpaid_principal_balance: string;
-  loan_amount: string;
-  interest_rate: string;
-  legal_status: string;
-  last_paid_date: string;
-  next_due_date: string;
-  remaining_term_months: string;
-  created_at: string;
+  loan_id: string;
   investor_name: string;
+  first_name: string;
+  last_name: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  prin_bal: string;
+  int_rate: string;
+  next_pymt_due: string;
+  last_pymt_received: string;
+  loan_type: string; // This is the "Asset Status"
+  legal_status: string;
   lien_position: string;
+  // Joined fields from foreclosure_events
+  fc_status: string | null;
 }
 
 const columnHelper = createColumnHelper<Loan>();
@@ -72,7 +72,7 @@ function LoanExplorerPage() {
     const fetchLoans = async () => {
       try {
         const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-        const response = await axios.get<Loan[]>(`${apiUrl}/api/loans`);
+        const response = await axios.get<Loan[]>(`${apiUrl}/api/v2/loans`);
         setLoans(response.data);
       } catch (err) {
         setError('Failed to fetch loans');
@@ -106,7 +106,7 @@ function LoanExplorerPage() {
   }, [selectedLoanId]);
 
   const uniqueStates = useMemo(() => {
-    const loanStateAbbrs = new Set(loans?.map(loan => loan.property_state).filter(Boolean) ?? []);
+    const loanStateAbbrs = new Set(loans?.map(loan => loan.state).filter(Boolean) ?? []);
     return states.filter(state => loanStateAbbrs.has(state.abbr)).sort((a, b) => a.name.localeCompare(b.name));
   }, [loans]);
 
@@ -133,9 +133,9 @@ function LoanExplorerPage() {
     if (globalFilter && globalFilter.length > 0) {
       const searchTerm = globalFilter.toLowerCase();
       return loans.filter(loan => 
-        loan.servicer_loan_id?.toLowerCase().includes(searchTerm) ||
-        loan.borrower_name?.toLowerCase().includes(searchTerm) ||
-        loan.property_address?.toLowerCase().includes(searchTerm) ||
+        loan.loan_id?.toLowerCase().includes(searchTerm) ||
+        `${loan.first_name} ${loan.last_name}`.toLowerCase().includes(searchTerm) ||
+        loan.address?.toLowerCase().includes(searchTerm) ||
         loan.investor_name?.toLowerCase().includes(searchTerm)
       );
     }
@@ -147,7 +147,7 @@ function LoanExplorerPage() {
       const { propertyState, assetStatus, investor, lienPosition, principalBalance } = activeFilters;
 
       // State filter
-      if (propertyState.length > 0 && !propertyState.includes(loan.property_state)) {
+      if (propertyState.length > 0 && !propertyState.includes(loan.state)) {
         return false;
       }
 
@@ -167,7 +167,7 @@ function LoanExplorerPage() {
       }
 
       // Principal balance filter
-      const loanBalance = parseFloat(loan.unpaid_principal_balance) || 0;
+      const loanBalance = parseFloat(loan.prin_bal) || 0;
       const minBalance = principalBalance.min !== '' ? principalBalance.min : -Infinity;
       const maxBalance = principalBalance.max !== '' ? principalBalance.max : Infinity;
 
@@ -181,7 +181,7 @@ function LoanExplorerPage() {
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor('servicer_loan_id', {
+      columnHelper.accessor('loan_id', {
         header: 'Loan Number',
         cell: info => (
           <span className="font-medium text-blue-600 hover:underline">
@@ -189,7 +189,8 @@ function LoanExplorerPage() {
           </span>
         ),
       }),
-      columnHelper.accessor('borrower_name', {
+      columnHelper.accessor((row) => `${row.first_name || ''} ${row.last_name || ''}`.trim(), {
+        id: 'borrower_name',
         header: 'Borrower Name',
         cell: info => (
           <span className="text-slate-900">
@@ -197,7 +198,7 @@ function LoanExplorerPage() {
           </span>
         ),
       }),
-      columnHelper.accessor('property_address', {
+      columnHelper.accessor('address', {
         header: 'Property Address',
         cell: info => (
           <span className="text-slate-700">
@@ -205,7 +206,7 @@ function LoanExplorerPage() {
           </span>
         ),
       }),
-      columnHelper.accessor('unpaid_principal_balance', {
+      columnHelper.accessor('prin_bal', {
         header: 'UPB',
         cell: info => {
           const value = info.getValue();
@@ -223,7 +224,7 @@ function LoanExplorerPage() {
           return a - b;
         },
       }),
-      columnHelper.accessor('next_due_date', {
+      columnHelper.accessor('next_pymt_due', {
         header: 'Next Due Date',
         cell: info => {
           const value = info.getValue();
@@ -241,7 +242,7 @@ function LoanExplorerPage() {
           return a - b;
         },
       }),
-      columnHelper.accessor('last_paid_date', {
+      columnHelper.accessor('last_pymt_received', {
         header: 'Last Paid Date',
         cell: info => {
           const value = info.getValue();
@@ -258,6 +259,15 @@ function LoanExplorerPage() {
           const b = rowB.getValue(columnId) ? new Date(rowB.getValue(columnId)).getTime() : 0;
           return a - b;
         },
+      }),
+      // Add this to the columns array
+      columnHelper.accessor('legal_status', {
+        header: 'Legal Status',
+        cell: info => (
+          <span className="font-medium text-slate-700">
+            {info.getValue() || 'N/A'}
+          </span>
+        ),
       }),
     ],
     []
@@ -293,22 +303,22 @@ function LoanExplorerPage() {
         
         const filteredRows = table.getFilteredRowModel().rows;
         const tableData = filteredRows.map(row => [
-          row.original.servicer_loan_id || 'N/A',
-          row.original.borrower_name || 'N/A',
-          row.original.property_address || 'N/A',
-          row.original.property_city || 'N/A',
-          row.original.property_state || 'N/A',
-          row.original.unpaid_principal_balance 
-            ? parseFloat(row.original.unpaid_principal_balance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+          row.original.loan_id || 'N/A',
+          `${row.original.first_name || ''} ${row.original.last_name || ''}`.trim() || 'N/A',
+          row.original.address || 'N/A',
+          row.original.city || 'N/A',
+          row.original.state || 'N/A',
+          row.original.prin_bal 
+            ? parseFloat(row.original.prin_bal).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
             : 'N/A',
-          row.original.interest_rate 
-            ? (parseFloat(row.original.interest_rate) * 100).toFixed(2) + '%'
+          row.original.int_rate 
+            ? (parseFloat(row.original.int_rate) * 100).toFixed(2) + '%'
             : 'N/A',
-          row.original.next_due_date 
-            ? new Date(row.original.next_due_date).toLocaleDateString('en-US')
+          row.original.next_pymt_due 
+            ? new Date(row.original.next_pymt_due).toLocaleDateString('en-US')
             : 'N/A',
-          row.original.last_paid_date 
-            ? new Date(row.original.last_paid_date).toLocaleDateString('en-US')
+          row.original.last_pymt_received 
+            ? new Date(row.original.last_pymt_received).toLocaleDateString('en-US')
             : 'N/A',
           row.original.legal_status || 'N/A'
         ]);
@@ -428,7 +438,7 @@ function LoanExplorerPage() {
                       {table.getRowModel().rows.map((row, index) => (
                         <tr
                           key={row.id}
-                          onClick={() => setSelectedLoanId(row.original.servicer_loan_id)}
+                          onClick={() => setSelectedLoanId(row.original.loan_id)}
                           className={`border-b border-slate-100 transition-colors duration-150 cursor-pointer 
                             ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} 
                             hover:bg-blue-50
