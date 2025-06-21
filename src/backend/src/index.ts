@@ -5,6 +5,7 @@ import uploadRouter from './routes/upload';
 import loansRouter from './routes/loans';
 import portfolioRouter from './routes/portfolio';
 import reportsRouter from './routes/reports';
+import pool from './db';
 
 dotenv.config();
 
@@ -38,6 +39,30 @@ app.use('/api', loansRouter);
 app.use('/api', portfolioRouter);
 app.use('/api', reportsRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Add this entire async block right before app.listen
+
+const runDiagnostics = async () => {
+  try {
+    console.log('[Diagnostics] Running startup database checks...');
+
+    // Check row count
+    const countResult = await pool.query('SELECT COUNT(*) FROM daily_metrics_current;');
+    console.log(`[Diagnostics] Row count in daily_metrics_current: ${countResult.rows[0].count}`);
+
+    // Check a sample of loan_ids
+    if (countResult.rows[0].count > 0) {
+      const sampleResult = await pool.query('SELECT loan_id FROM daily_metrics_current LIMIT 5;');
+      console.log('[Diagnostics] Sample loan_ids:', sampleResult.rows.map(r => r.loan_id));
+    }
+
+    console.log('[Diagnostics] Database checks complete.');
+  } catch (error) {
+    console.error('[Diagnostics] Error during startup database checks:', error);
+  }
+};
+
+runDiagnostics().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
