@@ -7,6 +7,7 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { LoanDetailModal } from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { DataToolbar } from '../components/DataToolbar';
+import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '@loanvision/shared/lib/states';
 import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
 import {
@@ -40,6 +41,8 @@ export interface Loan {
 
 const columnHelper = createColumnHelper<Loan>();
 
+const allLoanColumns = [ 'loan_id', 'investor_name', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'prin_bal', 'int_rate', 'next_pymt_due', 'last_pymt_received', 'loan_type', 'legal_status', 'lien_pos', 'fc_status' ];
+
 function LoanExplorerPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +55,8 @@ function LoanExplorerPage() {
   const [exporting, setExporting] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterValues>(initialFilters);
   const [hasAppliedFilter, setHasAppliedFilter] = useState(false);
+  const [isExportModalOpen, setExportModalOpen] = useState(false);
+  const [customExportColumns, setCustomExportColumns] = useState<string[]>(['loan_id', 'prin_bal', 'legal_status']); // Set some defaults
 
   const handleApplyFilters = (filters: FilterValues) => {
     setActiveFilters(filters);
@@ -431,6 +436,7 @@ function LoanExplorerPage() {
                 filteredLoanCount={filteredData.length}
                 totalLoanCount={loans.length}
                 onExport={handleExport}
+                onCustomize={() => setExportModalOpen(true)}
                 exporting={exporting}
               />
             </CardHeader>
@@ -505,6 +511,17 @@ function LoanExplorerPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="text-white">Loading loan details...</div>
           </div>
+      )}
+
+      {/* Export Customizer Modal */}
+      {isExportModalOpen && (
+        <ExportCustomizerModal
+          isOpen={isExportModalOpen}
+          onClose={() => setExportModalOpen(false)}
+          availableColumns={allLoanColumns}
+          defaultColumns={customExportColumns}
+          onSave={setCustomExportColumns}
+        />
       )}
     </div>
   );
