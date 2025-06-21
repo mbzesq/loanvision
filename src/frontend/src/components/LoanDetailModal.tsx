@@ -87,11 +87,11 @@ const DebugSection = ({ loan }: { loan: Loan }) => {
               <div className="space-y-1">
                 <DebugField label="Loan Status (B)" value={(loan as any).loan_status} />
                 <DebugField label="Legal Status (Y)" value={loan.legal_status} />
-                <DebugField label="Next Due Date (T)" value={loan.next_due_date} isDate />
+                <DebugField label="Next Due Date (T)" value={loan.next_pymt_due} isDate />
               </div>
               <div className="space-y-1">
                 <DebugField label="Monthly P&I (U)" value={(loan as any).pi_pmt} />
-                <DebugField label="UPB (AA)" value={loan.unpaid_principal_balance} />
+                <DebugField label="UPB (AA)" value={loan.prin_bal} />
                 <DebugField label="Servicer Comments (W)" value={(loan as any).servicer_comments} />
               </div>
             </div>
@@ -105,7 +105,7 @@ const DebugSection = ({ loan }: { loan: Loan }) => {
             
             {/* Basic Foreclosure Info */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-              <DebugField label="FC Status (I)" value={(loan as any).fc_status} />
+              <DebugField label="FC Status (I)" value={loan.fc_status} />
               <DebugField label="FC Jurisdiction (H)" value={(loan as any).fc_jurisdiction} />
               <DebugField label="Legal State (F)" value={(loan as any).legal_state} />
             </div>
@@ -218,7 +218,7 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
   };
 
   const generateZillowUrl = (loanData: Loan) => {
-    const address = `${loanData.property_address}, ${loanData.property_city}, ${loanData.property_state} ${loanData.property_zip}`;
+    const address = `${loanData.address}, ${loanData.city}, ${loanData.state} ${loanData.zip}`;
     return `https://www.zillow.com/homes/${encodeURIComponent(address)}`;
   };
 
@@ -226,14 +226,14 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
     alert(`Functionality to view details for "${investorName}" is coming soon!`);
   };
 
-  console.log('Raw interest_rate value received by modal:', loan.interest_rate);
+  console.log('Raw int_rate value received by modal:', loan.int_rate);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div ref={modalRef} className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col">
         {/* Modal Header */}
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-semibold text-slate-900">Details for Loan: {loan.servicer_loan_id}</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Details for Loan: {loan.loan_id}</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
@@ -244,7 +244,7 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
           {/* Section 1: Loan & Borrower */}
           <section className="space-y-4">
              <h3 className="text-base font-semibold text-slate-600 border-b pb-2">Loan & Borrower</h3>
-             <DetailItem label="Borrower Name">{formatValue(loan.borrower_name)}</DetailItem>
+             <DetailItem label="Borrower Name">{formatValue(`${loan.first_name || ''} ${loan.last_name || ''}`.trim())}</DetailItem>
              <DetailItem label="Investor Name">
                <button onClick={() => handleInvestorClick(loan.investor_name)} className="text-blue-600 hover:underline font-medium text-left">
                  {formatValue(loan.investor_name)}
@@ -257,7 +257,7 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
              <h3 className="text-base font-semibold text-slate-600 border-b pb-2">Property & Collateral</h3>
              <DetailItem label="Property Address">
                <a href={generateZillowUrl(loan)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                 {`${loan.property_address}, ${loan.property_city}, ${loan.property_state} ${loan.property_zip}`}
+                 {`${loan.address}, ${loan.city}, ${loan.state} ${loan.zip}`}
                </a>
              </DetailItem>
              <DetailItem label="Lien Position">{formatValue(loan.lien_position)}</DetailItem>
@@ -268,12 +268,12 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
              <h3 className="text-base font-semibold text-slate-600 border-b pb-2">Financials & Status</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 pt-2">
                 <DetailItem label="Unpaid Principal Balance">
-                    <span className="text-xl font-bold text-slate-900">{formatCurrency(loan.unpaid_principal_balance)}</span>
+                    <span className="text-xl font-bold text-slate-900">{formatCurrency(loan.prin_bal)}</span>
                 </DetailItem>
-                <DetailItem label="Interest Rate">{formatPercent(loan.interest_rate)}</DetailItem>
+                <DetailItem label="Interest Rate">{formatPercent(loan.int_rate)}</DetailItem>
                 <DetailItem label="Legal Status">{formatValue(loan.legal_status)}</DetailItem>
-                <DetailItem label="Last Paid Date">{formatDate(loan.last_paid_date)}</DetailItem>
-                <DetailItem label="Next Due Date">{formatDate(loan.next_due_date)}</DetailItem>
+                <DetailItem label="Last Paid Date">{formatDate(loan.last_pymt_received)}</DetailItem>
+                <DetailItem label="Next Due Date">{formatDate(loan.next_pymt_due)}</DetailItem>
                 {/* Maturity Date will be added back when the data field exists */}
               </div>
           </section>
