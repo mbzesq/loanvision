@@ -1,87 +1,110 @@
-LoanVision Project State - 2025-06-20B
+# LoanVision Project State – Claude.md
 
-1. High-Level Objective
-To build a SaaS platform for ingesting, enriching, and analyzing non-performing mortgage loan portfolios. The core idea is to provide automated data cleaning, enrichment, and an AI-powered query interface.
+_Last updated: 2025-06-20D_
 
-2. Core User Personas
-Alex the Active Manager: The primary persona for our current development phase. Alex is a hands-on loan analyst or portfolio manager whose daily job is to monitor portfolio health, identify risk, and manage individual assets. They need powerful, granular filtering tools and at-a-glance data to make quick, informed decisions.
+---
 
-Sarah the Passive Investor: A future persona. Sarah is a capital partner or stakeholder who needs high-level, easily digestible reports and visualizations to track the overall performance of their investment without getting into the day-to-day operational details.
+## 1. High-Level Objective
+To build a SaaS platform for ingesting, enriching, analyzing, and managing non-performing mortgage loan portfolios. The platform helps asset managers make better decisions by combining structured loan data, automated enrichment, and intelligent querying.
 
-3. Core Technology Stack
-Backend: Node.js with Express, TypeScript
-Frontend: React with Vite, TypeScript
-Database: PostgreSQL
-Deployment: Render (as separate Backend and Frontend services from a monorepo)
-Code Repository: GitHub (https://github.com/mbzesq/loanvision)
+---
 
-4. Current Deployed State (What Works)
-- Functional Backend & API: All backend services are working correctly.
-- LoanExplorerPage Visual & Functional Enhancements:
-  - Filter panel layout and spacing has been corrected.
-  - "Apply", "Reset", and "Clear" buttons are correctly aligned.
-  - Search bar includes a working "X" button to clear search input.
-  - Content layout issues and vertical spacing bugs resolved.
-- Upload Feature: Updated to ingest and map both Daily Portfolio Metrics and Foreclosure data files.
-- We are currently testing the enhanced file upload functionality to validate that new foreclosure-related data points are correctly parsed and stored.
+## 2. Core User Personas
 
-5. Evergreen Rules & Guardrails for the AI
+### 👤 Alex the Active Manager
+The primary user for the current phase. Alex is a portfolio analyst or asset manager responsible for hands-on review of individual loans and overall performance. They need real-time visibility into loan status, risk, and foreclosure pipeline.
 
-🛡️ A. Stability is Paramount
-- Never break existing functionality. All new code must be additive, isolated, or backward-compatible.
-- If a change could affect deployed pages (especially Upload, Loan Explorer, Dashboard), call it out explicitly.
-- When uncertain, create new components/functions alongside existing ones and test before replacing.
+### 👩‍💼 Sarah the Passive Investor *(Future)*
+Sarah is a stakeholder or capital partner. She prefers high-level dashboards, summaries, and trend visualizations instead of detailed loan-level data.
 
-🧠 B. The AI is Not Omniscient
-- Claude Code cannot access uploaded files or spreadsheets. All file-related logic must be implemented via:
-  - Explicit column names and definitions provided in prompts.
-  - Parsing and mapping logic handled via the upload engine.
-- Do not assume Claude “knows” the content of prior uploads unless explicitly shared via prompt.
+---
 
-🧪 C. Nothing Is Trusted Until Tested
-- All data pipeline changes (upload parsing, ingestion, DB writes) must be tested with a real file using the Upload feature.
-- No change is considered complete until the data is successfully displayed in the app or stored in the DB.
-- Deployment to Render must follow successful local or dev environment testing if possible.
+## 3. Core Technology Stack
+- **Frontend**: React + Vite (TypeScript)
+- **Backend**: Node.js + Express (TypeScript)
+- **Database**: PostgreSQL
+- **Deployment**: Render.com (split frontend/backend)
+- **Repo**: [GitHub - loanvision](https://github.com/mbzesq/loanvision)
 
-🧱 D. Prefer Clear Prompts & Modular Code
-- Break large prompts into smaller, testable pieces where possible.
-- Avoid monolithic logic. Use helper functions, modular React components, and clearly named database models.
-- Use TypeScript types and interfaces whenever new data types are introduced.
+---
 
-🧭 E. Versioning and Project State Matter
-- Always begin each coding session with an up-to-date `LoanVision Project State` document.
-- Significant milestones should be time-stamped and optionally versioned (`v2025-06-20B`, etc.).
-- Key architectural or structural changes should be reflected in a changelog or the `project_state.md`.
+## 4. Current System Capabilities
 
-🧰 F. Build for the Road Ahead
-- Code should assume future data delivery via daily FTP ingestion, but rely on manual upload for now.
-- Use config flags or stubs where needed to allow for easy extension in future phases (e.g., multiple investors, dashboards by servicer, etc.).
-- Do not over-engineer now, but design with extensibility in mind.
+### ✅ Upload Engine (CSV + XLSX)
+- Supports file uploads for:
+  - Daily Portfolio Metrics
+  - Foreclosure Events
+- Dynamically detects column headers
+- Accepts `.csv` and `.xlsx` formats
 
-⚙️ G. Claude Code Roles & Limits
-- Claude Code is the primary implementation engine, not the architect.
-- ChatGPT is the product and engineering lead, and must review all architectural decisions, error debugging, or unresolved logic questions before Claude proceeds.
-- Claude must follow instructions strictly and escalate ambiguity to Michael or ChatGPT for clarification.
+### ✅ Database Support for Current + History Tables
+- **daily_metrics_current**: Latest view per loan
+- **daily_metrics_history**: Full audit trail by `loan_id + report_date`
+- **foreclosure_events**: Current foreclosure status (one active per loan)
+- **foreclosure_events_history**: Tracks all filings, including multiple foreclosure cycles
+- **Automatic handling of historical preservation and active-state logic**
 
-6. Last Milestone Summary
-We successfully:
+### ✅ Foreclosure Upload Enhancements
+- Accepts foreclosure data with multiple entries per loan
+- Filters by `FC Jurisdiction` == `Judicial` or `NonJudicial`
+- Ignores bankruptcy records for now
+- Uses `Title Received Actual Start` as proxy for foreclosure start date
+- Marks loans without `FC Closed Date` as "currently in foreclosure"
 
-Built and deployed full support for daily_metrics and foreclosure uploads with current/history table structure.
+### ✅ Backend Infrastructure
+- Corrected `fcl_milestones_by_state.json` path resolution
+- Dynamic ingestion logic with robust logging
+- Upload responses include insert/skipped/error counts and `report_date`
 
-Migrated SQL changes to Render DB via psql.
+---
 
-Enhanced upload logging, status tracking, and reporting.
+## 5. Evergreen Guardrails for AI (Claude)
 
-7. Immediate Next Tasks
-✅ Test uploads of real data (completed).
+### 🛡️ Stability First
+- Never break working features; always preserve Loan Explorer, Upload, and Dashboard stability
 
-🔲 Wire daily_metrics_current and/or foreclosure_events data into Loan Explorer and Dashboard.
+### 🧠 Claude is Not All-Knowing
+- Must use explicitly shared schemas and sample data
+- Cannot infer structure from uploads—require clear mapping
 
-🔲 Determine visual display strategy for historical trends (e.g., delinquency over time, foreclosure pipeline velocity).
+### 🧪 Nothing Is Trusted Until Verified
+- All changes must be tested via Upload
+- Deployment must follow validation in dev or local
 
-8. Roadmap Highlights
-Now: Visual integration of newly uploaded data (Loan Explorer, Loan Detail, Dashboard).
+### 🧱 Clear & Modular Design
+- Code must be testable and organized
+- Favor named helpers and TS interfaces
 
-Next: Summary reports, RentCast API enrichment, decision support tooling.
+### 🧭 Project State Must Be Current
+- Always begin with updated `claude.md`
+- Time-stamp major changes (e.g. `v2025-06-20D`)
 
-Later: LLM Assistant, automation, predictive analytics.
+### 🧰 Build for the Future
+- Plan for FTP automation, servicer-specific templates, and dashboard analytics
+- Implement config toggles or placeholders for planned features
+
+---
+
+## 6. Most Recent Milestone (2025-06-20D)
+- ✅ Fully implemented ingestion for **daily_metrics** and **foreclosure_events** (with history support)
+- ✅ Backend now accepts `.xlsx` uploads and dynamically matches headers
+- ✅ All database migrations applied and validated
+- ✅ Logic supports **multiple foreclosures per loan**, correctly identifies active foreclosure, and preserves historical activity
+
+---
+
+## 7. Next Steps
+- 🔲 **Wire daily_metrics_current** and **foreclosure_events** into Loan Explorer UI
+- 🔲 Support **multi-file upload** via drag/drop or batch interface
+- 🔲 Add visualizations for **delinquency trends**, **foreclosure velocity**, and **repeat FC counts**
+- 🔲 Extend ingestion logic for **bankruptcy**, **servicer template variation**, and **FTP pipeline**
+
+---
+
+## 8. Medium-Term Roadmap
+
+| Phase | Description |
+|-------|-------------|
+| Now   | Visualize daily metrics & foreclosure data |
+| Next  | Report generation, rent valuation API, servicer dashboards |
+| Later | AI assistant, predictive analytics, automated triggers |
