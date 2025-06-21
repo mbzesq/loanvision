@@ -72,13 +72,8 @@ function LoanExplorerPage() {
     const fetchLoans = async () => {
       try {
         const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-        console.log(`[Frontend] Fetching loans from: ${apiUrl}/api/v2/loans`);
         const response = await axios.get<Loan[]>(`${apiUrl}/api/v2/loans`);
-        console.log('[Frontend] Received data from /api/v2/loans:', response.data);
-        console.log(`[Frontend] Number of loans received: ${response.data?.length || 0}`);
-        if (response.data?.length > 0) {
-          console.log('[Frontend] Sample loan structure:', Object.keys(response.data[0]));
-        }
+        console.log('[Frontend] Received data from /api/v2/loans:', response.data); // MANDATORY LOG
         setLoans(response.data);
       } catch (err) {
         setError('Failed to fetch loans');
@@ -133,30 +128,21 @@ function LoanExplorerPage() {
   }, [loans]);
 
   const filteredData = useMemo(() => {
-    console.log(`[Frontend] filteredData calculation - loans count: ${loans?.length || 0}, hasAppliedFilter: ${hasAppliedFilter}, globalFilter: "${globalFilter}"`);
-    
-    if (!loans) return []; // If data is loading, return empty
+    if (!hasAppliedFilter) return []; // RESTORE THIS LINE
+    if (!loans) return [];
     
     // If global search is active, search across all loans regardless of filters
     if (globalFilter && globalFilter.length > 0) {
       const searchTerm = globalFilter.toLowerCase();
-      const searchResults = loans.filter(loan => 
+      return loans.filter(loan => 
         loan.loan_id?.toLowerCase().includes(searchTerm) ||
         `${loan.first_name} ${loan.last_name}`.toLowerCase().includes(searchTerm) ||
         loan.address?.toLowerCase().includes(searchTerm) ||
         loan.investor_name?.toLowerCase().includes(searchTerm)
       );
-      console.log(`[Frontend] Global search results: ${searchResults.length} loans`);
-      return searchResults;
-    }
-    
-    // If no filters applied and no search, show all loans by default
-    if (!hasAppliedFilter) {
-      console.log('[Frontend] No filters applied, showing all loans by default');
-      return loans;
     }
 
-    const filteredResults = loans.filter(loan => {
+    return loans.filter(loan => {
       const { propertyState, assetStatus, investor, lienPosition, principalBalance } = activeFilters;
 
       // State filter
@@ -190,9 +176,6 @@ function LoanExplorerPage() {
 
       return true; // If all checks pass, include the loan
     });
-    
-    console.log(`[Frontend] Applied filters, result: ${filteredResults.length} loans`);
-    return filteredResults;
   }, [loans, activeFilters, hasAppliedFilter, globalFilter]);
 
   const columns = useMemo(
@@ -473,12 +456,12 @@ function LoanExplorerPage() {
                {table.getRowModel().rows.length === 0 && (
                   <div className="text-center py-12 px-6">
                       <h3 className="text-lg font-semibold text-slate-800">
-                        {hasAppliedFilter ? "No Loans Found" : "No Loans Available"}
+                        {hasAppliedFilter ? "No Loans Found" : "Begin Your Search"}
                       </h3>
                       <p className="text-slate-500 mt-2">
                         {hasAppliedFilter
                           ? "No loans match your current filter criteria."
-                          : "No loan data is currently available. Please upload loan data files or check your data source."}
+                          : "Use the filters on the left to find specific loans in your portfolio."}
                       </p>
                   </div>
                )}
