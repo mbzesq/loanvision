@@ -122,12 +122,22 @@ function LoanExplorerPage() {
     return Array.from(investors).sort();
   }, [loans]);
 
+  // Replace the old uniqueLienPositions with this new, robust version
   const uniqueLienPositions = useMemo(() => {
-    const positions = new Set(loans?.map(loan => loan.lien_position).filter(Boolean) ?? []);
-    const positionsArray = Array.from(positions).sort();
-    console.log('[Frontend] Unique lien positions found:', positionsArray);
-    console.log('[Frontend] Sample loan lien_position values:', loans?.slice(0, 5).map(l => ({ loan_id: l.loan_id, lien_position: l.lien_position })));
-    return positionsArray;
+    if (!loans) return [];
+    
+    const positions = loans
+      .map(loan => loan.lien_position)
+      .filter(pos => pos !== null && pos !== undefined) // Remove nulls/undefined
+      .map(pos => String(pos).trim()) // Convert to string and trim whitespace
+      .filter(pos => pos !== ''); // Filter out empty strings
+
+    const uniquePositions = Array.from(new Set(positions));
+
+    // Sort numerically, but keep as strings
+    uniquePositions.sort((a, b) => Number(a) - Number(b));
+
+    return uniquePositions;
   }, [loans]);
 
   const filteredData = useMemo(() => {
