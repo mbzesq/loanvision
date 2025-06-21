@@ -207,25 +207,34 @@ export function FilterPanel({
           </AccordionItem>
 
           {/* Lien Position */}
-           <AccordionItem value="lien-position">
-            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
-                <div className="flex justify-between w-full items-center">
-                    <span>Lien Position</span>
-                    {filters.lienPosition.length > 0 && <Badge variant="secondary">{filters.lienPosition.length}</Badge>}
-                </div>
+          <AccordionItem value="lien-position">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4">
+              <div className="flex justify-between w-full items-center pr-2">
+                <span>Lien Position</span>
+                {filters.lienPosition.length > 0 && <Badge variant="secondary">{filters.lienPosition.length}</Badge>}
+              </div>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="p-2 bg-slate-50/75 border-t">
-                     <Input placeholder="Search positions..." value={searchTerms.lienPosition} onChange={(e) => handleSearchChange('lienPosition', e.target.value)} className="mb-2" />
-                    <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
-                        {filteredLienPositions.map((pos) => (
-                            <div key={pos} className="flex items-center space-x-2">
-                                <Checkbox id={`pos-${pos}`} checked={filters.lienPosition.includes(pos)} onCheckedChange={(checked) => handleLienPosChange(pos, !!checked)} />
-                                <Label htmlFor={`pos-${pos}`} className="font-normal">{pos}</Label>
-                            </div>
-                        ))}
+              <div className="p-2 bg-slate-50">
+                <Input
+                  placeholder="Search positions..."
+                  value={searchTerms.lienPosition}
+                  onChange={(e) => handleSearchChange('lienPosition', e.target.value)}
+                  className="mb-2"
+                />
+                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                  {filteredLienPositions.map((pos) => (
+                    <div key={pos} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`pos-${pos}`}
+                        checked={filters.lienPosition.includes(pos)}
+                        onCheckedChange={(checked) => handleLienPosChange(pos, !!checked)}
+                      />
+                      <Label htmlFor={`pos-${pos}`} className="font-normal">{pos}</Label>
                     </div>
+                  ))}
                 </div>
+              </div>
             </AccordionContent>
           </AccordionItem>
 
