@@ -338,6 +338,7 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
     let insertedCount = 0;
     let skippedCount = 0;
     let errorCount = 0;
+    let errorDetails: string[] = [];
     let successMessage = '';
 
     // Extract report date from filename or default to today  
@@ -473,6 +474,10 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
         } catch (error) {
           errorCount++;
           console.error(`Row ${i + 1}: Error processing daily metrics record for loan ${getValue(row, ['Loan ID'])}:`, error);
+          // Capture the first 5 error messages to avoid overwhelming the response
+          if (errorCount <= 5 && error instanceof Error) {
+            errorDetails.push(`Row ${i + 1}: ${error.message}`);
+          }
           // Continue processing other records even if one fails
         }
       }
@@ -506,7 +511,8 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
       error_count: errorCount || 0,
       total_records: jsonData.length,
       report_date: reportDate,
-      upload_session_id: uploadSessionId
+      upload_session_id: uploadSessionId,
+      errors: errorDetails
     });
 
   } catch (error) {
