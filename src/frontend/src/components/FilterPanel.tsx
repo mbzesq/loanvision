@@ -16,7 +16,7 @@ export type FilterValues = {
   propertyState: string[];
   assetStatus: string[];
   investor: string[];
-  lienPosition: string[]; // Keep as string for consistency
+  lienPos: string[]; // Keep as string for consistency
   principalBalance: { min: number | ''; max: number | '' };
 };
 
@@ -25,7 +25,7 @@ interface FilterPanelProps {
   availableStates: { name: string; abbr: string }[];
   availableAssetStatuses: string[];
   availableInvestors: string[];
-  availableLienPositions: string[];
+  availableLienPos: string[];
   onShowAll: () => void;
   onClearView: () => void;
 }
@@ -34,7 +34,7 @@ export const initialFilters: FilterValues = {
   propertyState: [],
   assetStatus: [],
   investor: [],
-  lienPosition: [],
+  lienPos: [],
   principalBalance: { min: '', max: '' },
 };
 
@@ -44,7 +44,7 @@ export function FilterPanel(props: FilterPanelProps) {
     availableStates,
     availableAssetStatuses,
     availableInvestors,
-    availableLienPositions,
+    availableLienPos,
     onShowAll,
     onClearView,
   } = props;
@@ -54,7 +54,7 @@ export function FilterPanel(props: FilterPanelProps) {
     propertyState: '',
     assetStatus: '',
     investor: '',
-    lienPosition: '',
+    lienPos: '',
   });
 
   const handleSearchChange = (field: keyof typeof searchTerms, value: string) => {
@@ -63,7 +63,7 @@ export function FilterPanel(props: FilterPanelProps) {
 
   // Unified handler for all checkbox groups
   const handleCheckboxChange = (
-    field: 'propertyState' | 'assetStatus' | 'investor' | 'lienPosition',
+    field: 'propertyState' | 'assetStatus' | 'investor' | 'lienPos',
     value: string,
     checked: boolean
   ) => {
@@ -93,14 +93,14 @@ export function FilterPanel(props: FilterPanelProps) {
   const handleApply = () => onApplyFilters(filters);
   const handleClear = () => {
     setFilters(initialFilters);
-    setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPosition: '' });
+    setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPos: '' });
     onClearView();
   };
 
   const filteredStates = useMemo(() => availableStates.filter(state => state.name.toLowerCase().includes(searchTerms.propertyState.toLowerCase()) || state.abbr.toLowerCase().includes(searchTerms.propertyState.toLowerCase())), [availableStates, searchTerms.propertyState]);
   const filteredAssetStatuses = useMemo(() => availableAssetStatuses.filter(status => status.toLowerCase().includes(searchTerms.assetStatus.toLowerCase())), [availableAssetStatuses, searchTerms.assetStatus]);
   const filteredInvestors = useMemo(() => availableInvestors.filter(inv => inv.toLowerCase().includes(searchTerms.investor.toLowerCase())), [availableInvestors, searchTerms.investor]);
-  const filteredLienPositions = useMemo(() => availableLienPositions.filter(pos => String(pos).toLowerCase().includes(searchTerms.lienPosition.toLowerCase())), [availableLienPositions, searchTerms.lienPosition]);
+  const filteredLienPositions = useMemo(() => availableLienPos.filter(pos => String(pos).toLowerCase().includes(searchTerms.lienPos.toLowerCase())), [availableLienPos, searchTerms.lienPos]);
 
   return (
     <div className="flex flex-col h-full border rounded-lg bg-white overflow-hidden">
@@ -208,12 +208,12 @@ export function FilterPanel(props: FilterPanelProps) {
             <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
               <div className="flex justify-between w-full items-center">
                 <span>Lien Position</span>
-                {filters.lienPosition.length > 0 && <Badge variant="secondary">{filters.lienPosition.length}</Badge>}
+                {filters.lienPos.length > 0 && <Badge variant="secondary">{filters.lienPos.length}</Badge>}
               </div>
             </AccordionTrigger>
             <AccordionContent>
               <div className="p-2 bg-slate-50/75 border-t">
-                <Input placeholder="Search positions..." value={searchTerms.lienPosition} onChange={(e) => handleSearchChange('lienPosition', e.target.value)} className="mb-2" />
+                <Input placeholder="Search positions..." value={searchTerms.lienPos} onChange={(e) => handleSearchChange('lienPos', e.target.value)} className="mb-2" />
                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                   {filteredLienPositions.length === 0 ? (
                     <div className="text-sm text-slate-500 italic p-2">
@@ -222,7 +222,7 @@ export function FilterPanel(props: FilterPanelProps) {
                   ) : (
                     filteredLienPositions.map((pos) => (
                       <div key={pos} className="flex items-center space-x-2">
-                        <Checkbox id={`pos-${pos}`} checked={filters.lienPosition.includes(pos)} onCheckedChange={(checked) => handleCheckboxChange('lienPosition', pos, !!checked)} />
+                        <Checkbox id={`pos-${pos}`} checked={filters.lienPos.includes(pos)} onCheckedChange={(checked) => handleCheckboxChange('lienPos', pos, !!checked)} />
                         <Label htmlFor={`pos-${pos}`} className="font-normal">{pos}</Label>
                       </div>
                     ))

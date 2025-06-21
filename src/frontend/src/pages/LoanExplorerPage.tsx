@@ -33,7 +33,7 @@ export interface Loan {
   last_pymt_received: string;
   loan_type: string; // This is the "Asset Status"
   legal_status: string;
-  lien_position: string;
+  lien_pos: string;
   // Joined fields from foreclosure_events
   fc_status: string | null;
 }
@@ -127,7 +127,7 @@ function LoanExplorerPage() {
     if (!loans) return [];
     
     const positions = loans
-      .map(loan => loan.lien_position)
+      .map(loan => loan.lien_pos)
       .filter(pos => pos !== null && pos !== undefined) // Remove nulls/undefined
       .map(pos => String(pos).trim()) // Convert to string and trim whitespace
       .filter(pos => pos !== ''); // Filter out empty strings
@@ -156,7 +156,7 @@ function LoanExplorerPage() {
     }
 
     return loans.filter(loan => {
-      const { propertyState, assetStatus, investor, lienPosition, principalBalance } = activeFilters;
+      const { propertyState, assetStatus, investor, lienPos, principalBalance } = activeFilters;
 
       // State filter
       if (propertyState.length > 0 && !propertyState.includes(loan.state)) {
@@ -174,7 +174,7 @@ function LoanExplorerPage() {
       }
 
       // Lien Position filter
-      if (lienPosition.length > 0 && !lienPosition.includes(String(loan.lien_position))) {
+      if (lienPos.length > 0 && !lienPos.includes(String(loan.lien_pos))) {
         return false;
       }
 
@@ -418,7 +418,7 @@ function LoanExplorerPage() {
             availableStates={uniqueStates}
             availableAssetStatuses={uniqueLegalStatuses}
             availableInvestors={uniqueInvestors}
-            availableLienPositions={uniqueLienPositions}
+            availableLienPos={uniqueLienPositions}
           />
         </div>
         {/* Main Content (Right) */}

@@ -235,7 +235,7 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
   };
 
   console.log('Raw int_rate value received by modal:', loan.int_rate);
-  console.log('Raw lien_position value received by modal:', loan.lien_position);
+  console.log('Raw lien_pos value received by modal:', loan.lien_pos);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -269,7 +269,7 @@ export function LoanDetailModal({ loan, onClose }: LoanDetailModalProps) {
                  {`${loan.address}, ${loan.city}, ${loan.state} ${loan.zip}`}
                </a>
              </DetailItem>
-             <DetailItem label="Lien Position">{formatValue(loan.lien_position)}</DetailItem>
+             <DetailItem label="Lien Position">{formatValue(loan.lien_pos)}</DetailItem>
           </section>
 
           {/* Section 3: Financials & Status */}
