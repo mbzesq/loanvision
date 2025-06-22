@@ -11,6 +11,8 @@ import {
   DailyMetricsRecord,
   mapDailyMetricsCurrentData,
   mapDailyMetricsHistoryData,
+  mapForeclosureEventData,
+  ForeclosureEventData,
   cleanCurrency,
   cleanPercentage,
   parseExcelDate,
@@ -333,7 +335,8 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
           for (const record of loanRecords) {
             try {
               const { insertForeclosureEventsHistory, createForeclosureHistoryRecord } = await import('../services/currentHistoryService');
-              const historyRecord = createForeclosureHistoryRecord(record, reportDate);
+              const eventData = mapForeclosureEventData(record);
+              const historyRecord = createForeclosureHistoryRecord(eventData, reportDate);
               await insertForeclosureEventsHistory(historyRecord);
             } catch (error) {
               console.error(`Error inserting history record for loan ${loanId}, row ${record._rowIndex}:`, error);
@@ -349,11 +352,45 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
           
           if (activeRecord) {
             try {
-              // Process active foreclosure - inserting current state
-              const { upsertForeclosureEventsCurrent, createForeclosureCurrentRecord } = await import('../services/currentHistoryService');
-              const currentRecord = createForeclosureCurrentRecord(activeRecord, reportDate);
-              await upsertForeclosureEventsCurrent(currentRecord);
+              // Use the new, correct functions
+              const eventData = mapForeclosureEventData(activeRecord);
               
+              // Upsert foreclosure event data into foreclosure_events table
+              const upsertQuery = `
+                INSERT INTO foreclosure_events (
+                  loan_id, fc_jurisdiction, fc_status, fc_start_date, fc_closed_date, 
+                  fc_closed_reason, active_fc_days, hold_fc_days, total_fc_days
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                ON CONFLICT (loan_id) DO UPDATE SET
+                  fc_jurisdiction = EXCLUDED.fc_jurisdiction,
+                  fc_status = EXCLUDED.fc_status,
+                  fc_start_date = EXCLUDED.fc_start_date,
+                  fc_closed_date = EXCLUDED.fc_closed_date,
+                  fc_closed_reason = EXCLUDED.fc_closed_reason,
+                  active_fc_days = EXCLUDED.active_fc_days,
+                  hold_fc_days = EXCLUDED.hold_fc_days,
+                  total_fc_days = EXCLUDED.total_fc_days,
+                  updated_at = now()
+              `;
+              
+              await pool.query(upsertQuery, [
+                eventData.loan_id,
+                eventData.fc_jurisdiction,
+                eventData.fc_status,
+                eventData.fc_start_date,
+                eventData.fc_closed_date,
+                eventData.fc_closed_reason,
+                eventData.active_fc_days,
+                eventData.hold_fc_days,
+                eventData.total_fc_days
+              ]);
+
+              const state = await getStateForLoan(eventData.loan_id);
+              if (state) {
+                console.log(`Processing foreclosure milestones for loan ${eventData.loan_id} in state ${state}`);
+                // Milestone processing would go here if needed
+              }
+
               console.log(`Processed active foreclosure for loan ${loanId}`);
             } catch (error) {
               console.error(`Error processing active foreclosure for loan ${loanId}:`, error);
