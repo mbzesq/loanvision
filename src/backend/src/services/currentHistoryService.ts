@@ -2,9 +2,9 @@ import pool from '../db';
 import { 
   DailyMetricsCurrentRecord, 
   DailyMetricsHistoryRecord, 
-  ForeclosureEventsHistoryRecord 
+  ForeclosureEventsHistoryRecord,
+  ForeclosureEventData
 } from './columnMappers';
-import { ForeclosureEventData } from './foreclosureService';
 
 // Daily Metrics Operations
 

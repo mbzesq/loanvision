@@ -66,6 +66,26 @@ export const cleanInteger = (value: any): number | null => {
   return isNaN(num) ? null : num;
 };
 
+// Foreclosure Event Data Interface - Single source of truth
+export interface ForeclosureEventData {
+  loan_id: string;
+  fc_status?: string | null;
+  fc_jurisdiction?: string | null;
+  fc_start_date?: string | null;
+  current_attorney?: string | null;
+  referral_date?: string | null;
+  title_ordered_date?: string | null;
+  title_received_date?: string | null;
+  complaint_filed_date?: string | null;
+  service_completed_date?: string | null;
+  judgment_date?: string | null;
+  sale_scheduled_date?: string | null;
+  sale_held_date?: string | null;
+  real_estate_owned_date?: string | null;
+  eviction_completed_date?: string | null;
+  [key: string]: any; // Allow additional properties
+}
+
 // Foreclosure Data Column Mapping
 export interface ForeclosureRecord {
   upload_session_id: string;
@@ -224,6 +244,27 @@ export function mapForeclosureData(row: any, uploadSessionId: string, sourceFile
     rrc_delay_reason: getValue(row, ['RRC Delay Reason']),
     source_filename: sourceFilename,
     data_issues: null
+  };
+}
+
+// Simple foreclosure event data mapping (for ForeclosureEventData interface)
+export function mapForeclosureData(row: any): ForeclosureEventData {
+  return {
+    loan_id: getValue(row, ['Loan ID', 'loan_id']),
+    fc_status: getValue(row, ['FC Status', 'fc_status']),
+    fc_jurisdiction: getValue(row, ['FC Jurisdiction', 'fc_jurisdiction']),
+    fc_start_date: parseExcelDate(getValue(row, ['Title Received Actual Start', 'fc_start_date'])),
+    current_attorney: getValue(row, ['FC Atty POC', 'current_attorney']),
+    referral_date: parseExcelDate(getValue(row, ['First Legal Actual Start', 'referral_date'])),
+    title_ordered_date: parseExcelDate(getValue(row, ['Title Received Expected Start', 'title_ordered_date'])),
+    title_received_date: parseExcelDate(getValue(row, ['Title Received Actual Completion', 'title_received_date'])),
+    complaint_filed_date: parseExcelDate(getValue(row, ['First Legal Actual Completion', 'complaint_filed_date'])),
+    service_completed_date: parseExcelDate(getValue(row, ['Service Perfected Actual Completion', 'service_completed_date'])),
+    judgment_date: parseExcelDate(getValue(row, ['Judgment Entered Actual Completion', 'judgment_date'])),
+    sale_scheduled_date: parseExcelDate(getValue(row, ['Sale Held Expected Completion', 'sale_scheduled_date'])),
+    sale_held_date: parseExcelDate(getValue(row, ['Sale Held Actual Completion', 'sale_held_date'])),
+    real_estate_owned_date: parseExcelDate(getValue(row, ['RRC Actual Completion', 'real_estate_owned_date'])),
+    eviction_completed_date: null // Not in current data
   };
 }
 
