@@ -196,3 +196,56 @@ These are the key routes that serve data to the frontend.
 * **`GET /api/loans/:loanId/foreclosure-timeline`:** Calls the `getForeclosureTimeline` service to provide the detailed, calculated timeline for a single loan to populate the bottom section of the Loan Detail Modal.
 
 <!-- end list -->
+
+---
+
+## 4. Frontend Architecture
+
+The frontend is a modern Single-Page Application (SPA) built with React and Vite. It is designed to be a "dumb" client that receives clean, processed data from the backend and focuses solely on presentation and user interaction.
+
+### 4.1. Component Hierarchy & Layout
+
+The application uses a responsive shell structure, managed by `MainLayout.tsx`, which provides a persistent sidebar for navigation on desktop screens and a slide-out drawer on mobile.
+
+**Component Diagram:**
+
+```mermaid
+graph TD
+    subgraph "App.tsx"
+        A["Router"] --> B["MainLayout"];
+    end
+
+    subgraph "MainLayout.tsx"
+        B --> C["SideNav"];
+        B --> D["Outlet"];
+    end
+
+    subgraph "LoanExplorerPage.tsx (Rendered in Outlet)"
+        D --> E["FilterPanel"];
+        D --> F["DataToolbar"];
+        D --> G["DataTable"];
+        D --> H["LoanDetailModal"];
+    end
+
+    F --> I["ExportButton"];
+```
+
+**Key Components:**
+
+* **`App.tsx`:** The root of the application. Its only job is to set up the `react-router-dom` router and define the relationship between the `MainLayout` and the individual pages.
+
+* **`MainLayout.tsx`:** The main application shell. It uses Tailwind CSS's responsive prefixes to render a persistent `SideNav` on large screens (`lg:flex`) and a hidden `Sheet`-based drawer for mobile. The `<Outlet>` from React Router is used to render the active page's content in the main content area.
+
+* **`LoanExplorerPage.tsx`:** This is the most complex "container" component. It is responsible for:
+  - **Data Fetching:** Using a `useEffect` hook to call the `/api/v2/loans` endpoint via `axios`.
+  - **State Management:** Using `useState` hooks to manage all page-level state, including the full list of loans, the active filters, sorting state, and the currently selected loan for the modal.
+  - **Derived Data:** Using `useMemo` hooks to efficiently calculate unique values for the filter panel dropdowns (e.g., `uniqueStates`, `uniqueInvestors`).
+  - **Component Composition:** Rendering the primary child components (`FilterPanel`, `DataToolbar`, `DataTable`) and passing them the necessary data and callback functions as props.
+
+### 4.2. Core Data Flow (Loan Explorer)
+
+1. **Initial Load:** `LoanExplorerPage` mounts and its `useEffect` hook fires, fetching all loans from `/api/v2/loans` and storing them in the `loans` state variable.
+
+2. **Filtering:** The user interacts with the `FilterPanel`. Selections are stored in the panel's internal state. When the "Apply" button is clicked, the `onApplyFilters` callback is invoked, which updates the `activeFilters` state in the parent `LoanExplorerPage`.
+
+3. **Re-render:** The change to `activeFilters` triggers a re-render. The `filteredData` `useMemo` hook runs, filtering the master `loans` array based on the `activeFilters` and providing a new, smaller array to the TanStack Table component. The table then re-renders to show only the matching loans.
