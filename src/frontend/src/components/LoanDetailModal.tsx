@@ -19,14 +19,6 @@ interface Milestone {
   expected_completion_date: string | null;
 }
 
-// Reusable component for displaying each data point
-const DetailItem = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div>
-    <p className="text-sm text-slate-500">{label}</p>
-    <div className="font-medium text-slate-900 mt-1">{children}</div>
-  </div>
-);
-
 export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   const [loan, setLoan] = useState<Loan | null>(null);
   const [timeline, setTimeline] = useState<Milestone[] | null>(null);
