@@ -89,12 +89,15 @@ router.get('/v2/loans', async (req, res) => {
 router.get('/loans/:loanId/foreclosure-timeline', async (req, res) => {
   try {
     const { loanId } = req.params;
+    console.log(`[API] Fetching foreclosure timeline for loan: ${loanId}`);
     const timeline = await getForeclosureTimeline(loanId);
 
     if (!timeline || timeline.length === 0) {
-      return res.status(404).json({ message: 'No foreclosure timeline data found for this loan.' });
+      console.log(`[API] No foreclosure timeline data found for loan: ${loanId}`);
+      return res.json([]); // Return empty array instead of 404
     }
 
+    console.log(`[API] Found ${timeline.length} timeline milestones for loan: ${loanId}`);
     res.json(timeline);
   } catch (error) {
     console.error('Error fetching foreclosure timeline:', error);

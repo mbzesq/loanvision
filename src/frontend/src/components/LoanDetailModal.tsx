@@ -46,10 +46,18 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
         const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
         const [loanRes, timelineRes] = await Promise.all([
           axios.get(`${apiUrl}/api/v2/loans/${loanId}`),
-          axios.get(`${apiUrl}/api/loans/${loanId}/foreclosure-timeline`).catch(() => null)
+          axios.get(`${apiUrl}/api/loans/${loanId}/foreclosure-timeline`).catch((error) => {
+            console.error('Error fetching foreclosure timeline:', error.response?.status, error.response?.data || error.message);
+            return null;
+          })
         ]);
         setLoan(loanRes.data);
-        if (timelineRes) setTimeline(timelineRes.data);
+        if (timelineRes && timelineRes.data) {
+          setTimeline(Array.isArray(timelineRes.data) ? timelineRes.data : []);
+          console.log('Timeline data received:', timelineRes.data);
+        } else {
+          console.log('No timeline data available for loan:', loanId);
+        }
       } catch (error) {
         console.error('Failed to fetch loan details:', error);
       } finally {

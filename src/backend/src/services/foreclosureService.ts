@@ -20,9 +20,28 @@ interface StateBenchmark {
 
 // --- HELPER FUNCTIONS ---
 const loadMilestoneBenchmarks = (): StateBenchmark[] => {
-  const jsonPath = path.resolve(__dirname, '..', 'fcl_milestones_by_state.json');
-  const fileContents = fs.readFileSync(jsonPath, 'utf8');
-  return JSON.parse(fileContents);
+  // Try multiple possible paths for the JSON file
+  const possiblePaths = [
+    path.resolve(__dirname, '..', 'fcl_milestones_by_state.json'), // dist/fcl_milestones_by_state.json
+    path.resolve(__dirname, '..', '..', '..', 'fcl_milestones_by_state.json'), // project root
+    path.resolve(process.cwd(), 'fcl_milestones_by_state.json'), // current working directory
+    path.resolve(process.cwd(), 'src', 'backend', 'dist', 'fcl_milestones_by_state.json') // absolute from project root
+  ];
+
+  for (const jsonPath of possiblePaths) {
+    try {
+      if (fs.existsSync(jsonPath)) {
+        console.log(`[ForeclosureService] Loading milestones from: ${jsonPath}`);
+        const fileContents = fs.readFileSync(jsonPath, 'utf8');
+        return JSON.parse(fileContents);
+      }
+    } catch (error) {
+      console.warn(`[ForeclosureService] Failed to read milestones from ${jsonPath}:`, error instanceof Error ? error.message : String(error));
+      continue;
+    }
+  }
+  
+  throw new Error(`[ForeclosureService] Could not find fcl_milestones_by_state.json in any of the expected locations: ${possiblePaths.join(', ')}`);
 };
 
 const getMilestonesForState = (stateAbbr: string, jurisdiction: string | null): MilestoneBenchmark[] => {
@@ -41,16 +60,38 @@ export const getStateForLoan = async (loanId: string): Promise<string | null> =>
 
 // --- MAIN SERVICE FUNCTION ---
 export async function getForeclosureTimeline(loanId: string): Promise<any[] | null> {
+  console.log(`[ForeclosureService] Getting timeline for loan: ${loanId}`);
+  
   const state = await getStateForLoan(loanId);
+  console.log(`[ForeclosureService] Loan ${loanId} state: ${state}`);
+  
   const foreclosureEventResult = await pool.query('SELECT * FROM foreclosure_events WHERE loan_id = $1', [loanId]);
+  console.log(`[ForeclosureService] Found ${foreclosureEventResult.rows.length} foreclosure events for loan: ${loanId}`);
 
-  if (!state || foreclosureEventResult.rows.length === 0) return null;
+  if (!state) {
+    console.log(`[ForeclosureService] No state found for loan: ${loanId}`);
+    return null;
+  }
+  
+  if (foreclosureEventResult.rows.length === 0) {
+    console.log(`[ForeclosureService] No foreclosure events found for loan: ${loanId}`);
+    return null;
+  }
 
   const actualEvents = foreclosureEventResult.rows[0];
+  console.log(`[ForeclosureService] Foreclosure data for loan ${loanId}:`, {
+    fc_jurisdiction: actualEvents.fc_jurisdiction,
+    fc_start_date: actualEvents.fc_start_date
+  });
+  
   const fcStartDate = actualEvents.fc_start_date ? new Date(actualEvents.fc_start_date) : new Date();
   const milestonesTemplate = getMilestonesForState(state, actualEvents.fc_jurisdiction);
+  console.log(`[ForeclosureService] Found ${milestonesTemplate.length} milestone templates for state ${state}`);
 
-  if (!milestonesTemplate || milestonesTemplate.length === 0) return [];
+  if (!milestonesTemplate || milestonesTemplate.length === 0) {
+    console.log(`[ForeclosureService] No milestone templates found for state: ${state}`);
+    return [];
+  }
 
   const timeline: any[] = [];
   let lastCompletionDate = fcStartDate;
@@ -70,6 +111,8 @@ export async function getForeclosureTimeline(loanId: string): Promise<any[] | nu
     });
     lastCompletionDate = expectedCompletionDate;
   }
+  
+  console.log(`[ForeclosureService] Generated ${timeline.length} timeline milestones for loan: ${loanId}`);
   return timeline;
 }
 
