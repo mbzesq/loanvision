@@ -46,8 +46,20 @@ const loadMilestoneBenchmarks = (): StateBenchmark[] => {
 
 const getMilestonesForState = (stateAbbr: string, jurisdiction: string | null): MilestoneBenchmark[] => {
     const benchmarks = loadMilestoneBenchmarks();
+
+    // --- START DIAGNOSTIC LOGGING ---
+    console.log(`[Diagnostics] Searching for state abbreviation: "${stateAbbr}"`);
+    const availableStatesInJSON = benchmarks.map(s => s.state);
+    console.log(`[Diagnostics] Available states in JSON file: [${availableStatesInJSON.join(', ')}]`);
+    // --- END DIAGNOSTIC LOGGING ---
+
     const stateData = benchmarks.find((s) => s.state === stateAbbr);
-    if (!stateData) return [];
+
+    if (!stateData) {
+      console.warn(`[Diagnostics] No milestone benchmark found for state: ${stateAbbr}`);
+      return []; 
+    }
+
     return jurisdiction?.toLowerCase().includes('non') 
         ? stateData.non_judicial_milestones 
         : stateData.judicial_milestones;
