@@ -222,7 +222,7 @@ graph TD
     A["Router (in App.tsx)"] --> B["MainLayout"];
     B --> C["SideNav"];
     B --> D["Outlet (Renders Page)"];
-    D -- "renders -->" E["LoanExplorerPage"];
+    D --- E["LoanExplorerPage"];
     E --> F["FilterPanel"];
     E --> G["DataToolbar"];
     G --> H["ExportButton"];
