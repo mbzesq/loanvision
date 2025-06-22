@@ -6,6 +6,7 @@ import loansRouter from './routes/loans';
 import portfolioRouter from './routes/portfolio';
 import reportsRouter from './routes/reports';
 import pool from './db';
+import { getForeclosureTimeline } from './services/foreclosureService';
 
 dotenv.config();
 
@@ -30,8 +31,19 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions)); // This must be the first middleware
 app.use(express.json());
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/api/health', async (req, res) => {
+  try {
+    console.log('[Debug] Testing foreclosure timeline for loan 0000359811...');
+    const timeline = await getForeclosureTimeline('0000359811');
+    res.json({
+      message: "This is a temporary test endpoint.",
+      loanId: "0000359811",
+      timelineData: timeline
+    });
+  } catch (error) {
+    console.error("Error in test endpoint:", error);
+    res.status(500).json({ error: "Test endpoint failed", details: error.message });
+  }
 });
 
 app.use('/api', uploadRouter);
