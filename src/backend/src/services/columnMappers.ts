@@ -248,7 +248,7 @@ export function mapForeclosureData(row: any, uploadSessionId: string, sourceFile
 }
 
 // Simple foreclosure event data mapping (for ForeclosureEventData interface)
-export function mapForeclosureData(row: any): ForeclosureEventData {
+export function mapForeclosureEventData(row: any): ForeclosureEventData {
   return {
     loan_id: getValue(row, ['Loan ID', 'loan_id']),
     fc_status: getValue(row, ['FC Status', 'fc_status']),
