@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import pool from '../db';
+import { getForeclosureTimeline } from '../services/foreclosureService';
 
 const router = Router();
 
@@ -81,6 +82,23 @@ router.get('/v2/loans', async (req, res) => {
   } catch (error) {
     console.error('Error fetching V2 loans data:', error);
     res.status(500).json({ error: 'Failed to fetch consolidated loan data' });
+  }
+});
+
+// Endpoint for foreclosure timeline
+router.get('/loans/:loanId/foreclosure-timeline', async (req, res) => {
+  try {
+    const { loanId } = req.params;
+    const timeline = await getForeclosureTimeline(loanId);
+
+    if (!timeline || timeline.length === 0) {
+      return res.status(404).json({ message: 'No foreclosure timeline data found for this loan.' });
+    }
+
+    res.json(timeline);
+  } catch (error) {
+    console.error('Error fetching foreclosure timeline:', error);
+    res.status(500).json({ error: 'Failed to fetch foreclosure timeline' });
   }
 });
 
