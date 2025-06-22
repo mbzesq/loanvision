@@ -44,7 +44,7 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
         // Fetch both data points in parallel
         const [loanRes, timelineRes] = await Promise.all([
           axios.get(`${apiUrl}/api/v2/loans/${loanId}`),
-          axios.get(`${apiUrl}/api/loans/${loanId}/foreclosure-timeline`).catch(err => null) // Allow timeline to fail gracefully
+          axios.get(`${apiUrl}/api/loans/${loanId}/foreclosure-timeline`).catch(() => null) // Allow timeline to fail gracefully
         ]);
         setLoan(loanRes.data);
         if (timelineRes) {
