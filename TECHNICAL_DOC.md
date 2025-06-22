@@ -116,18 +116,18 @@ The ingestion pipeline is the entry point for all portfolio data. It's a multi-s
 **Flowchart:**
 ```mermaid
 graph TD
-    A[File Upload via UI] --> B{/api/upload Endpoint};
-    B --> C{Parse File (XLSX/CSV)};
-    C --> D{Detect File Type};
-    D -- "daily_metrics" --> E[Process Daily Metrics];
-    D -- "foreclosure_data" --> F[Process Foreclosure Events];
-    E --> G[Map to History Record];
-    E --> H[Map to Current Record];
-    G --> I[Insert to daily_metrics_history];
-    H --> J[Upsert to daily_metrics_current];
-    F --> K[Calculate Expected Dates];
-    K --> L[Upsert to foreclosure_events];
-    F --> M[Insert to foreclosure_events_history];
+    A["File Upload via UI"] --> B{"/api/upload Endpoint"};
+    B --> C{"Parse File (XLSX/CSV)"};
+    C --> D{"Detect File Type"};
+    D -- "daily_metrics" --> E["Process Daily Metrics"];
+    D -- "foreclosure_data" --> F["Process Foreclosure Events"];
+    E --> G["Map to History Record"];
+    E --> H["Map to Current Record"];
+    G --> I["Insert to daily_metrics_history"];
+    H --> J["Upsert to daily_metrics_current"];
+    F --> K["Calculate Expected Dates"];
+    K --> L["Upsert to foreclosure_events"];
+    F --> M["Insert to foreclosure_events_history"];
 ```
 
 **Key Steps:**
