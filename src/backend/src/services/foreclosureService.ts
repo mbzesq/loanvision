@@ -478,6 +478,89 @@ export async function getStateForLoan(loanId: string): Promise<string | null> {
   return null;
 }
 
+// Timeline object structure for API response
+export interface ForeclosureTimelineItem {
+  milestone_name: string;
+  actual_start_date: string | null;
+  actual_completion_date: string | null;
+  expected_completion_date: string | null;
+  sequence: number;
+  expected_duration_days: number;
+  jurisdiction: string;
+}
+
+// Get foreclosure timeline for a specific loan
+export async function getForeclosureTimeline(loanId: string): Promise<ForeclosureTimelineItem[]> {
+  try {
+    // Step 1: Get loan state from daily_metrics_current
+    const state = await getStateForLoan(loanId);
+    if (!state) {
+      console.warn(`No state found for loan ${loanId}`);
+      return [];
+    }
+
+    // Step 2: Get foreclosure event data
+    const eventQuery = `
+      SELECT * FROM foreclosure_events 
+      WHERE loan_id = $1 
+      LIMIT 1
+    `;
+    const eventResult = await pool.query(eventQuery, [loanId]);
+    
+    if (eventResult.rows.length === 0) {
+      console.log(`No foreclosure event found for loan ${loanId}`);
+      return [];
+    }
+    
+    const foreclosureEvent = eventResult.rows[0];
+    const jurisdiction = foreclosureEvent.fc_jurisdiction || 'Judicial';
+
+    // Step 3: Get milestone template for the state
+    const milestones = getMilestonesForState(state, jurisdiction);
+    if (!milestones || milestones.length === 0) {
+      console.warn(`No milestone template found for state ${state}, jurisdiction ${jurisdiction}`);
+      return [];
+    }
+
+    // Step 4: Combine and process data
+    const timeline: ForeclosureTimelineItem[] = milestones.map(milestone => {
+      const actualColumn = milestone.db_column_actual_completion;
+      const expectedColumn = milestone.db_column_expected_completion;
+      
+      // Map milestone names to their corresponding start date columns
+      const startDateMapping: { [key: string]: string } = {
+        'Referral': 'referral_date',
+        'Title Ordered': 'title_ordered_date',
+        'Title Received': 'title_received_date',
+        'Complaint Filing': 'complaint_filed_date',
+        'Service Complete': 'service_completed_date',
+        'Judgment': 'judgment_date',
+        'Sale Scheduled': 'sale_scheduled_date',
+        'Sale Held': 'sale_held_date',
+        'Receivership/REO': 'real_estate_owned_date',
+        'Eviction Complete': 'eviction_completed_date'
+      };
+
+      const startDateColumn = startDateMapping[milestone.milestone];
+      
+      return {
+        milestone_name: milestone.milestone,
+        actual_start_date: startDateColumn ? foreclosureEvent[startDateColumn] : null,
+        actual_completion_date: actualColumn ? foreclosureEvent[actualColumn] : null,
+        expected_completion_date: expectedColumn ? foreclosureEvent[expectedColumn] : null,
+        sequence: milestone.sequence,
+        expected_duration_days: milestone.preferredDays,
+        jurisdiction: milestone.jurisdiction
+      };
+    });
+
+    return timeline;
+  } catch (error) {
+    console.error('Error getting foreclosure timeline:', error);
+    throw error;
+  }
+}
+
 // Process a complete foreclosure record
 export async function processForeclosureRecord(row: any, defaultState?: string, reportDate?: string): Promise<void> {
   try {
