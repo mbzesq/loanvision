@@ -45,11 +45,15 @@ Sarah is a stakeholder or capital partner. She prefers high-level dashboards, su
 - **Automatic handling of historical preservation and active-state logic**
 
 ### ✅ Foreclosure Upload Enhancements
-- Accepts foreclosure data with multiple entries per loan
-- Filters by `FC Jurisdiction` == `Judicial` or `NonJudicial`
-- Ignores bankruptcy records for now
-- Uses `Title Received Actual Start` as proxy for foreclosure start date
-- Marks loans without `FC Closed Date` as "currently in foreclosure"
+The application is in a mostly stable state, but with a key new feature failing.
+
+Functional Data Pipeline: The backend data ingestion engine is now working correctly. Uploaded daily_metrics and foreclosure_events files are successfully processed and stored in the appropriate database tables.
+
+Functional Loan Explorer: The main explorer page correctly fetches and displays loan data from the daily_metrics_current table. The filter panel is working.
+
+Functional Loan Detail Modal (Core Data): The custom-built modal successfully launches and displays the main loan, borrower, property, and financial data.
+
+Broken Feature (Foreclosure Timeline): The new "Foreclosure Timeline" section within the modal is not working. It either fails to appear or displays incomplete/incorrect data, despite the backend API being successfully deployed.
 
 ### ✅ Backend Infrastructure
 - Corrected `fcl_milestones_by_state.json` path resolution
@@ -85,19 +89,18 @@ Sarah is a stakeholder or capital partner. She prefers high-level dashboards, su
 
 ---
 
-## 6. Most Recent Milestone (2025-06-20D)
+## 6. Most Recent Milestone and Last Session Summary (2025-06-20D)
 - ✅ Fully implemented ingestion for **daily_metrics** and **foreclosure_events** (with history support)
 - ✅ Backend now accepts `.xlsx` uploads and dynamically matches headers
 - ✅ All database migrations applied and validated
 - ✅ Logic supports **multiple foreclosures per loan**, correctly identifies active foreclosure, and preserves historical activity
+- After a major debugging effort, we successfully diagnosed and fixed the root cause of the data ingestion failure by removing legacy code from the backend fileTypeDetector. The Loan Explorer page is now correctly populating. However, the subsequent attempt to implement the UI for the foreclosure timeline feature in the LoanDetailModal has failed.
 
 ---
 
 ## 7. Next Steps
-- 🔲 **Wire daily_metrics_current** and **foreclosure_events** into Loan Explorer UI
-- 🔲 Support **multi-file upload** via drag/drop or batch interface
-- 🔲 Add visualizations for **delinquency trends**, **foreclosure velocity**, and **repeat FC counts**
-- 🔲 Extend ingestion logic for **bankruptcy**, **servicer template variation**, and **FTP pipeline**
+-Diagnose and Fix the Missing Foreclosure Timeline.
+-This is the highest priority. The LoanDetailModal is not correctly displaying the state-specific foreclosure milestone data, even though the backend endpoint (/api/loans/:loanId/foreclosure-timeline) exists. The next session must begin with a comprehensive, end-to-end diagnosis to find the root cause of this failure and implement a definitive fix.
 
 ---
 
