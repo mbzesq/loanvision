@@ -40,7 +40,43 @@ For key data entities like loan metrics and foreclosure events, we maintain two 
 
 ---
 
-### 2.2. Key Tables
+### 2.2. Entity-Relationship Diagram (ERD)
+
+This diagram illustrates the primary relationships between the core data tables.
+
+```mermaid
+erDiagram
+    "daily_metrics_current" {
+        TEXT loan_id PK
+        TEXT state
+        NUMERIC prin_bal
+        TEXT legal_status
+    }
+    "daily_metrics_history" {
+        SERIAL id PK
+        TEXT loan_id FK
+        DATE report_date
+    }
+    "foreclosure_events" {
+        SERIAL id PK
+        TEXT loan_id FK
+        TEXT fc_status
+        DATE fc_start_date
+    }
+    "foreclosure_events_history" {
+        SERIAL id PK
+        TEXT loan_id FK
+        DATE report_date
+    }
+
+    "daily_metrics_current" ||--o{ "daily_metrics_history" : "has history of"
+    "daily_metrics_current" ||--|{ "foreclosure_events" : "has one"
+    "foreclosure_events" ||--o{ "foreclosure_events_history" : "has history of"
+```
+
+---
+
+### 2.3. Key Tables
 
 #### `daily_metrics_current`
 
