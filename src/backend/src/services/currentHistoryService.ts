@@ -161,8 +161,13 @@ export async function insertForeclosureEventsHistory(record: ForeclosureEventsHi
       loan_id, report_date, fc_status, fc_jurisdiction, fc_start_date, current_attorney,
       referral_date, title_ordered_date, title_received_date, complaint_filed_date,
       service_completed_date, judgment_date, sale_scheduled_date, sale_held_date,
-      real_estate_owned_date, eviction_completed_date
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      real_estate_owned_date, eviction_completed_date,
+      referral_expected_completion_date, title_ordered_expected_completion_date,
+      title_received_expected_completion_date, complaint_filed_expected_completion_date,
+      service_completed_expected_completion_date, judgment_expected_completion_date,
+      sale_scheduled_expected_completion_date, sale_held_expected_completion_date,
+      real_estate_owned_expected_completion_date, eviction_completed_expected_completion_date
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
     ON CONFLICT (loan_id, report_date) DO UPDATE SET
       fc_status = EXCLUDED.fc_status,
       fc_jurisdiction = EXCLUDED.fc_jurisdiction,
@@ -177,14 +182,29 @@ export async function insertForeclosureEventsHistory(record: ForeclosureEventsHi
       sale_scheduled_date = EXCLUDED.sale_scheduled_date,
       sale_held_date = EXCLUDED.sale_held_date,
       real_estate_owned_date = EXCLUDED.real_estate_owned_date,
-      eviction_completed_date = EXCLUDED.eviction_completed_date
+      eviction_completed_date = EXCLUDED.eviction_completed_date,
+      referral_expected_completion_date = EXCLUDED.referral_expected_completion_date,
+      title_ordered_expected_completion_date = EXCLUDED.title_ordered_expected_completion_date,
+      title_received_expected_completion_date = EXCLUDED.title_received_expected_completion_date,
+      complaint_filed_expected_completion_date = EXCLUDED.complaint_filed_expected_completion_date,
+      service_completed_expected_completion_date = EXCLUDED.service_completed_expected_completion_date,
+      judgment_expected_completion_date = EXCLUDED.judgment_expected_completion_date,
+      sale_scheduled_expected_completion_date = EXCLUDED.sale_scheduled_expected_completion_date,
+      sale_held_expected_completion_date = EXCLUDED.sale_held_expected_completion_date,
+      real_estate_owned_expected_completion_date = EXCLUDED.real_estate_owned_expected_completion_date,
+      eviction_completed_expected_completion_date = EXCLUDED.eviction_completed_expected_completion_date
   `;
 
   const values = [
     record.loan_id, record.report_date, record.fc_status, record.fc_jurisdiction, record.fc_start_date,
     record.current_attorney, record.referral_date, record.title_ordered_date, record.title_received_date,
     record.complaint_filed_date, record.service_completed_date, record.judgment_date,
-    record.sale_scheduled_date, record.sale_held_date, record.real_estate_owned_date, record.eviction_completed_date
+    record.sale_scheduled_date, record.sale_held_date, record.real_estate_owned_date, record.eviction_completed_date,
+    record.referral_expected_completion_date || null, record.title_ordered_expected_completion_date || null,
+    record.title_received_expected_completion_date || null, record.complaint_filed_expected_completion_date || null,
+    record.service_completed_expected_completion_date || null, record.judgment_expected_completion_date || null,
+    record.sale_scheduled_expected_completion_date || null, record.sale_held_expected_completion_date || null,
+    record.real_estate_owned_expected_completion_date || null, record.eviction_completed_expected_completion_date || null
   ];
 
   await pool.query(query, values);
@@ -208,6 +228,17 @@ export function createForeclosureHistoryRecord(eventData: ForeclosureEventData, 
     sale_scheduled_date: eventData.sale_scheduled_date,
     sale_held_date: eventData.sale_held_date,
     real_estate_owned_date: eventData.real_estate_owned_date,
-    eviction_completed_date: eventData.eviction_completed_date
+    eviction_completed_date: eventData.eviction_completed_date,
+    // Expected completion dates
+    referral_expected_completion_date: eventData.referral_expected_completion_date,
+    title_ordered_expected_completion_date: eventData.title_ordered_expected_completion_date,
+    title_received_expected_completion_date: eventData.title_received_expected_completion_date,
+    complaint_filed_expected_completion_date: eventData.complaint_filed_expected_completion_date,
+    service_completed_expected_completion_date: eventData.service_completed_expected_completion_date,
+    judgment_expected_completion_date: eventData.judgment_expected_completion_date,
+    sale_scheduled_expected_completion_date: eventData.sale_scheduled_expected_completion_date,
+    sale_held_expected_completion_date: eventData.sale_held_expected_completion_date,
+    real_estate_owned_expected_completion_date: eventData.real_estate_owned_expected_completion_date,
+    eviction_completed_expected_completion_date: eventData.eviction_completed_expected_completion_date
   };
 }

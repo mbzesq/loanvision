@@ -19,8 +19,6 @@ import {
 import { 
   processForeclosureRecord,
   extractForeclosureEventData,
-  upsertForeclosureEvent,
-  insertMilestoneStatuses,
   getStateForLoan
 } from '../services/foreclosureService';
 import { 
@@ -354,15 +352,10 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
           
           if (activeRecord) {
             try {
-              // Insert active foreclosure into current table
-              const eventData = extractForeclosureEventData(activeRecord);
-              await upsertForeclosureEvent(eventData);
+              // Process active foreclosure with expected timeline calculation
+              await processForeclosureRecord(activeRecord, undefined, reportDate);
               
-              // Process milestone statuses for active foreclosure
-              const state = await getStateForLoan(eventData.loan_id) || 'NY';
-              await insertMilestoneStatuses(eventData.loan_id, state, activeRecord);
-              
-              console.log(`Processed active foreclosure for loan ${loanId}`);
+              console.log(`Processed active foreclosure for loan ${loanId} with expected timeline`);
             } catch (error) {
               console.error(`Error processing active foreclosure for loan ${loanId}:`, error);
               errorCount++;
