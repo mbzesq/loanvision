@@ -17,8 +17,6 @@ import {
   getValue
 } from '../services/columnMappers';
 import { 
-  processForeclosureRecord,
-  extractForeclosureEventData,
   getStateForLoan
 } from '../services/foreclosureService';
 import { 
@@ -335,8 +333,7 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
           for (const record of loanRecords) {
             try {
               const { insertForeclosureEventsHistory, createForeclosureHistoryRecord } = await import('../services/currentHistoryService');
-              const eventData = extractForeclosureEventData(record);
-              const historyRecord = createForeclosureHistoryRecord(eventData, reportDate);
+              const historyRecord = createForeclosureHistoryRecord(record, reportDate);
               await insertForeclosureEventsHistory(historyRecord);
             } catch (error) {
               console.error(`Error inserting history record for loan ${loanId}, row ${record._rowIndex}:`, error);
@@ -352,10 +349,12 @@ router.post('/upload', upload.single('loanFile'), async (req, res) => {
           
           if (activeRecord) {
             try {
-              // Process active foreclosure with expected timeline calculation
-              await processForeclosureRecord(activeRecord, undefined, reportDate);
+              // Process active foreclosure - inserting current state
+              const { upsertForeclosureEventsCurrent, createForeclosureCurrentRecord } = await import('../services/currentHistoryService');
+              const currentRecord = createForeclosureCurrentRecord(activeRecord, reportDate);
+              await upsertForeclosureEventsCurrent(currentRecord);
               
-              console.log(`Processed active foreclosure for loan ${loanId} with expected timeline`);
+              console.log(`Processed active foreclosure for loan ${loanId}`);
             } catch (error) {
               console.error(`Error processing active foreclosure for loan ${loanId}:`, error);
               errorCount++;
