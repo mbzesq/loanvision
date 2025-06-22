@@ -2,6 +2,24 @@ import pool from '../db';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// Helper to load and parse the JSON ruleset
+const loadMilestoneBenchmarks = () => {
+  // Correctly resolve the path from the 'dist' folder where the compiled code runs
+  const jsonPath = path.resolve(__dirname, '..', 'fcl_milestones_by_state.json');
+  const fileContents = fs.readFileSync(jsonPath, 'utf8');
+  return JSON.parse(fileContents);
+};
+
+// Helper to get the milestone template for a specific state
+const getMilestonesForState = (stateAbbr: string, jurisdiction: string | null) => {
+    const benchmarks = loadMilestoneBenchmarks();
+    const stateData = benchmarks.find((s: any) => s.state === stateAbbr);
+    if (!stateData) return [];
+    return jurisdiction?.toLowerCase().includes('non') 
+        ? stateData.non_judicial_milestones 
+        : stateData.judicial_milestones;
+};
+
 // Helper to add days to a date
 function addDays(date: Date, days: number): Date {
   const result = new Date(date);
@@ -489,76 +507,48 @@ export interface ForeclosureTimelineItem {
   jurisdiction: string;
 }
 
-// Get foreclosure timeline for a specific loan
-export async function getForeclosureTimeline(loanId: string): Promise<ForeclosureTimelineItem[]> {
-  try {
-    // Step 1: Get loan state from daily_metrics_current
-    const state = await getStateForLoan(loanId);
-    if (!state) {
-      console.warn(`No state found for loan ${loanId}`);
-      return [];
-    }
+// This is the main service function
+export async function getForeclosureTimeline(loanId: string): Promise<any[] | null> {
+  // Step 1: Get loan's state and foreclosure event data
+  const loanStateResult = await pool.query('SELECT state FROM daily_metrics_current WHERE loan_id = $1', [loanId]);
+  const foreclosureEventResult = await pool.query('SELECT * FROM foreclosure_events WHERE loan_id = $1', [loanId]);
 
-    // Step 2: Get foreclosure event data
-    const eventQuery = `
-      SELECT * FROM foreclosure_events 
-      WHERE loan_id = $1 
-      LIMIT 1
-    `;
-    const eventResult = await pool.query(eventQuery, [loanId]);
-    
-    if (eventResult.rows.length === 0) {
-      console.log(`No foreclosure event found for loan ${loanId}`);
-      return [];
-    }
-    
-    const foreclosureEvent = eventResult.rows[0];
-    const jurisdiction = foreclosureEvent.fc_jurisdiction || 'Judicial';
+  if (loanStateResult.rows.length === 0 || foreclosureEventResult.rows.length === 0) {
+    return null;
+  }
 
-    // Step 3: Get milestone template for the state
-    const milestones = getMilestonesForState(state, jurisdiction);
-    if (!milestones || milestones.length === 0) {
-      console.warn(`No milestone template found for state ${state}, jurisdiction ${jurisdiction}`);
-      return [];
-    }
+  const stateAbbr = loanStateResult.rows[0].state;
+  const actualEvents = foreclosureEventResult.rows[0];
+  const fcStartDate = actualEvents.fc_start_date ? new Date(actualEvents.fc_start_date) : new Date();
 
-    // Step 4: Combine and process data
-    const timeline: ForeclosureTimelineItem[] = milestones.map(milestone => {
-      const actualColumn = milestone.db_column_actual_completion;
-      const expectedColumn = milestone.db_column_expected_completion;
-      
-      // Map milestone names to their corresponding start date columns
-      const startDateMapping: { [key: string]: string } = {
-        'Referral': 'referral_date',
-        'Title Ordered': 'title_ordered_date',
-        'Title Received': 'title_received_date',
-        'Complaint Filing': 'complaint_filed_date',
-        'Service Complete': 'service_completed_date',
-        'Judgment': 'judgment_date',
-        'Sale Scheduled': 'sale_scheduled_date',
-        'Sale Held': 'sale_held_date',
-        'Receivership/REO': 'real_estate_owned_date',
-        'Eviction Complete': 'eviction_completed_date'
-      };
+  // Step 2: Get the milestone template
+  const milestonesTemplate = getMilestonesForState(stateAbbr, actualEvents.fc_jurisdiction);
+  if (!milestonesTemplate || milestonesTemplate.length === 0) {
+    return [];
+  }
 
-      const startDateColumn = startDateMapping[milestone.milestone];
-      
-      return {
-        milestone_name: milestone.milestone,
-        actual_start_date: startDateColumn ? foreclosureEvent[startDateColumn] : null,
-        actual_completion_date: actualColumn ? foreclosureEvent[actualColumn] : null,
-        expected_completion_date: expectedColumn ? foreclosureEvent[expectedColumn] : null,
-        sequence: milestone.sequence,
-        expected_duration_days: milestone.preferredDays,
-        jurisdiction: milestone.jurisdiction
-      };
+  // Step 3: Combine template with actuals and calculate expected dates
+  const timeline = [];
+  let lastCompletionDate = fcStartDate;
+
+  for (const milestone of milestonesTemplate) {
+    const actualCompletionDateStr = actualEvents[milestone.db_column_actual_completion];
+    const actualCompletionDate = actualCompletionDateStr ? new Date(actualCompletionDateStr) : null;
+
+    const calculationStartDate = actualCompletionDate || lastCompletionDate;
+
+    const expectedCompletionDate = new Date(calculationStartDate);
+    expectedCompletionDate.setDate(expectedCompletionDate.getDate() + milestone.preferredDays);
+
+    timeline.push({
+      milestone_name: milestone.name,
+      actual_completion_date: actualCompletionDateStr,
+      expected_completion_date: expectedCompletionDate.toISOString().split('T')[0],
     });
 
-    return timeline;
-  } catch (error) {
-    console.error('Error getting foreclosure timeline:', error);
-    throw error;
+    lastCompletionDate = expectedCompletionDate;
   }
+  return timeline;
 }
 
 // Process a complete foreclosure record
