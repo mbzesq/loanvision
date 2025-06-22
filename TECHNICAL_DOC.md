@@ -203,7 +203,15 @@ These are the key routes that serve data to the frontend.
 
 The frontend is a modern Single-Page Application (SPA) built with React and Vite. It is designed to be a "dumb" client that receives clean, processed data from the backend and focuses solely on presentation and user interaction.
 
-### 4.1. Component Hierarchy & Layout
+### 4.1. Purpose & Rationale
+
+The frontend is designed with two core principles in mind: separation of concerns and component-based architecture.
+
+**Dumb Components, Smart Containers:** We follow a pattern where high-level "page" components (like `LoanExplorerPage`) are "smart"—they are responsible for fetching data and managing all the state for that view. They then pass this data down as props to smaller, "dumb" presentational components (like `DataToolbar` or `FilterPanel`) whose only job is to display that data. This makes our code easier to debug, as logic is centralized, and our UI components are highly reusable.
+
+**Centralized Layout:** The `MainLayout.tsx` component acts as the "application shell," providing a consistent navigation experience across all pages. This prevents us from having to rebuild the navigation on every page and makes global changes (like adding a new nav link) trivial.
+
+### 4.2. Component Hierarchy & Layout
 
 The application uses a responsive shell structure, managed by `MainLayout.tsx`, which provides a persistent sidebar for navigation on desktop screens and a slide-out drawer on mobile.
 
@@ -214,11 +222,13 @@ graph TD
     A["Router (in App.tsx)"] --> B["MainLayout"];
     B --> C["SideNav"];
     B --> D["Outlet (Page Content)"];
-    D --> E["FilterPanel"];
-    D --> F["DataToolbar"];
-    F --> I["ExportButton"];
-    D --> G["DataTable"];
-    D --> H["LoanDetailModal"];
+    subgraph "LoanExplorerPage.tsx (Rendered in Outlet)"
+        D --> E["FilterPanel"];
+        D --> F["DataToolbar"];
+        F --> I["ExportButton"];
+        D --> G["DataTable (TanStack Table)"];
+        D --> H["LoanDetailModal (Custom)"];
+    end
 ```
 
 **Key Components:**
@@ -233,10 +243,16 @@ graph TD
   - **Derived Data:** Using `useMemo` hooks to efficiently calculate unique values for the filter panel dropdowns (e.g., `uniqueStates`, `uniqueInvestors`).
   - **Component Composition:** Rendering the primary child components (`FilterPanel`, `DataToolbar`, `DataTable`) and passing them the necessary data and callback functions as props.
 
-### 4.2. Core Data Flow (Loan Explorer)
+### 4.3. Core Data Flow (Loan Explorer)
 
-1. **Initial Load:** `LoanExplorerPage` mounts and its `useEffect` hook fires, fetching all loans from `/api/v2/loans` and storing them in the `loans` state variable.
+1. **Initial Load:** `LoanExplorerPage` mounts, and its `useEffect` hook fires to call the `/api/v2/loans` endpoint. The full, unfiltered list of loans is stored in the `loans` state variable.
 
-2. **Filtering:** The user interacts with the `FilterPanel`. Selections are stored in the panel's internal state. When the "Apply" button is clicked, the `onApplyFilters` callback is invoked, which updates the `activeFilters` state in the parent `LoanExplorerPage`.
+2. **Filtering:** The user interacts with the controls in the `FilterPanel`. All selections are managed within the `FilterPanel's` own internal state.
 
-3. **Re-render:** The change to `activeFilters` triggers a re-render. The `filteredData` `useMemo` hook runs, filtering the master `loans` array based on the `activeFilters` and providing a new, smaller array to the TanStack Table component. The table then re-renders to show only the matching loans.
+3. **Apply Action:** When the user clicks the "Apply" button, the `FilterPanel` invokes the `onApplyFilters` callback prop, passing its current internal filter state up to the `LoanExplorerPage`.
+
+4. **State Update & Re-render:** The `LoanExplorerPage` updates its `activeFilters` state with the data received from the callback. This state change triggers a re-render.
+
+5. **Memoized Calculation:** The `filteredData` `useMemo` hook, which depends on `activeFilters`, re-runs. It filters the master `loans` array based on the new criteria and returns a new array of only the matching loans.
+
+6. **Table Update:** The TanStack Table component receives the new, smaller `filteredData` array as its `data` prop and automatically re-renders to show only the filtered results.
