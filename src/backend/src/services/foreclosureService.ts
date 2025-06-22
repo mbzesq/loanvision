@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import pool from '../db';
-import { ForeclosureEventData, mapForeclosureData } from './columnMappers';
+import { ForeclosureEventData, mapForeclosureEventData } from './columnMappers';
 
 // --- TYPE DEFINITIONS for fcl_milestones_by_state.json ---
 interface MilestoneBenchmark {
@@ -92,7 +92,7 @@ export async function upsertForeclosureEvent(eventData: ForeclosureEventData): P
 }
 
 export function extractForeclosureEventData(row: any): ForeclosureEventData {
-  return mapForeclosureData(row);
+  return mapForeclosureEventData(row);
 }
 
 export async function insertMilestoneStatuses(loanId: string, state: string, record: any) {
