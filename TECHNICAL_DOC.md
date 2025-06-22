@@ -31,7 +31,15 @@ This separation ensures a clean, decoupled architecture where the frontend commu
 
 The PostgreSQL database is the system's single source of truth. It is designed around a "current vs. history" model to provide both real-time snapshots and a full audit trail for trend analysis.
 
-### 2.1. The "Current vs. History" Model
+### 2.1. Purpose & Rationale
+
+The database is designed around a "Current vs. History" model to serve two distinct, critical functions: speed for the user interface and depth for long-term analysis.
+
+* **The `_current` Tables (For Speed):** Tables like `daily_metrics_current` and `foreclosure_events` are optimized for performance. They contain only the single, most recent record for each loan. This allows the frontend's Loan Explorer to quickly fetch and display a "snapshot" of the entire portfolio without having to sift through historical data.
+
+* **The `_history` Tables (For Intelligence):** Tables like `daily_metrics_history` and `foreclosure_events_history` are designed to be our most valuable long-term data asset. By storing a record from *every* file upload, we create a complete, immutable audit trail. This is the foundation of our "Benchmark Flywheel," allowing us to analyze performance over time, compare actuals vs. expecteds, and eventually train predictive models.
+
+### 2.2. The "Current vs. History" Model
 
 For key data entities like loan metrics and foreclosure events, we maintain two tables:
 
@@ -40,7 +48,7 @@ For key data entities like loan metrics and foreclosure events, we maintain two 
 
 ---
 
-### 2.2. Entity-Relationship Diagram (ERD)
+### 2.3. Entity-Relationship Diagram (ERD)
 
 This diagram illustrates the primary relationships between the core data tables.
 
@@ -76,7 +84,7 @@ erDiagram
 
 ---
 
-### 2.3. Key Tables
+### 2.4. Key Tables
 
 #### `daily_metrics_current`
 
