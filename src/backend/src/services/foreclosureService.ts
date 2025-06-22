@@ -9,6 +9,7 @@ interface Milestone {
   sequence: number;
   milestone: string;
   preferredDays: number;
+  db_column: string;
 }
 
 interface StateData {
@@ -51,27 +52,20 @@ export async function getForeclosureTimeline(loanId: string): Promise<any[] | nu
   const state = await getStateForLoan(loanId);
   const foreclosureEventResult = await pool.query('SELECT * FROM foreclosure_events WHERE loan_id = $1', [loanId]);
 
-  if (!state || foreclosureEventResult.rows.length === 0) {
-    return null;
-  }
+  if (!state || foreclosureEventResult.rows.length === 0) return null;
 
   const actualEvents = foreclosureEventResult.rows[0];
   const fcStartDate = actualEvents.fc_start_date ? new Date(actualEvents.fc_start_date) : new Date();
   const milestonesTemplate = getMilestonesForState(state, actualEvents.fc_jurisdiction);
 
-  if (!milestonesTemplate || milestonesTemplate.length === 0) {
-    return [];
-  }
+  if (!milestonesTemplate || milestonesTemplate.length === 0) return [];
 
   const timeline: any[] = [];
   let lastCompletionDate = fcStartDate;
 
   for (const milestone of milestonesTemplate) {
-    // NOTE: The JSON no longer has db_column_actual_completion. We need to construct it.
-    // This is a placeholder for a more robust mapping if needed.
-    const dbColumnName = milestone.milestone.toLowerCase().replace(/ /g, '_') + '_date';
-
-    const actualCompletionDateStr = actualEvents[dbColumnName];
+    // NEW, SIMPLER LOGIC: Use the explicit db_column field from the JSON
+    const actualCompletionDateStr = actualEvents[milestone.db_column];
     const actualCompletionDate = actualCompletionDateStr ? new Date(actualCompletionDateStr) : null;
 
     const calculationStartDate = actualCompletionDate || lastCompletionDate;
@@ -83,7 +77,8 @@ export async function getForeclosureTimeline(loanId: string): Promise<any[] | nu
       actual_completion_date: actualCompletionDateStr,
       expected_completion_date: expectedCompletionDate.toISOString().split('T')[0],
     });
-    lastCompletionDate = expectedCompletionDate;
+
+    lastCompletionDate = actualCompletionDate || expectedCompletionDate;
   }
   return timeline;
 }

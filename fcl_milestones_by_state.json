@@ -5,32 +5,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 35
+        "preferredDays": 35,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 140
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -40,32 +40,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -75,32 +75,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 25
+        "preferredDays": 25,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 25
+        "preferredDays": 25,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 105
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -110,32 +110,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 40
+        "preferredDays": 40,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 125
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -145,37 +145,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 5
+        "preferredDays": 5,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Pre-Sale Redemption Period Expires",
-        "preferredDays": 91
+        "preferredDays": 91,
+        "db_column": "redemption_expires_date"
       },
       {
         "sequence": 5,
         "milestone": "Publication Started",
-        "preferredDays": 10
+        "preferredDays": 10,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 151
+        "preferredDays": 30,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -185,32 +186,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 165
+        "preferredDays": 30,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -219,37 +220,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 130
+        "preferredDays": 130,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 75
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 325
+        "preferredDays": 75,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -260,32 +262,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 50
+        "preferredDays": 50,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 135
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -294,37 +296,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 50
+        "preferredDays": 50,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 180
+        "preferredDays": 180,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 335
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -334,37 +337,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 180
+        "preferredDays": 180,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 75
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 375
+        "preferredDays": 75,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -375,32 +379,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -409,37 +413,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 40
+        "preferredDays": 40,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 75
+        "preferredDays": 75,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 150
+        "preferredDays": 150,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 75
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 355
+        "preferredDays": 75,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -449,37 +454,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 4,
         "milestone": "Judgment Entered",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 75
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 270
+        "preferredDays": 75,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -490,32 +496,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 120
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 255
+        "preferredDays": 120,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -524,47 +530,50 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 120
+        "preferredDays": 120,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Pre-Sale Redemption Period Expires",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "redemption_expires_date"
       },
       {
         "sequence": 7,
         "milestone": "Sale Held",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "sale_held_date"
       },
       {
         "sequence": 8,
         "milestone": "Confirmation/Ratification/Redemption",
-        "preferredDays": 90
-      },
-      {
-        "sequence": 8,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 435
+        "preferredDays": 90,
+        "db_column": "confirmation_date"
       }
     ],
     "non_judicial_milestones": []
@@ -574,37 +583,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 165
+        "preferredDays": 165,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 330
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -614,42 +624,44 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       },
       {
         "sequence": 7,
         "milestone": "Confirmation/Ratification/Redemption",
-        "preferredDays": 90
-      },
-      {
-        "sequence": 7,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 285
+        "preferredDays": 90,
+        "db_column": "confirmation_date"
       }
     ],
     "non_judicial_milestones": []
@@ -659,42 +671,44 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 130
+        "preferredDays": 130,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "sale_held_date"
       },
       {
         "sequence": 7,
         "milestone": "Confirmation/Ratification/Redemption",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 7,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 340
+        "preferredDays": 30,
+        "db_column": "confirmation_date"
       }
     ],
     "non_judicial_milestones": []
@@ -704,37 +718,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 175
+        "preferredDays": 175,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 325
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -744,37 +759,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 175
+        "preferredDays": 175,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 355
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -785,37 +801,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Publication Started",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 45
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 270
+        "preferredDays": 45,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -824,42 +841,44 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 250
+        "preferredDays": 250,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Pre-Sale Redemption Period Expires",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "redemption_expires_date"
       },
       {
         "sequence": 7,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 7,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 535
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -870,32 +889,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
+        "preferredDays": 30,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -905,32 +924,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 99
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -940,32 +959,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -975,32 +994,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1010,32 +1029,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 45
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 135
+        "preferredDays": 45,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1045,37 +1064,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       },
       {
         "sequence": 6,
         "milestone": "Confirmation/Ratification/Redemption",
-        "preferredDays": 15
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 210
+        "preferredDays": 15,
+        "db_column": "confirmation_date"
       }
     ]
   },
@@ -1084,37 +1104,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 120
+        "preferredDays": 120,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 270
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1125,32 +1146,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 150
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1160,32 +1181,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 35
+        "preferredDays": 35,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 105
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1194,37 +1215,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 240
+        "preferredDays": 240,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 90
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 450
+        "preferredDays": 90,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1234,37 +1256,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 100
+        "preferredDays": 100,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 80
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 300
+        "preferredDays": 80,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1275,32 +1298,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 100
+        "preferredDays": 100,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 120
+        "preferredDays": 120,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 275
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1309,42 +1332,44 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 75
+        "preferredDays": 75,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Order of Reference Received",
-        "preferredDays": 270
+        "preferredDays": 270,
+        "db_column": "order_of_reference_date"
       },
       {
         "sequence": 6,
         "milestone": "Judgment Entered",
-        "preferredDays": 270
+        "preferredDays": 270,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 7,
         "milestone": "Sale Held",
-        "preferredDays": 90
-      },
-      {
-        "sequence": 7,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 750
+        "preferredDays": 90,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1354,42 +1379,44 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 120
+        "preferredDays": 120,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 75
+        "preferredDays": 75,
+        "db_column": "sale_held_date"
       },
       {
         "sequence": 7,
         "milestone": "Confirmation/Ratification/Redemption",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 7,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 330
+        "preferredDays": 30,
+        "db_column": "confirmation_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1399,42 +1426,44 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 120
+        "preferredDays": 120,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       },
       {
         "sequence": 7,
         "milestone": "Confirmation/Ratification/Redemption",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 7,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 300
+        "preferredDays": 30,
+        "db_column": "confirmation_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1445,32 +1474,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 235
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1479,37 +1508,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 75
+        "preferredDays": 75,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 150
+        "preferredDays": 150,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 90
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 375
+        "preferredDays": 90,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1520,32 +1550,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 120
+        "preferredDays": 120,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 45
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 210
+        "preferredDays": 45,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1554,42 +1584,44 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Order of Reference Received",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "order_of_reference_date"
       },
       {
         "sequence": 7,
         "milestone": "Judgment Entered",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 8,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 8,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 285
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1599,37 +1631,38 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 270
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1640,32 +1673,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1675,32 +1708,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1710,73 +1743,73 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Pre-Sale Redemption Period Expires",
-        "preferredDays": 92
+        "preferredDays": 92,
+        "db_column": "redemption_expires_date"
       },
       {
         "sequence": 5,
         "milestone": "Publication Started",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 6,
         "milestone": "Sale Held",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 6,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 197
+        "preferredDays": 30,
+        "db_column": "sale_held_date"
       }
     ]
   },
   "VA": {
-    "judicial_milestones": [
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
-      }
-    ],
+    "judicial_milestones": [],
     "non_judicial_milestones": [
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1785,42 +1818,44 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Pre-Sale Redemption Period Expires",
-        "preferredDays": 180
+        "preferredDays": 180,
+        "db_column": "redemption_expires_date"
       },
       {
         "sequence": 6,
         "milestone": "Judgment Entered",
-        "preferredDays": 150
+        "preferredDays": 150,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 7,
         "milestone": "Sale Held",
-        "preferredDays": 60
-      },
-      {
-        "sequence": 7,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 510
+        "preferredDays": 60,
+        "db_column": "sale_held_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1831,32 +1866,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 45
+        "preferredDays": 45,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 150
+        "preferredDays": 150,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 250
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1865,47 +1900,50 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Service Perfected",
-        "preferredDays": 60
+        "preferredDays": 60,
+        "db_column": "service_completed_date"
       },
       {
         "sequence": 5,
         "milestone": "Judgment Entered",
-        "preferredDays": 90
+        "preferredDays": 90,
+        "db_column": "judgment_date"
       },
       {
         "sequence": 6,
         "milestone": "Pre-Sale Redemption Period Expires",
-        "preferredDays": 180
+        "preferredDays": 180,
+        "db_column": "redemption_expires_date"
       },
       {
         "sequence": 7,
         "milestone": "Sale Held",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "sale_held_date"
       },
       {
         "sequence": 8,
         "milestone": "Confirmation/Ratification/Redemption",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 8,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 425
+        "preferredDays": 30,
+        "db_column": "confirmation_date"
       }
     ],
     "non_judicial_milestones": []
@@ -1916,32 +1954,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 22
+        "preferredDays": 22,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 20
+        "preferredDays": 20,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 40
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 97
+        "preferredDays": 40,
+        "db_column": "sale_held_date"
       }
     ]
   },
@@ -1951,32 +1989,32 @@
       {
         "sequence": 1,
         "milestone": "Referred to Foreclosure Attorney",
-        "preferredDays": 0
+        "preferredDays": 0,
+        "db_column": "fc_start_date"
       },
       {
         "sequence": 2,
         "milestone": "Title Received",
-        "preferredDays": 15
+        "preferredDays": 15,
+        "db_column": "title_received_date"
       },
       {
         "sequence": 3,
         "milestone": "1st Legal Action Completed",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "complaint_filed_date"
       },
       {
         "sequence": 4,
         "milestone": "Publication Started",
-        "preferredDays": 30
+        "preferredDays": 30,
+        "db_column": "publication_started_date"
       },
       {
         "sequence": 5,
         "milestone": "Sale Held",
-        "preferredDays": 30
-      },
-      {
-        "sequence": 5,
-        "milestone": "Referral to Sale Held",
-        "preferredDays": 105
+        "preferredDays": 30,
+        "db_column": "sale_held_date"
       }
     ]
   }
