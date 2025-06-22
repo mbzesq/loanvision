@@ -153,7 +153,14 @@ erDiagram
 
 The backend is responsible for all business logic, data processing, and API services. It is designed to be a "smart" service that provides clean, processed data to a "dumb" frontend.
 
-### 3.1. Data Ingestion Pipeline (`/api/upload`)
+### 3.1. Purpose & Rationale
+
+The backend is designed as a **"Smart Service Layer"**. The core principle is to centralize all complex business logic, data processing, and third-party integrations on the server. This allows the frontend to remain a "dumb" presentation layer, making it simpler, faster, and easier to maintain.
+
+* **Encapsulated Logic (`/services`):** We separate distinct business functions into their own service files (e.g., `foreclosureService.ts`, `currentHistoryService.ts`). This makes the code modular, easier to test, and allows us to reuse complex logic across multiple API endpoints if needed.
+* **Purpose-Built Endpoints (`/routes`):** Instead of one generic API endpoint, we create specific routes that are tailored to the exact needs of a UI component. For example, the `/api/v2/loans` endpoint is designed to efficiently feed the main data table, while the `/api/loans/:loanId/foreclosure-timeline` endpoint performs a more complex calculation for the specific needs of the detail modal. This ensures the UI is always fast and never has to fetch more data than it needs.
+
+### 3.2. Data Ingestion Pipeline (`/api/upload`)
 
 The ingestion pipeline is the entry point for all portfolio data. It's a multi-step process designed to be robust and resilient.
 
@@ -182,7 +189,7 @@ graph TD
 4. **Data Mapping (`columnMappers.ts`):** Raw data from each row is mapped to our standardized database schemas. This step includes data cleaning functions (`cleanCurrency`, `parseExcelDate`, etc.).
 5. **Database Insertion (`currentHistoryService.ts`):** The mapped data is inserted into the database, following our "Current vs. History" model. The `_history` tables receive a new record for every upload, while the `_current` tables are updated with only the latest data for each loan.
 
-### 3.2. Foreclosure Timeline Service (`foreclosureService.ts`)
+### 3.3. Foreclosure Timeline Service (`foreclosureService.ts`)
 
 This service contains the core business intelligence for our foreclosure tracking.
 
@@ -195,7 +202,7 @@ This service contains the core business intelligence for our foreclosure trackin
 
 **Expected Date Calculation:** The service also includes logic to dynamically calculate a full chain of expected completion dates upon ingestion, making it a predictive tool.
 
-### 3.3. API Endpoints (`loans.ts`)
+### 3.4. API Endpoints (`loans.ts`)
 
 These are the key routes that serve data to the frontend.
 
