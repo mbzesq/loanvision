@@ -2,6 +2,13 @@ import pool from '../db';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// Helper to add days to a date
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
 // Helper function to convert Excel serial date to ISO format
 function excelDateToISO(serial: number): string {
   const utc_days = Math.floor(serial - 25569);
@@ -54,6 +61,8 @@ interface MilestoneBenchmark {
   standardFee: number;
   standardCost: number;
   standardSpend: number;
+  db_column_actual_completion?: string;
+  db_column_expected_completion?: string;
 }
 
 export interface ForeclosureEventData {
@@ -72,6 +81,18 @@ export interface ForeclosureEventData {
   sale_held_date?: string | null;
   real_estate_owned_date?: string | null;
   eviction_completed_date?: string | null;
+  // Expected completion dates
+  referral_expected_completion_date?: string | null;
+  title_ordered_expected_completion_date?: string | null;
+  title_received_expected_completion_date?: string | null;
+  complaint_filed_expected_completion_date?: string | null;
+  service_completed_expected_completion_date?: string | null;
+  judgment_expected_completion_date?: string | null;
+  sale_scheduled_expected_completion_date?: string | null;
+  sale_held_expected_completion_date?: string | null;
+  real_estate_owned_expected_completion_date?: string | null;
+  eviction_completed_expected_completion_date?: string | null;
+  [key: string]: any; // Allow dynamic properties
 }
 
 // Load milestone benchmarks from JSON file
@@ -133,6 +154,20 @@ const milestoneMappings: Record<string, string> = {
   'RRC': 'Receivership/REO'
 };
 
+// Map milestone names to database columns
+const milestoneToDbColumn: Record<string, { actual: string; expected: string }> = {
+  'Referral': { actual: 'referral_date', expected: 'referral_expected_completion_date' },
+  'Title Ordered': { actual: 'title_ordered_date', expected: 'title_ordered_expected_completion_date' },
+  'Title Received': { actual: 'title_received_date', expected: 'title_received_expected_completion_date' },
+  'Complaint Filing': { actual: 'complaint_filed_date', expected: 'complaint_filed_expected_completion_date' },
+  'Service Complete': { actual: 'service_completed_date', expected: 'service_completed_expected_completion_date' },
+  'Judgment': { actual: 'judgment_date', expected: 'judgment_expected_completion_date' },
+  'Sale Scheduled': { actual: 'sale_scheduled_date', expected: 'sale_scheduled_expected_completion_date' },
+  'Sale Held': { actual: 'sale_held_date', expected: 'sale_held_expected_completion_date' },
+  'Receivership/REO': { actual: 'real_estate_owned_date', expected: 'real_estate_owned_expected_completion_date' },
+  'Eviction Complete': { actual: 'eviction_completed_date', expected: 'eviction_completed_expected_completion_date' }
+};
+
 // Extract foreclosure event data from the row based on new schema
 export function extractForeclosureEventData(row: any): ForeclosureEventData {
   // Import getValue for dynamic header lookup
@@ -175,8 +210,13 @@ export async function upsertForeclosureEvent(eventData: ForeclosureEventData): P
       loan_id, fc_status, fc_jurisdiction, fc_start_date, current_attorney,
       referral_date, title_ordered_date, title_received_date, complaint_filed_date,
       service_completed_date, judgment_date, sale_scheduled_date, sale_held_date,
-      real_estate_owned_date, eviction_completed_date
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      real_estate_owned_date, eviction_completed_date,
+      referral_expected_completion_date, title_ordered_expected_completion_date,
+      title_received_expected_completion_date, complaint_filed_expected_completion_date,
+      service_completed_expected_completion_date, judgment_expected_completion_date,
+      sale_scheduled_expected_completion_date, sale_held_expected_completion_date,
+      real_estate_owned_expected_completion_date, eviction_completed_expected_completion_date
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
     ON CONFLICT (loan_id) DO UPDATE SET
       fc_status = EXCLUDED.fc_status,
       fc_jurisdiction = EXCLUDED.fc_jurisdiction,
@@ -192,6 +232,16 @@ export async function upsertForeclosureEvent(eventData: ForeclosureEventData): P
       sale_held_date = EXCLUDED.sale_held_date,
       real_estate_owned_date = EXCLUDED.real_estate_owned_date,
       eviction_completed_date = EXCLUDED.eviction_completed_date,
+      referral_expected_completion_date = EXCLUDED.referral_expected_completion_date,
+      title_ordered_expected_completion_date = EXCLUDED.title_ordered_expected_completion_date,
+      title_received_expected_completion_date = EXCLUDED.title_received_expected_completion_date,
+      complaint_filed_expected_completion_date = EXCLUDED.complaint_filed_expected_completion_date,
+      service_completed_expected_completion_date = EXCLUDED.service_completed_expected_completion_date,
+      judgment_expected_completion_date = EXCLUDED.judgment_expected_completion_date,
+      sale_scheduled_expected_completion_date = EXCLUDED.sale_scheduled_expected_completion_date,
+      sale_held_expected_completion_date = EXCLUDED.sale_held_expected_completion_date,
+      real_estate_owned_expected_completion_date = EXCLUDED.real_estate_owned_expected_completion_date,
+      eviction_completed_expected_completion_date = EXCLUDED.eviction_completed_expected_completion_date,
       updated_at = now()
   `;
 
@@ -210,7 +260,17 @@ export async function upsertForeclosureEvent(eventData: ForeclosureEventData): P
     eventData.sale_scheduled_date,
     eventData.sale_held_date,
     eventData.real_estate_owned_date,
-    eventData.eviction_completed_date
+    eventData.eviction_completed_date,
+    eventData.referral_expected_completion_date || null,
+    eventData.title_ordered_expected_completion_date || null,
+    eventData.title_received_expected_completion_date || null,
+    eventData.complaint_filed_expected_completion_date || null,
+    eventData.service_completed_expected_completion_date || null,
+    eventData.judgment_expected_completion_date || null,
+    eventData.sale_scheduled_expected_completion_date || null,
+    eventData.sale_held_expected_completion_date || null,
+    eventData.real_estate_owned_expected_completion_date || null,
+    eventData.eviction_completed_expected_completion_date || null
   ];
 
   await pool.query(query, values);
@@ -221,6 +281,60 @@ function getBenchmarksForState(state: string, jurisdiction: string): MilestoneBe
   return milestoneBenchmarks.filter(
     b => b.state === state && b.jurisdiction === jurisdiction
   );
+}
+
+// Get milestones for a state with db column mappings
+function getMilestonesForState(state: string, jurisdiction: string = 'Judicial'): MilestoneBenchmark[] {
+  const benchmarks = getBenchmarksForState(state, jurisdiction);
+  
+  // Enhance benchmarks with db column mappings
+  return benchmarks.map(benchmark => {
+    const columnMapping = milestoneToDbColumn[benchmark.milestone];
+    if (columnMapping) {
+      return {
+        ...benchmark,
+        db_column_actual_completion: columnMapping.actual,
+        db_column_expected_completion: columnMapping.expected
+      };
+    }
+    return benchmark;
+  }).filter(b => b.db_column_actual_completion && b.db_column_expected_completion);
+}
+
+// Calculate expected timeline for foreclosure milestones
+export async function calculateExpectedTimeline(loanId: string, fcStartDate: Date, actualDates: any, jurisdiction: string = 'Judicial') {
+  const state = await getStateForLoan(loanId);
+  if (!state) {
+    console.warn(`Cannot calculate timeline for loan ${loanId}: state not found.`);
+    return {};
+  }
+
+  const milestones = getMilestonesForState(state, jurisdiction);
+  if (!milestones || milestones.length === 0) {
+    console.warn(`No milestone template found for state: ${state}`);
+    return {};
+  }
+
+  const expectedDates: { [key: string]: string | null } = {};
+  let currentDateCursor = fcStartDate;
+
+  for (const milestone of milestones) {
+    const actualCompletionKey = milestone.db_column_actual_completion!;
+    const expectedCompletionKey = milestone.db_column_expected_completion!;
+
+    const actualCompletionDate = actualDates[actualCompletionKey] ? new Date(actualDates[actualCompletionKey]) : null;
+
+    // The next milestone calculation starts from the *actual* completion if it exists, otherwise from the cursor
+    const calculationStartDate = actualCompletionDate || currentDateCursor;
+
+    const expectedCompletionDate = addDays(calculationStartDate, milestone.preferredDays);
+    expectedDates[expectedCompletionKey] = expectedCompletionDate.toISOString().split('T')[0];
+
+    // Update the cursor for the next iteration
+    currentDateCursor = expectedCompletionDate;
+  }
+
+  return expectedDates;
 }
 
 // Calculate status flag based on dates
@@ -367,8 +481,20 @@ export async function getStateForLoan(loanId: string): Promise<string | null> {
 // Process a complete foreclosure record
 export async function processForeclosureRecord(row: any, defaultState?: string, reportDate?: string): Promise<void> {
   try {
-    // First, insert/update the foreclosure event
+    // First, extract the base foreclosure event data
     const eventData = extractForeclosureEventData(row);
+    
+    // Calculate expected timeline if we have a start date
+    if (eventData.fc_start_date) {
+      const fcStartDate = new Date(eventData.fc_start_date);
+      const jurisdiction = eventData.fc_jurisdiction || 'Judicial';
+      const expectedTimelineDates = await calculateExpectedTimeline(eventData.loan_id, fcStartDate, eventData, jurisdiction);
+      
+      // Merge expected dates into event data
+      Object.assign(eventData, expectedTimelineDates);
+    }
+    
+    // Insert/update the foreclosure event with expected dates
     await upsertForeclosureEvent(eventData);
     
     // If reportDate is provided, also insert into history table

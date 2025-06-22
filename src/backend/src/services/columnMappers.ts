@@ -394,6 +394,17 @@ export interface ForeclosureEventsHistoryRecord {
   sale_held_date?: string | null;
   real_estate_owned_date?: string | null;
   eviction_completed_date?: string | null;
+  // Expected completion dates
+  referral_expected_completion_date?: string | null;
+  title_ordered_expected_completion_date?: string | null;
+  title_received_expected_completion_date?: string | null;
+  complaint_filed_expected_completion_date?: string | null;
+  service_completed_expected_completion_date?: string | null;
+  judgment_expected_completion_date?: string | null;
+  sale_scheduled_expected_completion_date?: string | null;
+  sale_held_expected_completion_date?: string | null;
+  real_estate_owned_expected_completion_date?: string | null;
+  eviction_completed_expected_completion_date?: string | null;
 }
 
 // Mapping function for new daily metrics structure
