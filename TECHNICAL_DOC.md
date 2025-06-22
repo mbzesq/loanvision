@@ -102,3 +102,61 @@ For key data entities like loan metrics and foreclosure events, we maintain two 
     );
     ```
 *(Note: The corresponding `_history` tables have identical columns but also include a `report_date` field.)*
+
+---
+
+## 3. Backend Services & Logic
+
+The backend is responsible for all business logic, data processing, and API services. It is designed to be a "smart" service that provides clean, processed data to a "dumb" frontend.
+
+### 3.1. Data Ingestion Pipeline (`/api/upload`)
+
+The ingestion pipeline is the entry point for all portfolio data. It's a multi-step process designed to be robust and resilient.
+
+**Flowchart:**
+```mermaid
+graph TD
+    A[File Upload via UI] --> B{/api/upload Endpoint};
+    B --> C{Parse File (XLSX/CSV)};
+    C --> D{Detect File Type};
+    D -- "daily_metrics" --> E[Process Daily Metrics];
+    D -- "foreclosure_data" --> F[Process Foreclosure Events];
+    E --> G[Map to History Record];
+    E --> H[Map to Current Record];
+    G --> I[Insert to daily_metrics_history];
+    H --> J[Upsert to daily_metrics_current];
+    F --> K[Calculate Expected Dates];
+    K --> L[Upsert to foreclosure_events];
+    F --> M[Insert to foreclosure_events_history];
+```
+
+**Key Steps:**
+
+1. **File Parsing:** The endpoint accepts `.xlsx` or `.csv` files and uses the `multer` and `xlsx` libraries to parse the file buffer into a raw JSON format.
+2. **File Type Detection (`fileTypeDetector.ts`):** The system analyzes the column headers of the uploaded file to determine if it is a `daily_metrics` file or a `foreclosure_data` file. It uses a confidence score based on matching key headers.
+3. **Data Processing:** Based on the detected file type, the request is routed to the appropriate processing logic.
+4. **Data Mapping (`columnMappers.ts`):** Raw data from each row is mapped to our standardized database schemas. This step includes data cleaning functions (`cleanCurrency`, `parseExcelDate`, etc.).
+5. **Database Insertion (`currentHistoryService.ts`):** The mapped data is inserted into the database, following our "Current vs. History" model. The `_history` tables receive a new record for every upload, while the `_current` tables are updated with only the latest data for each loan.
+
+### 3.2. Foreclosure Timeline Service (`foreclosureService.ts`)
+
+This service contains the core business intelligence for our foreclosure tracking.
+
+**`getForeclosureTimeline` Function:** This is the primary function called by the API. It takes a `loan_id` and performs the following steps:
+1. Fetches the loan's state from the `daily_metrics_current` table.
+2. Fetches the corresponding `foreclosure_events` record, which contains all the actual and expected milestone dates.
+3. Loads the `fcl_milestones_by_state.json` ruleset file.
+4. Looks up the correct milestone template for the loan's state and jurisdiction (judicial vs. non-judicial).
+5. Combines the template with the actual/expected data from the database to create a complete, ordered timeline.
+
+**Expected Date Calculation:** The service also includes logic to dynamically calculate a full chain of expected completion dates upon ingestion, making it a predictive tool.
+
+### 3.3. API Endpoints (`loans.ts`)
+
+These are the key routes that serve data to the frontend.
+
+* **`GET /api/v2/loans`:** This is the primary endpoint for the Loan Explorer. It performs a LEFT JOIN on `daily_metrics_current` and `foreclosure_events` to provide a single, rich list of all loans with their current status.
+* **`GET /api/v2/loans/:loanId`:** Fetches the full, detailed record for a single loan from the `daily_metrics_current` table to populate the top sections of the Loan Detail Modal.
+* **`GET /api/loans/:loanId/foreclosure-timeline`:** Calls the `getForeclosureTimeline` service to provide the detailed, calculated timeline for a single loan to populate the bottom section of the Loan Detail Modal.
+
+<!-- end list -->
