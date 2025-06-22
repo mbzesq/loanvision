@@ -221,14 +221,13 @@ The application uses a responsive shell structure, managed by `MainLayout.tsx`, 
 graph TD
     A["Router (in App.tsx)"] --> B["MainLayout"];
     B --> C["SideNav"];
-    B --> D["Outlet (Page Content)"];
-    subgraph "LoanExplorerPage.tsx (Rendered in Outlet)"
-        D --> E["FilterPanel"];
-        D --> F["DataToolbar"];
-        F --> I["ExportButton"];
-        D --> G["DataTable (TanStack Table)"];
-        D --> H["LoanDetailModal (Custom)"];
-    end
+    B --> D["Outlet (Renders Page)"];
+    D -- "renders -->" E["LoanExplorerPage"];
+    E --> F["FilterPanel"];
+    E --> G["DataToolbar"];
+    G --> H["ExportButton"];
+    E --> I["DataTable (TanStack)"];
+    E --> J["LoanDetailModal (Custom)"];
 ```
 
 **Key Components:**
