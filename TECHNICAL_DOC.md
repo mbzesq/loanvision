@@ -211,23 +211,14 @@ The application uses a responsive shell structure, managed by `MainLayout.tsx`, 
 
 ```mermaid
 graph TD
-    subgraph "App.tsx"
-        A["Router"] --> B["MainLayout"];
-    end
-
-    subgraph "MainLayout.tsx"
-        B --> C["SideNav"];
-        B --> D["Outlet"];
-    end
-
-    subgraph "LoanExplorerPage.tsx (Rendered in Outlet)"
-        D --> E["FilterPanel"];
-        D --> F["DataToolbar"];
-        D --> G["DataTable"];
-        D --> H["LoanDetailModal"];
-    end
-
+    A["Router (in App.tsx)"] --> B["MainLayout"];
+    B --> C["SideNav"];
+    B --> D["Outlet (Page Content)"];
+    D --> E["FilterPanel"];
+    D --> F["DataToolbar"];
     F --> I["ExportButton"];
+    D --> G["DataTable"];
+    D --> H["LoanDetailModal"];
 ```
 
 **Key Components:**
