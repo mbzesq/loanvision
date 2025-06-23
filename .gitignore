@@ -43,3 +43,6 @@ coverage/
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Docker
+/db-data
