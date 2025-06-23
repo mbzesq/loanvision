@@ -1,14 +1,12 @@
+import './config'; // This must be the absolute first line
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import uploadRouter from './routes/upload';
 import loansRouter from './routes/loans';
 import portfolioRouter from './routes/portfolio';
 import reportsRouter from './routes/reports';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
