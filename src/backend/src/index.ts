@@ -42,7 +42,11 @@ app.get('/api/health', async (req, res) => {
     });
   } catch (error) {
     console.error("Error in test endpoint:", error);
-    res.status(500).json({ error: "Test endpoint failed", details: error.message });
+    let errorMessage = 'An unknown error occurred';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    res.status(500).json({ error: "Test endpoint failed", details: errorMessage });
   }
 });
 
