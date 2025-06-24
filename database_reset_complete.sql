@@ -1,10 +1,10 @@
--- COMPLETE DATABASE RESET SCRIPT (v2 - CORRECTED)
+-- COMPLETE DATABASE RESET SCRIPT (v3 - CORRECTED DEPENDENCIES)
 
--- Step 1: Drop all existing tables in the correct order
-DROP TABLE IF EXISTS llm_queries;
-DROP TABLE IF EXISTS enrichments;
-DROP TABLE IF EXISTS loans;
-DROP TABLE IF EXISTS upload_sessions;
+-- Step 1: Drop all existing tables in the correct dependency order
+DROP TABLE IF EXISTS llm_queries CASCADE;
+DROP TABLE IF EXISTS enrichments CASCADE;
+DROP TABLE IF EXISTS loans CASCADE;
+DROP TABLE IF EXISTS upload_sessions CASCADE;
 
 -- Step 2: Re-create all tables with the latest, complete schema
 CREATE TABLE upload_sessions (
