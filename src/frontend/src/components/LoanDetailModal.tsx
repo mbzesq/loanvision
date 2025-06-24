@@ -168,6 +168,16 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
                   </div>
                 </section>
               )}
+
+              {/* === Section 4: Property Enrichment Data (Validation) === */}
+              {propertyData && (
+                <section className="mt-4 p-4 bg-gray-100 rounded">
+                  <h3 className="text-base font-semibold text-slate-600 border-b pb-2 mb-3">Enrichment Data (Validation)</h3>
+                  <pre className="text-xs whitespace-pre-wrap break-all">
+                    {JSON.stringify(propertyData, null, 2)}
+                  </pre>
+                </section>
+              )}
             </div>
           )}
         </div>
