@@ -106,6 +106,40 @@ router.get('/loans/:loanId/foreclosure-timeline', async (req, res) => {
   }
 });
 
+// V2 endpoint to get property details for a loan
+router.get('/v2/loans/:loanId/property-details', async (req, res) => {
+  try {
+    const { loanId } = req.params;
+
+    if (!loanId) {
+      return res.status(400).json({ error: 'Loan ID is required' });
+    }
+
+    // Fetch the current property data
+    const propertyData = await getCurrentPropertyData(loanId);
+
+    if (!propertyData) {
+      return res.status(404).json({ 
+        error: 'No property data found for this loan',
+        loan_id: loanId 
+      });
+    }
+
+    res.json({
+      loan_id: loanId,
+      property_data: propertyData,
+      last_updated: propertyData.last_updated || new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error fetching property details:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch property details',
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
+});
+
 // V2 endpoint to trigger property data enrichment
 router.post('/v2/loans/:loanId/enrich', async (req, res) => {
   try {

@@ -29,6 +29,7 @@ const DetailItem = ({ label, children }: { label: string; children: React.ReactN
 export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   const [loan, setLoan] = useState<Loan | null>(null);
   const [timeline, setTimeline] = useState<Milestone[]>([]);
+  const [propertyData, setPropertyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const modalRef = useRef<HTMLDivElement>(null);
@@ -46,19 +47,36 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
     };
   }, [onClose]);
 
+  // Fetch property data function
+  const fetchPropertyData = async (loanId: string) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await axios.get(`${apiUrl}/api/v2/loans/${loanId}/property-details`);
+      console.log('Property data fetched:', response.data);
+      setPropertyData(response.data);
+    } catch (error) {
+      console.error('Failed to fetch property data:', error);
+      // Don't fail the entire modal if property data is not available
+      setPropertyData(null);
+    }
+  };
+
   useEffect(() => {
     const fetchAllDetails = async () => {
       if (!loanId) return;
       setLoading(true);
       try {
         const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-        // Fetch both data points in parallel
+        // Fetch all data points in parallel
         const [loanRes, timelineRes] = await Promise.all([
           axios.get(`${apiUrl}/api/v2/loans/${loanId}`),
           axios.get(`${apiUrl}/api/loans/${loanId}/foreclosure-timeline`).catch(() => ({ data: [] })) // Gracefully handle no timeline
         ]);
         setLoan(loanRes.data);
         setTimeline(timelineRes.data);
+        
+        // Fetch property data separately (non-blocking)
+        fetchPropertyData(loanId);
       } catch (error) {
         console.error('Failed to fetch loan details:', error);
       } finally {
