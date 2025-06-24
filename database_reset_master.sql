@@ -3,6 +3,8 @@
 -- It is the single source of truth for the database structure.
 
 -- Step 1: Drop all tables in an order that respects dependencies, using CASCADE for safety.
+DROP TABLE IF EXISTS property_data_history CASCADE;
+DROP TABLE IF EXISTS property_data_current CASCADE;
 DROP TABLE IF EXISTS foreclosure_milestone_statuses CASCADE;
 DROP TABLE IF EXISTS foreclosure_events_history CASCADE;
 DROP TABLE IF EXISTS foreclosure_events CASCADE;
@@ -141,9 +143,45 @@ CREATE TRIGGER update_daily_metrics_current_updated_at BEFORE UPDATE
 CREATE TRIGGER update_foreclosure_events_updated_at BEFORE UPDATE
     ON foreclosure_events FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Step 8: Create indexes for performance.
+-- Step 8: Create property data tables.
+CREATE TABLE property_data_current (
+    loan_id TEXT PRIMARY KEY,
+    source TEXT,
+    property_data JSONB,
+    last_updated TIMESTAMPTZ DEFAULT now(),
+    CONSTRAINT fk_loan
+        FOREIGN KEY(loan_id)
+        REFERENCES daily_metrics_current(loan_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE property_data_history (
+    id SERIAL PRIMARY KEY,
+    loan_id TEXT NOT NULL,
+    source TEXT,
+    property_data JSONB,
+    enrichment_date TIMESTAMPTZ DEFAULT now(),
+    CONSTRAINT fk_loan
+        FOREIGN KEY(loan_id)
+        REFERENCES daily_metrics_current(loan_id)
+        ON DELETE CASCADE
+);
+
+-- Step 9: Create indexes for performance.
 CREATE INDEX idx_daily_metrics_current_loan_id ON daily_metrics_current(loan_id);
 CREATE INDEX idx_daily_metrics_current_state ON daily_metrics_current(state);
 CREATE INDEX idx_daily_metrics_history_loan_id ON daily_metrics_history(loan_id);
 CREATE INDEX idx_foreclosure_events_loan_id ON foreclosure_events(loan_id);
 CREATE INDEX idx_foreclosure_events_history_loan_id ON foreclosure_events_history(loan_id);
+CREATE INDEX idx_property_data_current_loan_id ON property_data_current(loan_id);
+CREATE INDEX idx_property_data_current_source ON property_data_current(source);
+CREATE INDEX idx_property_data_history_loan_id ON property_data_history(loan_id);
+CREATE INDEX idx_property_data_history_enrichment_date ON property_data_history(enrichment_date);
+CREATE INDEX idx_property_data_history_source ON property_data_history(source);
+
+-- Comments for documentation
+COMMENT ON TABLE property_data_current IS 'Current property enrichment data - one row per loan (most recent)';
+COMMENT ON TABLE property_data_history IS 'Historical property enrichment data - all enrichment events';
+COMMENT ON COLUMN property_data_current.source IS 'Source of the property data (e.g., PropertyData/HomeHarvest)';
+COMMENT ON COLUMN property_data_current.property_data IS 'JSON data containing property details from enrichment source';
+COMMENT ON COLUMN property_data_history.enrichment_date IS 'Timestamp when the enrichment was performed';
