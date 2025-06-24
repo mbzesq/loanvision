@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import pool from '../db';
 import { getForeclosureTimeline } from '../services/foreclosureService';
+import { enrichLoanWithPropertyData, getCurrentPropertyData } from '../services/homeHarvestService';
 
 const router = Router();
 
@@ -102,6 +103,82 @@ router.get('/loans/:loanId/foreclosure-timeline', async (req, res) => {
   } catch (error) {
     console.error('Error fetching foreclosure timeline:', error);
     res.status(500).json({ error: 'Failed to fetch foreclosure timeline' });
+  }
+});
+
+// V2 endpoint to trigger property data enrichment
+router.post('/v2/loans/:loanId/enrich', async (req, res) => {
+  try {
+    const { loanId } = req.params;
+
+    // Validate loan_id
+    if (!loanId) {
+      return res.status(400).json({ error: 'Loan ID is required' });
+    }
+
+    // First, fetch the loan's address from daily_metrics_current
+    const loanQuery = `
+      SELECT loan_id, address, city, state, zip 
+      FROM daily_metrics_current 
+      WHERE loan_id = $1
+    `;
+    const loanResult = await pool.query(loanQuery, [loanId]);
+
+    if (loanResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Loan not found' });
+    }
+
+    const loan = loanResult.rows[0];
+    
+    // Construct full address for HomeHarvest
+    const fullAddress = `${loan.address}, ${loan.city}, ${loan.state} ${loan.zip}`.trim();
+    
+    if (!fullAddress || fullAddress === ', ') {
+      return res.status(400).json({ 
+        error: 'Loan does not have a valid address for enrichment' 
+      });
+    }
+
+    console.log(`[API] Starting property enrichment for loan ${loanId} at address: ${fullAddress}`);
+
+    // Trigger the enrichment process
+    await enrichLoanWithPropertyData(loanId, fullAddress);
+
+    // Fetch the newly saved property data
+    const propertyData = await getCurrentPropertyData(loanId);
+
+    console.log(`[API] Property enrichment completed for loan ${loanId}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Property data enrichment completed successfully',
+      loan_id: loanId,
+      address: fullAddress,
+      property_data: propertyData
+    });
+
+  } catch (error) {
+    console.error('Error during property enrichment:', error);
+    
+    // Determine appropriate error response
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    if (errorMessage.includes('HomeHarvest script exited with code')) {
+      res.status(500).json({ 
+        error: 'Failed to fetch property data from external source',
+        details: errorMessage 
+      });
+    } else if (errorMessage.includes('Failed to parse HomeHarvest output')) {
+      res.status(502).json({ 
+        error: 'Invalid response from property data source',
+        details: errorMessage 
+      });
+    } else {
+      res.status(500).json({ 
+        error: 'Failed to enrich property data',
+        details: errorMessage 
+      });
+    }
   }
 });
 
