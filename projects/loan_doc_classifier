@@ -1,0 +1,85 @@
+import os
+from pathlib import Path
+import pandas as pd
+from pdf2image import convert_from_path
+import pytesseract
+
+def pre_label_page(text: str) -> str:
+    # This function remains the same
+    text_upper = text.upper()
+    if "ASSIGNMENT OF MORTGAGE" in text_upper or "ASSIGNMENT OF DEED OF TRUST" in text_upper: return "Assignment"
+    if "ALLONGE" in text_upper: return "Allonge"
+    if "NOTE" in text_upper and "PROMISE TO PAY" in text_upper: return "Note"
+    if "DEED OF TRUST" in text_upper: return "Deed of Trust"
+    if "MORTGAGE" in text_upper and "THIS MORTGAGE" in text_upper: return "Mortgage"
+    if "RIDER" in text_upper or "ADDENDUM" in text_upper: return "Rider"
+    if "BAILEE LETTER" in text_upper: return "Bailee Letter"
+    if "EXHIBIT" in text_upper or "LEGAL DESCRIPTION" in text_upper: return "Exhibit"
+    if "RECORDING PAGE" in text_upper or "COUNTY CLERK" in text_upper and "RECORDED" in text_upper: return "Recording Page"
+    if "IMPORTANT NOTICE" in text_upper: return "Notice"
+    if "COLLATERAL CONTROL CLERK" in text_upper: return "Contact Sheet"
+    return "UNLABELED"
+
+def update_and_label_dataset():
+    """
+    Intelligently updates a dataset with new PDFs and removes data for deleted PDFs,
+    preserving all existing manual labels.
+    """
+    print("--- Smart Dataset Sync ---")
+    
+    docs_path = Path('training_docs')
+    labeled_csv_path = Path('dataset_prelabeled.csv')
+    
+    pdf_files_in_folder = {p.name for p in docs_path.glob('*.pdf')}
+    
+    if labeled_csv_path.exists():
+        print(f"Loading existing labeled data from '{labeled_csv_path}'...")
+        df = pd.read_csv(labeled_csv_path)
+        
+        # --- NEW LOGIC: REMOVE DATA FOR DELETED PDFS ---
+        initial_rows = len(df)
+        df = df[df['filename'].isin(pdf_files_in_folder)]
+        removed_rows = initial_rows - len(df)
+        if removed_rows > 0:
+            print(f"Removed {removed_rows} rows corresponding to deleted PDFs.")
+        # -----------------------------------------------
+
+        processed_files = set(df['filename'].unique())
+    else:
+        df = pd.DataFrame(columns=['filename', 'page_number', 'text', 'label'])
+        processed_files = set()
+
+    new_files_to_process = pdf_files_in_folder - processed_files
+    
+    if not new_files_to_process:
+        print("No new documents to add.")
+    else:
+        print(f"Found {len(new_files_to_process)} new document(s) to process.")
+        new_pages_data = []
+        for pdf_name in new_files_to_process:
+            pdf_path = docs_path / pdf_name
+            print(f"Processing: {pdf_path.name}")
+            try:
+                images = convert_from_path(pdf_path, poppler_path=r"C:\poppler\bin")
+                for i, img in enumerate(images):
+                    new_pages_data.append({
+                        'filename': pdf_path.name,
+                        'page_number': i + 1,
+                        'text': pytesseract.image_to_string(img),
+                        'label': 'UNLABELED' # Default for new pages
+                    })
+            except Exception as e:
+                print(f"Could not process {pdf_path.name}. Error: {e}")
+        
+        df_new = pd.DataFrame(new_pages_data)
+        df_new['label'] = df_new['text'].astype(str).apply(pre_label_page)
+        df = pd.concat([df, df_new], ignore_index=True)
+
+    df.to_csv(labeled_csv_path, index=False)
+    
+    print(f"\nProcessing complete.")
+    print(f"Dataset synced and saved to '{labeled_csv_path}'.")
+    print(f"Total pages in dataset: {len(df)}")
+
+if __name__ == '__main__':
+    update_and_label_dataset()
