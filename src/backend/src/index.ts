@@ -1,3 +1,4 @@
+console.log(`[STARTUP] DATABASE_URL seen by Node.js: ${process.env.DATABASE_URL}`);
 import express from 'express';
 import cors from 'cors';
 import uploadRouter from './routes/upload';
