@@ -1,4 +1,3 @@
-import './config'; // This must be the absolute first line
 import express from 'express';
 import cors from 'cors';
 import uploadRouter from './routes/upload';
