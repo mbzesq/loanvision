@@ -4,6 +4,7 @@ import { MainLayout } from './components/MainLayout';
 import LoanExplorerPage from './pages/LoanExplorerPage';
 import UploadPage from './pages/UploadPage';
 import DashboardPage from './pages/DashboardPage';
+import LoanDetailPage from './pages/LoanDetailPage';
 import { Toaster } from '@loanvision/shared/components/ui/toaster';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/loans" element={<LoanExplorerPage />} />
+          <Route path="/loans/:loanId" element={<LoanDetailPage />} />
           <Route path="/upload" element={<UploadPage />} />
           {/* Other pages will be added as new routes here */}
         </Route>
