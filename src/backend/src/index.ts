@@ -2,10 +2,12 @@ import './config'; // This must be the absolute first line.
 console.log(`[STARTUP] DATABASE_URL seen by Node.js: ${process.env.DATABASE_URL}`);
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import uploadRouter from './routes/upload';
 import loansRouter from './routes/loans';
 import portfolioRouter from './routes/portfolio';
 import reportsRouter from './routes/reports';
+import authRouter from './routes/auth';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 
@@ -13,7 +15,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // This entire block should be added right after const app = express();
-const allowedOrigins = ['https://loanvision-frontend.onrender.com'];
+const allowedOrigins = [
+  'https://loanvision-frontend.onrender.com',
+  'http://localhost:5173', // Frontend dev server
+  process.env.FRONTEND_URL
+].filter(Boolean);
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
@@ -24,10 +30,12 @@ const corsOptions: cors.CorsOptions = {
       return callback(new Error(msg), false);
     }
     return callback(null, true);
-  }
+  },
+  credentials: true // Allow cookies
 };
 
 app.use(cors(corsOptions)); // This must be the first middleware
+app.use(cookieParser());
 app.use(express.json());
 
 app.get('/api/health', async (req, res) => {
@@ -49,6 +57,7 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.use('/api/auth', authRouter);
 app.use('/api', uploadRouter);
 app.use('/api', loansRouter);
 app.use('/api', portfolioRouter);
