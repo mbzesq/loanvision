@@ -18,6 +18,7 @@ import {
   useReactTable,
   SortingState,
 } from '@tanstack/react-table';
+import milestoneBenchmarks from '../fcl_milestones_by_state.json';
 
 export interface Loan {
   loan_id: string;
@@ -37,6 +38,9 @@ export interface Loan {
   lien_pos: string;
   // Joined fields from foreclosure_events
   fc_status: string | null;
+  fc_jurisdiction: string | null;
+  // Add any potential milestone date fields that might be used
+  [key: string]: any;
 }
 
 const columnHelper = createColumnHelper<Loan>();
@@ -199,34 +203,46 @@ function LoanExplorerPage() {
   };
 
   // Helper function to determine timeline status for a loan
-  const getLoanTimelineStatus = (loan: Loan): string | null => {
-    if (!loan.fc_status) {
-      return null; // No foreclosure status
+  const getLoanTimelineStatus = (loan: Loan): 'On Track' | 'Overdue' | null => {
+    // Only evaluate loans that are in any kind of foreclosure process.
+    if (loan.fc_status !== 'Active' && loan.fc_status !== 'Hold') {
+      return null;
     }
 
-    if (loan.fc_status === 'Hold') {
-      return 'Hold';
+    // Return null if essential data for calculation is missing.
+    if (!loan.state || !loan.fc_jurisdiction) {
+      return null;
     }
 
-    if (loan.fc_status === 'Active') {
-      // For this simplified implementation, we'll use a basic heuristic
-      // In a real implementation, this would fetch timeline data for each loan
-      const today = new Date();
-      
-      // Check if next payment due date is overdue (simplified check)
-      if (loan.next_pymt_due) {
-        const nextDue = new Date(loan.next_pymt_due);
-        const daysDiff = Math.floor((today.getTime() - nextDue.getTime()) / (1000 * 60 * 60 * 24));
-        
-        if (daysDiff > 90) { // Overdue if more than 90 days past due
-          return 'Overdue';
-        }
+    const stateBenchmarks = milestoneBenchmarks[loan.state as keyof typeof milestoneBenchmarks];
+    if (!stateBenchmarks) return null;
+
+    const milestones = loan.fc_jurisdiction.toLowerCase().includes('non')
+      ? stateBenchmarks.non_judicial_milestones
+      : stateBenchmarks.judicial_milestones;
+
+    if (!milestones || milestones.length === 0) return null;
+
+    // Find the first incomplete milestone to determine the loan's current status.
+    for (const milestone of milestones) {
+      const actualDate = loan[milestone.db_column as keyof Loan];
+      if (!actualDate) {
+        // This is the current, active milestone. Check its expected date.
+        const expectedDateKey = `${milestone.db_column.replace(/_date$/, '')}_expected_completion_date`;
+        const expectedDate = loan[expectedDateKey as keyof Loan];
+
+        if (!expectedDate) return 'On Track'; // Cannot determine status, default to On Track.
+
+        // Compare dates safely.
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize today's date to midnight.
+
+        return new Date(expectedDate) < today ? 'Overdue' : 'On Track';
       }
-      
-      return 'On Track';
     }
 
-    return null;
+    // If all milestones are complete, the foreclosure is finished and considered On Track.
+    return 'On Track'; 
   };
 
   const columns = useMemo(

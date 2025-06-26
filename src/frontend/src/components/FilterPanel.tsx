@@ -261,7 +261,7 @@ export function FilterPanel(props: FilterPanelProps) {
             <AccordionContent>
               <div className="p-2 bg-slate-50/75 border-t">
                 <div className="flex flex-col gap-2">
-                  {['On Track', 'Overdue', 'Hold'].map((status) => (
+                  {['On Track', 'Overdue'].map((status) => (
                     <div key={status} className="flex items-center space-x-2">
                       <Checkbox 
                         id={`timeline-${status}`} 
