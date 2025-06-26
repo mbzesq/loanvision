@@ -18,7 +18,7 @@ import {
   useReactTable,
   SortingState,
 } from '@tanstack/react-table';
-import milestoneBenchmarks from '../fcl_milestones_by_state.json';
+import { getOverallLoanStatus } from '../lib/timelineUtils';
 
 export interface Loan {
   // from daily_metrics_current
@@ -63,42 +63,6 @@ export interface Loan {
   sale_held_expected_completion_date: string | null;
 }
 
-// IMPORTANT: Define this function OUTSIDE (above) the LoanExplorerPage component.
-const getLoanTimelineStatus = (loan: Loan): 'On Track' | 'Overdue' | null => {
-  if (loan.fc_status?.toUpperCase() !== 'ACTIVE' && loan.fc_status?.toUpperCase() !== 'HOLD') {
-    return null;
-  }
-
-  if (!loan.state || !loan.fc_jurisdiction) {
-    return null;
-  }
-
-  const stateBenchmarks = milestoneBenchmarks[loan.state as keyof typeof milestoneBenchmarks];
-  if (!stateBenchmarks) return null;
-
-  const milestones = loan.fc_jurisdiction.toLowerCase().includes('non')
-    ? stateBenchmarks.non_judicial_milestones
-    : stateBenchmarks.judicial_milestones;
-
-  if (!milestones || milestones.length === 0) return null;
-
-  for (const milestone of milestones) {
-    const actualDate = loan[milestone.db_column as keyof Loan];
-    if (!actualDate) {
-      const expectedDateKey = `${milestone.db_column.replace(/_date$/, '')}_expected_completion_date`;
-      const expectedDate = loan[expectedDateKey as keyof Loan];
-
-      if (!expectedDate) return 'On Track';
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      return new Date(expectedDate) < today ? 'Overdue' : 'On Track';
-    }
-  }
-
-  return 'On Track';
-};
 
 const columnHelper = createColumnHelper<Loan>();
 
@@ -234,7 +198,7 @@ function LoanExplorerPage() {
 
       // Timeline status filter
       if (timelineStatus.length > 0) {
-        const loanStatus = getLoanTimelineStatus(loan);
+        const loanStatus = getOverallLoanStatus(loan);
         // If a loan's status is not in the selected filter array, exclude it.
         if (!loanStatus || !timelineStatus.includes(loanStatus)) {
           return false;
