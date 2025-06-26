@@ -66,9 +66,26 @@ router.get('/v2/loans', authenticateToken, async (req, res) => {
     const query = `
       SELECT
         dmc.*,
+        fe.id AS foreclosure_id,
         fe.fc_status,
         fe.fc_jurisdiction,
-        fe.fc_start_date
+        fe.fc_start_date,
+        fe.referral_date,
+        fe.title_ordered_date,
+        fe.title_received_date,
+        fe.complaint_filed_date,
+        fe.service_completed_date,
+        fe.judgment_date,
+        fe.sale_scheduled_date,
+        fe.sale_held_date,
+        fe.referral_expected_completion_date,
+        fe.title_ordered_expected_completion_date,
+        fe.title_received_expected_completion_date,
+        fe.complaint_filed_expected_completion_date,
+        fe.service_completed_expected_completion_date,
+        fe.judgment_expected_completion_date,
+        fe.sale_scheduled_expected_completion_date,
+        fe.sale_held_expected_completion_date
       FROM
         daily_metrics_current AS dmc
       LEFT JOIN
