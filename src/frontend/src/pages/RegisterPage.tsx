@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Button } from '@loanvision/shared/components/ui/button';
 import { Input } from '@loanvision/shared/components/ui/input';
 import { Label } from '@loanvision/shared/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
 import { useToast } from '@loanvision/shared/hooks/use-toast';
 import { RegisterRequest } from '@loanvision/shared/src/types';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { register } = useAuth();
   const [formData, setFormData] = useState<RegisterRequest>({
     email: '',
     password: '',
@@ -58,27 +59,21 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      await axios.post(`${apiUrl}/api/auth/register`, formData);
+      await register(formData);
       
       toast({
-        title: 'Success',
-        description: 'Registration successful! Please sign in.',
+        title: 'Registration Successful',
+        description: 'Please log in with your new account.',
       });
       
       // Redirect to login page
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
+      navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);
-      const errorMessage = axios.isAxiosError(error) && error.response?.data?.error
-        ? error.response.data.error
-        : 'Failed to register. Please try again.';
       
       toast({
-        title: 'Error',
-        description: errorMessage,
+        title: 'Registration Failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred.',
         variant: 'destructive',
       });
     } finally {

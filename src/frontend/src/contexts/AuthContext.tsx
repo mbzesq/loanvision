@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
-import { User, AuthResponse, LoginRequest } from '@loanvision/shared/src/types';
+import { User, AuthResponse, LoginRequest, RegisterRequest } from '@loanvision/shared/src/types';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   token: string | null;
   login: (credentials: LoginRequest) => Promise<void>;
+  register: (userData: RegisterRequest) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -54,21 +55,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const login = async (credentials: LoginRequest) => {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-    const response = await axios.post<AuthResponse>(`${apiUrl}/api/auth/login`, credentials);
-    
-    const { token: newToken, user: newUser } = response.data;
-    
-    // Store in localStorage
-    localStorage.setItem('authToken', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
-    
-    // Set axios default header
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    
-    // Update state
-    setToken(newToken);
-    setUser(newUser);
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await axios.post<AuthResponse>(`${apiUrl}/api/auth/login`, credentials);
+      
+      const { token: newToken, user: newUser } = response.data;
+      
+      // Store in localStorage
+      localStorage.setItem('authToken', newToken);
+      localStorage.setItem('user', JSON.stringify(newUser));
+      
+      // Set axios default header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      
+      // Update state
+      setToken(newToken);
+      setUser(newUser);
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw new Error('Invalid credentials or server error.');
+    }
+  };
+
+  const register = async (userData: RegisterRequest) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await axios.post(`${apiUrl}/api/auth/register`, userData);
+      return response.data;
+    } catch (error) {
+      console.error('Registration failed:', error);
+      // Extract a more specific error message from the backend if available
+      const message = axios.isAxiosError(error) && error.response?.data?.error 
+        ? error.response.data.error 
+        : 'An error occurred during registration.';
+      throw new Error(message);
+    }
   };
 
   const logout = () => {
@@ -89,6 +110,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user,
     token,
     login,
+    register,
     logout,
     loading,
   };
