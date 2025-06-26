@@ -10,7 +10,6 @@ import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '@loanvision/shared/lib/states';
 import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
-import milestoneBenchmarks from '../../../fcl_milestones_by_state.json';
 import {
   createColumnHelper,
   flexRender,
