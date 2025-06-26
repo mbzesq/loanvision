@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import SummaryCard from '../components/Dashboard/SummaryCard';
+import axios from '../utils/axios';
 
 interface PortfolioSummary {
   loanCount: number;
@@ -17,8 +17,7 @@ function DashboardPage() {
   useEffect(() => {
     const fetchPortfolioSummary = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-        const response = await axios.get<PortfolioSummary>(`${apiUrl}/api/portfolio/summary`);
+        const response = await axios.get<PortfolioSummary>('/api/portfolio/summary');
         setSummary(response.data);
       } catch (err) {
         setError('Failed to fetch portfolio summary');

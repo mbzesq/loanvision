@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../db';
 import { detectFileType, FileType } from '../services/fileTypeDetector';
+import { authenticateToken } from '../middleware/authMiddleware';
 import { 
   mapForeclosureData, 
   mapDailyMetricsData, 
@@ -223,7 +224,7 @@ async function insertDailyMetricsRecords(records: DailyMetricsRecord[]): Promise
 }
 
 // --- Main Upload Endpoint ---
-router.post('/upload', upload.single('loanFile'), async (req, res) => {
+router.post('/upload', authenticateToken, upload.single('loanFile'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }

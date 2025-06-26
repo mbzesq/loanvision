@@ -6,6 +6,7 @@ import uploadRouter from './routes/upload';
 import loansRouter from './routes/loans';
 import portfolioRouter from './routes/portfolio';
 import reportsRouter from './routes/reports';
+import authRouter from './routes/auth';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 
@@ -49,6 +50,7 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.use('/api/auth', authRouter);
 app.use('/api', uploadRouter);
 app.use('/api', loansRouter);
 app.use('/api', portfolioRouter);

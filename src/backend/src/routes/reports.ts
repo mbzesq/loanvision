@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import ExcelJS from 'exceljs';
 import pool from '../db';
+import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
 
@@ -24,7 +25,7 @@ const buildFilter = (filter?: string) => {
 };
 
 // --- EXCEL EXPORT ENDPOINT ---
-router.get('/reports/excel', async (req, res) => {
+router.get('/reports/excel', authenticateToken, async (req, res) => {
     const filter = req.query.filter as string | undefined;
     try {
         const { whereClause, values } = buildFilter(filter);

@@ -2,10 +2,11 @@ import { Router } from 'express';
 import pool from '../db';
 import { getForeclosureTimeline } from '../services/foreclosureService';
 import { enrichLoanWithPropertyData, getCurrentPropertyData } from '../services/homeHarvestService';
+import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
 
-router.get('/loans', async (req, res) => {
+router.get('/loans', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM loans ORDER BY created_at DESC');
     res.json(result.rows);
@@ -16,7 +17,7 @@ router.get('/loans', async (req, res) => {
 });
 
 
-router.get('/loans/:loanId/enrichments', async (req, res) => {
+router.get('/loans/:loanId/enrichments', authenticateToken, async (req, res) => {
   try {
     const { loanId } = req.params;
     
@@ -43,7 +44,7 @@ router.get('/loans/:loanId/enrichments', async (req, res) => {
 });
 
 // V2 endpoint for single loan details
-router.get('/v2/loans/:loanId', async (req, res) => {
+router.get('/v2/loans/:loanId', authenticateToken, async (req, res) => {
   try {
     const { loanId } = req.params;
     const query = 'SELECT * FROM daily_metrics_current WHERE loan_id = $1';
@@ -60,7 +61,7 @@ router.get('/v2/loans/:loanId', async (req, res) => {
 });
 
 // V2 endpoint for all loans
-router.get('/v2/loans', async (req, res) => {
+router.get('/v2/loans', authenticateToken, async (req, res) => {
   try {
     const query = `
       SELECT
@@ -87,7 +88,7 @@ router.get('/v2/loans', async (req, res) => {
 });
 
 // Endpoint for foreclosure timeline
-router.get('/loans/:loanId/foreclosure-timeline', async (req, res) => {
+router.get('/loans/:loanId/foreclosure-timeline', authenticateToken, async (req, res) => {
   try {
     const { loanId } = req.params;
     console.log(`[API] Fetching foreclosure timeline for loan: ${loanId}`);
@@ -107,7 +108,7 @@ router.get('/loans/:loanId/foreclosure-timeline', async (req, res) => {
 });
 
 // V2 endpoint to get property details for a loan
-router.get('/v2/loans/:loanId/property-details', async (req, res) => {
+router.get('/v2/loans/:loanId/property-details', authenticateToken, async (req, res) => {
   try {
     const { loanId } = req.params;
 
@@ -141,7 +142,7 @@ router.get('/v2/loans/:loanId/property-details', async (req, res) => {
 });
 
 // V2 endpoint to trigger property data enrichment
-router.post('/v2/loans/:loanId/enrich', async (req, res) => {
+router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
   try {
     const { loanId } = req.params;
 
