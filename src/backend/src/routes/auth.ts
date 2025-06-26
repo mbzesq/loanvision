@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { pool } from '../db/connection';
+import pool from '../db';
 import { User, UserRole, RegisterRequest, LoginRequest, AuthResponse } from '@loanvision/shared/src/types';
 
 const router = Router();
