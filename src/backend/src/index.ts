@@ -10,7 +10,6 @@ import authRouter from './routes/auth';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
-import { runMigrations } from './scripts/runMigrations';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -95,8 +94,7 @@ const runDiagnostics = async () => {
 };
 
 const startServer = async () => {
-  // Run migrations first, then seeding logic before starting the server
-  await runMigrations();
+  // Run the one-time seeding logic before starting the server
   await runInitialSeed();
   await runDiagnostics();
 
