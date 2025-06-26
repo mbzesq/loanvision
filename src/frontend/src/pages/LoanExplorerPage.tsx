@@ -10,6 +10,7 @@ import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '@loanvision/shared/lib/states';
 import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
+import { Badge } from '@loanvision/shared/components/ui/badge';
 import {
   createColumnHelper,
   flexRender,
@@ -41,7 +42,7 @@ export interface Loan {
 
 const columnHelper = createColumnHelper<Loan>();
 
-const allLoanColumns = [ 'loan_id', 'investor_name', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'prin_bal', 'int_rate', 'next_pymt_due', 'last_pymt_received', 'loan_type', 'legal_status', 'lien_pos', 'fc_status' ];
+const allLoanColumns = [ 'loan_id', 'investor_name', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'prin_bal', 'int_rate', 'next_pymt_due', 'last_pymt_received', 'loan_type', 'legal_status', 'lien_pos', 'fc_status', 'timeline_status' ];
 
 function LoanExplorerPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
@@ -54,7 +55,7 @@ function LoanExplorerPage() {
   const [activeFilters, setActiveFilters] = useState<FilterValues>(initialFilters);
   const [hasAppliedFilter, setHasAppliedFilter] = useState(false);
   const [isExportModalOpen, setExportModalOpen] = useState(false);
-  const [customExportColumns, setCustomExportColumns] = useState<string[]>(['loan_id', 'prin_bal', 'legal_status']); // Set some defaults
+  const [customExportColumns, setCustomExportColumns] = useState<string[]>(['loan_id', 'prin_bal', 'legal_status', 'timeline_status']); // Set some defaults
 
   const handleApplyFilters = (filters: FilterValues) => {
     setActiveFilters(filters);
@@ -190,6 +191,37 @@ function LoanExplorerPage() {
     });
   };
 
+  // Helper function to determine timeline status for a loan
+  const getLoanTimelineStatus = (loan: Loan) => {
+    if (!loan.fc_status) {
+      return null; // No foreclosure status
+    }
+
+    if (loan.fc_status === 'Hold') {
+      return <Badge variant="outline">Hold</Badge>;
+    }
+
+    if (loan.fc_status === 'Active') {
+      // For this simplified implementation, we'll use a basic heuristic
+      // In a real implementation, this would fetch timeline data for each loan
+      const today = new Date();
+      
+      // Check if next payment due date is overdue (simplified check)
+      if (loan.next_pymt_due) {
+        const nextDue = new Date(loan.next_pymt_due);
+        const daysDiff = Math.floor((today.getTime() - nextDue.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff > 90) { // Overdue if more than 90 days past due
+          return <Badge variant="destructive">Overdue</Badge>;
+        }
+      }
+      
+      return <Badge variant="secondary">On Track</Badge>;
+    }
+
+    return null;
+  };
+
   const columns = useMemo(
     () => [
       columnHelper.accessor('loan_id', {
@@ -211,6 +243,22 @@ function LoanExplorerPage() {
       }),
       columnHelper.accessor('address', {
         header: 'Property Address',
+        cell: info => (
+          <span className="text-slate-700">
+            {info.getValue() || 'N/A'}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('city', {
+        header: 'City',
+        cell: info => (
+          <span className="text-slate-700">
+            {info.getValue() || 'N/A'}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('state', {
+        header: 'State',
         cell: info => (
           <span className="text-slate-700">
             {info.getValue() || 'N/A'}
@@ -265,6 +313,15 @@ function LoanExplorerPage() {
           const a = rowA.getValue(columnId) ? new Date(rowA.getValue(columnId)).getTime() : 0;
           const b = rowB.getValue(columnId) ? new Date(rowB.getValue(columnId)).getTime() : 0;
           return a - b;
+        },
+      }),
+      // Add Timeline Status column
+      columnHelper.display({
+        id: 'timeline_status',
+        header: 'Timeline Status',
+        cell: ({ row }) => {
+          const status = getLoanTimelineStatus(row.original);
+          return status || <span className="text-slate-400">—</span>;
         },
       }),
       // Add this to the columns array
