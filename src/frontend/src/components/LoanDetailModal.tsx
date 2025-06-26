@@ -5,6 +5,7 @@ import { Loan } from '../pages/LoanExplorerPage';
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
 import { X, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import axios from 'axios';
+import { getMilestoneStatus } from '../lib/timelineUtils';
 
 interface LoanDetailModalProps {
   loanId: string;
@@ -99,33 +100,12 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   const formatValue = (value: any) => value || "—";
   const generateZillowUrl = (l: Loan | null) => l ? `https://www.zillow.com/homes/${encodeURIComponent(`${l.address}, ${l.city}, ${l.state} ${l.zip}`)}` : '#';
   const handleInvestorClick = (name: string | null | undefined) => alert(`Investor view for ${name || 'N/A'} coming soon!`);
-  const getStatusIcon = (m: Milestone) => {
-    const today = new Date();
-    
-    if (m.actual_completion_date) {
-      // Milestone is completed - check if it was on time or late
-      const actualDate = new Date(m.actual_completion_date);
-      const expectedDate = new Date(m.expected_completion_date || '');
-      
-      if (m.expected_completion_date && actualDate > expectedDate) {
-        // Completed late
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
-      } else {
-        // Completed on time
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      }
-    } else {
-      // Milestone is not completed - check if it's overdue
-      if (m.expected_completion_date) {
-        const expectedDate = new Date(m.expected_completion_date);
-        if (expectedDate < today) {
-          // Overdue
-          return <AlertCircle className="h-5 w-5 text-red-500" />;
-        }
-      }
-      // Pending
-      return <Clock className="h-5 w-5 text-slate-400" />;
-    }
+  const getStatusIcon = (milestone: Milestone) => {
+    const status = getMilestoneStatus(milestone.actual_completion_date, milestone.expected_completion_date);
+
+    if (status === 'COMPLETED_ON_TIME') return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+    if (status === 'COMPLETED_LATE' || status === 'PENDING_OVERDUE') return <AlertCircle className="h-5 w-5 text-red-500" />;
+    return <Clock className="h-5 w-5 text-slate-400" />;
   };
 
   return (
