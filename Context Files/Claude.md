@@ -1,6 +1,6 @@
 # LoanVision Project State – Claude.md
 
-_Last updated: 2025-06-20D_
+_Last updated: 2025-06-26_
 
 ---
 
@@ -44,6 +44,12 @@ Sarah is a stakeholder or capital partner. She prefers high-level dashboards, su
 - **foreclosure_events_history**: Tracks all filings, including multiple foreclosure cycles
 - **Automatic handling of historical preservation and active-state logic**
 
+### ✅ User Authentication System
+- Supports user registration and login with secure password hashing (bcrypt)
+- Implements token-based authentication using JSON Web Tokens (JWT)
+- Includes foundational support for role-based access control (`super_user`, `admin`, `manager`, `user`)
+- All data-fetching routes are now protected
+
 ### ✅ Foreclosure Upload Enhancements
 The application is in a mostly stable state, but with a key new feature failing.
 
@@ -53,7 +59,8 @@ Functional Loan Explorer: The main explorer page correctly fetches and displays 
 
 Functional Loan Detail Modal (Core Data): The custom-built modal successfully launches and displays the main loan, borrower, property, and financial data.
 
-Broken Feature (Foreclosure Timeline): The new "Foreclosure Timeline" section within the modal is not working. It either fails to appear or displays incomplete/incorrect data, despite the backend API being successfully deployed.
+### ✅ Foreclosure Timeline UX
+- The detailed timeline view in the `LoanDetailModal` now displays color-coded status icons (On Time, Late, Overdue) for each milestone
 
 ### ✅ Backend Infrastructure
 - Corrected `fcl_milestones_by_state.json` path resolution
@@ -99,8 +106,8 @@ Broken Feature (Foreclosure Timeline): The new "Foreclosure Timeline" section wi
 ---
 
 ## 7. Next Steps
--Diagnose and Fix the Missing Foreclosure Timeline.
--This is the highest priority. The LoanDetailModal is not correctly displaying the state-specific foreclosure milestone data, even though the backend endpoint (/api/loans/:loanId/foreclosure-timeline) exists. The next session must begin with a comprehensive, end-to-end diagnosis to find the root cause of this failure and implement a definitive fix.
+- **Remove Hardcoded Super User Credentials.** This is the highest priority security task. The automated seeding function contains hardcoded credentials that must be removed after confirming the super user account is accessible.
+- **Enhance Timeline Status Logic.** Improve the timeline status filter to use more sophisticated milestone evaluation logic for better accuracy.
 
 ---
 
