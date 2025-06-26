@@ -233,9 +233,10 @@ function LoanExplorerPage() {
       }
 
       // Timeline status filter
-      if (timelineStatus && timelineStatus.length > 0) {
-        const loanTimelineStatus = getLoanTimelineStatus(loan);
-        if (!loanTimelineStatus || !timelineStatus.includes(loanTimelineStatus)) {
+      if (timelineStatus.length > 0) {
+        const loanStatus = getLoanTimelineStatus(loan);
+        // If a loan's status is not in the selected filter array, exclude it.
+        if (!loanStatus || !timelineStatus.includes(loanStatus)) {
           return false;
         }
       }
