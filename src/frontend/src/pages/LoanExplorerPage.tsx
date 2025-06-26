@@ -10,6 +10,7 @@ import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '@loanvision/shared/lib/states';
 import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
+import milestoneBenchmarks from '../../../fcl_milestones_by_state.json';
 import {
   createColumnHelper,
   flexRender,
@@ -20,6 +21,7 @@ import {
 } from '@tanstack/react-table';
 
 export interface Loan {
+  // from daily_metrics_current
   loan_id: string;
   investor_name: string;
   first_name: string;
@@ -30,14 +32,73 @@ export interface Loan {
   zip: string;
   prin_bal: string;
   int_rate: string;
-  next_pymt_due: string;
-  last_pymt_received: string;
-  loan_type: string; // This is the "Asset Status"
+  next_pymt_due: string | null;
+  last_pymt_received: string | null;
+  loan_type: string;
   legal_status: string;
   lien_pos: string;
-  // Joined fields from foreclosure_events
+  maturity_date: string | null;
+
+  // from foreclosure_events
   fc_status: string | null;
+  fc_jurisdiction: string | null;
+  fc_start_date: string | null;
+  referral_date: string | null;
+  title_ordered_date: string | null;
+  title_received_date: string | null;
+  complaint_filed_date: string | null;
+  service_completed_date: string | null;
+  judgment_date: string | null;
+  sale_scheduled_date: string | null;
+  sale_held_date: string | null;
+
+  // Expected Completion Dates
+  referral_expected_completion_date: string | null;
+  title_ordered_expected_completion_date: string | null;
+  title_received_expected_completion_date: string | null;
+  complaint_filed_expected_completion_date: string | null;
+  service_completed_expected_completion_date: string | null;
+  judgment_expected_completion_date: string | null;
+  sale_scheduled_expected_completion_date: string | null;
+  sale_held_expected_completion_date: string | null;
 }
+
+// IMPORTANT: Define this function OUTSIDE (above) the LoanExplorerPage component.
+const getLoanTimelineStatus = (loan: Loan): 'On Track' | 'Overdue' | null => {
+  if (loan.fc_status !== 'Active' && loan.fc_status !== 'Hold') {
+    return null;
+  }
+
+  if (!loan.state || !loan.fc_jurisdiction) {
+    return null;
+  }
+
+  const stateBenchmarks = milestoneBenchmarks[loan.state as keyof typeof milestoneBenchmarks];
+  if (!stateBenchmarks) return null;
+
+  const milestones = loan.fc_jurisdiction.toLowerCase().includes('non')
+    ? stateBenchmarks.non_judicial_milestones
+    : stateBenchmarks.judicial_milestones;
+
+  if (!milestones || milestones.length === 0) return null;
+
+  for (const milestone of milestones) {
+    const actualDate = loan[milestone.db_column as keyof Loan];
+    if (!actualDate) {
+      const expectedDateKey = `${milestone.db_column.replace(/_date$/, '')}_expected_completion_date`;
+      const expectedDate = loan[expectedDateKey as keyof Loan];
+
+      if (!expectedDate) return 'On Track';
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      return new Date(expectedDate) < today ? 'Overdue' : 'On Track';
+    }
+  }
+
+  return 'On Track';
+};
 
 const columnHelper = createColumnHelper<Loan>();
 
