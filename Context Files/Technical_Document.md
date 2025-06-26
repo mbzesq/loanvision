@@ -54,6 +54,33 @@ This diagram illustrates the primary relationships between the core data tables.
 
 ```mermaid
 erDiagram
+    "users" {
+        SERIAL id PK
+        TEXT email UK
+        TEXT password_hash
+        TEXT first_name
+        TEXT last_name
+        user_role role
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+    "user_loan_assignments" {
+        SERIAL id PK
+        INTEGER user_id FK
+        TEXT loan_id FK
+        TIMESTAMPTZ assigned_at
+    }
+    "audit_trail" {
+        SERIAL id PK
+        INTEGER user_id FK
+        TEXT action
+        TEXT resource_type
+        TEXT resource_id
+        JSONB details
+        INET ip_address
+        TEXT user_agent
+        TIMESTAMPTZ created_at
+    }
     "daily_metrics_current" {
         TEXT loan_id PK
         TEXT state
@@ -77,6 +104,9 @@ erDiagram
         DATE report_date
     }
 
+    "users" ||--o{ "user_loan_assignments" : "can be assigned to"
+    "users" ||--o{ "audit_trail" : "generates"
+    "daily_metrics_current" ||--o{ "user_loan_assignments" : "can be assigned"
     "daily_metrics_current" ||--o{ "daily_metrics_history" : "has history of"
     "daily_metrics_current" ||--|{ "foreclosure_events" : "has one"
     "foreclosure_events" ||--o{ "foreclosure_events_history" : "has history of"
@@ -147,6 +177,59 @@ erDiagram
     ```
 *(Note: The corresponding `_history` tables have identical columns but also include a `report_date` field.)*
 
+### 2.5. User & Authentication Tables
+
+#### `users`
+
+* **Purpose:** Stores user account information including authentication credentials and role-based access control. This table serves as the foundation for the authentication system.
+* **Schema:**
+    ```sql
+    CREATE TYPE user_role AS ENUM ('super_user', 'admin', 'manager', 'user');
+    
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        first_name TEXT,
+        last_name TEXT,
+        role user_role NOT NULL DEFAULT 'user',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    ```
+
+#### `user_loan_assignments` *(Future Implementation)*
+
+* **Purpose:** Enables role-based data access by defining which users can view specific loans or loan portfolios. This table will support multi-tenant functionality.
+* **Schema:**
+    ```sql
+    CREATE TABLE user_loan_assignments (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        loan_id TEXT NOT NULL,
+        assigned_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, loan_id)
+    );
+    ```
+
+#### `audit_trail` *(Future Implementation)*
+
+* **Purpose:** Maintains a comprehensive log of all user actions within the system for security, compliance, and debugging purposes.
+* **Schema:**
+    ```sql
+    CREATE TABLE audit_trail (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        action TEXT NOT NULL,
+        resource_type TEXT NOT NULL,
+        resource_id TEXT,
+        details JSONB,
+        ip_address INET,
+        user_agent TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    ```
+
 ---
 
 ## 3. Backend Services & Logic
@@ -210,6 +293,29 @@ These are the key routes that serve data to the frontend.
 * **`GET /api/v2/loans/:loanId`:** Fetches the full, detailed record for a single loan from the `daily_metrics_current` table to populate the top sections of the Loan Detail Modal.
 * **`GET /api/loans/:loanId/foreclosure-timeline`:** Calls the `getForeclosureTimeline` service to provide the detailed, calculated timeline for a single loan to populate the bottom section of the Loan Detail Modal.
 
+### 3.5. Authentication Service & Middleware
+
+The authentication system provides secure user management and session handling using industry-standard JWT tokens and bcrypt password hashing.
+
+#### Authentication Routes (`/api/auth`)
+
+* **`POST /api/auth/register`:** Creates new user accounts with email validation and secure password hashing using bcrypt with a salt rounds configuration.
+* **`POST /api/auth/login`:** Authenticates users and returns a JWT token containing user ID, email, and role information with a 24-hour expiration.
+* **Token Structure:** JWT tokens include essential user information (id, email, role) and are signed with a server-side secret key.
+
+#### Authentication Middleware (`authMiddleware.ts`)
+
+* **Purpose:** Protects API endpoints by validating JWT tokens and extracting user information for use in route handlers.
+* **Implementation:** Verifies token signatures, checks expiration, and attaches user data to the request object.
+* **Usage:** Applied to all data-fetching endpoints (`/api/v2/loans`, `/api/loans/:loanId`, etc.) to ensure only authenticated users can access loan data.
+
+#### Security Features
+
+* **Password Security:** Uses bcrypt with configurable salt rounds for secure password hashing.
+* **JWT Security:** Tokens are signed with a secret key and include expiration times to prevent unauthorized access.
+* **Route Protection:** All sensitive endpoints require valid authentication tokens.
+* **Role-Based Foundation:** Database schema includes role enum types (`super_user`, `admin`, `manager`, `user`) for future authorization enhancements.
+
 <!-- end list -->
 
 ---
@@ -270,3 +376,30 @@ graph TD
 5. **Memoized Calculation:** The `filteredData` `useMemo` hook, which depends on `activeFilters`, re-runs. It filters the master `loans` array based on the new criteria and returns a new array of only the matching loans.
 
 6. **Table Update:** The TanStack Table component receives the new, smaller `filteredData` array as its `data` prop and automatically re-renders to show only the filtered results.
+
+### 4.4. Frontend Authentication
+
+The frontend authentication system provides a seamless login/registration experience with centralized state management using React Context API.
+
+#### Authentication Components
+
+* **`LoginPage.tsx`:** Provides a clean, professional login interface with email/password fields and error handling.
+* **`RegisterPage.tsx`:** Handles new user registration with form validation and user feedback.
+* **`AuthContext.tsx`:** Centralized authentication state management using React Context API, providing login/logout functions and user session data to all components.
+* **`ProtectedRoute.tsx`:** Higher-order component that ensures only authenticated users can access protected pages, automatically redirecting unauthenticated users to the login page.
+
+#### Authentication Flow
+
+1. **Initial Load:** The AuthContext checks for existing JWT tokens in localStorage and validates them on application startup.
+2. **Login Process:** User credentials are submitted to `/api/auth/login`, and successful authentication stores the JWT token and user information in localStorage and Context state.
+3. **Automatic Headers:** Axios interceptors automatically include JWT tokens in all API requests to protected endpoints.
+4. **Route Protection:** The ProtectedRoute component wraps all data pages (LoanExplorerPage, UploadPage, DashboardPage) to ensure authentication is required.
+5. **Session Persistence:** User sessions persist across browser refreshes using localStorage token storage.
+6. **Logout:** The logout function clears stored tokens and redirects users to the login page.
+
+#### Security Features
+
+* **Token Management:** JWT tokens are stored securely in localStorage and automatically included in API requests.
+* **Error Handling:** Comprehensive error handling for authentication failures, network issues, and invalid credentials.
+* **User Feedback:** Clear success/error messages and loading states during authentication processes.
+* **Automatic Redirects:** Seamless redirects between login and protected pages based on authentication status.

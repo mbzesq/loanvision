@@ -1,6 +1,6 @@
 # NPLVision Product Roadmap
 
-*Last Updated: 2025-06-22*
+*Last Updated: 2025-06-26*
 
 This document outlines the strategic roadmap for the NPLVision platform. It serves as a guide for feature development, organizing our work into logical phases that build upon each other to deliver increasing value to our users.
 
@@ -15,13 +15,16 @@ This phase focused on building the core, stable application shell and the essent
 * **[DONE]** Created a custom, reliable **Loan Detail Modal** to display at-a-glance information for a single asset.
 * **[DONE]** Implemented a working **Export** feature for both PDF and Excel.
 * **[DONE]** Established a professional, responsive **Application Shell** with persistent sidebar navigation.
+* **[DONE]** Implemented a foundational **User Authentication** system with registration, login, and roles.
 
 ## 🔨 Phase 1: High-Value Intelligence & UI Polish (Current Sprint)
 
 The focus of this phase is to transform the functional application into a professional-grade analytical tool for our primary persona, "Alex the Active Manager."
 
 ### Immediate Next Steps
-* **[IN PROGRESS]** **Foreclosure Timeline UI:** Build the user interface within the Loan Detail Modal to display the new, state-specific foreclosure timeline data.
+* **[DONE]** **Foreclosure Timeline UI:** Built the visual interface and added color-coded status indicators to the Loan Detail Modal.
+* **[DONE]** **Fix Foreclosure Timeline Status Filter:** Resolved the critical bug that caused the Loan Explorer to crash when using this filter.
+* **[IN PROGRESS]** **Remove Hardcoded Super User Credentials:** Critical security task to remove hardcoded credentials from the seeding function.
 * **[QUEUED]** **Data Table Aesthetics:** Complete the aesthetic overhaul of the data table to match our "Schwab-inspired" design.
 * **[QUEUED]** **Filter Panel UX:** Enhance the filter panel with a "search-within-filter" input for long lists of options.
 * **[QUEUED]** **Logo Design:** Create a simple, professional SVG logo and integrate it into the `SideNav`.
@@ -49,7 +52,7 @@ This phase focuses on adding high-value features that support professional workf
 This is the long-term vision for the platform. All items in this phase are contingent on the successful implementation of **User Authentication**.
 
 * **[VISION]** **Public-Facing Website:** Build a pre-login landing page with company information (About, Careers), market news, and product pricing details.
-* **[VISION]** **User Authentication & Cost Tracking:** Implement a full user login system with password/ID recovery. Build a UI for users to input their specific portfolio carry costs.
+* **[VISION]** **User Cost & Financial Modeling:** Build a UI for users to input portfolio carry costs to drive our future NPV/IRR models.
 * **[VISION]** **Financial Modeling (NPV/IRR):** Build the backend services to implement our NPV model, using user-provided cost data.
 * **[VISION]** **Risk Assessment & Workout Recommendations:** Implement rulesets to flag risky loans and suggest optimal workout paths.
 * **[VISION]** **LLM-Powered Assistant:**
