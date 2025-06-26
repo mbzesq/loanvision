@@ -18,6 +18,7 @@ export type FilterValues = {
   investor: string[];
   lienPos: string[]; // Keep as string for consistency
   principalBalance: { min: number | ''; max: number | '' };
+  timelineStatus: string[];
 };
 
 interface FilterPanelProps {
@@ -36,6 +37,7 @@ export const initialFilters: FilterValues = {
   investor: [],
   lienPos: [],
   principalBalance: { min: '', max: '' },
+  timelineStatus: [],
 };
 
 export function FilterPanel(props: FilterPanelProps) {
@@ -63,7 +65,7 @@ export function FilterPanel(props: FilterPanelProps) {
 
   // Unified handler for all checkbox groups
   const handleCheckboxChange = (
-    field: 'propertyState' | 'assetStatus' | 'investor' | 'lienPos',
+    field: 'propertyState' | 'assetStatus' | 'investor' | 'lienPos' | 'timelineStatus',
     value: string,
     checked: boolean
   ) => {
@@ -244,6 +246,32 @@ export function FilterPanel(props: FilterPanelProps) {
               <div className="flex gap-2 p-2 bg-slate-50/75 border-t">
                 <Input type="number" placeholder="Min" value={filters.principalBalance.min} onChange={(e) => handleRangeChange('principalBalance', 'min', e.target.value)} />
                 <Input type="number" placeholder="Max" value={filters.principalBalance.max} onChange={(e) => handleRangeChange('principalBalance', 'max', e.target.value)} />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Timeline Status */}
+          <AccordionItem value="timeline-status">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+              <div className="flex justify-between w-full items-center">
+                <span>Foreclosure Timeline Status</span>
+                {filters.timelineStatus.length > 0 && <Badge variant="secondary">{filters.timelineStatus.length}</Badge>}
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="p-2 bg-slate-50/75 border-t">
+                <div className="flex flex-col gap-2">
+                  {['On Track', 'Overdue', 'Hold'].map((status) => (
+                    <div key={status} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`timeline-${status}`} 
+                        checked={filters.timelineStatus.includes(status)} 
+                        onCheckedChange={(checked) => handleCheckboxChange('timelineStatus', status, !!checked)} 
+                      />
+                      <Label htmlFor={`timeline-${status}`} className="font-normal">{status}</Label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>

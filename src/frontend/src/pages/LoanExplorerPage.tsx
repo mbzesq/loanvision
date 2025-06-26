@@ -10,7 +10,6 @@ import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '@loanvision/shared/lib/states';
 import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
-import { Badge } from '@loanvision/shared/components/ui/badge';
 import {
   createColumnHelper,
   flexRender,
@@ -42,7 +41,7 @@ export interface Loan {
 
 const columnHelper = createColumnHelper<Loan>();
 
-const allLoanColumns = [ 'loan_id', 'investor_name', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'prin_bal', 'int_rate', 'next_pymt_due', 'last_pymt_received', 'loan_type', 'legal_status', 'lien_pos', 'fc_status', 'timeline_status' ];
+const allLoanColumns = [ 'loan_id', 'investor_name', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'prin_bal', 'int_rate', 'next_pymt_due', 'last_pymt_received', 'loan_type', 'legal_status', 'lien_pos', 'fc_status' ];
 
 function LoanExplorerPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
@@ -55,7 +54,7 @@ function LoanExplorerPage() {
   const [activeFilters, setActiveFilters] = useState<FilterValues>(initialFilters);
   const [hasAppliedFilter, setHasAppliedFilter] = useState(false);
   const [isExportModalOpen, setExportModalOpen] = useState(false);
-  const [customExportColumns, setCustomExportColumns] = useState<string[]>(['loan_id', 'prin_bal', 'legal_status', 'timeline_status']); // Set some defaults
+  const [customExportColumns, setCustomExportColumns] = useState<string[]>(['loan_id', 'prin_bal', 'legal_status']); // Set some defaults
 
   const handleApplyFilters = (filters: FilterValues) => {
     setActiveFilters(filters);
@@ -141,7 +140,7 @@ function LoanExplorerPage() {
     }
 
     return loans.filter(loan => {
-      const { propertyState, assetStatus, investor, lienPos, principalBalance } = activeFilters;
+      const { propertyState, assetStatus, investor, lienPos, principalBalance, timelineStatus } = activeFilters;
 
       // State filter
       if (propertyState.length > 0 && !propertyState.includes(loan.state)) {
@@ -172,6 +171,14 @@ function LoanExplorerPage() {
         return false;
       }
 
+      // Timeline status filter
+      if (timelineStatus && timelineStatus.length > 0) {
+        const loanTimelineStatus = getLoanTimelineStatus(loan);
+        if (!loanTimelineStatus || !timelineStatus.includes(loanTimelineStatus)) {
+          return false;
+        }
+      }
+
       return true; // If all checks pass, include the loan
     });
   }, [loans, activeFilters, hasAppliedFilter, globalFilter]);
@@ -192,13 +199,13 @@ function LoanExplorerPage() {
   };
 
   // Helper function to determine timeline status for a loan
-  const getLoanTimelineStatus = (loan: Loan) => {
+  const getLoanTimelineStatus = (loan: Loan): string | null => {
     if (!loan.fc_status) {
       return null; // No foreclosure status
     }
 
     if (loan.fc_status === 'Hold') {
-      return <Badge variant="outline">Hold</Badge>;
+      return 'Hold';
     }
 
     if (loan.fc_status === 'Active') {
@@ -212,11 +219,11 @@ function LoanExplorerPage() {
         const daysDiff = Math.floor((today.getTime() - nextDue.getTime()) / (1000 * 60 * 60 * 24));
         
         if (daysDiff > 90) { // Overdue if more than 90 days past due
-          return <Badge variant="destructive">Overdue</Badge>;
+          return 'Overdue';
         }
       }
       
-      return <Badge variant="secondary">On Track</Badge>;
+      return 'On Track';
     }
 
     return null;
@@ -313,15 +320,6 @@ function LoanExplorerPage() {
           const a = rowA.getValue(columnId) ? new Date(rowA.getValue(columnId)).getTime() : 0;
           const b = rowB.getValue(columnId) ? new Date(rowB.getValue(columnId)).getTime() : 0;
           return a - b;
-        },
-      }),
-      // Add Timeline Status column
-      columnHelper.display({
-        id: 'timeline_status',
-        header: 'Timeline Status',
-        cell: ({ row }) => {
-          const status = getLoanTimelineStatus(row.original);
-          return status || <span className="text-slate-400">—</span>;
         },
       }),
       // Add this to the columns array
