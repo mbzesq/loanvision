@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import pool from '../db';
+import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
 
-router.get('/portfolio/summary', async (req, res) => {
+router.get('/portfolio/summary', authenticateToken, async (req, res) => {
   try {
     const query = `
       SELECT 
