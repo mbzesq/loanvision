@@ -7,8 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc && cp ../../fcl_milestones_by_state.json dist/",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit",
-    "create-super-user": "tsx src/scripts/createSuperUser.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

@@ -9,6 +9,7 @@ import reportsRouter from './routes/reports';
 import authRouter from './routes/auth';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
+import { seedSuperUser } from './scripts/createSuperUser';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -58,6 +59,20 @@ app.use('/api', reportsRouter);
 
 // Add this entire async block right before app.listen
 
+const runInitialSeed = async () => {
+  try {
+    const res = await pool.query('SELECT COUNT(*) FROM users');
+    if (parseInt(res.rows[0].count, 10) === 0) {
+      console.log('[Seed] No users found. Seeding super user...');
+      await seedSuperUser();
+    } else {
+      console.log('[Seed] Database already contains users. Skipping seed.');
+    }
+  } catch (error) {
+    console.error('[Seed] Error during initial seed check:', error);
+  }
+};
+
 const runDiagnostics = async () => {
   try {
     console.log('[Diagnostics] Running startup database checks...');
@@ -78,8 +93,14 @@ const runDiagnostics = async () => {
   }
 };
 
-runDiagnostics().then(() => {
+const startServer = async () => {
+  // Run the one-time seeding logic before starting the server
+  await runInitialSeed();
+  await runDiagnostics();
+
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
-});
+};
+
+startServer();
