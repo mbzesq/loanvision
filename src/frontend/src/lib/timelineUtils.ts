@@ -1,9 +1,9 @@
-import { Loan } from '../pages/LoanExplorerPage'; // Assuming Loan type is exported
+import { Loan } from '../pages/LoanExplorerPage';
 import milestoneBenchmarks from '../fcl_milestones_by_state.json';
 
 export type MilestoneStatus = 'COMPLETED_ON_TIME' | 'COMPLETED_LATE' | 'PENDING_OVERDUE' | 'PENDING_ON_TRACK';
 
-// This function determines the status of a SINGLE milestone
+// This function determines the status of a SINGLE milestone (for modal icons)
 export const getMilestoneStatus = (
   actualDateStr: string | null | undefined,
   expectedDateStr: string | null | undefined
@@ -22,54 +22,51 @@ export const getMilestoneStatus = (
   return 'PENDING_ON_TRACK'; // Default if no dates are present
 };
 
-// This function determines the OVERALL status of the loan's foreclosure
+// Helper function to calculate the difference between two dates in days.
+const dateDiffInDays = (date1: Date, date2: Date): number => {
+  const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+  const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+  const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+  return Math.floor((utc2 - utc1) / _MS_PER_DAY);
+};
+
+// The main function to determine the loan's overall status.
 export const getOverallLoanStatus = (loan: Loan): 'On Track' | 'Overdue' | null => {
-  // Log the initial loan object to see what data we're working with.
-  console.log(`[Diagnostic] Processing loan ${loan.loan_id}:`, { 
-    fc_status: loan.fc_status, 
-    state: loan.state, 
-    jurisdiction: loan.fc_jurisdiction 
-  });
+  const status = loan.fc_status?.trim().toUpperCase();
+  if (status !== 'ACTIVE' && status !== 'HOLD') return null;
 
-  if (loan.fc_status?.toUpperCase() !== 'ACTIVE' && loan.fc_status?.toUpperCase() !== 'HOLD') {
-    // This log will not print if the status is null/undefined, which is correct.
-    console.log(`[Diagnostic] -> Status: null (fc_status is '${loan.fc_status}')`);
-    return null;
-  }
-
-  if (!loan.state || !loan.fc_jurisdiction) {
-    console.log(`[Diagnostic] -> Status: null (missing state or jurisdiction)`);
-    return null;
-  }
+  if (!loan.state || !loan.fc_jurisdiction || !loan.fc_start_date) return null;
 
   const stateBenchmarks = milestoneBenchmarks[loan.state as keyof typeof milestoneBenchmarks];
-  if (!stateBenchmarks) {
-    console.log(`[Diagnostic] -> Status: null (no benchmarks for state ${loan.state})`);
-    return null;
-  }
+  if (!stateBenchmarks) return null;
 
   const milestones = loan.fc_jurisdiction.toLowerCase().includes('non')
     ? stateBenchmarks.non_judicial_milestones
     : stateBenchmarks.judicial_milestones;
 
-  if (!milestones || milestones.length === 0) {
-    console.log(`[Diagnostic] -> Status: null (no milestones for jurisdiction)`);
-    return null;
-  }
+  if (!milestones || milestones.length === 0) return null;
+
+  let cumulativeVariance = 0;
+  let previousMilestoneActualDate = new Date(loan.fc_start_date);
 
   for (const milestone of milestones) {
-    const actualDate = loan[milestone.db_column as keyof Loan];
-    const expectedDateKey = `${milestone.db_column.replace(/_date$/, '')}_expected_completion_date`;
-    const expectedDate = loan[expectedDateKey as keyof Loan];
+    const actualCompletionDateStr = loan[milestone.db_column as keyof Loan];
 
-    const status = getMilestoneStatus(actualDate, expectedDate);
+    if (actualCompletionDateStr) {
+      const currentMilestoneActualDate = new Date(actualCompletionDateStr);
 
-    if (status === 'COMPLETED_LATE' || status === 'PENDING_OVERDUE') {
-      console.log(`[Diagnostic] -> Status: Overdue (Reason: Milestone '${milestone.milestone}' has status ${status})`);
-      return 'Overdue';
+      const actualDaysForStep = dateDiffInDays(previousMilestoneActualDate, currentMilestoneActualDate);
+      const expectedDaysForStep = milestone.preferredDays;
+
+      cumulativeVariance += (actualDaysForStep - expectedDaysForStep);
+
+      previousMilestoneActualDate = currentMilestoneActualDate;
+    } else {
+      // This is the first uncompleted milestone, so we stop calculating here.
+      break;
     }
   }
 
-  console.log(`[Diagnostic] -> Status: On Track (all milestones passed checks)`);
-  return 'On Track';
+  // After checking all completed milestones, if the cumulative variance is positive, we are behind schedule.
+  return cumulativeVariance > 0 ? 'Overdue' : 'On Track';
 };
