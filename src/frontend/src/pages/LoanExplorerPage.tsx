@@ -65,22 +65,37 @@ export interface Loan {
 
 // IMPORTANT: Define this function OUTSIDE (above) the LoanExplorerPage component.
 const getLoanTimelineStatus = (loan: Loan): 'On Track' | 'Overdue' | null => {
+  // Log the initial loan object to see what data we're working with.
+  console.log(`[Diagnostic] Processing loan ${loan.loan_id}:`, { 
+    fc_status: loan.fc_status, 
+    state: loan.state, 
+    jurisdiction: loan.fc_jurisdiction 
+  });
+
   if (loan.fc_status !== 'Active' && loan.fc_status !== 'Hold') {
+    console.log(`[Diagnostic] -> Status: null (not in active/hold foreclosure)`);
     return null;
   }
 
   if (!loan.state || !loan.fc_jurisdiction) {
+    console.log(`[Diagnostic] -> Status: null (missing state or jurisdiction)`);
     return null;
   }
 
   const stateBenchmarks = milestoneBenchmarks[loan.state as keyof typeof milestoneBenchmarks];
-  if (!stateBenchmarks) return null;
+  if (!stateBenchmarks) {
+    console.log(`[Diagnostic] -> Status: null (no benchmarks for state ${loan.state})`);
+    return null;
+  }
 
   const milestones = loan.fc_jurisdiction.toLowerCase().includes('non')
     ? stateBenchmarks.non_judicial_milestones
     : stateBenchmarks.judicial_milestones;
 
-  if (!milestones || milestones.length === 0) return null;
+  if (!milestones || milestones.length === 0) {
+    console.log(`[Diagnostic] -> Status: null (no milestones for jurisdiction)`);
+    return null;
+  }
 
   for (const milestone of milestones) {
     const actualDate = loan[milestone.db_column as keyof Loan];
@@ -88,15 +103,22 @@ const getLoanTimelineStatus = (loan: Loan): 'On Track' | 'Overdue' | null => {
       const expectedDateKey = `${milestone.db_column.replace(/_date$/, '')}_expected_completion_date`;
       const expectedDate = loan[expectedDateKey as keyof Loan];
 
-      if (!expectedDate) return 'On Track';
+      if (!expectedDate) {
+        console.log(`[Diagnostic] -> Status: On Track (milestone '${milestone.milestone}' is next, but has no expected date)`);
+        return 'On Track';
+      }
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const isOverdue = new Date(expectedDate) < today;
+      const result = isOverdue ? 'Overdue' : 'On Track';
 
-      return new Date(expectedDate) < today ? 'Overdue' : 'On Track';
+      console.log(`[Diagnostic] -> Status: ${result} (next milestone '${milestone.milestone}' expected by ${expectedDate})`);
+      return result;
     }
   }
 
+  console.log(`[Diagnostic] -> Status: On Track (all milestones complete)`);
   return 'On Track';
 };
 
