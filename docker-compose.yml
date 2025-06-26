@@ -7,7 +7,8 @@ services:
     environment:
       POSTGRES_DB: loanvision_db
       POSTGRES_USER: nplvision_user
-      POSTGRES_PASSWORD: your_secure_password
+      POSTGRES_PASSWORD: devonly_82928
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:

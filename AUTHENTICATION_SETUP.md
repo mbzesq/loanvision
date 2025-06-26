@@ -10,21 +10,109 @@ This guide explains how to set up and test the new user authentication system fo
 
 ## Database Setup
 
-1. **Run the migration to create user tables:**
+1. **Start the database container:**
+   ```bash
+   docker-compose up -d db
+   ```
+
+2. **Run the migration to create user tables:**
+   
+   **Option A: Using the migration script (if external connections work):**
    ```bash
    cd src/backend
    npm run migrate
    ```
 
-   If you get a database connection error, ensure:
-   - PostgreSQL is running
-   - The `DATABASE_URL` in `src/backend/.env` is correct
-   - The database specified in the URL exists
-
-2. **If using Docker, start the database container:**
+   **Option B: Manual migration (RECOMMENDED for initial setup):**
+   If you get a "role does not exist" error, this is a known Docker networking issue. Run the migration manually:
+   
    ```bash
-   docker-compose up -d db
+   # Create the migrations table
+   docker exec nplvision_db psql -U nplvision_user -d loanvision_db -c "
+   CREATE TABLE IF NOT EXISTS migrations (
+     id SERIAL PRIMARY KEY,
+     filename TEXT UNIQUE NOT NULL,
+     applied_at TIMESTAMPTZ DEFAULT now()
+   );
+   "
+   
+   # Run the user authentication migration
+   docker exec nplvision_db psql -U nplvision_user -d loanvision_db -c "
+   -- Create users table with future-proof schema
+   CREATE TABLE users (
+       id SERIAL PRIMARY KEY,
+       email TEXT UNIQUE NOT NULL,
+       first_name TEXT NOT NULL,
+       last_name TEXT NOT NULL,
+       password_hash TEXT NOT NULL,
+       role TEXT NOT NULL DEFAULT 'pending',
+       is_active BOOLEAN DEFAULT false,
+       is_verified BOOLEAN DEFAULT false,
+       created_at TIMESTAMPTZ DEFAULT now(),
+       updated_at TIMESTAMPTZ DEFAULT now(),
+       last_login_at TIMESTAMPTZ,
+       phone TEXT,
+       company TEXT,
+       department TEXT,
+       two_factor_secret TEXT,
+       two_factor_enabled BOOLEAN DEFAULT false,
+       password_reset_token TEXT,
+       password_reset_expires TIMESTAMPTZ,
+       verification_token TEXT,
+       verification_expires TIMESTAMPTZ,
+       registration_ip TEXT,
+       last_login_ip TEXT,
+       failed_login_attempts INT DEFAULT 0,
+       locked_until TIMESTAMPTZ,
+       preferences JSONB DEFAULT '{}',
+       created_by INT,
+       updated_by INT,
+       CONSTRAINT fk_created_by FOREIGN KEY(created_by) REFERENCES users(id),
+       CONSTRAINT fk_updated_by FOREIGN KEY(updated_by) REFERENCES users(id)
+   );
+
+   CREATE TABLE user_sessions (
+       id SERIAL PRIMARY KEY,
+       user_id INT NOT NULL,
+       token_hash TEXT UNIQUE NOT NULL,
+       expires_at TIMESTAMPTZ NOT NULL,
+       ip_address TEXT,
+       user_agent TEXT,
+       created_at TIMESTAMPTZ DEFAULT now(),
+       last_accessed_at TIMESTAMPTZ DEFAULT now(),
+       revoked BOOLEAN DEFAULT false,
+       revoked_at TIMESTAMPTZ,
+       CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+   );
+
+   CREATE TABLE user_activity_log (
+       id SERIAL PRIMARY KEY,
+       user_id INT NOT NULL,
+       action TEXT NOT NULL,
+       ip_address TEXT,
+       user_agent TEXT,
+       metadata JSONB DEFAULT '{}',
+       created_at TIMESTAMPTZ DEFAULT now(),
+       CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+   );
+
+   -- Create indexes
+   CREATE INDEX idx_users_email ON users(email);
+   CREATE INDEX idx_users_role ON users(role);
+   CREATE INDEX idx_users_is_active ON users(is_active);
+   CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
+   CREATE INDEX idx_user_activity_log_user_id ON user_activity_log(user_id);
+
+   -- Create trigger
+   CREATE OR REPLACE FUNCTION update_updated_at_column()
+   RETURNS TRIGGER AS \$\$ BEGIN NEW.updated_at = now(); RETURN NEW; END; \$\$ language 'plpgsql';
+   CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+   INSERT INTO migrations (filename) VALUES ('20250625193228_create_users_table.ts');
+   "
    ```
+
+   **Note:** There's a known issue with Docker PostgreSQL host-based authentication that prevents external connections from Node.js applications running on the host machine. The manual migration approach works around this by running commands directly inside the container.
 
 ## Starting the Application
 
