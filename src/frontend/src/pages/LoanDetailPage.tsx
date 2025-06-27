@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
+import { Button } from '@loanvision/shared/components/ui/button';
+import { useToast } from '@loanvision/shared/hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import { 
   DetailItem, 
@@ -23,6 +25,8 @@ const LoanDetailPage = () => {
   const [propertyData, setPropertyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEnriching, setIsEnriching] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAllDetails = async () => {
@@ -53,6 +57,39 @@ const LoanDetailPage = () => {
 
     fetchAllDetails();
   }, [loanId]);
+
+  const handleEnrichData = async () => {
+    if (!loanId) return;
+    
+    setIsEnriching(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await axios.post(`${apiUrl}/api/v2/loans/${loanId}/enrich`);
+      
+      // Update property data state with the new data
+      setPropertyData(response.data.property_data);
+      
+      toast({
+        title: "Enrichment Successful",
+        description: "Property data has been successfully enriched with RentCast data.",
+      });
+    } catch (error) {
+      console.error('Error enriching property data:', error);
+      
+      let errorMessage = 'Failed to enrich property data';
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+      
+      toast({
+        title: "Enrichment Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsEnriching(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -243,7 +280,14 @@ const LoanDetailPage = () => {
               <CardTitle className="text-lg">Property Enrichment</CardTitle>
             </CardHeader>
             <CardContent>
-              {propertyData ? (
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-slate-200 rounded w-3/4 mx-auto mb-2"></div>
+                    <div className="h-4 bg-slate-200 rounded w-1/2 mx-auto"></div>
+                  </div>
+                </div>
+              ) : propertyData ? (
                 <div>
                   <div className="mb-4">
                     <p className="text-sm text-slate-600 mb-2">Enrichment data available. Key insights:</p>
@@ -254,9 +298,19 @@ const LoanDetailPage = () => {
                       </div>
                       <div>
                         <span className="text-slate-500">Source:</span>
-                        <span className="ml-2 font-medium">External API</span>
+                        <span className="ml-2 font-medium">RentCast API</span>
                       </div>
                     </div>
+                  </div>
+                  <div className="mb-4">
+                    <Button 
+                      onClick={handleEnrichData}
+                      disabled={isEnriching}
+                      variant="outline"
+                      size="sm"
+                    >
+                      {isEnriching ? 'Refreshing...' : 'Refresh Data'}
+                    </Button>
                   </div>
                   <details className="mt-4">
                     <summary className="text-sm text-blue-600 cursor-pointer hover:underline">
@@ -269,10 +323,24 @@ const LoanDetailPage = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-slate-500">No property enrichment data available.</p>
-                  <p className="text-sm text-slate-400 mt-2">
-                    Property data will be enriched from external sources when available.
+                  <p className="text-slate-500 mb-4">No enrichment data found.</p>
+                  <p className="text-sm text-slate-400 mb-6">
+                    Enrich this property with real-time valuation and market data from RentCast.
                   </p>
+                  <Button 
+                    onClick={handleEnrichData}
+                    disabled={isEnriching}
+                    className="bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    {isEnriching ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Enriching...
+                      </>
+                    ) : (
+                      'Enrich with RentCast'
+                    )}
+                  </Button>
                 </div>
               )}
             </CardContent>
