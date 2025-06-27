@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { differenceInMonths } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 import { CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
 import { Button } from '@loanvision/shared/components/ui/button';
@@ -181,11 +181,21 @@ const LoanDetailPage = () => {
   }
 
   // Calculate financial metrics
-  const intRate = parseFloat(loan.int_rate);
-  const displayRate = intRate < 1 ? intRate * 100 : intRate;
-  const monthsPastDue = loan.next_pymt_due ? differenceInMonths(new Date(), new Date(loan.next_pymt_due)) : 0;
-  const accruedInterest = monthsPastDue > 0 ? parseFloat(loan.prin_bal) * (intRate / 12) * monthsPastDue : 0;
-  const legalBalance = parseFloat(loan.prin_bal) + accruedInterest;
+  let legalBalance = parseFloat(loan.prin_bal) || 0;
+
+  if (loan.next_pymt_due && loan.int_rate && loan.prin_bal) {
+    const today = new Date();
+    const nextDueDate = new Date(loan.next_pymt_due);
+
+    // Only calculate interest if the due date is in the past
+    if (today > nextDueDate) {
+      const daysPastDue = differenceInDays(today, nextDueDate);
+      const dailyRate = parseFloat(loan.int_rate) / 365.25;
+      const accruedInterest = parseFloat(loan.prin_bal) * dailyRate * daysPastDue;
+      legalBalance += accruedInterest;
+    }
+  }
+  
   const equity = propertyData?.property_data?.price ? propertyData.property_data.price - legalBalance : 0;
 
   return (
@@ -257,7 +267,7 @@ const LoanDetailPage = () => {
                 </DetailItem>
                 <DetailItem label="Interest Rate">
                   <span className="text-lg font-semibold">
-                    {displayRate.toFixed(2)}%
+                    {loan.int_rate ? `${(parseFloat(loan.int_rate) * 100).toFixed(2)}%` : 'N/A'}
                   </span>
                 </DetailItem>
                 <DetailItem label="Current Legal Balance">
