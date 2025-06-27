@@ -22,18 +22,20 @@ export async function enrichLoanWithRentCast(
     // Use the pre-formatted address as provided by the caller
     console.log(`[RentCast] Using formatted address: ${address}`);
     
-    // Construct the RentCast API URL
-    const apiUrl = `https://api.rentcast.io/v1/properties/${encodeURIComponent(address)}`;
+    console.log(`[RentCast] Making API request to: https://api.rentcast.io/v1/avm/value`);
     
-    // Set up headers with API key
-    const headers = {
-      'X-Api-Key': process.env.RENTCAST_API_KEY
-    };
-    
-    console.log(`[RentCast] Making API request to: ${apiUrl}`);
-    
-    // Make the API request
-    const response = await axios.get(apiUrl, { headers });
+    // Make the API request with correct endpoint and address as query parameter
+    const response = await axios.get(
+      'https://api.rentcast.io/v1/avm/value', // Correct, static endpoint
+      {
+        params: {
+          address: address // Pass the pre-formatted address as a query parameter
+        },
+        headers: {
+          'X-Api-Key': process.env.RENTCAST_API_KEY,
+        },
+      }
+    );
     
     console.log(`[RentCast] API request successful for loan_id: ${loanId}`);
     
