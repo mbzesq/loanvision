@@ -18,7 +18,7 @@ This phase focused on building the core, stable application shell and the essent
 * **[DONE]** Implemented a foundational **User Authentication** system with registration, login, and roles.
 * **[DONE]** Successfully resolved the **Foreclosure Timeline Status** filter bug through systematic debugging and implementation of sophisticated cumulative variance calculation logic.
 
-## 🔨 Phase 1: High-Value Intelligence & UI Polish (Current Sprint)
+## 🔨 Phase 1: Middle-Value Intelligence & UI Polish (Current Sprint)
 
 The focus of this phase is to transform the functional application into a professional-grade analytical tool for our primary persona, "Alex the Active Manager."
 
@@ -26,25 +26,28 @@ The focus of this phase is to transform the functional application into a profes
 * **[DONE]** **Foreclosure Timeline UI:** Built the visual interface and added color-coded status indicators to the Loan Detail Modal.
 * **[DONE]** **Fix Foreclosure Timeline Status Filter:** Resolved the critical bug that caused the Loan Explorer to crash when using this filter.
 * **[DONE]** **Centralized Timeline Logic:** Implemented shared utility functions (`timelineUtils.ts`) following DRY principles to avoid code duplication.
-* **[QUEUED]** **UI/UX Enhancements:** Relocate user profile menu, update branding text on login page, and integrate new company logo.
-* **[QUEUED]** **Data Table Aesthetics:** Complete the aesthetic overhaul of the data table to match our "Schwab-inspired" design.
-* **[QUEUED]** **Filter Panel UX:** Enhance the filter panel with a "search-within-filter" input for long lists of options.
-* **[QUEUED]** **Logo Design:** Create a simple, professional SVG logo and integrate it into the `SideNav`.
+* **[DONE]** **UI/UX Enhancements:** Relocate user profile menu, update branding text on login page, and integrate new company logo.
+* **[DONE]** **Data Table Aesthetics:** Complete the aesthetic overhaul of the data table to match our "Schwab-inspired" design.
+* **[DONE]** **Filter Panel UX:** Enhance the filter panel with a "search-within-filter" input for long lists of options.
+* **[DONE]** **Logo Design:** Create a simple, professional SVG logo and integrate it into the `SideNav`.
+* **[DONE]** **UI Cleanup:** Add City and State to the `Loan Explorer` table and `Loan Detail Modal` for better context.
 
 ### Backlog for This Phase
-* **[TODO]** **UI Cleanup:** Add City and State to the `Loan Explorer` table and `Loan Detail Modal` for better context.
+
 * **[TODO]** **Upload Page Aesthetics:** Enhance the UI of the `UploadPage` and rename the tab for clarity.
-* **[TODO]** Implement a proper **Maturity Date** range filter.
-* **[TODO]** Add a color-coded **"Timeline Status"** badge to the Loan Explorer table for at-a-glance risk assessment.
-* **[TODO]** Refine the **Custom Export** feature.
+* **[TODO]** Implement a proper **Maturity Date** range filter on the Loan Explorer page.
+* **[TODO]** Refine the **Custom Export** feature to allow search/selection of any data point housed in any data base
+* **[TODO]** Implement ability for logged in users to Save a **custom export template** for future reporting
 * **[TODO]** **SideNav UX:** Enhance the left navigation bar to be collapsible or hide when not moused over.
+* **[TODO]** Custom Domain Login: Fix login issue encountered at custom domain **nplvision.com**
 
 ## 🚀 Phase 2: Enterprise Features & Reporting (Next Up)
 
 This phase focuses on adding high-value features that support professional workflows and begin to serve our secondary "Sarah the Passive Investor" persona.
 
+* **[PLANNED]** **Loan Detail Page V1:** Begin building out the Loan Detail Page, a page assigned to every loan uploaded to the platform, that houses all key data points including Loan Data, Property Data, and Credit Data.
 * **[PLANNED]** **Dashboard V1:** Begin building out the main Dashboard page with a grid of dynamic widgets (KPIs, charts, actionable lists, market data ticker).
-* **[PLANNED]** **Data Enrichment (Tier 1):** Implement API integrations for property valuations (RentCast) and property tax tracking (Black Knight/Similar).
+* **[PLANNED]** **Data Enrichment (Tier 1):** Implement python scraping integrations for property valuations, property photos, etc.
 * **[PLANNED]** **"Soft Delete" for Loans:** Build the functionality to archive loans.
 * **[PLANNED]** **Header Alias Mapping:** Enhance the backend ingestion engine to intelligently map common column name variations.
 * **[PLANNED]** **Domain Migration:** Plan and execute the migration of the live application to the `https://www.nplvision.com` domain.
