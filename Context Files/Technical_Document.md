@@ -403,3 +403,80 @@ The frontend authentication system provides a seamless login/registration experi
 * **Error Handling:** Comprehensive error handling for authentication failures, network issues, and invalid credentials.
 * **User Feedback:** Clear success/error messages and loading states during authentication processes.
 * **Automatic Redirects:** Seamless redirects between login and protected pages based on authentication status.
+
+---
+
+## 5. Business Logic & Intelligence
+
+The NPLVision platform includes sophisticated business logic for analyzing foreclosure timelines and determining loan performance status. This intelligence is centralized in shared utility functions to ensure consistency across the application.
+
+### 5.1. Timeline Intelligence (`timelineUtils.ts`)
+
+The timeline intelligence system provides sophisticated analysis of foreclosure progression using cumulative variance calculations to determine whether loans are "On Track" or "Overdue" relative to expected performance benchmarks.
+
+#### Core Functions
+
+* **`getOverallLoanStatus(loan: Loan)`:** The primary function that determines a loan's overall timeline status by calculating cumulative variance across all foreclosure milestones.
+
+* **`getMilestoneStatus(actualDateStr, expectedDateStr)`:** Determines the status of individual foreclosure milestones, returning values like 'COMPLETED_ON_TIME', 'COMPLETED_LATE', 'PENDING_OVERDUE', or 'PENDING_ON_TRACK'.
+
+#### Cumulative Variance Algorithm
+
+The system uses a sophisticated cumulative variance calculation that:
+
+1. **Iterates through state-specific foreclosure milestones** in chronological order based on the loan's state and jurisdiction (judicial vs. non-judicial).
+
+2. **Calculates step-by-step variance** by comparing actual days taken for each completed milestone against the preferred benchmark days defined in `fcl_milestones_by_state.json`.
+
+3. **Accumulates variance across milestones** to determine overall loan performance, where positive variance indicates delays and negative variance indicates faster-than-expected progress.
+
+4. **Handles pending milestones** by calculating how long the loan has been waiting at the current step against the expected duration for that milestone.
+
+5. **Uses a fixed calculation date** (2025-06-26) for consistent results across the application.
+
+#### State-Based Configuration
+
+The system leverages the `fcl_milestones_by_state.json` configuration file which defines:
+
+* **Judicial vs. Non-Judicial pathways** for each state
+* **Preferred timeline benchmarks** in days for each milestone
+* **Database column mappings** to actual completion dates
+* **Sequential milestone ordering** for proper variance calculation
+
+#### Example Implementation
+
+```typescript
+// Calculate cumulative variance across all milestones
+let cumulativeVariance = 0;
+let previousMilestoneActualDate = new Date(loan.fc_start_date);
+
+for (const milestone of milestones) {
+  const actualCompletionDateStr = loan[milestone.db_column as keyof Loan];
+  
+  if (actualCompletionDateStr) {
+    // Calculate variance for completed milestone
+    const currentMilestoneActualDate = new Date(actualCompletionDateStr);
+    const actualDaysForStep = dateDiffInDays(previousMilestoneActualDate, currentMilestoneActualDate);
+    const expectedDaysForStep = milestone.preferredDays;
+    cumulativeVariance += (actualDaysForStep - expectedDaysForStep);
+    previousMilestoneActualDate = currentMilestoneActualDate;
+  } else {
+    // Calculate variance for first pending milestone
+    const actualDaysWaiting = dateDiffInDays(previousMilestoneActualDate, MOCK_TODAY);
+    const expectedDaysForStep = milestone.preferredDays;
+    cumulativeVariance += (actualDaysWaiting - expectedDaysForStep);
+    break; 
+  }
+}
+
+// Final status determination
+return cumulativeVariance > 0 ? 'Overdue' : 'On Track';
+```
+
+### 5.2. Foreclosure Filter Integration
+
+The timeline intelligence integrates seamlessly with the Loan Explorer's filter system:
+
+* **Timeline Status Filter:** Users can filter loans by "On Track" or "Overdue" status using the `getOverallLoanStatus` function.
+* **Real-time Calculation:** Timeline status is calculated dynamically based on current loan data and milestone completion status.
+* **Performance Optimization:** The calculation is performed client-side using memoized data to ensure responsive filtering.

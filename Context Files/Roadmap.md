@@ -1,6 +1,6 @@
 # NPLVision Product Roadmap
 
-*Last Updated: 2025-06-26*
+*Last Updated: 2025-06-27*
 
 This document outlines the strategic roadmap for the NPLVision platform. It serves as a guide for feature development, organizing our work into logical phases that build upon each other to deliver increasing value to our users.
 
@@ -16,6 +16,7 @@ This phase focused on building the core, stable application shell and the essent
 * **[DONE]** Implemented a working **Export** feature for both PDF and Excel.
 * **[DONE]** Established a professional, responsive **Application Shell** with persistent sidebar navigation.
 * **[DONE]** Implemented a foundational **User Authentication** system with registration, login, and roles.
+* **[DONE]** Successfully resolved the **Foreclosure Timeline Status** filter bug through systematic debugging and implementation of sophisticated cumulative variance calculation logic.
 
 ## 🔨 Phase 1: High-Value Intelligence & UI Polish (Current Sprint)
 
@@ -24,7 +25,8 @@ The focus of this phase is to transform the functional application into a profes
 ### Immediate Next Steps
 * **[DONE]** **Foreclosure Timeline UI:** Built the visual interface and added color-coded status indicators to the Loan Detail Modal.
 * **[DONE]** **Fix Foreclosure Timeline Status Filter:** Resolved the critical bug that caused the Loan Explorer to crash when using this filter.
-* **[IN PROGRESS]** **Remove Hardcoded Super User Credentials:** Critical security task to remove hardcoded credentials from the seeding function.
+* **[DONE]** **Centralized Timeline Logic:** Implemented shared utility functions (`timelineUtils.ts`) following DRY principles to avoid code duplication.
+* **[QUEUED]** **UI/UX Enhancements:** Relocate user profile menu, update branding text on login page, and integrate new company logo.
 * **[QUEUED]** **Data Table Aesthetics:** Complete the aesthetic overhaul of the data table to match our "Schwab-inspired" design.
 * **[QUEUED]** **Filter Panel UX:** Enhance the filter panel with a "search-within-filter" input for long lists of options.
 * **[QUEUED]** **Logo Design:** Create a simple, professional SVG logo and integrate it into the `SideNav`.
