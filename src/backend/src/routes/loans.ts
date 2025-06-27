@@ -148,7 +148,7 @@ router.get('/v2/loans/:loanId/property-details', authenticateToken, async (req, 
     res.json({
       loan_id: loanId,
       property_data: propertyData,
-      last_updated: propertyData.last_updated || new Date().toISOString()
+      last_updated: propertyData.last_updated
     });
 
   } catch (error) {
