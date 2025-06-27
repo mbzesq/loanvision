@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { differenceInMonths } from 'date-fns';
+import { CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
 import { Button } from '@loanvision/shared/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@loanvision/shared/components/ui/accordion';
@@ -38,10 +40,8 @@ import {
   Milestone, 
   formatCurrency, 
   formatDate, 
-  formatPercent, 
   formatValue,
   generateZillowUrl,
-  handleInvestorClick,
   getStatusIcon
 } from '../lib/loanUtils';
 
@@ -84,6 +84,21 @@ const LoanDetailPage = () => {
 
     fetchAllDetails();
   }, [loanId]);
+
+  // Helper function to check if borrower name and owner name are similar
+  const areNamesSimilar = (borrowerFirstName: string, borrowerLastName: string, ownerName: string): boolean => {
+    if (!borrowerFirstName || !borrowerLastName || !ownerName) return false;
+    
+    // Clean names: lowercase, remove periods and extra spaces
+    const cleanName = (name: string) => name.toLowerCase().replace(/\./g, '').trim();
+    
+    const cleanBorrowerFirst = cleanName(borrowerFirstName);
+    const cleanBorrowerLast = cleanName(borrowerLastName);
+    const cleanOwnerName = cleanName(ownerName);
+    
+    // Check if owner name includes borrower's first or last name
+    return cleanOwnerName.includes(cleanBorrowerFirst) || cleanOwnerName.includes(cleanBorrowerLast);
+  };
 
   const handleEnrichData = async () => {
     if (!loanId) return;
@@ -165,6 +180,14 @@ const LoanDetailPage = () => {
     );
   }
 
+  // Calculate financial metrics
+  const intRate = parseFloat(loan.int_rate);
+  const displayRate = intRate < 1 ? intRate * 100 : intRate;
+  const monthsPastDue = loan.next_pymt_due ? differenceInMonths(new Date(), new Date(loan.next_pymt_due)) : 0;
+  const accruedInterest = monthsPastDue > 0 ? parseFloat(loan.prin_bal) * (intRate / 12) * monthsPastDue : 0;
+  const legalBalance = parseFloat(loan.prin_bal) + accruedInterest;
+  const equity = propertyData?.property_data?.price ? propertyData.property_data.price - legalBalance : 0;
+
   return (
     <div className="p-6 space-y-6">
       {/* Page Header */}
@@ -175,51 +198,47 @@ const LoanDetailPage = () => {
         </p>
       </div>
 
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Primary Info */}
-        <div className="space-y-6">
-          {/* Loan & Property Card */}
+      {/* Three-column grid layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Takes 2 columns on large screens */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Loan Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Loan & Property</CardTitle>
+              <CardTitle className="text-lg">Loan</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Borrower Section */}
-              <div>
-                <h4 className="text-sm font-semibold text-slate-600 border-b pb-2 mb-3">Borrower Information</h4>
-                <div className="space-y-4">
-                  <DetailItem label="Borrower Name">
-                    {`${loan.first_name} ${loan.last_name}`}
-                  </DetailItem>
-                  <DetailItem label="Investor">
-                    <button 
-                      onClick={() => handleInvestorClick(loan.investor_name)} 
-                      className="text-blue-600 hover:underline font-medium text-left"
-                    >
-                      {formatValue(loan.investor_name)}
-                    </button>
-                  </DetailItem>
-                </div>
-              </div>
-
-              {/* Property Section */}
-              <div>
-                <h4 className="text-sm font-semibold text-slate-600 border-b pb-2 mb-3">Property & Collateral</h4>
-                <div className="space-y-4">
-                  <DetailItem label="Property Address">
-                    <a 
-                      href={generateZillowUrl(loan)} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-blue-600 hover:underline"
-                    >
-                      {`${formatValue(loan.address)}, ${formatValue(loan.city)}, ${formatValue(loan.state)} ${formatValue(loan.zip)}`}
-                    </a>
-                  </DetailItem>
-                  <DetailItem label="Lien Position">{formatValue(loan.lien_pos)}</DetailItem>
-                  <DetailItem label="Loan Type">{formatValue(loan.loan_type)}</DetailItem>
-                </div>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DetailItem label="Borrower Name">
+                  {`${loan.first_name} ${loan.last_name}`}
+                </DetailItem>
+                <DetailItem label="Co-Borrower Name">
+                  N/A
+                </DetailItem>
+                <DetailItem label="Loan Number">
+                  {loan.loan_id}
+                </DetailItem>
+                <DetailItem label="Origination Date">
+                  {formatDate(loan.origination_date)}
+                </DetailItem>
+                <DetailItem label="Origination Balance">
+                  {formatCurrency(loan.org_amount || '0')}
+                </DetailItem>
+                <DetailItem label="Maturity Date">
+                  {formatDate(loan.maturity_date)}
+                </DetailItem>
+                <DetailItem label="Last Paid Date">
+                  {formatDate(loan.last_pymt_received)}
+                </DetailItem>
+                <DetailItem label="Next Due Date">
+                  {formatDate(loan.next_pymt_due)}
+                </DetailItem>
+                <DetailItem label="Legal Status">
+                  {formatValue(loan.legal_status)}
+                </DetailItem>
+                <DetailItem label="Lien Position">
+                  {formatValue(loan.lien_pos)}
+                </DetailItem>
               </div>
             </CardContent>
           </Card>
@@ -230,56 +249,42 @@ const LoanDetailPage = () => {
               <CardTitle className="text-lg">Financials</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 gap-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <DetailItem label="UPB">
-                    <span className="text-xl font-bold text-green-600">
-                      {formatCurrency(loan.prin_bal)}
-                    </span>
-                  </DetailItem>
-                  <DetailItem label="Interest Rate">
-                    <span className="text-lg font-semibold">
-                      {formatPercent(loan.int_rate)}
-                    </span>
-                  </DetailItem>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <DetailItem label="Last Payment">{formatDate(loan.last_pymt_received)}</DetailItem>
-                  <DetailItem label="Next Due Date">{formatDate(loan.next_pymt_due)}</DetailItem>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <DetailItem label="Legal Status">{formatValue(loan.legal_status)}</DetailItem>
-                  <DetailItem label="Maturity Date">{formatDate(loan.maturity_date)}</DetailItem>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Credit Data Placeholder Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Credit Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <p className="text-slate-500">Credit report integration is coming soon.</p>
-                <p className="text-sm text-slate-400 mt-2">
-                  This section will include credit scores, payment history, and bureau reports.
-                </p>
+              <div className="space-y-4">
+                <DetailItem label="Current Unpaid Principal Balance">
+                  <span className="text-xl font-bold text-green-600">
+                    {formatCurrency(loan.prin_bal)}
+                  </span>
+                </DetailItem>
+                <DetailItem label="Interest Rate">
+                  <span className="text-lg font-semibold">
+                    {displayRate.toFixed(2)}%
+                  </span>
+                </DetailItem>
+                <DetailItem label="Current Legal Balance">
+                  <span className="text-xl font-bold text-blue-600">
+                    {formatCurrency(legalBalance.toFixed(2))}
+                  </span>
+                </DetailItem>
+                <DetailItem label="NPV">
+                  <span className="text-slate-500 italic">Calculation coming soon</span>
+                </DetailItem>
+                <DetailItem label="IRR">
+                  <span className="text-slate-500 italic">Calculation coming soon</span>
+                </DetailItem>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Column - Ancillary Info */}
-        <div className="space-y-6">
-          {/* Foreclosure Timeline Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Foreclosure Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {timeline && timeline.length > 0 ? (
+        {/* Right Column - Takes 1 column on large screens */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Conditionally render Foreclosure Timeline Card */}
+          {timeline && timeline.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Foreclosure Timeline</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-3">
                   {timeline.map((milestone, index) => (
                     <div key={index} className="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 border border-slate-100">
@@ -294,21 +299,14 @@ const LoanDetailPage = () => {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-slate-500">No foreclosure timeline data available.</p>
-                  <p className="text-sm text-slate-400 mt-2">
-                    Timeline will appear when foreclosure proceedings begin.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Property Enrichment Card */}
+          {/* Property Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Property Valuation</CardTitle>
+              <CardTitle className="text-lg">Property</CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -320,49 +318,65 @@ const LoanDetailPage = () => {
                 </div>
               ) : propertyData ? (
                 <div className="space-y-4">
-                  {/* Formatted Property Data */}
-                  <div className="space-y-4">
-                    <DetailItem label="Value Estimate">
-                      <span className="text-xl font-bold text-green-600">
-                        {formatCurrency(propertyData?.property_data?.price || 0)}
-                      </span>
-                    </DetailItem>
-                    
-                    <DetailItem label="Value Range">
-                      <span className="text-lg font-semibold">
-                        {propertyData?.property_data?.priceRangeLow && propertyData?.property_data?.priceRangeHigh 
-                          ? `${formatCurrency(propertyData.property_data.priceRangeLow)} - ${formatCurrency(propertyData.property_data.priceRangeHigh)}`
-                          : 'N/A'
-                        }
-                      </span>
-                    </DetailItem>
-                    
-                    <DetailItem label="Owner Occupied">
-                      {propertyData?.property_data?.ownerOccupied !== undefined 
-                        ? (propertyData.property_data.ownerOccupied ? 'Yes' : 'No')
+                  <DetailItem label={`Value Estimate ${propertyData?.last_updated ? `(${formatDate(propertyData.last_updated)})` : ''}`}>
+                    <span className="text-xl font-bold text-green-600">
+                      {formatCurrency(propertyData?.property_data?.price || 0)}
+                    </span>
+                  </DetailItem>
+                  
+                  <DetailItem label="Property Address">
+                    <a 
+                      href={generateZillowUrl(loan)} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-blue-600 hover:underline"
+                    >
+                      {`${formatValue(loan.address)}, ${formatValue(loan.city)}, ${formatValue(loan.state)} ${formatValue(loan.zip)}`}
+                    </a>
+                  </DetailItem>
+                  
+                  <DetailItem label="Value Range">
+                    <span className="text-lg font-semibold">
+                      {propertyData?.property_data?.priceRangeLow && propertyData?.property_data?.priceRangeHigh 
+                        ? `${formatCurrency(propertyData.property_data.priceRangeLow)} - ${formatCurrency(propertyData.property_data.priceRangeHigh)}`
                         : 'N/A'
                       }
-                    </DetailItem>
-                    
-                    <DetailItem label="Owner Name">
-                      {propertyData?.property_data?.owner?.names?.[0] || 'N/A'}
-                    </DetailItem>
-                    
-                    <DetailItem label="External Link">
-                      <a 
-                        href={`https://www.zillow.com/homes/${encodeURIComponent(propertyData?.property_data?.formattedAddress || `${loan.address} ${loan.city} ${loan.state} ${loan.zip}`)}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        View on Zillow
-                      </a>
-                    </DetailItem>
-                    
-                    <DetailItem label="Last Updated">
-                      {propertyData?.last_updated ? formatDate(propertyData.last_updated) : 'N/A'}
-                    </DetailItem>
-                  </div>
+                    </span>
+                  </DetailItem>
+                  
+                  <DetailItem label="Owner Occupied">
+                    {propertyData?.property_data?.ownerOccupied !== undefined 
+                      ? (propertyData.property_data.ownerOccupied ? 'Yes' : 'No')
+                      : 'N/A'
+                    }
+                  </DetailItem>
+                  
+                  <DetailItem label="External Link">
+                    <a 
+                      href={`https://www.zillow.com/homes/${encodeURIComponent(propertyData?.property_data?.formattedAddress || `${loan.address} ${loan.city} ${loan.state} ${loan.zip}`)}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      View on Zillow
+                    </a>
+                  </DetailItem>
+                  
+                  <DetailItem label="Owner Name">
+                    <div className="flex items-center gap-2">
+                      <span>{propertyData?.property_data?.owner?.names?.[0] || 'N/A'}</span>
+                      {propertyData?.property_data?.owner?.names?.[0] && 
+                       areNamesSimilar(loan.first_name, loan.last_name, propertyData.property_data.owner.names[0]) && (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      )}
+                    </div>
+                  </DetailItem>
+                  
+                  <DetailItem label="Equity Value">
+                    <span className="text-lg font-bold text-indigo-600">
+                      {formatCurrency(equity.toFixed(2))}
+                    </span>
+                  </DetailItem>
                   
                   {/* Refresh Button */}
                   <div className="pt-4 border-t">
@@ -416,6 +430,21 @@ const LoanDetailPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Full width Credit Data Card at bottom */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Credit Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <p className="text-slate-500">Credit report integration is coming soon.</p>
+            <p className="text-sm text-slate-400 mt-2">
+              This section will include credit scores, payment history, and bureau reports.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
