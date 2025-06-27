@@ -162,6 +162,13 @@ router.get('/v2/loans/:loanId/property-details', authenticateToken, async (req, 
 
 // V2 endpoint to trigger RentCast property data enrichment
 router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
+  // Local helper function for proper title case formatting
+  function toTitleCase(str: string): string {
+    if (!str) return '';
+    // This regex handles words separated by spaces or hyphens
+    return str.toLowerCase().replace(/\b(\w|')/g, s => s.toUpperCase());
+  }
+
   try {
     const { loanId } = req.params;
 
@@ -184,8 +191,14 @@ router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
 
     const loan = loanResult.rows[0];
     
-    // Construct full address for RentCast with proper filtering and formatting
-    const addressParts = [loan.address, loan.city, loan.state, loan.zip];
+    // Format each address component according to RentCast API requirements
+    const formattedAddress = toTitleCase(loan.address || '');
+    const formattedCity = toTitleCase(loan.city || '');
+    const formattedState = (loan.state || '').toUpperCase(); // Critical: keep state in uppercase
+    const formattedZip = loan.zip || '';
+
+    // Construct the properly formatted address
+    const addressParts = [formattedAddress, formattedCity, formattedState, formattedZip];
     const fullAddress = addressParts.filter(Boolean).join(', ');
     
     if (!fullAddress || fullAddress === ', ') {
