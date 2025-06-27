@@ -36,10 +36,10 @@ The focus of this phase is to transform the functional application into a profes
 ### Backlog for This Phase
 
 * **[DONE]** Implement a proper **Maturity Date** range filter on the Loan Explorer page. *Updated to use relative date dropdown based on user feedback (2025-06-27).*
-* **[TODO]** Refine the **Custom Export** feature to allow search/selection of any data point housed in any data base
-* **[TODO]** Implement ability for logged in users to Save a **custom export template** for future reporting
-* **[TODO]** **SideNav UX:** Enhance the left navigation bar to be collapsible or hide when not moused over.
-* **[TODO]** Custom Domain Login: Fix login issue encountered at custom domain **nplvision.com**
+* **[ON HOLD]** Refine the **Custom Export** feature to allow search/selection of any data point housed in any data base
+* **[ON HOLD]** Implement ability for logged in users to Save a **custom export template** for future reporting
+* **[ON HOLD]** **SideNav UX:** Enhance the left navigation bar to be collapsible or hide when not moused over.
+* **[ON HOLD]** Custom Domain Login: Fix login issue encountered at custom domain **nplvision.com**
 
 ## 🚀 Phase 2: Enterprise Features & Reporting (Next Up)
 
