@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
 import { Button } from '@loanvision/shared/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@loanvision/shared/components/ui/accordion';
 import { useToast } from '@loanvision/shared/hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import { 
@@ -277,7 +278,7 @@ const LoanDetailPage = () => {
           {/* Property Enrichment Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Property Enrichment</CardTitle>
+              <CardTitle className="text-lg">Property Valuation</CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -288,21 +289,49 @@ const LoanDetailPage = () => {
                   </div>
                 </div>
               ) : propertyData ? (
-                <div>
-                  <div className="mb-4">
-                    <p className="text-sm text-slate-600 mb-2">Enrichment data available. Key insights:</p>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-slate-500">Data Points:</span>
-                        <span className="ml-2 font-medium">{Object.keys(propertyData).length}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500">Source:</span>
-                        <span className="ml-2 font-medium">RentCast API</span>
-                      </div>
-                    </div>
+                <div className="space-y-4">
+                  {/* Formatted Property Data */}
+                  <div className="space-y-4">
+                    <DetailItem label="Value Estimate">
+                      <span className="text-xl font-bold text-green-600">
+                        {formatCurrency(propertyData?.price || 0)}
+                      </span>
+                    </DetailItem>
+                    
+                    <DetailItem label="Value Range">
+                      <span className="text-lg font-semibold">
+                        {propertyData?.priceRangeLow && propertyData?.priceRangeHigh 
+                          ? `${formatCurrency(propertyData.priceRangeLow)} - ${formatCurrency(propertyData.priceRangeHigh)}`
+                          : 'N/A'
+                        }
+                      </span>
+                    </DetailItem>
+                    
+                    <DetailItem label="Owner Occupied">
+                      {propertyData?.ownerOccupied !== undefined 
+                        ? (propertyData.ownerOccupied ? 'Yes' : 'No')
+                        : 'N/A'
+                      }
+                    </DetailItem>
+                    
+                    <DetailItem label="Owner Name">
+                      {propertyData?.owner?.names?.[0] || 'N/A'}
+                    </DetailItem>
+                    
+                    <DetailItem label="External Link">
+                      <a 
+                        href={`https://www.zillow.com/homes/${encodeURIComponent(propertyData?.formattedAddress || `${loan.address} ${loan.city} ${loan.state} ${loan.zip}`)}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        View on Zillow
+                      </a>
+                    </DetailItem>
                   </div>
-                  <div className="mb-4">
+                  
+                  {/* Refresh Button */}
+                  <div className="pt-4 border-t">
                     <Button 
                       onClick={handleEnrichData}
                       disabled={isEnriching}
@@ -312,14 +341,20 @@ const LoanDetailPage = () => {
                       {isEnriching ? 'Refreshing...' : 'Refresh Data'}
                     </Button>
                   </div>
-                  <details className="mt-4">
-                    <summary className="text-sm text-blue-600 cursor-pointer hover:underline">
-                      View Raw Data
-                    </summary>
-                    <pre className="text-xs whitespace-pre-wrap break-all mt-2 p-3 bg-slate-50 rounded border max-h-64 overflow-y-auto">
-                      {JSON.stringify(propertyData, null, 2)}
-                    </pre>
-                  </details>
+                  
+                  {/* Raw Data Accordion */}
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="raw-data">
+                      <AccordionTrigger className="text-sm">
+                        View Raw API Data
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <pre className="text-xs whitespace-pre-wrap break-all p-3 bg-slate-50 rounded border max-h-64 overflow-y-auto">
+                          {JSON.stringify(propertyData, null, 2)}
+                        </pre>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 </div>
               ) : (
                 <div className="text-center py-8">
