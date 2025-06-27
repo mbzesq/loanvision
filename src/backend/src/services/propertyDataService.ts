@@ -71,7 +71,7 @@ export async function savePropertyData(
  */
 export async function getCurrentPropertyData(loan_id: string): Promise<PropertyData | null> {
   const query = `
-    SELECT property_data
+    SELECT property_data, last_updated
     FROM property_data_current
     WHERE loan_id = $1
   `;
@@ -82,7 +82,10 @@ export async function getCurrentPropertyData(loan_id: string): Promise<PropertyD
     return null;
   }
   
-  return result.rows[0].property_data;
+  return {
+    ...result.rows[0].property_data,
+    last_updated: result.rows[0].last_updated
+  };
 }
 
 /**

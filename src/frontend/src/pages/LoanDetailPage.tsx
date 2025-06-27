@@ -7,6 +7,32 @@ import { Button } from '@loanvision/shared/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@loanvision/shared/components/ui/accordion';
 import { useToast } from '@loanvision/shared/hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
+
+// Enhanced interface for detailed loan data including origination and payment history
+interface LoanDetail extends Loan {
+  origination_date?: string | null;
+  org_amount?: string | null;
+  // Payment history columns for 2025
+  january_2025?: number | null;
+  february_2025?: number | null;
+  march_2025?: number | null;
+  april_2025?: number | null;
+  may_2025?: number | null;
+  june_2025?: number | null;
+  july_2025?: number | null;
+  august_2025?: number | null;
+  september_2025?: number | null;
+  october_2025?: number | null;
+  november_2025?: number | null;
+  december_2025?: number | null;
+}
+
+// Enhanced property data response interface
+interface PropertyDataResponse {
+  loan_id: string;
+  property_data: any; // Keep as 'any' for now since RentCast returns varied structures
+  last_updated: string | null;
+}
 import { 
   DetailItem, 
   Milestone, 
@@ -21,9 +47,9 @@ import {
 
 const LoanDetailPage = () => {
   const { loanId } = useParams<{ loanId: string }>();
-  const [loan, setLoan] = useState<Loan | null>(null);
+  const [loan, setLoan] = useState<LoanDetail | null>(null);
   const [timeline, setTimeline] = useState<Milestone[]>([]);
-  const [propertyData, setPropertyData] = useState<any>(null);
+  const [propertyData, setPropertyData] = useState<PropertyDataResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEnriching, setIsEnriching] = useState(false);
@@ -68,7 +94,11 @@ const LoanDetailPage = () => {
       const response = await axios.post(`${apiUrl}/api/v2/loans/${loanId}/enrich`);
       
       // Update property data state with the new data
-      setPropertyData(response.data.property_data);
+      setPropertyData({
+        loan_id: loanId,
+        property_data: response.data.property_data,
+        last_updated: new Date().toISOString()
+      });
       
       toast({
         title: "Enrichment Successful",
@@ -294,39 +324,43 @@ const LoanDetailPage = () => {
                   <div className="space-y-4">
                     <DetailItem label="Value Estimate">
                       <span className="text-xl font-bold text-green-600">
-                        {formatCurrency(propertyData?.price || 0)}
+                        {formatCurrency(propertyData?.property_data?.price || 0)}
                       </span>
                     </DetailItem>
                     
                     <DetailItem label="Value Range">
                       <span className="text-lg font-semibold">
-                        {propertyData?.priceRangeLow && propertyData?.priceRangeHigh 
-                          ? `${formatCurrency(propertyData.priceRangeLow)} - ${formatCurrency(propertyData.priceRangeHigh)}`
+                        {propertyData?.property_data?.priceRangeLow && propertyData?.property_data?.priceRangeHigh 
+                          ? `${formatCurrency(propertyData.property_data.priceRangeLow)} - ${formatCurrency(propertyData.property_data.priceRangeHigh)}`
                           : 'N/A'
                         }
                       </span>
                     </DetailItem>
                     
                     <DetailItem label="Owner Occupied">
-                      {propertyData?.ownerOccupied !== undefined 
-                        ? (propertyData.ownerOccupied ? 'Yes' : 'No')
+                      {propertyData?.property_data?.ownerOccupied !== undefined 
+                        ? (propertyData.property_data.ownerOccupied ? 'Yes' : 'No')
                         : 'N/A'
                       }
                     </DetailItem>
                     
                     <DetailItem label="Owner Name">
-                      {propertyData?.owner?.names?.[0] || 'N/A'}
+                      {propertyData?.property_data?.owner?.names?.[0] || 'N/A'}
                     </DetailItem>
                     
                     <DetailItem label="External Link">
                       <a 
-                        href={`https://www.zillow.com/homes/${encodeURIComponent(propertyData?.formattedAddress || `${loan.address} ${loan.city} ${loan.state} ${loan.zip}`)}`} 
+                        href={`https://www.zillow.com/homes/${encodeURIComponent(propertyData?.property_data?.formattedAddress || `${loan.address} ${loan.city} ${loan.state} ${loan.zip}`)}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline"
                       >
                         View on Zillow
                       </a>
+                    </DetailItem>
+                    
+                    <DetailItem label="Last Updated">
+                      {propertyData?.last_updated ? formatDate(propertyData.last_updated) : 'N/A'}
                     </DetailItem>
                   </div>
                   
@@ -350,7 +384,7 @@ const LoanDetailPage = () => {
                       </AccordionTrigger>
                       <AccordionContent>
                         <pre className="text-xs whitespace-pre-wrap break-all p-3 bg-slate-50 rounded border max-h-64 overflow-y-auto">
-                          {JSON.stringify(propertyData, null, 2)}
+                          {JSON.stringify(propertyData?.property_data, null, 2)}
                         </pre>
                       </AccordionContent>
                     </AccordionItem>
