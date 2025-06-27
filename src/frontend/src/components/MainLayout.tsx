@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { SideNav } from './SideNav';
 import { MobileHeader } from './MobileHeader';
+import { UserProfile } from './UserProfile';
 import { Sheet, SheetContent } from '@loanvision/shared/components/ui/sheet';
 
 export function MainLayout() {
@@ -18,8 +19,16 @@ export function MainLayout() {
         </div>
         
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto flex flex-col">
+          {/* Header */}
+          <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-end">
+            <UserProfile />
+          </header>
+          
+          {/* Page Content */}
+          <div className="flex-1 overflow-y-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
 
