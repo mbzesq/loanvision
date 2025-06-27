@@ -1,6 +1,6 @@
-# LoanVision Project State – Claude.md
+# NPLVision Project State – Claude.md
 
-_Last updated: 2025-06-26_
+_Last updated: 2025-06-27_
 
 ---
 
@@ -24,7 +24,7 @@ Sarah is a stakeholder or capital partner. She prefers high-level dashboards, su
 - **Backend**: Node.js + Express (TypeScript)
 - **Database**: PostgreSQL
 - **Deployment**: Render.com (split frontend/backend)
-- **Repo**: [GitHub - loanvision](https://github.com/mbzesq/loanvision)
+- **Repo**: [GitHub - nplvision](https://github.com/mbzesq/nplvision)
 
 ---
 
@@ -49,6 +49,14 @@ Sarah is a stakeholder or capital partner. She prefers high-level dashboards, su
 - Implements token-based authentication using JSON Web Tokens (JWT)
 - Includes foundational support for role-based access control (`super_user`, `admin`, `manager`, `user`)
 - All data-fetching routes are now protected
+
+### ✅ UI/UX Enhancements & Professional Branding (2025-06-27)
+- **Modern User Profile System**: Relocated user profile from sidebar to professional header dropdown
+- **NPLVision Logo Integration**: Custom SVG logo component replacing text branding throughout application
+- **Responsive Design**: Seamless user profile functionality across desktop and mobile layouts
+- **Consistent Branding**: Complete rebrand from "LoanVision" to "NPLVision" across all user-facing text
+- **Professional Styling**: UserCircle icons, hover states, red-styled logout button, and proper visual hierarchy
+- **Build Stability**: Resolved TypeScript import issues and deployment failures
 
 ### ✅ Foreclosure Timeline Intelligence
 - The detailed timeline view in the `LoanDetailModal` now displays color-coded status icons (On Time, Late, Overdue) for each milestone
@@ -80,7 +88,7 @@ Sarah is a stakeholder or capital partner. She prefers high-level dashboards, su
 
 ### 🧭 Project State Must Be Current
 - Always begin with updated `claude.md`
-- Time-stamp major changes (e.g. `v2025-06-20D`)
+- Time-stamp major changes (e.g. `v2025-06-27D`)
 
 ### 🧰 Build for the Future
 - Plan for FTP automation, servicer-specific templates, and dashboard analytics
@@ -88,17 +96,34 @@ Sarah is a stakeholder or capital partner. She prefers high-level dashboards, su
 
 ---
 
-## 6. Most Recent Milestone and Last Session Summary (2025-06-26)
+## 6. Most Recent Milestone and Last Session Summary (2025-06-27)
+### UI/UX Enhancement Sprint - COMPLETED ✅
+This session successfully modernized the user interface and established consistent NPLVision branding.
+
+**Major Accomplishments:**
+- ✅ **UserProfile Component**: Created polished dropdown with shadcn/ui integration
+- ✅ **Header Layout**: Relocated user profile to conventional header position
+- ✅ **Logo Integration**: Designed and implemented custom NPLVision SVG logo
+- ✅ **Responsive Design**: Ensured seamless functionality on desktop and mobile
+- ✅ **Branding Consistency**: Updated all text from "LoanVision" to "NPLVision"
+- ✅ **Professional Styling**: Added proper icons, hover states, and visual hierarchy
+
+**Previous Achievements (2025-06-26):**
 - ✅ Implemented complete **User Authentication System** with registration, login, JWT tokens, and role-based access control
-- ✅ Successfully fixed the **Foreclosure Timeline Status filter** through multiple iterations, culminating in a sophisticated cumulative variance calculation
-- ✅ Centralized timeline logic in a shared utility (`timelineUtils.ts`) following DRY principles
-- ✅ All protected routes now require authentication tokens
-- ✅ The timeline filter now correctly identifies "On Track" vs "Overdue" loans based on their complete foreclosure journey
+- ✅ Successfully fixed the **Foreclosure Timeline Status filter** with sophisticated cumulative variance calculation
+- ✅ Centralized timeline logic in shared utility (`timelineUtils.ts`)
 
 ---
 
 ## 7. Next Steps
-- **Implement UI/UX Enhancements.** The next priority is to refine the application's user experience by relocating the user profile menu, updating branding text on the login page, and integrating a new company logo.
+### Immediate Priorities:
+1. **Monitor Deployment**: Ensure all UI/UX changes are successfully deployed and functional
+2. **User Testing**: Validate new user profile dropdown across different browsers and devices
+
+### Future Development:
+- **Dashboard Analytics**: Begin implementing portfolio analytics and reporting features
+- **Advanced Filtering**: Enhance loan explorer with more sophisticated search capabilities
+- **Performance Optimization**: Monitor and optimize application performance as data grows
 
 ---
 
@@ -106,6 +131,7 @@ Sarah is a stakeholder or capital partner. She prefers high-level dashboards, su
 
 | Phase | Description |
 |-------|-------------|
-| Now   | Visualize daily metrics & foreclosure data |
+| ✅ Completed | UI/UX modernization, user authentication, NPLVision branding |
+| Now   | Dashboard analytics, portfolio visualization, advanced reporting |
 | Next  | Report generation, rent valuation API, servicer dashboards |
 | Later | AI assistant, predictive analytics, automated triggers |
