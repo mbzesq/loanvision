@@ -45,6 +45,7 @@ The focus of this phase is to transform the functional application into a profes
 
 This phase focuses on adding high-value features that support professional workflows and begin to serve our secondary "Sarah the Passive Investor" persona.
 
+* **[PLANNED]** **Statute of Limitations Risk Analysis**: Build the statute of limitations analysis which combines state rules and loan data to determine if a loan is nearing, or is past, the statute of limitations, which will act as one input to the Financial Modeling backend services planned for Phase 3.
 * **[PLANNED]** **Loan Detail Page V1:** Begin building out the Loan Detail Page, a page assigned to every loan uploaded to the platform, that houses all key data points including Loan Data, Property Data, and Credit Data.
 * **[PLANNED]** **Dashboard V1:** Begin building out the main Dashboard page with a grid of dynamic widgets (KPIs, charts, actionable lists, market data ticker).
 * **[PLANNED]** **Data Enrichment (Tier 1):** Implement python scraping integrations for property valuations, property photos, etc.
