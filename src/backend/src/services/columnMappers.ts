@@ -450,8 +450,16 @@ export interface ForeclosureEventsHistoryRecord {
 
 // Mapping function for new daily metrics structure
 export function mapDailyMetricsCurrentData(row: any, reportDate: string): DailyMetricsCurrentRecord {
+  const loanId = getValue(row, ['Loan ID']);
+  if (loanId === '0000360121') {
+    const rawRate = getValue(row, ['Int Rate']);
+    const cleanedRate = cleanPercentage(rawRate);
+    console.log(`[DEBUG 0000360121] Raw Int Rate from file: '${rawRate}', Type: ${typeof rawRate}`);
+    console.log(`[DEBUG 0000360121] Cleaned Int Rate after processing: ${cleanedRate}`);
+  }
+
   return {
-    loan_id: getValue(row, ['Loan ID']),
+    loan_id: loanId,
     investor: getValue(row, ['Investor']),
     investor_name: getValue(row, ['Investor Name']),
     inv_loan: getValue(row, ['Inv Loan']),
