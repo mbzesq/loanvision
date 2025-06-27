@@ -184,8 +184,9 @@ router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
 
     const loan = loanResult.rows[0];
     
-    // Construct full address for RentCast
-    const fullAddress = `${loan.address}, ${loan.city}, ${loan.state} ${loan.zip}`.trim();
+    // Construct full address for RentCast with proper filtering and formatting
+    const addressParts = [loan.address, loan.city, loan.state, loan.zip];
+    const fullAddress = addressParts.filter(Boolean).join(', ');
     
     if (!fullAddress || fullAddress === ', ') {
       return res.status(400).json({ 
