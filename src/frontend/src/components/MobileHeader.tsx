@@ -1,6 +1,8 @@
 // src/frontend/src/components/MobileHeader.tsx
 import { Button } from '@loanvision/shared/components/ui/button';
 import { Menu } from 'lucide-react';
+import { UserProfile } from './UserProfile';
+import { Logo } from './Logo';
 
 interface MobileHeaderProps {
   onMenuClick: () => void;
@@ -18,7 +20,8 @@ export function MobileHeader({ onMenuClick }: MobileHeaderProps) {
         <Menu className="h-5 w-5" />
         <span className="sr-only">Toggle navigation menu</span>
       </Button>
-      <h1 className="text-lg font-bold">NPLVision</h1>
+      <Logo className="h-8 w-auto text-slate-800 flex-1" />
+      <UserProfile />
     </header>
   );
 }
