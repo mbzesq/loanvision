@@ -29,7 +29,7 @@ The focus of this phase is to transform the functional application into a profes
 ### Backlog for This Phase
 * **[TODO]** **UI Cleanup:** Add City and State to the `Loan Explorer` table and `Loan Detail Modal` for better context.
 * **[TODO]** **Upload Page Aesthetics:** Enhance the UI of the `UploadPage` and rename the tab for clarity.
-* **[TODO]** Implement a proper **Maturity Date** range filter.
+* **[DONE]** Implement a proper **Maturity Date** range filter. *Updated to use relative date dropdown based on user feedback (2025-06-27).*
 * **[TODO]** Add a color-coded **"Timeline Status"** badge to the Loan Explorer table for at-a-glance risk assessment.
 * **[TODO]** Refine the **Custom Export** feature.
 * **[TODO]** **SideNav UX:** Enhance the left navigation bar to be collapsible or hide when not moused over.

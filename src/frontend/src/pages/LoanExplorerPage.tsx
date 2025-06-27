@@ -165,7 +165,7 @@ function LoanExplorerPage() {
     }
 
     return loans.filter(loan => {
-      const { propertyState, assetStatus, investor, lienPos, principalBalance, timelineStatus } = activeFilters;
+      const { propertyState, assetStatus, investor, lienPos, principalBalance, timelineStatus, maturityDate } = activeFilters;
 
       // State filter
       if (propertyState.length > 0 && !propertyState.includes(loan.state)) {
@@ -202,6 +202,69 @@ function LoanExplorerPage() {
         // If a loan's status is not in the selected filter array, exclude it.
         if (!loanStatus || !timelineStatus.includes(loanStatus)) {
           return false;
+        }
+      }
+
+      // Maturity date filter
+      if (maturityDate && maturityDate !== 'any') {
+        // Skip loans with null or invalid maturity dates
+        if (!loan.maturity_date) {
+          return false;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of day to avoid time issues
+        
+        const loanMaturityDate = new Date(loan.maturity_date);
+        // Handle timezone offset
+        const userTimezoneOffset = loanMaturityDate.getTimezoneOffset() * 60000;
+        const correctedMaturityDate = new Date(loanMaturityDate.getTime() + userTimezoneOffset);
+        correctedMaturityDate.setHours(0, 0, 0, 0);
+
+        // Check if date is valid
+        if (isNaN(correctedMaturityDate.getTime())) {
+          return false;
+        }
+
+        switch (maturityDate) {
+          case 'past':
+            // Already matured
+            return correctedMaturityDate < today;
+          
+          case 'next3':
+            // Maturing in next 3 months
+            {
+              const endDate = new Date(today);
+              endDate.setMonth(endDate.getMonth() + 3);
+              return correctedMaturityDate >= today && correctedMaturityDate <= endDate;
+            }
+          
+          case 'next6':
+            // Maturing in next 6 months
+            {
+              const endDate = new Date(today);
+              endDate.setMonth(endDate.getMonth() + 6);
+              return correctedMaturityDate >= today && correctedMaturityDate <= endDate;
+            }
+          
+          case 'next12':
+            // Maturing in next 12 months
+            {
+              const endDate = new Date(today);
+              endDate.setMonth(endDate.getMonth() + 12);
+              return correctedMaturityDate >= today && correctedMaturityDate <= endDate;
+            }
+          
+          case 'last12':
+            // Matured in last 12 months
+            {
+              const startDate = new Date(today);
+              startDate.setMonth(startDate.getMonth() - 12);
+              return correctedMaturityDate >= startDate && correctedMaturityDate < today;
+            }
+          
+          default:
+            return true;
         }
       }
 
