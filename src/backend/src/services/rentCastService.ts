@@ -22,30 +22,66 @@ export async function enrichLoanWithRentCast(
     // Use the pre-formatted address as provided by the caller
     console.log(`[RentCast] Using formatted address: ${address}`);
     
-    console.log(`[RentCast] Making API request to: https://api.rentcast.io/v1/avm/value`);
+    // Set up headers for both API calls
+    const headers = {
+      'X-Api-Key': process.env.RENTCAST_API_KEY,
+    };
     
-    // Make the API request with correct endpoint and address as query parameter
-    const response = await axios.get(
-      'https://api.rentcast.io/v1/avm/value', // Correct, static endpoint
-      {
-        params: {
-          address: address // Pass the pre-formatted address as a query parameter
-        },
-        headers: {
-          'X-Api-Key': process.env.RENTCAST_API_KEY,
-        },
+    const params = {
+      address: address
+    };
+    
+    // Initialize merged data object
+    let mergedData: any = {};
+    
+    console.log(`[RentCast] Making API calls to both AVM and Properties endpoints`);
+    
+    // Call 1: Get valuation data from AVM endpoint
+    try {
+      console.log(`[RentCast] Calling AVM endpoint: https://api.rentcast.io/v1/avm/value`);
+      const valuationResponse = await axios.get(
+        'https://api.rentcast.io/v1/avm/value',
+        { params, headers }
+      );
+      console.log(`[RentCast] AVM endpoint successful for loan_id: ${loanId}`);
+      mergedData = { ...mergedData, ...valuationResponse.data };
+    } catch (error) {
+      console.error(`[RentCast] Could not fetch AVM data for loan_id: ${loanId}:`, error);
+      // Continue with properties call even if AVM fails
+    }
+    
+    // Call 2: Get property record data from Properties endpoint
+    try {
+      console.log(`[RentCast] Calling Properties endpoint: https://api.rentcast.io/v1/properties`);
+      const propertyResponse = await axios.get(
+        'https://api.rentcast.io/v1/properties',
+        { params, headers }
+      );
+      console.log(`[RentCast] Properties endpoint successful for loan_id: ${loanId}`);
+      
+      // The property response is an array, take the first result
+      if (propertyResponse.data && propertyResponse.data.length > 0) {
+        mergedData = { ...mergedData, ...propertyResponse.data[0] };
       }
-    );
+    } catch (error) {
+      console.error(`[RentCast] Could not fetch Property record for loan_id: ${loanId}:`, error);
+      // Continue with whatever data we have
+    }
     
-    console.log(`[RentCast] API request successful for loan_id: ${loanId}`);
+    // Check if we got any data at all
+    if (Object.keys(mergedData).length === 0) {
+      throw new Error('No data could be retrieved from either RentCast endpoint');
+    }
     
-    // Save the enriched data to database
-    await savePropertyData(loanId, 'RentCast', response.data);
+    console.log(`[RentCast] Successfully merged data from both endpoints for loan_id: ${loanId}`);
+    
+    // Save the merged data to database
+    await savePropertyData(loanId, 'RentCast', mergedData);
     
     console.log(`[RentCast] Enrichment completed for loan_id: ${loanId}`);
     
-    // Return the enriched data
-    return response.data;
+    // Return the merged data
+    return mergedData;
   } catch (error) {
     console.error(`[RentCast] Enrichment failed for loan_id: ${loanId}:`, error);
     
