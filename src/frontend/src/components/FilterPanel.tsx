@@ -305,13 +305,13 @@ export function FilterPanel(props: FilterPanelProps) {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select maturity timeframe" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="w-[var(--radix-select-trigger-width)]">
                     <SelectItem value="any">Any</SelectItem>
-                    <SelectItem value="past">Already Matured</SelectItem>
-                    <SelectItem value="next3">Maturing in Next 3 Months</SelectItem>
-                    <SelectItem value="next6">Maturing in Next 6 Months</SelectItem>
-                    <SelectItem value="next12">Maturing in Next 12 Months</SelectItem>
-                    <SelectItem value="last12">Matured in Last 12 Months</SelectItem>
+                    <SelectItem value="past">Past Maturity</SelectItem>
+                    <SelectItem value="next3">Next 3 Months</SelectItem>
+                    <SelectItem value="next6">Next 6 Months</SelectItem>
+                    <SelectItem value="next12">Next 12 Months</SelectItem>
+                    <SelectItem value="last12">Last 12 Months</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
