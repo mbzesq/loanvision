@@ -35,7 +35,7 @@ The focus of this phase is to transform the functional application into a profes
 
 ### Backlog for This Phase
 
-* **[TODO]** Implement a proper **Maturity Date** range filter on the Loan Explorer page.
+* **[DONE]** Implement a proper **Maturity Date** range filter on the Loan Explorer page. *Updated to use relative date dropdown based on user feedback (2025-06-27).*
 * **[TODO]** Refine the **Custom Export** feature to allow search/selection of any data point housed in any data base
 * **[TODO]** Implement ability for logged in users to Save a **custom export template** for future reporting
 * **[TODO]** **SideNav UX:** Enhance the left navigation bar to be collapsible or hide when not moused over.

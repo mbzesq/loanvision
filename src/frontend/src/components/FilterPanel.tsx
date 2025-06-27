@@ -11,6 +11,13 @@ import {
   AccordionTrigger,
 } from '@loanvision/shared/components/ui/accordion';
 import { Badge } from '@loanvision/shared/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@loanvision/shared/components/ui/select';
 
 export type FilterValues = {
   propertyState: string[];
@@ -19,6 +26,7 @@ export type FilterValues = {
   lienPos: string[]; // Keep as string for consistency
   principalBalance: { min: number | ''; max: number | '' };
   timelineStatus: string[];
+  maturityDate: string;
 };
 
 interface FilterPanelProps {
@@ -38,6 +46,7 @@ export const initialFilters: FilterValues = {
   lienPos: [],
   principalBalance: { min: '', max: '' },
   timelineStatus: [],
+  maturityDate: 'any',
 };
 
 export function FilterPanel(props: FilterPanelProps) {
@@ -52,6 +61,7 @@ export function FilterPanel(props: FilterPanelProps) {
   } = props;
 
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
+  const [maturityFilter, setMaturityFilter] = useState('any');
   const [searchTerms, setSearchTerms] = useState({
     propertyState: '',
     assetStatus: '',
@@ -61,6 +71,10 @@ export function FilterPanel(props: FilterPanelProps) {
 
   const handleSearchChange = (field: keyof typeof searchTerms, value: string) => {
     setSearchTerms(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMaturityChange = (value: string) => {
+    setMaturityFilter(value);
   };
 
   // Unified handler for all checkbox groups
@@ -92,9 +106,10 @@ export function FilterPanel(props: FilterPanelProps) {
     }));
   };
 
-  const handleApply = () => onApplyFilters(filters);
+  const handleApply = () => onApplyFilters({ ...filters, maturityDate: maturityFilter });
   const handleClear = () => {
     setFilters(initialFilters);
+    setMaturityFilter('any');
     setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPos: '' });
     onClearView();
   };
@@ -272,6 +287,33 @@ export function FilterPanel(props: FilterPanelProps) {
                     </div>
                   ))}
                 </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Maturity Date */}
+          <AccordionItem value="maturity-date">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+              <div className="flex justify-between w-full items-center">
+                <span>Maturity Date</span>
+                {maturityFilter !== 'any' && <Badge variant="secondary">Active</Badge>}
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="p-4 bg-slate-50/75 border-t">
+                <Select value={maturityFilter} onValueChange={handleMaturityChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select maturity timeframe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="past">Already Matured</SelectItem>
+                    <SelectItem value="next3">Maturing in Next 3 Months</SelectItem>
+                    <SelectItem value="next6">Maturing in Next 6 Months</SelectItem>
+                    <SelectItem value="next12">Maturing in Next 12 Months</SelectItem>
+                    <SelectItem value="last12">Matured in Last 12 Months</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </AccordionContent>
           </AccordionItem>
