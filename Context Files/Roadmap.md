@@ -31,10 +31,10 @@ The focus of this phase is to transform the functional application into a profes
 * **[DONE]** **Filter Panel UX:** Enhance the filter panel with a "search-within-filter" input for long lists of options.
 * **[DONE]** **Logo Design:** Create a simple, professional SVG logo and integrate it into the `SideNav`.
 * **[DONE]** **UI Cleanup:** Add City and State to the `Loan Explorer` table and `Loan Detail Modal` for better context.
+* **[DONE]** **Upload Page Aesthetics:** Enhance the UI of the `UploadPage` and rename the tab for clarity.
 
 ### Backlog for This Phase
 
-* **[TODO]** **Upload Page Aesthetics:** Enhance the UI of the `UploadPage` and rename the tab for clarity.
 * **[TODO]** Implement a proper **Maturity Date** range filter on the Loan Explorer page.
 * **[TODO]** Refine the **Custom Export** feature to allow search/selection of any data point housed in any data base
 * **[TODO]** Implement ability for logged in users to Save a **custom export template** for future reporting
