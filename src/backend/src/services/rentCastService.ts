@@ -2,19 +2,9 @@ import axios from 'axios';
 import { savePropertyData, PropertyData } from './propertyDataService';
 
 /**
- * Converts a string to Title Case for better API compatibility
- * @param str The string to convert
- * @returns The string in Title Case format
- */
-function toTitleCase(str: string): string {
-  if (!str) return '';
-  return str.toLowerCase().replace(/\b(\w)/g, s => s.toUpperCase());
-}
-
-/**
  * Enriches a loan with property data from RentCast API
  * @param loanId The loan identifier
- * @param address The property address to enrich
+ * @param address The property address to enrich (should be pre-formatted)
  * @returns Promise containing the enriched property data
  */
 export async function enrichLoanWithRentCast(
@@ -29,12 +19,11 @@ export async function enrichLoanWithRentCast(
       throw new Error('RENTCAST_API_KEY is not configured in environment variables');
     }
     
-    // Normalize address to Title Case for better API compatibility
-    const normalizedAddress = toTitleCase(address);
-    console.log(`[RentCast] Normalized address: ${normalizedAddress}`);
+    // Use the pre-formatted address as provided by the caller
+    console.log(`[RentCast] Using formatted address: ${address}`);
     
-    // Construct the RentCast API URL with normalized address
-    const apiUrl = `https://api.rentcast.io/v1/properties/${encodeURIComponent(normalizedAddress)}`;
+    // Construct the RentCast API URL
+    const apiUrl = `https://api.rentcast.io/v1/properties/${encodeURIComponent(address)}`;
     
     // Set up headers with API key
     const headers = {
