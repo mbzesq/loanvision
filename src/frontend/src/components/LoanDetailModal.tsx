@@ -1,37 +1,35 @@
 // src/frontend/src/components/LoanDetailModal.tsx
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@loanvision/shared/components/ui/button';
 import { Loan } from '../pages/LoanExplorerPage';
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
-import { X, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { X } from 'lucide-react';
 import axios from 'axios';
-import { getMilestoneStatus } from '../lib/timelineUtils';
+import {
+  DetailItem,
+  Milestone,
+  formatCurrency,
+  formatDate,
+  formatPercent,
+  formatValue,
+  generateZillowUrl,
+  handleInvestorClick,
+  getStatusIcon
+} from '../lib/loanUtils';
 
 interface LoanDetailModalProps {
   loanId: string;
   onClose: () => void;
 }
 
-// New interface for the timeline data from the backend
-interface Milestone {
-  milestone_name: string;
-  actual_completion_date: string | null;
-  expected_completion_date: string | null;
-}
-
-// A reusable component for displaying each data point
-const DetailItem = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div>
-    <p className="text-sm text-slate-500">{label}</p>
-    <div className="font-medium text-slate-900 mt-1">{children}</div>
-  </div>
-);
 
 export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   const [loan, setLoan] = useState<Loan | null>(null);
   const [timeline, setTimeline] = useState<Milestone[]>([]);
   const [propertyData, setPropertyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const modalRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(modalRef, onClose);
@@ -87,25 +85,10 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
     fetchAllDetails();
   }, [loanId]);
 
-  // --- Helper Functions ---
-  const formatCurrency = (value: any) => !value ? "—" : parseFloat(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-  const formatDate = (value: any) => {
-    if (!value) return "—";
-    const date = new Date(value);
-    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-    const correctedDate = new Date(date.getTime() + userTimezoneOffset);
-    return isNaN(correctedDate.getTime()) ? "—" : correctedDate.toLocaleDateString('en-US');
-  };
-  const formatPercent = (value: any) => !value ? "—" : `${(parseFloat(value) * 100).toFixed(2)}%`;
-  const formatValue = (value: any) => value || "—";
-  const generateZillowUrl = (l: Loan | null) => l ? `https://www.zillow.com/homes/${encodeURIComponent(`${l.address}, ${l.city}, ${l.state} ${l.zip}`)}` : '#';
-  const handleInvestorClick = (name: string | null | undefined) => alert(`Investor view for ${name || 'N/A'} coming soon!`);
-  const getStatusIcon = (milestone: Milestone) => {
-    const status = getMilestoneStatus(milestone.actual_completion_date, milestone.expected_completion_date);
-
-    if (status === 'COMPLETED_ON_TIME') return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-    if (status === 'COMPLETED_LATE' || status === 'PENDING_OVERDUE') return <AlertCircle className="h-5 w-5 text-red-500" />;
-    return <Clock className="h-5 w-5 text-slate-400" />;
+  // Navigation handler
+  const handleViewFullPage = () => {
+    navigate(`/loans/${loanId}`);
+    onClose();
   };
 
   return (
@@ -192,7 +175,9 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
         {/* Footer */}
         <div className="flex justify-end items-center p-4 border-t gap-2 bg-slate-50">
           <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button disabled>Manage</Button>
+          <Button onClick={handleViewFullPage} className="bg-blue-600 text-white hover:bg-blue-700">
+            View Full Page
+          </Button>
         </div>
       </div>
     </div>
