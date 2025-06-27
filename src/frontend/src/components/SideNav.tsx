@@ -6,7 +6,7 @@ import { Logo } from './Logo';
 const navLinks = [
   { to: '/', text: 'Dashboard', icon: LayoutDashboard },
   { to: '/loans', text: 'Loan Explorer', icon: Table },
-  { to: '/upload', text: 'Upload', icon: Upload },
+  { to: '/upload', text: 'Import Data', icon: Upload },
 ];
 
 interface SideNavProps {
