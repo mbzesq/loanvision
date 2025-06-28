@@ -249,8 +249,15 @@ router.post('/upload', authenticateToken, upload.single('loanFile'), async (req,
       });
     }
 
+    // Filter out rows where all values are empty strings. This handles empty
+    // or spacer rows at the top of a CSV or Excel file.
+    jsonData = jsonData.filter(row =>
+      Object.values(row).some(value => value !== '')
+    );
+
+    // Add a check to ensure we still have data after cleaning.
     if (jsonData.length === 0) {
-      return res.status(400).json({ error: 'No data found in the uploaded file' });
+      return res.status(400).json({ error: 'No data found in file after cleaning empty rows.' });
     }
 
     // Detect file type based on headers
