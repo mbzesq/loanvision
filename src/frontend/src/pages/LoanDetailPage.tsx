@@ -198,6 +198,16 @@ const LoanDetailPage = () => {
   
   const equity = propertyData?.property_data?.price ? propertyData.property_data.price - legalBalance : 0;
 
+  // Access Google Maps API key and construct Street View URL
+  const apiKey = import.meta.env.VITE_Maps_API_KEY;
+  const address = propertyData?.property_data?.formattedAddress || 
+    `${loan.address}, ${loan.city}, ${loan.state} ${loan.zip}`;
+  let streetViewImageUrl = '';
+
+  if (apiKey && address) {
+    streetViewImageUrl = `https://maps.googleapis.com/maps/api/streetview?size=600x300&location=${encodeURIComponent(address)}&key=${apiKey}`;
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Page Header */}
@@ -328,6 +338,21 @@ const LoanDetailPage = () => {
                 </div>
               ) : propertyData ? (
                 <div className="space-y-4">
+                  {/* Street View Image */}
+                  {streetViewImageUrl ? (
+                    <div className="mb-4">
+                      <img 
+                        src={streetViewImageUrl} 
+                        alt={`Street view of ${address}`} 
+                        className="rounded-md w-full object-cover border" 
+                      />
+                    </div>
+                  ) : (
+                    <div className="mb-4 p-4 text-center bg-slate-50 rounded-md">
+                      <p className="text-sm text-slate-500">Street View image not available.</p>
+                    </div>
+                  )}
+
                   <DetailItem label={`Value Estimate ${propertyData?.last_updated ? `(${formatDate(propertyData.last_updated)})` : ''}`}>
                     <span className="text-xl font-bold text-green-600">
                       {formatCurrency(propertyData?.property_data?.price || 0)}
