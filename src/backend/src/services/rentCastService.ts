@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { savePropertyData, PropertyData } from './propertyDataService';
+import { enrichWithPropertyDataPy } from './propertyDataPyService';
+import { config } from '../config';
 
 /**
- * Enriches a loan with property data from RentCast API
+ * Enriches a loan with property data from multiple sources (RentCast API and PropertyData Python service)
  * @param loanId The loan identifier
  * @param address The property address to enrich (should be pre-formatted)
- * @returns Promise containing the enriched property data
+ * @returns Promise containing the enriched property data from all sources
  */
 export async function enrichLoanWithRentCast(
   loanId: string,
@@ -15,7 +17,7 @@ export async function enrichLoanWithRentCast(
     console.log(`[RentCast] Starting enrichment for loan_id: ${loanId}, address: ${address}`);
     
     // Validate API key is available
-    if (!process.env.RENTCAST_API_KEY) {
+    if (!config.rentcastApiKey) {
       throw new Error('RENTCAST_API_KEY is not configured in environment variables');
     }
     
@@ -24,7 +26,7 @@ export async function enrichLoanWithRentCast(
     
     // Set up headers for both API calls
     const headers = {
-      'X-Api-Key': process.env.RENTCAST_API_KEY,
+      'X-Api-Key': config.rentcastApiKey,
     };
     
     const params = {
@@ -68,15 +70,37 @@ export async function enrichLoanWithRentCast(
       // Continue with whatever data we have
     }
     
-    // Check if we got any data at all
+    // --- START: NEW PYTHON SERVICE CALL ---
+    try {
+      console.log(`[Enrichment] Calling PropertyData Python service for address: ${address}`);
+      const pythonApiData = await enrichWithPropertyDataPy(address);
+      if (pythonApiData && pythonApiData.properties && pythonApiData.properties.length > 0) {
+        // Merge the Python API data into our main data object
+        console.log(`[Enrichment] Successfully received ${pythonApiData.properties.length} properties from Python service`);
+        mergedData.pythonToolData = pythonApiData.properties;
+        mergedData.pythonToolMeta = {
+          count: pythonApiData.count,
+          success: pythonApiData.success,
+          message: pythonApiData.message,
+        };
+      } else {
+        console.log(`[Enrichment] No properties returned from Python service`);
+      }
+    } catch (e) {
+      console.error("Could not fetch data from PropertyData Python API", e);
+      // Continue with RentCast data even if Python API fails
+    }
+    // --- END: NEW PYTHON SERVICE CALL ---
+    
+    // Check if we got any data at all from any source
     if (Object.keys(mergedData).length === 0) {
-      throw new Error('No data could be retrieved from either RentCast endpoint');
+      throw new Error('No data could be retrieved from any enrichment source');
     }
     
-    console.log(`[RentCast] Successfully merged data from both endpoints for loan_id: ${loanId}`);
+    console.log(`[Enrichment] Successfully merged data from multiple sources for loan_id: ${loanId}`);
     
-    // Save the merged data to database
-    await savePropertyData(loanId, 'RentCast', mergedData);
+    // Save the merged data to database with updated source name
+    await savePropertyData(loanId, 'MultiSource', mergedData);
     
     console.log(`[RentCast] Enrichment completed for loan_id: ${loanId}`);
     
