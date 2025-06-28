@@ -170,6 +170,7 @@ CREATE TABLE property_data_history (
 -- Step 9: Create indexes for performance.
 CREATE INDEX idx_daily_metrics_current_loan_id ON daily_metrics_current(loan_id);
 CREATE INDEX idx_daily_metrics_current_state ON daily_metrics_current(state);
+CREATE INDEX idx_daily_metrics_current_loan_type ON daily_metrics_current(loan_type);
 CREATE INDEX idx_daily_metrics_history_loan_id ON daily_metrics_history(loan_id);
 CREATE INDEX idx_foreclosure_events_loan_id ON foreclosure_events(loan_id);
 CREATE INDEX idx_foreclosure_events_history_loan_id ON foreclosure_events_history(loan_id);
