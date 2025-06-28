@@ -198,14 +198,15 @@ const LoanDetailPage = () => {
   
   const equity = propertyData?.property_data?.price ? propertyData.property_data.price - legalBalance : 0;
 
-  // Access Google Maps API key and construct Street View URL
+  // Access Google Maps API key and construct Street View URL using coordinates
   const apiKey = import.meta.env.VITE_Maps_API_KEY;
-  const address = propertyData?.property_data?.formattedAddress || 
-    `${loan.address}, ${loan.city}, ${loan.state} ${loan.zip}`;
+  const lat = propertyData?.property_data?.latitude;
+  const lng = propertyData?.property_data?.longitude;
   let streetViewImageUrl = '';
 
-  if (apiKey && address) {
-    streetViewImageUrl = `https://maps.googleapis.com/maps/api/streetview?size=600x300&location=${encodeURIComponent(address)}&key=${apiKey}`;
+  if (apiKey && lat && lng) {
+    // Use latitude and longitude for a more reliable lookup.
+    streetViewImageUrl = `https://maps.googleapis.com/maps/api/streetview?size=600x300&location=${lat},${lng}&key=${apiKey}`;
   }
 
   return (
@@ -343,7 +344,7 @@ const LoanDetailPage = () => {
                     <div className="mb-4">
                       <img 
                         src={streetViewImageUrl} 
-                        alt={`Street view of ${address}`} 
+                        alt={`Street view of ${loan.address}, ${loan.city}, ${loan.state}`} 
                         className="rounded-md w-full object-cover border" 
                       />
                     </div>
