@@ -31,6 +31,21 @@ const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Helper function to detect actual file format by examining content
+function detectActualFileFormat(buffer: Buffer): 'xlsx' | 'csv' {
+  const uint8Array = new Uint8Array(buffer);
+  // Excel 2007+ (OOXML) files are ZIP archives, which start with 'PK'
+  if (uint8Array[0] === 0x50 && uint8Array[1] === 0x4B) {
+    return 'xlsx';
+  }
+  // Excel 97-2003 (CFB) files have a specific signature
+  if (uint8Array[0] === 0xD0 && uint8Array[1] === 0xCF) {
+    return 'xlsx';
+  }
+  // If neither signature matches, assume it's a text-based format like CSV.
+  return 'csv';
+}
+
 // Helper function to extract report date from filename or default to today
 function getReportDate(filename: string): string {
   try {
@@ -74,29 +89,72 @@ function getReportDate(filename: string): string {
 
 // Helper function to parse CSV data
 function parseCsvData(buffer: Buffer): any[] {
-  const csvText = buffer.toString('utf-8');
-  const lines = csvText.split('\n').filter(line => line.trim());
-  
-  if (lines.length === 0) {
-    return [];
+  // Handle UTF-8 with BOM
+  let csvText = buffer.toString('utf-8');
+  // Remove BOM if present
+  if (csvText.charCodeAt(0) === 0xFEFF) {
+    csvText = csvText.substring(1);
   }
-  
-  // Parse headers
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-  
-  // Parse data rows
+  const lines = csvText.split(/\r?\n/);
+
+  if (lines.length === 0) return [];
+
+  const parseCSVLine = (line: string): string[] => {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const nextChar = line[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          current += '"';
+          i++; 
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  };
+
+  let headerIndex = -1;
+  let headers: string[] = [];
+
+  // Find the first row that looks like a header (e.g., contains 'Loan ID')
+  for (let i = 0; i < Math.min(10, lines.length); i++) {
+    if (lines[i].includes('Loan ID') && lines[i].includes('Prin Bal')) {
+      headers = parseCSVLine(lines[i]);
+      headerIndex = i;
+      break;
+    }
+  }
+
+  if (headerIndex === -1) return []; // No header found
+
   const records: any[] = [];
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-    if (values.length >= headers.length) {
-      const record: any = {};
-      headers.forEach((header, index) => {
-        record[header] = values[index] || '';
-      });
+  for (let i = headerIndex + 1; i < lines.length; i++) {
+    if (lines[i].trim() === '') continue;
+
+    const values = parseCSVLine(lines[i]);
+    const record: any = {};
+    headers.forEach((header, index) => {
+      if (header) {
+         record[header] = values[index] || '';
+      }
+    });
+
+    if (Object.values(record).some(v => v !== '')) {
       records.push(record);
     }
   }
-  
   return records;
 }
 
@@ -230,27 +288,25 @@ router.post('/upload', authenticateToken, upload.single('loanFile'), async (req,
   }
 
   try {
-    // Parse file based on extension
+    // Parse file based on actual content, not extension
     let jsonData: any[];
     const fileExtension = req.file.originalname.toLowerCase();
-    
-    if (fileExtension.endsWith('.xlsx') || fileExtension.endsWith('.xls')) {
-      // Parse Excel file
+    const actualFormat = detectActualFileFormat(req.file.buffer);
+
+    console.log(`[Upload] File extension: .${fileExtension.split('.').pop()}, Actual format detected: ${actualFormat}`);
+
+    if (actualFormat === 'xlsx') {
       const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-    } else if (fileExtension.endsWith('.csv')) {
-      // Parse CSV file
-      jsonData = parseCsvData(req.file.buffer);
     } else {
-      return res.status(400).json({ 
-        error: 'Unsupported file type. Please upload a .csv, .xlsx, or .xls file.' 
-      });
+      // It's either a real CSV or an XLSX-named CSV. Parse as CSV.
+      jsonData = parseCsvData(req.file.buffer);
     }
 
     if (jsonData.length === 0) {
-      return res.status(400).json({ error: 'No data found in the uploaded file' });
+      return res.status(400).json({ error: 'No data found in the uploaded file.' });
     }
 
     // Detect file type based on headers

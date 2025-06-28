@@ -165,7 +165,7 @@ function LoanExplorerPage() {
     }
 
     return loans.filter(loan => {
-      const { propertyState, assetStatus, investor, lienPos, principalBalance, timelineStatus, maturityDate } = activeFilters;
+      const { propertyState, assetStatus, investor, lienPos, principalBalance, timelineStatus, maturityFilter } = activeFilters;
 
       // State filter
       if (propertyState.length > 0 && !propertyState.includes(loan.state)) {
@@ -206,65 +206,35 @@ function LoanExplorerPage() {
       }
 
       // Maturity date filter
-      if (maturityDate && maturityDate !== 'any') {
-        // Skip loans with null or invalid maturity dates
-        if (!loan.maturity_date) {
-          return false;
-        }
-
+      if (maturityFilter && maturityFilter !== 'any') {
+        const maturityDate = loan.maturity_date ? new Date(loan.maturity_date) : null;
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to start of day to avoid time issues
-        
-        const loanMaturityDate = new Date(loan.maturity_date);
-        // Handle timezone offset
-        const userTimezoneOffset = loanMaturityDate.getTimezoneOffset() * 60000;
-        const correctedMaturityDate = new Date(loanMaturityDate.getTime() + userTimezoneOffset);
-        correctedMaturityDate.setHours(0, 0, 0, 0);
+        const threeMonthsFromNow = new Date(today.getTime() + (90 * 24 * 60 * 60 * 1000));
+        const sixMonthsFromNow = new Date(today.getTime() + (180 * 24 * 60 * 60 * 1000));
+        const twelveMonthsFromNow = new Date(today.getTime() + (365 * 24 * 60 * 60 * 1000));
+        const twelveMonthsAgo = new Date(today.getTime() - (365 * 24 * 60 * 60 * 1000));
 
-        // Check if date is valid
-        if (isNaN(correctedMaturityDate.getTime())) {
+        if (!maturityDate) {
+          // If no maturity date and filter is not 'any', exclude the loan
           return false;
         }
 
-        switch (maturityDate) {
+        switch (maturityFilter) {
           case 'past':
-            // Already matured
-            return correctedMaturityDate < today;
-          
+            if (maturityDate >= today) return false;
+            break;
           case 'next3':
-            // Maturing in next 3 months
-            {
-              const endDate = new Date(today);
-              endDate.setMonth(endDate.getMonth() + 3);
-              return correctedMaturityDate >= today && correctedMaturityDate <= endDate;
-            }
-          
+            if (maturityDate < today || maturityDate > threeMonthsFromNow) return false;
+            break;
           case 'next6':
-            // Maturing in next 6 months
-            {
-              const endDate = new Date(today);
-              endDate.setMonth(endDate.getMonth() + 6);
-              return correctedMaturityDate >= today && correctedMaturityDate <= endDate;
-            }
-          
+            if (maturityDate < today || maturityDate > sixMonthsFromNow) return false;
+            break;
           case 'next12':
-            // Maturing in next 12 months
-            {
-              const endDate = new Date(today);
-              endDate.setMonth(endDate.getMonth() + 12);
-              return correctedMaturityDate >= today && correctedMaturityDate <= endDate;
-            }
-          
+            if (maturityDate < today || maturityDate > twelveMonthsFromNow) return false;
+            break;
           case 'last12':
-            // Matured in last 12 months
-            {
-              const startDate = new Date(today);
-              startDate.setMonth(startDate.getMonth() - 12);
-              return correctedMaturityDate >= startDate && correctedMaturityDate < today;
-            }
-          
-          default:
-            return true;
+            if (maturityDate < twelveMonthsAgo || maturityDate > today) return false;
+            break;
         }
       }
 

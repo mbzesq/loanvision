@@ -39,7 +39,9 @@ The focus of this phase is to transform the functional application into a profes
 This phase focuses on adding high-value features that support professional workflows and begin to serve our secondary "Sarah the Passive Investor" persona.
 
 * **[PLANNED]** **Dashboard V1:** Begin building out the main Dashboard page with a grid of dynamic widgets (KPIs, charts, actionable lists, market data ticker).
-* **[PLANNED]** **Data Enrichment (Tier 1):** Implement API integrations for property valuations (RentCast) and property tax tracking (Black Knight/Similar).
+* **[IN PROGRESS] Data Enrichment Engine V1:** Implement on-demand, user-triggered enrichment via a button on the Loan Detail Page using the RentCast API.
+* **[PLANNED] Data Enrichment V2 (Bulk Actions):** Introduce the ability for users to select multiple loans and enrich them in a single batch action, subject to API limits.
+* **[VISION] Data Enrichment V3 (Automation):** Implement a full-scale, automated enrichment pipeline with scheduled, multi-frequency refreshes (e.g., quarterly for valuation, annually for ownership) once a higher-tier API plan is in place.
 * **[PLANNED]** **"Soft Delete" for Loans:** Build the functionality to archive loans.
 * **[PLANNED]** **Header Alias Mapping:** Enhance the backend ingestion engine to intelligently map common column name variations.
 * **[PLANNED]** **Domain Migration:** Plan and execute the migration of the live application to the `https://www.nplvision.com` domain.

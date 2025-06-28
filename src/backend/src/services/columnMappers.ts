@@ -10,10 +10,24 @@ export const cleanCurrency = (value: any): number | null => {
 };
 
 export const cleanPercentage = (value: any): number | null => {
-  if (value === undefined || value === null || String(value).trim() === '') return null;
+  // Handles null, undefined, or empty string values
+  if (value === undefined || value === null || String(value).trim() === '') {
+    return null;
+  }
+
+  // Removes any percentage signs and trims whitespace
   const cleaned = String(value).replace(/%/g, '').trim();
   const num = parseFloat(cleaned);
-  return isNaN(num) ? null : num / 100.0;
+
+  // Returns null if the value is not a number
+  if (isNaN(num)) {
+    return null;
+  }
+
+  // THIS IS THE CRITICAL LOGIC:
+  // If the number is 1 or greater (e.g., 10.75), it's treated as a percentage and divided by 100.
+  // If the number is less than 1 (e.g., 0.1075), it's treated as the correct decimal value already.
+  return num >= 1 ? num / 100.0 : num;
 };
 
 export const parseExcelDate = (excelDate: any): string | null => {
@@ -450,8 +464,16 @@ export interface ForeclosureEventsHistoryRecord {
 
 // Mapping function for new daily metrics structure
 export function mapDailyMetricsCurrentData(row: any, reportDate: string): DailyMetricsCurrentRecord {
+  const loanId = getValue(row, ['Loan ID']);
+  if (loanId === '0000360121') {
+    const rawRate = getValue(row, ['Int Rate']);
+    const cleanedRate = cleanPercentage(rawRate);
+    console.log(`[DEBUG 0000360121] Raw Int Rate from file: '${rawRate}', Type: ${typeof rawRate}`);
+    console.log(`[DEBUG 0000360121] Cleaned Int Rate after processing: ${cleanedRate}`);
+  }
+
   return {
-    loan_id: getValue(row, ['Loan ID']),
+    loan_id: loanId,
     investor: getValue(row, ['Investor']),
     investor_name: getValue(row, ['Investor Name']),
     inv_loan: getValue(row, ['Inv Loan']),
