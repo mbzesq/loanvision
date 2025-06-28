@@ -11,13 +11,6 @@ import {
   AccordionTrigger,
 } from '@loanvision/shared/components/ui/accordion';
 import { Badge } from '@loanvision/shared/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@loanvision/shared/components/ui/select';
 
 export type FilterValues = {
   propertyState: string[];
@@ -26,7 +19,7 @@ export type FilterValues = {
   lienPos: string[]; // Keep as string for consistency
   principalBalance: { min: number | ''; max: number | '' };
   timelineStatus: string[];
-  maturityDate: string;
+  maturityFilter: string;
 };
 
 interface FilterPanelProps {
@@ -46,7 +39,7 @@ export const initialFilters: FilterValues = {
   lienPos: [],
   principalBalance: { min: '', max: '' },
   timelineStatus: [],
-  maturityDate: 'any',
+  maturityFilter: 'any',
 };
 
 export function FilterPanel(props: FilterPanelProps) {
@@ -61,7 +54,7 @@ export function FilterPanel(props: FilterPanelProps) {
   } = props;
 
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
-  const [maturityFilter, setMaturityFilter] = useState('any');
+  const [maturityFilter, setMaturityFilter] = useState<string>('any');
   const [searchTerms, setSearchTerms] = useState({
     propertyState: '',
     assetStatus: '',
@@ -73,9 +66,6 @@ export function FilterPanel(props: FilterPanelProps) {
     setSearchTerms(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleMaturityChange = (value: string) => {
-    setMaturityFilter(value);
-  };
 
   // Unified handler for all checkbox groups
   const handleCheckboxChange = (
@@ -106,7 +96,7 @@ export function FilterPanel(props: FilterPanelProps) {
     }));
   };
 
-  const handleApply = () => onApplyFilters({ ...filters, maturityDate: maturityFilter });
+  const handleApply = () => onApplyFilters({ ...filters, maturityFilter });
   const handleClear = () => {
     setFilters(initialFilters);
     setMaturityFilter('any');
@@ -300,20 +290,32 @@ export function FilterPanel(props: FilterPanelProps) {
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="p-4 bg-slate-50/75 border-t">
-                <Select value={maturityFilter} onValueChange={handleMaturityChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select maturity timeframe" />
-                  </SelectTrigger>
-                  <SelectContent className="w-[var(--radix-select-trigger-width)]">
-                    <SelectItem value="any">Any</SelectItem>
-                    <SelectItem value="past">Past Maturity</SelectItem>
-                    <SelectItem value="next3">Next 3 Months</SelectItem>
-                    <SelectItem value="next6">Next 6 Months</SelectItem>
-                    <SelectItem value="next12">Next 12 Months</SelectItem>
-                    <SelectItem value="last12">Last 12 Months</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-col gap-2 p-2 bg-slate-50/75 border-t">
+                {[
+                  { value: 'any', label: 'Any' },
+                  { value: 'past', label: 'Past Maturity' },
+                  { value: 'next3', label: 'Next 3 Months' },
+                  { value: 'next6', label: 'Next 6 Months' },
+                  { value: 'next12', label: 'Next 12 Months' },
+                  { value: 'last12', label: 'Last 12 Months' },
+                ].map((option) => (
+                  <Label
+                    key={option.value}
+                    className={`flex items-center space-x-2 p-2 rounded-md cursor-pointer hover:bg-slate-200 ${
+                      maturityFilter === option.value ? 'bg-blue-100 text-blue-800' : ''
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="maturityDate"
+                      value={option.value}
+                      checked={maturityFilter === option.value}
+                      onChange={() => setMaturityFilter(option.value)}
+                      className="h-4 w-4"
+                    />
+                    <span className="font-normal">{option.label}</span>
+                  </Label>
+                ))}
               </div>
             </AccordionContent>
           </AccordionItem>

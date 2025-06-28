@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import pool from '../db';
 import { getForeclosureTimeline } from '../services/foreclosureService';
-import { enrichLoanWithPropertyData, getCurrentPropertyData } from '../services/homeHarvestService';
+import { enrichLoanWithPropertyData } from '../services/homeHarvestService';
+import { getCurrentPropertyData } from '../services/propertyDataService';
+import { enrichLoanWithRentCast } from '../services/rentCastService';
 import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -146,7 +148,7 @@ router.get('/v2/loans/:loanId/property-details', authenticateToken, async (req, 
     res.json({
       loan_id: loanId,
       property_data: propertyData,
-      last_updated: propertyData.last_updated || new Date().toISOString()
+      last_updated: propertyData.last_updated
     });
 
   } catch (error) {
@@ -158,8 +160,15 @@ router.get('/v2/loans/:loanId/property-details', authenticateToken, async (req, 
   }
 });
 
-// V2 endpoint to trigger property data enrichment
+// V2 endpoint to trigger RentCast property data enrichment
 router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
+  // Local helper function for proper title case formatting
+  function toTitleCase(str: string): string {
+    if (!str) return '';
+    // This regex handles words separated by spaces or hyphens
+    return str.toLowerCase().replace(/\b(\w|')/g, s => s.toUpperCase());
+  }
+
   try {
     const { loanId } = req.params;
 
@@ -182,7 +191,89 @@ router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
 
     const loan = loanResult.rows[0];
     
-    // Construct full address for HomeHarvest
+    // Format each address component according to RentCast API requirements
+    const formattedAddress = toTitleCase(loan.address || '');
+    const formattedCity = toTitleCase(loan.city || '');
+    const formattedState = (loan.state || '').toUpperCase(); // Critical: keep state in uppercase
+    const formattedZip = loan.zip || '';
+
+    // Construct the properly formatted address
+    const addressParts = [formattedAddress, formattedCity, formattedState, formattedZip];
+    const fullAddress = addressParts.filter(Boolean).join(', ');
+    
+    if (!fullAddress || fullAddress === ', ') {
+      return res.status(400).json({ 
+        error: 'Loan does not have a valid address for enrichment' 
+      });
+    }
+
+    console.log(`[API] Starting RentCast property enrichment for loan ${loanId} at address: ${fullAddress}`);
+
+    // Trigger the RentCast enrichment process
+    const enrichedData = await enrichLoanWithRentCast(loanId, fullAddress);
+
+    console.log(`[API] RentCast property enrichment completed for loan ${loanId}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Property data enrichment completed successfully with RentCast',
+      loan_id: loanId,
+      address: fullAddress,
+      source: 'RentCast',
+      property_data: enrichedData
+    });
+
+  } catch (error) {
+    console.error('Error during RentCast property enrichment:', error);
+    
+    // Determine appropriate error response
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    if (errorMessage.includes('authentication failed')) {
+      res.status(401).json({ 
+        error: 'RentCast API authentication failed',
+        details: 'Please check the API configuration' 
+      });
+    } else if (errorMessage.includes('Property not found')) {
+      res.status(404).json({ 
+        error: 'Property not found in RentCast database',
+        details: errorMessage 
+      });
+    } else if (errorMessage.includes('rate limit exceeded')) {
+      res.status(429).json({ 
+        error: 'RentCast API rate limit exceeded',
+        details: 'Please try again later' 
+      });
+    } else {
+      res.status(500).json({ 
+        error: 'Failed to enrich property data with RentCast',
+        details: errorMessage 
+      });
+    }
+  }
+});
+
+// Legacy endpoint for HomeHarvest enrichment (keeping for backward compatibility)
+router.post('/v2/loans/:loanId/enrich-homeharvest', authenticateToken, async (req, res) => {
+  try {
+    const { loanId } = req.params;
+
+    if (!loanId) {
+      return res.status(400).json({ error: 'Loan ID is required' });
+    }
+
+    const loanQuery = `
+      SELECT loan_id, address, city, state, zip 
+      FROM daily_metrics_current 
+      WHERE loan_id = $1
+    `;
+    const loanResult = await pool.query(loanQuery, [loanId]);
+
+    if (loanResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Loan not found' });
+    }
+
+    const loan = loanResult.rows[0];
     const fullAddress = `${loan.address}, ${loan.city}, ${loan.state} ${loan.zip}`.trim();
     
     if (!fullAddress || fullAddress === ', ') {
@@ -191,43 +282,40 @@ router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
       });
     }
 
-    console.log(`[API] Starting property enrichment for loan ${loanId} at address: ${fullAddress}`);
+    console.log(`[API] Starting HomeHarvest property enrichment for loan ${loanId} at address: ${fullAddress}`);
 
-    // Trigger the enrichment process
     await enrichLoanWithPropertyData(loanId, fullAddress);
-
-    // Fetch the newly saved property data
     const propertyData = await getCurrentPropertyData(loanId);
 
-    console.log(`[API] Property enrichment completed for loan ${loanId}`);
+    console.log(`[API] HomeHarvest property enrichment completed for loan ${loanId}`);
 
     res.status(200).json({
       success: true,
-      message: 'Property data enrichment completed successfully',
+      message: 'Property data enrichment completed successfully with HomeHarvest',
       loan_id: loanId,
       address: fullAddress,
+      source: 'HomeHarvest',
       property_data: propertyData
     });
 
   } catch (error) {
-    console.error('Error during property enrichment:', error);
+    console.error('Error during HomeHarvest property enrichment:', error);
     
-    // Determine appropriate error response
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
     if (errorMessage.includes('HomeHarvest script exited with code')) {
       res.status(500).json({ 
-        error: 'Failed to fetch property data from external source',
+        error: 'Failed to fetch property data from HomeHarvest',
         details: errorMessage 
       });
     } else if (errorMessage.includes('Failed to parse HomeHarvest output')) {
       res.status(502).json({ 
-        error: 'Invalid response from property data source',
+        error: 'Invalid response from HomeHarvest',
         details: errorMessage 
       });
     } else {
       res.status(500).json({ 
-        error: 'Failed to enrich property data',
+        error: 'Failed to enrich property data with HomeHarvest',
         details: errorMessage 
       });
     }
