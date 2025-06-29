@@ -45,7 +45,7 @@ export class CollateralService {
                     ...form.getHeaders(),
                     'Accept': 'application/json'
                 },
-                timeout: 30000 // 30 second timeout for document processing
+                timeout: 60000 // 60 second timeout to handle cold starts and document processing
             });
 
             if (response.data && response.data.success) {
