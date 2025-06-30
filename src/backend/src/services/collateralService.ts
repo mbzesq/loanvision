@@ -22,8 +22,8 @@ export class CollateralService {
     private readonly apiUrl: string;
 
     constructor() {
-        // Reuse the existing environment variable for the Python API
-        this.apiUrl = process.env.PROPERTY_DATA_API_URL || 'http://localhost:5000';
+        // Use the correct environment variable for the Collateral Analysis Service
+        this.apiUrl = process.env.COLLATERAL_ANALYSIS_API_URL || 'http://localhost:5000';
     }
 
     /**

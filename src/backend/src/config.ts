@@ -17,7 +17,7 @@ export const config = {
   
   // API Keys
   rentcastApiKey: process.env.RENTCAST_API_KEY,
-  propertyDataApiUrl: process.env.PROPERTY_DATA_API_URL,
+  collateralAnalysisApiUrl: process.env.COLLATERAL_ANALYSIS_API_URL,
   
   // Server configuration
   port: parseInt(process.env.PORT || '3001'),
