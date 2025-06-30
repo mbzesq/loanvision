@@ -164,13 +164,12 @@ const CollateralCard: React.FC<CollateralCardProps> = ({ loanId }) => {
         status: 'classifying'
       })));
 
+      // By removing the explicit headers config, our default interceptor 
+      // will correctly add the Authorization header.
       const response = await axios.post(
         `${apiUrl}/api/v2/loans/${loanId}/collateral`,
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
           timeout: 60000, // 60 second timeout
         }
       );

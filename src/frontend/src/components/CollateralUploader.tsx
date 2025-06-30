@@ -131,17 +131,12 @@ function CollateralUploader() {
 
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const token = localStorage.getItem('token');
       
+      // By removing the explicit headers config, our default interceptor 
+      // will correctly add the Authorization header.
       const response = await axios.post<CollateralUploadResponse>(
         `${apiUrl}/api/v2/loans/${loanId.trim()}/collateral`, 
-        formData, 
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`,
-          },
-        }
+        formData
       );
 
       setUploadResponse(response.data);
