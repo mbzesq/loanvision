@@ -3,6 +3,7 @@
 -- It is the single source of truth for the database structure.
 
 -- Step 1: Drop all tables in an order that respects dependencies, using CASCADE for safety.
+DROP TABLE IF EXISTS collateral_documents CASCADE;
 DROP TABLE IF EXISTS property_data_history CASCADE;
 DROP TABLE IF EXISTS property_data_current CASCADE;
 DROP TABLE IF EXISTS foreclosure_milestone_statuses CASCADE;
@@ -180,9 +181,32 @@ CREATE INDEX idx_property_data_history_loan_id ON property_data_history(loan_id)
 CREATE INDEX idx_property_data_history_enrichment_date ON property_data_history(enrichment_date);
 CREATE INDEX idx_property_data_history_source ON property_data_history(source);
 
+-- Step 10: Create collateral documents table.
+CREATE TABLE collateral_documents (
+    id SERIAL PRIMARY KEY,
+    loan_id TEXT NOT NULL,
+    file_name TEXT NOT NULL,
+    storage_path TEXT NOT NULL, -- Path in cloud storage bucket
+    document_type TEXT, -- Label predicted by Python model
+    page_count INTEGER,
+    uploaded_at TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT fk_loan
+        FOREIGN KEY(loan_id)
+        REFERENCES daily_metrics_current(loan_id)
+        ON DELETE CASCADE
+);
+
+-- Step 11: Create indexes for collateral documents.
+CREATE INDEX idx_collateral_documents_loan_id ON collateral_documents(loan_id);
+CREATE INDEX idx_collateral_documents_document_type ON collateral_documents(document_type);
+CREATE INDEX idx_collateral_documents_uploaded_at ON collateral_documents(uploaded_at);
+
 -- Comments for documentation
 COMMENT ON TABLE property_data_current IS 'Current property enrichment data - one row per loan (most recent)';
 COMMENT ON TABLE property_data_history IS 'Historical property enrichment data - all enrichment events';
+COMMENT ON TABLE collateral_documents IS 'Uploaded loan collateral documents with AI classification';
 COMMENT ON COLUMN property_data_current.source IS 'Source of the property data (e.g., PropertyData/HomeHarvest)';
 COMMENT ON COLUMN property_data_current.property_data IS 'JSON data containing property details from enrichment source';
 COMMENT ON COLUMN property_data_history.enrichment_date IS 'Timestamp when the enrichment was performed';
+COMMENT ON COLUMN collateral_documents.document_type IS 'Document type classified by AI (Note, Mortgage, etc.)';
+COMMENT ON COLUMN collateral_documents.storage_path IS 'File path in cloud storage or local filesystem';
