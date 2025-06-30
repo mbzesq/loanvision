@@ -4,6 +4,7 @@ import { UploadCloud, X, FileText, Loader2, Server } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
 import { Button } from '@loanvision/shared/components/ui/button';
 import { useToast } from '@loanvision/shared/hooks/use-toast';
+import CollateralUploader from '../components/CollateralUploader';
 
 interface UploadResponse {
   status: string;
@@ -156,8 +157,8 @@ function UploadPage() {
         <p className="text-lg text-slate-600">Upload files or connect to external data sources.</p>
       </div>
 
-      {/* Two Column Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Three Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Manual Upload Card */}
         <Card className="h-fit">
           <CardHeader>
@@ -268,6 +269,9 @@ function UploadPage() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Collateral Upload Card */}
+        <CollateralUploader />
 
         {/* FTP Connection Card (Placeholder) */}
         <Card className="h-fit opacity-60">
