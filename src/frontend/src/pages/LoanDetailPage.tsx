@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@l
 import { useToast } from '@loanvision/shared/hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
+import CollateralCard from '../components/CollateralCard';
 
 // Enhanced interface for detailed loan data including origination and payment history
 interface LoanDetail extends Loan {
@@ -456,6 +457,9 @@ const LoanDetailPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Full width Collateral Documents Card */}
+      <CollateralCard loanId={loanId!} />
 
       {/* Full width Credit Data Card at bottom */}
       <Card>

@@ -10,15 +10,15 @@ export interface PropertyDataPyResponse {
 }
 
 export const enrichWithPropertyDataPy = async (address: string): Promise<PropertyDataPyResponse | null> => {
-  if (!config.propertyDataApiUrl) {
-    console.error('PROPERTY_DATA_API_URL environment variable is not set.');
+  if (!config.collateralAnalysisApiUrl) {
+    console.error('COLLATERAL_ANALYSIS_API_URL environment variable is not set.');
     return null;
   }
 
   try {
     console.log(`[PropertyData-Py] Calling Python API for address: ${address}`);
     
-    const response = await axios.post(`${config.propertyDataApiUrl}/enrich`, {
+    const response = await axios.post(`${config.collateralAnalysisApiUrl}/enrich`, {
       address: address,
       listing_type: 'for_sale', // Default to for_sale listings
       limit: 50, // Reasonable limit for property data
