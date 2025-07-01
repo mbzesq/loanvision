@@ -206,7 +206,7 @@ CREATE TABLE collateral_documents (
     loan_id TEXT NOT NULL,
     user_id INTEGER,
     file_name TEXT NOT NULL,
-    file_size INTEGER, -- File size in bytes
+    file_size INTEGER, -- Ensure this line is present
     storage_path TEXT NOT NULL, -- Path in cloud storage bucket
     document_type TEXT, -- Label predicted by Python model
     page_count INTEGER,
