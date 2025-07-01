@@ -51,9 +51,9 @@ router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10),
         // Save to database
         const insertQuery = `
           INSERT INTO collateral_documents 
-          (loan_id, filename, document_type, page_count, user_id, file_size)
+          (loan_id, file_name, document_type, page_count, user_id, file_size)
           VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING id, loan_id, filename, document_type, page_count, upload_date
+          RETURNING id, loan_id, file_name, document_type, page_count, upload_date
         `;
         
         const insertResult = await pool.query(insertQuery, [
@@ -128,7 +128,7 @@ router.get('/:loanId/collateral', authenticateToken, async (req, res) => {
       SELECT 
         id,
         loan_id,
-        filename,
+        file_name,
         document_type,
         page_count,
         upload_date,
