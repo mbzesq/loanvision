@@ -10,6 +10,12 @@ export interface PropertyDataPyResponse {
 }
 
 export const enrichWithPropertyDataPy = async (address: string): Promise<PropertyDataPyResponse | null> => {
+  // This service is deprecated - the collateral analysis API has been replaced with AWS Textract
+  console.warn('[PropertyData-Py] This service is deprecated. Property enrichment is not available.');
+  return null;
+  
+  // Original implementation commented out:
+  /*
   if (!config.collateralAnalysisApiUrl) {
     console.error('COLLATERAL_ANALYSIS_API_URL environment variable is not set.');
     return null;
@@ -40,4 +46,5 @@ export const enrichWithPropertyDataPy = async (address: string): Promise<Propert
     }
     return null;
   }
+  */
 };

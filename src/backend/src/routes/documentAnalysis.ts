@@ -168,7 +168,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Document analysis failed:', error);
     
     // Clear the buffer even on error (security measure)
@@ -178,7 +178,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
 
     res.status(500).json({
       error: 'Document analysis failed',
-      details: error.message,
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -225,11 +225,11 @@ router.get('/:loanId/analyzed-documents', authenticateToken, async (req, res) =>
       count: result.rows.length,
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Failed to fetch analyzed documents:', error);
     res.status(500).json({
       error: 'Failed to fetch analyzed documents',
-      details: error.message,
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
