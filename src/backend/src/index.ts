@@ -7,7 +7,6 @@ import loansRouter from './routes/loans';
 import portfolioRouter from './routes/portfolio';
 import reportsRouter from './routes/reports';
 import authRouter from './routes/auth';
-import collateralRouter from './routes/collateral';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
@@ -57,7 +56,6 @@ app.use('/api', uploadRouter);
 app.use('/api', loansRouter);
 app.use('/api', portfolioRouter);
 app.use('/api', reportsRouter);
-app.use('/api/v2/loans', collateralRouter);
 
 // Document Analysis Routes (New OCR-based system)
 import documentAnalysisRouter from './routes/documentAnalysis';
