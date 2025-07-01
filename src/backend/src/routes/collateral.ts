@@ -3,7 +3,7 @@ import multer from 'multer';
 import pdf from 'pdf-parse';
 import pool from '../db';
 import { authenticateToken } from '../middleware/authMiddleware';
-import { classifyDocumentText } from '../services/classificationService';
+import { classifyDocumentText, extractBorrowerName, extractPropertyAddress } from '../services/classificationService';
 
 const router = express.Router();
 
@@ -35,6 +35,25 @@ router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10),
   try {
     const results = [];
 
+    // Fetch loan data once for validation
+    let loanData = null;
+    try {
+      const loanQuery = `
+        SELECT first_name, last_name, address, city, state, zip 
+        FROM daily_metrics_current 
+        WHERE loan_id = $1
+      `;
+      const loanResult = await pool.query(loanQuery, [loanId]);
+      loanData = loanResult.rows[0];
+      
+      if (!loanData) {
+        console.log(`Warning: No loan data found for loan_id ${loanId} - validation will be skipped`);
+      }
+    } catch (loanError) {
+      console.error(`Error fetching loan data for validation:`, loanError);
+      // Continue processing without validation
+    }
+
     for (const file of files) {
       try {
         // Extract text from PDF
@@ -48,12 +67,42 @@ router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10),
         // Classify document type
         const predictedDocType = classifyDocumentText(firstPageText);
 
-        // Save to database
+        // Perform validation if loan data is available
+        let isValidated = false;
+        let validationDetails = null;
+        
+        if (loanData) {
+          try {
+            // Extract borrower name from PDF
+            const extractedName = extractBorrowerName(pdfData.text);
+            
+            if (extractedName && loanData.last_name) {
+              // Simple validation: check if extracted name contains the loan's last name (case-insensitive)
+              const lastNameMatch = extractedName.toLowerCase().includes(loanData.last_name.toLowerCase());
+              isValidated = lastNameMatch;
+              
+              validationDetails = {
+                extractedName,
+                loanLastName: loanData.last_name,
+                matched: lastNameMatch
+              };
+              
+              console.log(`Validation for ${file.originalname}: Extracted="${extractedName}", Loan="${loanData.last_name}", Valid=${isValidated}`);
+            } else {
+              console.log(`Validation skipped for ${file.originalname}: Could not extract borrower name or missing loan last name`);
+            }
+          } catch (validationError) {
+            console.error(`Validation error for ${file.originalname}:`, validationError);
+            // Continue with isValidated = false
+          }
+        }
+
+        // Save to database with validation result
         const insertQuery = `
           INSERT INTO collateral_documents 
-          (loan_id, file_name, document_type, page_count, user_id, file_size)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING id, loan_id, file_name, document_type, page_count, upload_date
+          (loan_id, file_name, document_type, page_count, user_id, file_size, is_validated)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING id, loan_id, file_name, document_type, page_count, upload_date, is_validated
         `;
         
         const insertResult = await pool.query(insertQuery, [
@@ -62,7 +111,8 @@ router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10),
           predictedDocType,
           pdfData.numpages,
           userId,
-          file.size
+          file.size,
+          isValidated
         ]);
 
         const savedDocument = insertResult.rows[0];
@@ -74,10 +124,12 @@ router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10),
           pageCount: pdfData.numpages,
           fileSize: file.size,
           id: savedDocument.id,
-          uploadDate: savedDocument.upload_date
+          uploadDate: savedDocument.upload_date,
+          isValidated: savedDocument.is_validated,
+          validationDetails: validationDetails
         });
 
-        console.log(`Successfully processed PDF: ${file.originalname} -> ${predictedDocType} (${pdfData.numpages} pages)`);
+        console.log(`Successfully processed PDF: ${file.originalname} -> ${predictedDocType} (${pdfData.numpages} pages) - Validated: ${isValidated}`);
 
       } catch (fileError) {
         console.error(`Failed to process PDF ${file.originalname}:`, fileError);
@@ -133,6 +185,7 @@ router.get('/:loanId/collateral', authenticateToken, async (req, res) => {
         page_count,
         upload_date,
         file_size,
+        is_validated,
         created_at
       FROM collateral_documents 
       WHERE loan_id = $1 
