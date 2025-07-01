@@ -209,6 +209,7 @@ CREATE TABLE collateral_documents (
     storage_path TEXT NOT NULL, -- Path in cloud storage bucket
     document_type TEXT, -- Label predicted by Python model
     page_count INTEGER,
+    is_validated BOOLEAN DEFAULT FALSE,
     uploaded_at TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT fk_loan
         FOREIGN KEY(loan_id)
