@@ -157,4 +157,63 @@ router.get('/:loanId/collateral', authenticateToken, async (req, res) => {
   }
 });
 
+// DELETE /api/v2/collateral/:documentId - Delete a specific collateral document
+router.delete('/collateral/:documentId', authenticateToken, async (req, res) => {
+  const { documentId } = req.params;
+  const userId = (req as any).user?.id;
+
+  // Validate that documentId is provided
+  if (!documentId) {
+    return res.status(400).json({ error: 'Document ID is required' });
+  }
+
+  let client;
+  
+  try {
+    // Connect to the database
+    client = await pool.connect();
+    
+    // Execute DELETE query
+    const deleteQuery = 'DELETE FROM collateral_documents WHERE id = $1 RETURNING *;';
+    const result = await client.query(deleteQuery, [documentId]);
+    
+    // Check if document was found and deleted
+    if (result.rows.length === 0) {
+      return res.status(404).json({ 
+        error: 'Document not found',
+        documentId: documentId 
+      });
+    }
+    
+    const deletedDocument = result.rows[0];
+    
+    // Return success message with the deleted document
+    res.json({
+      success: true,
+      message: 'Document deleted successfully',
+      document: {
+        id: deletedDocument.id,
+        loanId: deletedDocument.loan_id,
+        fileName: deletedDocument.file_name,
+        documentType: deletedDocument.document_type,
+        pageCount: deletedDocument.page_count,
+        uploadDate: deletedDocument.upload_date,
+        fileSize: deletedDocument.file_size
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error deleting collateral document:', error);
+    res.status(500).json({ 
+      error: 'Failed to delete collateral document',
+      documentId: documentId 
+    });
+  } finally {
+    // Always release the database connection
+    if (client) {
+      client.release();
+    }
+  }
+});
+
 export default router;

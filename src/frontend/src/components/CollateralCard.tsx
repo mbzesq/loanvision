@@ -11,10 +11,11 @@ interface CollateralDocument {
   id: number;
   loan_id: string;
   file_name: string;
-  storage_path: string;
   document_type: string;
   page_count: number;
-  uploaded_at: string;
+  upload_date: string;
+  file_size: number;
+  created_at: string;
 }
 
 interface CollateralCardProps {
@@ -48,6 +49,7 @@ const CollateralCard: React.FC<CollateralCardProps> = ({ loanId }) => {
   const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [deletingDocumentId, setDeletingDocumentId] = useState<number | null>(null);
   const { toast } = useToast();
 
   // Fetch existing documents for the loan
@@ -229,6 +231,8 @@ const CollateralCard: React.FC<CollateralCardProps> = ({ loanId }) => {
       return;
     }
 
+    setDeletingDocumentId(documentId);
+
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
       await axios.delete(`${apiUrl}/api/v2/collateral/${documentId}`);
@@ -253,6 +257,8 @@ const CollateralCard: React.FC<CollateralCardProps> = ({ loanId }) => {
         description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setDeletingDocumentId(null);
     }
   };
 
@@ -439,7 +445,7 @@ const CollateralCard: React.FC<CollateralCardProps> = ({ loanId }) => {
                           <span className="font-medium">Pages:</span> {doc.page_count}
                         </div>
                         <div>
-                          <span className="font-medium">Uploaded:</span> {formatDate(doc.uploaded_at)}
+                          <span className="font-medium">Uploaded:</span> {formatDate(doc.upload_date)}
                         </div>
                       </div>
                     </div>
@@ -448,9 +454,14 @@ const CollateralCard: React.FC<CollateralCardProps> = ({ loanId }) => {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDelete(doc.id, doc.file_name)}
+                      disabled={deletingDocumentId === doc.id}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {deletingDocumentId === doc.id ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
