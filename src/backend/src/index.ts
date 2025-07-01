@@ -59,6 +59,10 @@ app.use('/api', portfolioRouter);
 app.use('/api', reportsRouter);
 app.use('/api/v2/loans', collateralRouter);
 
+// Document Analysis Routes (New OCR-based system)
+import documentAnalysisRouter from './routes/documentAnalysis';
+app.use('/api/v2/loans', documentAnalysisRouter);
+
 // Add this entire async block right before app.listen
 
 const runInitialSeed = async () => {
