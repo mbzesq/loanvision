@@ -155,7 +155,7 @@ const CollateralCard: React.FC<CollateralCardProps> = ({ loanId }) => {
       const formData = new FormData();
       
       selectedFiles.forEach(file => {
-        formData.append('documents', file);
+        formData.append('files', file);
       });
 
       // Update progress to classifying
