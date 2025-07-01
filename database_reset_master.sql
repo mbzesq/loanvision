@@ -227,12 +227,82 @@ CREATE INDEX idx_collateral_documents_loan_id ON collateral_documents(loan_id);
 CREATE INDEX idx_collateral_documents_document_type ON collateral_documents(document_type);
 CREATE INDEX idx_collateral_documents_uploaded_at ON collateral_documents(uploaded_at);
 
+-- Step 13: Create document analysis tables for OCR-based processing
+CREATE TABLE document_analysis (
+    id SERIAL PRIMARY KEY,
+    loan_id TEXT NOT NULL,
+    file_name TEXT NOT NULL,
+    document_type TEXT NOT NULL,
+    confidence_score NUMERIC(5,4) NOT NULL,
+    property_street TEXT,
+    property_city TEXT,
+    property_state TEXT,
+    property_zip TEXT,
+    borrower_name TEXT,
+    co_borrower_name TEXT,
+    loan_amount NUMERIC(15,2),
+    origination_date DATE,
+    lender_name TEXT,
+    assignor TEXT,
+    assignee TEXT,
+    assignment_date DATE,
+    recording_date DATE,
+    instrument_number TEXT,
+    ocr_text_blob TEXT,
+    extraction_metadata JSONB,
+    processing_time_ms INTEGER,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT fk_loan
+        FOREIGN KEY(loan_id)
+        REFERENCES daily_metrics_current(loan_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE document_analysis_qa_flags (
+    id SERIAL PRIMARY KEY,
+    document_analysis_id INTEGER NOT NULL,
+    field_name TEXT NOT NULL,
+    field_value TEXT,
+    confidence_score NUMERIC(5,4) NOT NULL,
+    flag_reason TEXT,
+    reviewed BOOLEAN DEFAULT FALSE,
+    reviewed_at TIMESTAMPTZ,
+    reviewed_by TEXT,
+    CONSTRAINT fk_document_analysis
+        FOREIGN KEY(document_analysis_id)
+        REFERENCES document_analysis(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE document_classification_feedback (
+    id SERIAL PRIMARY KEY,
+    document_analysis_id INTEGER NOT NULL,
+    predicted_type TEXT NOT NULL,
+    correct_type TEXT,
+    feedback_date TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT fk_document_analysis_feedback
+        FOREIGN KEY(document_analysis_id)
+        REFERENCES document_analysis(id)
+        ON DELETE CASCADE
+);
+
+-- Step 14: Create indexes for document analysis
+CREATE INDEX idx_document_analysis_loan_id ON document_analysis(loan_id);
+CREATE INDEX idx_document_analysis_document_type ON document_analysis(document_type);
+CREATE INDEX idx_document_analysis_created_at ON document_analysis(created_at);
+CREATE INDEX idx_document_analysis_confidence ON document_analysis(confidence_score);
+
 -- Comments for documentation
 COMMENT ON TABLE property_data_current IS 'Current property enrichment data - one row per loan (most recent)';
 COMMENT ON TABLE property_data_history IS 'Historical property enrichment data - all enrichment events';
-COMMENT ON TABLE collateral_documents IS 'Uploaded loan collateral documents with AI classification';
+COMMENT ON TABLE collateral_documents IS 'Legacy: Simple PDF upload tracking (replaced by document_analysis)';
+COMMENT ON TABLE document_analysis IS 'OCR-based document analysis with ML classification and field extraction';
+COMMENT ON TABLE document_analysis_qa_flags IS 'Low-confidence fields flagged for quality assurance review';
+COMMENT ON TABLE document_classification_feedback IS 'User feedback for improving ML document classification';
 COMMENT ON COLUMN property_data_current.source IS 'Source of the property data (e.g., PropertyData/HomeHarvest)';
 COMMENT ON COLUMN property_data_current.property_data IS 'JSON data containing property details from enrichment source';
 COMMENT ON COLUMN property_data_history.enrichment_date IS 'Timestamp when the enrichment was performed';
 COMMENT ON COLUMN collateral_documents.document_type IS 'Document type classified by AI (Note, Mortgage, etc.)';
 COMMENT ON COLUMN collateral_documents.storage_path IS 'File path in cloud storage or local filesystem';
+COMMENT ON COLUMN document_analysis.ocr_text_blob IS 'Full extracted text from OCR for debugging and reprocessing';
+COMMENT ON COLUMN document_analysis.extraction_metadata IS 'JSON metadata including field confidence scores and processing details';

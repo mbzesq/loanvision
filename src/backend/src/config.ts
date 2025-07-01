@@ -17,7 +17,23 @@ export const config = {
   
   // API Keys
   rentcastApiKey: process.env.RENTCAST_API_KEY,
-  collateralAnalysisApiUrl: process.env.COLLATERAL_ANALYSIS_API_URL,
+  
+  // AWS Configuration
+  aws: {
+    region: process.env.AWS_REGION || 'us-east-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  },
+  
+  // Security
+  encryptionKey: process.env.ENCRYPTION_KEY || '',
+  
+  // Feature Flags
+  features: {
+    enablePdfStorage: process.env.ENABLE_PDF_STORAGE === 'true',
+    enableQaReview: process.env.ENABLE_QA_REVIEW !== 'false',
+    lowConfidenceThreshold: parseFloat(process.env.LOW_CONFIDENCE_THRESHOLD || '0.7'),
+  },
   
   // Server configuration
   port: parseInt(process.env.PORT || '3001'),
