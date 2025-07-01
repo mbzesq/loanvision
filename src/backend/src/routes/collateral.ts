@@ -58,6 +58,12 @@ router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10),
         // Extract text from PDF
         const pdfData = await pdf(file.buffer);
         
+        // --- START: NEW DIAGNOSTIC CODE ---
+        console.log(`--- DEBUG: Full Extracted Text for ${file.originalname} ---`);
+        console.log(pdfData.text);
+        console.log(`---------------------------------------------------------`);
+        // --- END: NEW DIAGNOSTIC CODE ---
+        
         // Get text from first page for classification
         // Simple approach: split by page indicators and take first section
         const pages = pdfData.text.split(/---\s*page\s*\d+\s*---/i);
