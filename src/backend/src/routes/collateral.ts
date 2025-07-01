@@ -3,7 +3,7 @@ import multer from 'multer';
 import pdf from 'pdf-parse';
 import pool from '../db';
 import { authenticateToken } from '../middleware/authMiddleware';
-import { classifyDocumentText, extractBorrowerName, extractPropertyAddress } from '../services/classificationService';
+import { classifyDocumentText, extractBorrowerName } from '../services/classificationService';
 
 const router = express.Router();
 
@@ -25,7 +25,6 @@ const upload = multer({
 // POST /api/v2/loans/:loanId/collateral
 router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10), async (req, res) => {
   const { loanId } = req.params;
-  const userId = (req as any).user?.userId;
   const files = req.files as Express.Multer.File[];
 
   if (!files || files.length === 0) {
@@ -97,22 +96,27 @@ router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10),
           }
         }
 
-        // Save to database with validation result
+        // Save to database - using only columns that exist in live schema
+        const storagePath = `uploads/${file.originalname}`; // Placeholder
+        
         const insertQuery = `
-          INSERT INTO collateral_documents 
-          (loan_id, file_name, document_type, page_count, user_id, file_size, is_validated)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-          RETURNING id, loan_id, file_name, document_type, page_count, upload_date, is_validated
+          INSERT INTO collateral_documents(
+            loan_id, 
+            file_name, 
+            storage_path, 
+            document_type, 
+            page_count
+          )
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING *;
         `;
         
         const insertResult = await pool.query(insertQuery, [
           loanId,
           file.originalname,
+          storagePath,
           predictedDocType,
-          pdfData.numpages,
-          userId,
-          file.size,
-          isValidated
+          pdfData.numpages
         ]);
 
         const savedDocument = insertResult.rows[0];
@@ -122,14 +126,12 @@ router.post('/:loanId/collateral', authenticateToken, upload.array('files', 10),
           fileName: file.originalname,
           documentType: predictedDocType,
           pageCount: pdfData.numpages,
-          fileSize: file.size,
           id: savedDocument.id,
-          uploadDate: savedDocument.upload_date,
-          isValidated: savedDocument.is_validated,
-          validationDetails: validationDetails
+          uploadDate: savedDocument.uploaded_at,
+          storagePath: savedDocument.storage_path
         });
 
-        console.log(`Successfully processed PDF: ${file.originalname} -> ${predictedDocType} (${pdfData.numpages} pages) - Validated: ${isValidated}`);
+        console.log(`Successfully processed PDF: ${file.originalname} -> ${predictedDocType} (${pdfData.numpages} pages)`);
 
       } catch (fileError) {
         console.error(`Failed to process PDF ${file.originalname}:`, fileError);
@@ -181,15 +183,13 @@ router.get('/:loanId/collateral', authenticateToken, async (req, res) => {
         id,
         loan_id,
         file_name,
+        storage_path,
         document_type,
         page_count,
-        upload_date,
-        file_size,
-        is_validated,
-        created_at
+        uploaded_at
       FROM collateral_documents 
       WHERE loan_id = $1 
-      ORDER BY upload_date DESC
+      ORDER BY uploaded_at DESC
     `;
     
     const result = await pool.query(query, [loanId]);
