@@ -12,11 +12,27 @@ DROP TABLE IF EXISTS foreclosure_events CASCADE;
 DROP TABLE IF EXISTS daily_metrics_history CASCADE;
 DROP TABLE IF EXISTS daily_metrics_current CASCADE;
 DROP TABLE IF EXISTS upload_sessions CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS loans CASCADE; -- Legacy table
 DROP TABLE IF EXISTS enrichments CASCADE; -- Legacy table
 DROP TABLE IF EXISTS llm_queries CASCADE; -- Legacy table
+DROP TYPE IF EXISTS user_role CASCADE;
 
--- Step 2: Create the table for tracking upload sessions.
+-- Step 2: Create user role type and users table.
+CREATE TYPE user_role AS ENUM ('super_user', 'admin', 'manager', 'user');
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    first_name TEXT,
+    last_name TEXT,
+    role user_role NOT NULL DEFAULT 'user',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Step 3: Create the table for tracking upload sessions.
 CREATE TABLE upload_sessions (
     id UUID PRIMARY KEY,
     original_filename TEXT,
@@ -26,7 +42,7 @@ CREATE TABLE upload_sessions (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Step 3: Create the primary 'current state' table for daily metrics.
+-- Step 4: Create the primary 'current state' table for daily metrics.
 CREATE TABLE daily_metrics_current (
     loan_id TEXT PRIMARY KEY,
     investor_name TEXT,
@@ -48,7 +64,7 @@ CREATE TABLE daily_metrics_current (
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Step 4: Create the history table for daily metrics.
+-- Step 5: Create the history table for daily metrics.
 CREATE TABLE daily_metrics_history (
     id SERIAL PRIMARY KEY,
     loan_id TEXT NOT NULL,
@@ -72,7 +88,7 @@ CREATE TABLE daily_metrics_history (
     UNIQUE(loan_id, report_date)
 );
 
--- Step 5: Create the 'current state' table for foreclosure events.
+-- Step 6: Create the 'current state' table for foreclosure events.
 CREATE TABLE foreclosure_events (
     id SERIAL PRIMARY KEY,
     loan_id TEXT NOT NULL UNIQUE,
@@ -101,7 +117,7 @@ CREATE TABLE foreclosure_events (
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Step 6: Create the history table for foreclosure events.
+-- Step 7: Create the history table for foreclosure events.
 CREATE TABLE foreclosure_events_history (
     id SERIAL PRIMARY KEY,
     loan_id TEXT NOT NULL,
@@ -129,7 +145,7 @@ CREATE TABLE foreclosure_events_history (
     UNIQUE(loan_id, report_date)
 );
 
--- Step 7: Create helper function and triggers for updated_at timestamps.
+-- Step 8: Create helper function and triggers for updated_at timestamps.
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -138,13 +154,16 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE
+    ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER update_daily_metrics_current_updated_at BEFORE UPDATE
     ON daily_metrics_current FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_foreclosure_events_updated_at BEFORE UPDATE
     ON foreclosure_events FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Step 8: Create property data tables.
+-- Step 9: Create property data tables.
 CREATE TABLE property_data_current (
     loan_id TEXT PRIMARY KEY,
     source TEXT,
@@ -168,7 +187,7 @@ CREATE TABLE property_data_history (
         ON DELETE CASCADE
 );
 
--- Step 9: Create indexes for performance.
+-- Step 10: Create indexes for performance.
 CREATE INDEX idx_daily_metrics_current_loan_id ON daily_metrics_current(loan_id);
 CREATE INDEX idx_daily_metrics_current_state ON daily_metrics_current(state);
 CREATE INDEX idx_daily_metrics_current_loan_type ON daily_metrics_current(loan_type);
@@ -181,10 +200,11 @@ CREATE INDEX idx_property_data_history_loan_id ON property_data_history(loan_id)
 CREATE INDEX idx_property_data_history_enrichment_date ON property_data_history(enrichment_date);
 CREATE INDEX idx_property_data_history_source ON property_data_history(source);
 
--- Step 10: Create collateral documents table.
+-- Step 11: Create collateral documents table.
 CREATE TABLE collateral_documents (
     id SERIAL PRIMARY KEY,
     loan_id TEXT NOT NULL,
+    user_id INTEGER,
     file_name TEXT NOT NULL,
     storage_path TEXT NOT NULL, -- Path in cloud storage bucket
     document_type TEXT, -- Label predicted by Python model
@@ -193,10 +213,14 @@ CREATE TABLE collateral_documents (
     CONSTRAINT fk_loan
         FOREIGN KEY(loan_id)
         REFERENCES daily_metrics_current(loan_id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT fk_user
+        FOREIGN KEY(user_id)
+        REFERENCES users(id)
+        ON DELETE SET NULL
 );
 
--- Step 11: Create indexes for collateral documents.
+-- Step 12: Create indexes for collateral documents.
 CREATE INDEX idx_collateral_documents_loan_id ON collateral_documents(loan_id);
 CREATE INDEX idx_collateral_documents_document_type ON collateral_documents(document_type);
 CREATE INDEX idx_collateral_documents_uploaded_at ON collateral_documents(uploaded_at);
