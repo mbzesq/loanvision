@@ -35,6 +35,7 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     fetchDocuments();
@@ -53,11 +54,17 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const processFile = async (file: File) => {
     if (!file) return;
+    
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      setMessage({ type: 'error', text: 'Only PDF files are allowed' });
+      return;
+    }
 
     setIsUploading(true);
+    setMessage(null);
     const formData = new FormData();
     formData.append('document', file);
 
@@ -84,9 +91,40 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
       setMessage({ type: 'error', text: 'Failed to analyze document' });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      await processFile(file);
       // Reset the input
       event.target.value = '';
     }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      await processFile(files[0]);
+    }
+  };
+
+  const triggerFileInput = () => {
+    document.getElementById('document-upload')?.click();
   };
 
 
@@ -189,20 +227,42 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
               id="document-upload"
               disabled={isUploading}
             />
-            <label htmlFor="document-upload">
-              <button
-                className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isUploading}
-                onClick={(e) => e.preventDefault()}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                {isUploading ? 'Analyzing...' : 'Upload PDF'}
-              </button>
-            </label>
+            <button
+              className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isUploading}
+              onClick={triggerFileInput}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {isUploading ? 'Analyzing...' : 'Upload PDF'}
+            </button>
           </div>
         </div>
       </div>
       <div className="p-4">
+        {/* Drag and Drop Zone */}
+        <div
+          className={`mb-4 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+            isDragging 
+              ? 'border-blue-400 bg-blue-50' 
+              : 'border-gray-300 hover:border-gray-400'
+          } ${isUploading ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={triggerFileInput}
+        >
+          <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-sm text-gray-600">
+            {isDragging ? (
+              <span className="text-blue-600 font-medium">Drop PDF file here</span>
+            ) : (
+              <>
+                <span className="font-medium">Click to upload</span> or drag and drop PDF file
+              </>
+            )}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">PDF files only, up to 50MB</p>
+        </div>
         {message && (
           <div className={`mb-4 p-3 rounded-md ${
             message.type === 'error' ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'
