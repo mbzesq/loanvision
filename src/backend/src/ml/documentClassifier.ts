@@ -105,7 +105,7 @@ export class DocumentClassifier {
       const keyLower = key.toLowerCase();
       
       // Bonus points for form fields that match document type
-      if (pattern.keywords.some(kw => keyLower.includes(kw))) {
+      if (pattern.keywords.some((kw: string) => keyLower.includes(kw))) {
         score += 15;
       }
     });

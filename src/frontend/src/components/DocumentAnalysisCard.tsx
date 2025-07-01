@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { FileText, Upload, AlertCircle, CheckCircle, DollarSign, Calendar, User, Home } from 'lucide-react';
+import { FileText, Upload, DollarSign, User, Home } from 'lucide-react';
 import axios from '../utils/axios';
-import { useToast } from '@/hooks/use-toast';
 
 interface AnalyzedDocument {
   id: number;
@@ -38,7 +34,7 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
   const [documents, setDocuments] = useState<AnalyzedDocument[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const { toast } = useToast();
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     fetchDocuments();
@@ -51,11 +47,7 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
       setDocuments(response.data.documents || []);
     } catch (error) {
       console.error('Failed to fetch analyzed documents:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load analyzed documents',
-        variant: 'destructive',
-      });
+      setMessage({ type: 'error', text: 'Failed to load analyzed documents' });
     } finally {
       setIsLoading(false);
     }
@@ -81,19 +73,15 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
       );
 
       if (response.data.success) {
-        toast({
-          title: 'Success',
-          description: `Document analyzed: ${response.data.document.documentType} (${(response.data.document.confidence * 100).toFixed(1)}% confidence)`,
+        setMessage({ 
+          type: 'success', 
+          text: `Document analyzed: ${response.data.document.documentType} (${(response.data.document.confidence * 100).toFixed(1)}% confidence)` 
         });
         fetchDocuments();
       }
     } catch (error) {
       console.error('Failed to upload document:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to analyze document',
-        variant: 'destructive',
-      });
+      setMessage({ type: 'error', text: 'Failed to analyze document' });
     } finally {
       setIsUploading(false);
       // Reset the input
@@ -101,11 +89,6 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
     }
   };
 
-  const getConfidenceBadgeVariant = (confidence: number): 'default' | 'secondary' | 'destructive' => {
-    if (confidence >= 0.8) return 'default';
-    if (confidence >= 0.6) return 'secondary';
-    return 'destructive';
-  };
 
   const formatCurrency = (amount?: number) => {
     if (!amount) return '-';
@@ -134,7 +117,7 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
               <Home className="h-4 w-4" />
               Property Address
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-gray-600">
               {doc.property_street && <div>{doc.property_street}</div>}
               {(doc.property_city || doc.property_state || doc.property_zip) && (
                 <div>
@@ -152,7 +135,7 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
               <User className="h-4 w-4" />
               Borrower Information
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-gray-600">
               {doc.borrower_name && <div>Primary: {doc.borrower_name}</div>}
               {doc.co_borrower_name && <div>Co-Borrower: {doc.co_borrower_name}</div>}
             </div>
@@ -165,7 +148,7 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
               <DollarSign className="h-4 w-4" />
               Loan Details
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-gray-600">
               {doc.loan_amount && <div>Amount: {formatCurrency(doc.loan_amount)}</div>}
               {doc.origination_date && <div>Date: {formatDate(doc.origination_date)}</div>}
               {doc.lender_name && <div>Lender: {doc.lender_name}</div>}
@@ -179,7 +162,7 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
               <FileText className="h-4 w-4" />
               Assignment Details
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-gray-600">
               {doc.assignor && <div>From: {doc.assignor}</div>}
               {doc.assignee && <div>To: {doc.assignee}</div>}
               {doc.assignment_date && <div>Date: {formatDate(doc.assignment_date)}</div>}
@@ -193,10 +176,10 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <div className="border rounded-lg shadow-sm bg-white">
+      <div className="border-b px-4 py-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Document Analysis (OCR)</CardTitle>
+          <h3 className="text-lg font-semibold">Document Analysis (OCR)</h3>
           <div className="relative">
             <input
               type="file"
@@ -207,26 +190,31 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
               disabled={isUploading}
             />
             <label htmlFor="document-upload">
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isUploading}
-                asChild
+                onClick={(e) => e.preventDefault()}
               >
-                <span>
-                  <Upload className="h-4 w-4 mr-2" />
-                  {isUploading ? 'Analyzing...' : 'Upload PDF'}
-                </span>
-              </Button>
+                <Upload className="h-4 w-4 mr-2" />
+                {isUploading ? 'Analyzing...' : 'Upload PDF'}
+              </button>
             </label>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="p-4">
+        {message && (
+          <div className={`mb-4 p-3 rounded-md ${
+            message.type === 'error' ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'
+          }`}>
+            {message.text}
+          </div>
+        )}
+        
         {isLoading ? (
           <div className="text-center py-4">Loading documents...</div>
         ) : documents.length === 0 ? (
-          <div className="text-center py-4 text-muted-foreground">
+          <div className="text-center py-4 text-gray-500">
             No documents analyzed yet. Upload a PDF to get started.
           </div>
         ) : (
@@ -240,18 +228,24 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
                       {doc.file_name}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline">{doc.document_type}</Badge>
-                      <Badge variant={getConfidenceBadgeVariant(doc.confidence_score)}>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                        {doc.document_type}
+                      </span>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        doc.confidence_score >= 0.8 ? 'bg-green-100 text-green-800' : 
+                        doc.confidence_score >= 0.6 ? 'bg-yellow-100 text-yellow-800' : 
+                        'bg-red-100 text-red-800'
+                      }`}>
                         {(doc.confidence_score * 100).toFixed(1)}% confidence
-                      </Badge>
+                      </span>
                       {doc.processing_time_ms && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-gray-500">
                           {doc.processing_time_ms}ms
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-gray-500">
                     {formatDate(doc.created_at)}
                   </div>
                 </div>
@@ -260,14 +254,14 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
 
                 {doc.extraction_metadata && doc.extraction_metadata.fieldConfidence && (
                   <details className="mt-4">
-                    <summary className="text-sm text-muted-foreground cursor-pointer">
+                    <summary className="text-sm text-gray-500 cursor-pointer">
                       Field Confidence Scores
                     </summary>
                     <div className="mt-2 text-xs space-y-1">
                       {Object.entries(doc.extraction_metadata.fieldConfidence).map(([field, confidence]) => (
                         <div key={field} className="flex items-center justify-between">
                           <span>{field}:</span>
-                          <span className={confidence as number < 0.7 ? 'text-destructive' : ''}>
+                          <span className={confidence as number < 0.7 ? 'text-red-600' : 'text-green-600'}>
                             {((confidence as number) * 100).toFixed(1)}%
                           </span>
                         </div>
@@ -279,7 +273,7 @@ export const DocumentAnalysisCard: React.FC<DocumentAnalysisCardProps> = ({ loan
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

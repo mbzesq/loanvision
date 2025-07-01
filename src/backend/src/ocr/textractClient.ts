@@ -39,9 +39,12 @@ export class TextractService {
       }
 
       return this.processTextractResponse(response.Blocks);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Textract analysis failed:', error);
-      throw new Error(`OCR processing failed: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`OCR processing failed: ${error.message}`);
+      }
+      throw new Error('OCR processing failed: Unknown error');
     }
   }
 

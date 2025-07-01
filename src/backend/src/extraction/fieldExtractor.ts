@@ -285,13 +285,13 @@ export class FieldExtractor {
     return names;
   }
 
-  private parseCurrency(value: string): number | null {
+  private parseCurrency(value: string): number | undefined {
     const cleanValue = value.replace(/[$,]/g, '');
     const amount = parseFloat(cleanValue);
-    return isNaN(amount) ? null : amount;
+    return isNaN(amount) ? undefined : amount;
   }
 
-  private parseDate(value: string): Date | null {
+  private parseDate(value: string): Date | undefined {
     const match = value.match(this.datePattern);
     if (match) {
       const month = parseInt(match[1]);
@@ -304,9 +304,9 @@ export class FieldExtractor {
       }
       
       const date = new Date(year, month - 1, day);
-      return isNaN(date.getTime()) ? null : date;
+      return isNaN(date.getTime()) ? undefined : date;
     }
-    return null;
+    return undefined;
   }
 
   private cleanCompanyName(name: string): string {
