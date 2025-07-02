@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as csv from 'csv-parser';
 import { DocumentClassifier, DocumentType } from './src/backend/src/ml/documentClassifier';
-import { TextractService } from './src/backend/src/ocr/textractClient';
+import { TextractService, TextractResult } from './src/backend/src/ocr/textractClient';
 import { config } from './src/backend/src/config';
 
 interface TestCase {
@@ -22,6 +22,8 @@ interface ClassificationMetrics {
     predictedType: string;
     confidence: number;
   }>;
+  ocrFailures: string[];
+  ocrFailureRate: number;
 }
 
 // Map CSV labels to DocumentType enum
@@ -33,6 +35,55 @@ const labelToDocumentType: Record<string, DocumentType> = {
   'Assignment': DocumentType.ASSIGNMENT,
   'Other': DocumentType.OTHER,
 };
+
+// Helper function to check if Textract output is empty or unusable
+function isTextractOutputEmpty(result: TextractResult): boolean {
+  // Check if text is empty or only whitespace
+  if (!result.text || result.text.trim().length === 0) {
+    return true;
+  }
+  
+  // Check if blocks array is empty or has no meaningful content
+  if (!result.blocks || result.blocks.length === 0) {
+    return true;
+  }
+  
+  // Check if confidence is too low (below 50%)
+  if (result.confidence < 0.5) {
+    return true;
+  }
+  
+  // Check if the text is too short to be a real document (less than 50 characters)
+  if (result.text.trim().length < 50) {
+    return true;
+  }
+  
+  // Count words in the text
+  const wordCount = result.text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  if (wordCount < 10) {
+    return true;
+  }
+  
+  return false;
+}
+
+// Create logs directory if it doesn't exist
+function ensureLogsDirectory(): void {
+  const logsDir = path.join(__dirname, 'logs');
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+    console.log('Created logs directory');
+  }
+}
+
+// Log OCR failure to file
+function logOCRFailure(fileName: string, reason: string): void {
+  const logPath = path.join(__dirname, 'logs', 'ocr_failures.log');
+  const timestamp = new Date().toISOString();
+  const logEntry = `${timestamp} - ${fileName} - ${reason}\n`;
+  
+  fs.appendFileSync(logPath, logEntry);
+}
 
 async function loadTestCases(): Promise<TestCase[]> {
   return new Promise((resolve, reject) => {
@@ -141,6 +192,8 @@ function calculateMetrics(
     f1Score,
     confusionMatrix,
     misclassified,
+    ocrFailures: [], // Will be populated in main()
+    ocrFailureRate: 0, // Will be populated in main()
   };
 }
 
@@ -278,6 +331,15 @@ function suggestImprovements(metrics: ClassificationMetrics, misclassified: any[
 async function main() {
   console.log('=== DOCUMENT CLASSIFIER TUNING ===\n');
   
+  // Ensure logs directory exists
+  ensureLogsDirectory();
+  
+  // Clear previous OCR failures log
+  const ocrFailuresLogPath = path.join(__dirname, 'logs', 'ocr_failures.log');
+  if (fs.existsSync(ocrFailuresLogPath)) {
+    fs.unlinkSync(ocrFailuresLogPath);
+  }
+  
   // Check AWS credentials
   if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
     console.error('ERROR: AWS credentials not found in environment variables');
@@ -298,11 +360,13 @@ async function main() {
     const confusionMatrix = initializeConfusionMatrix(documentTypes);
     const misclassified: any[] = [];
     const ocrFailures: string[] = [];
+    const emptyOCRFiles: string[] = [];
     
     // Process each test case
     console.log('\nProcessing test cases with real OCR...\n');
     let processed = 0;
     let successfulOCR = 0;
+    let successfulClassifications = 0;
     
     for (const testCase of testCases) {
       console.log(`\n[${processed + 1}/${testCases.length}] Processing: ${testCase.fileName}`);
@@ -310,7 +374,19 @@ async function main() {
       try {
         // Perform real OCR
         const ocrResult = await performOCR(testCase.fileName, textractService);
+        
+        // Check if OCR output is empty or unusable
+        if (isTextractOutputEmpty(ocrResult)) {
+          console.log(`  ⚠️  OCR returned empty/unusable content`);
+          console.log(`  Text length: ${ocrResult.text?.length || 0}, Confidence: ${(ocrResult.confidence * 100).toFixed(1)}%`);
+          emptyOCRFiles.push(testCase.fileName);
+          logOCRFailure(testCase.fileName, `Empty OCR output - text length: ${ocrResult.text?.length || 0}, confidence: ${ocrResult.confidence}`);
+          processed++;
+          continue;
+        }
+        
         successfulOCR++;
+        console.log(`  OCR successful - extracted ${ocrResult.text.length} characters`);
         
         // Classify using real OCR output
         console.log(`  Classifying document...`);
@@ -342,9 +418,12 @@ async function main() {
           });
         }
         
+        successfulClassifications++;
+        
       } catch (error) {
         console.error(`  Failed to process ${testCase.fileName}:`, error);
         ocrFailures.push(testCase.fileName);
+        logOCRFailure(testCase.fileName, `Processing error: ${error}`);
       }
       
       processed++;
@@ -353,15 +432,30 @@ async function main() {
     console.log(`\n\nProcessing complete!`);
     console.log(`Total files: ${processed}`);
     console.log(`Successful OCR: ${successfulOCR}`);
-    console.log(`OCR failures: ${ocrFailures.length}`);
+    console.log(`Empty/Unusable OCR: ${emptyOCRFiles.length}`);
+    console.log(`Processing failures: ${ocrFailures.length}`);
+    console.log(`Successful classifications: ${successfulClassifications}`);
+    
+    const totalOCRFailures = ocrFailures.length + emptyOCRFiles.length;
+    const ocrFailureRate = totalOCRFailures / processed;
+    console.log(`\nOCR failure rate: ${(ocrFailureRate * 100).toFixed(1)}% (${totalOCRFailures}/${processed})`);
+    
+    if (emptyOCRFiles.length > 0) {
+      console.log('\nFiles with empty/unusable OCR:');
+      emptyOCRFiles.forEach(file => console.log(`  - ${file}`));
+    }
     
     if (ocrFailures.length > 0) {
-      console.log('\nFailed files:');
+      console.log('\nFiles with processing errors:');
       ocrFailures.forEach(file => console.log(`  - ${file}`));
     }
     
-    // Calculate metrics (only for successful OCR)
+    // Calculate metrics (only for successful classifications)
     const metrics = calculateMetrics(confusionMatrix, misclassified);
+    
+    // Add OCR failure information to metrics
+    metrics.ocrFailures = [...ocrFailures, ...emptyOCRFiles];
+    metrics.ocrFailureRate = ocrFailureRate;
     
     // Print results
     printConfusionMatrix(metrics.confusionMatrix);
@@ -375,11 +469,27 @@ async function main() {
       ...metrics,
       totalFiles: testCases.length,
       successfulOCR,
-      ocrFailures,
+      successfulClassifications,
+      emptyOCRFiles,
+      processingErrors: ocrFailures,
+      totalOCRFailures,
+      ocrFailureRate,
       timestamp: new Date().toISOString(),
     };
     fs.writeFileSync(resultsPath, JSON.stringify(fullResults, null, 2));
     console.log(`\nResults saved to: ${resultsPath}`);
+    
+    // Also save a structured OCR failures JSON
+    const ocrFailuresJsonPath = path.join(__dirname, 'logs', 'failed_ocr_files.json');
+    const ocrFailuresData = {
+      emptyOCR: emptyOCRFiles,
+      processingErrors: ocrFailures,
+      total: totalOCRFailures,
+      rate: ocrFailureRate,
+      timestamp: new Date().toISOString(),
+    };
+    fs.writeFileSync(ocrFailuresJsonPath, JSON.stringify(ocrFailuresData, null, 2));
+    console.log(`OCR failures saved to: ${ocrFailuresJsonPath}`);
     
   } catch (error) {
     console.error('Error during classifier tuning:', error);
