@@ -1,9 +1,163 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as csv from 'csv-parser';
+import * as dotenv from 'dotenv';
+import { TextractClient, AnalyzeDocumentCommand, Block, AnalyzeDocumentCommandInput } from '@aws-sdk/client-textract';
 import { DocumentClassifier, DocumentType } from './src/backend/src/ml/documentClassifier';
-import { TextractService, TextractResult } from './src/backend/src/ocr/textractClient';
-import { config } from './src/backend/src/config';
+import { TextractResult } from './src/backend/src/ocr/textractClient';
+
+// Load environment variables from multiple possible locations
+dotenv.config(); // Load from root .env
+dotenv.config({ path: path.join(__dirname, 'src', 'backend', '.env') }); // Load from backend .env
+dotenv.config({ path: path.join(__dirname, '.env.local') }); // Load from root .env.local
+
+// Standalone TextractService for tuning script to avoid config path dependencies
+class TuningTextractService {
+  private client: TextractClient;
+
+  constructor() {
+    this.client = new TextractClient({
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+      },
+    });
+  }
+
+  async analyzeDocument(pdfBuffer: Buffer): Promise<TextractResult> {
+    const params: AnalyzeDocumentCommandInput = {
+      Document: {
+        Bytes: pdfBuffer,
+      },
+      FeatureTypes: ['FORMS', 'TABLES'],
+    };
+
+    try {
+      const command = new AnalyzeDocumentCommand(params);
+      const response = await this.client.send(command);
+      
+      if (!response.Blocks) {
+        throw new Error('No blocks returned from Textract');
+      }
+
+      return this.processTextractResponse(response.Blocks);
+    } catch (error: unknown) {
+      console.error('Textract analysis failed:', error);
+      if (error instanceof Error) {
+        throw new Error(`OCR processing failed: ${error.message}`);
+      }
+      throw new Error('OCR processing failed: Unknown error');
+    }
+  }
+
+  private processTextractResponse(blocks: Block[]): TextractResult {
+    const keyValuePairs = new Map<string, string>();
+    const tables: any[] = [];
+    let fullText = '';
+    let totalConfidence = 0;
+    let confidenceCount = 0;
+
+    // Build block map for relationship lookups
+    const blockMap = new Map<string, Block>();
+    blocks.forEach(block => {
+      if (block.Id) {
+        blockMap.set(block.Id, block);
+      }
+    });
+
+    // Process each block
+    blocks.forEach(block => {
+      // Extract text
+      if (block.BlockType === 'LINE' && block.Text) {
+        fullText += block.Text + '\n';
+      }
+
+      // Track confidence
+      if (block.Confidence) {
+        totalConfidence += block.Confidence;
+        confidenceCount++;
+      }
+
+      // Extract key-value pairs
+      if (block.BlockType === 'KEY_VALUE_SET' && block.EntityTypes?.includes('KEY')) {
+        const key = this.getTextFromRelationships(block, blockMap, 'VALUE');
+        const value = this.getValueFromKey(block, blocks, blockMap);
+        if (key && value) {
+          keyValuePairs.set(key, value);
+        }
+      }
+
+      // Extract tables (simplified for MVP)
+      if (block.BlockType === 'TABLE') {
+        tables.push(this.extractTable(block, blockMap));
+      }
+    });
+
+    return {
+      text: fullText.trim(),
+      keyValuePairs,
+      tables,
+      confidence: confidenceCount > 0 ? totalConfidence / confidenceCount / 100 : 0, // Convert to 0-1 scale
+      blocks,
+    };
+  }
+
+  private getTextFromRelationships(block: Block, blockMap: Map<string, Block>, relationshipType: string): string {
+    if (!block.Relationships) return '';
+
+    const relationship = block.Relationships.find(r => r.Type === relationshipType);
+    if (!relationship || !relationship.Ids) return '';
+
+    let text = '';
+    relationship.Ids.forEach(id => {
+      const relatedBlock = blockMap.get(id);
+      if (relatedBlock && relatedBlock.Text) {
+        text += relatedBlock.Text + ' ';
+      }
+    });
+
+    return text.trim();
+  }
+
+  private getValueFromKey(keyBlock: Block, blocks: Block[], blockMap: Map<string, Block>): string {
+    if (!keyBlock.Relationships) return '';
+
+    const valueRelationship = keyBlock.Relationships.find(r => r.Type === 'VALUE');
+    if (!valueRelationship || !valueRelationship.Ids) return '';
+
+    const valueBlockId = valueRelationship.Ids[0];
+    const valueBlock = blocks.find(b => b.Id === valueBlockId && b.BlockType === 'KEY_VALUE_SET');
+    
+    if (!valueBlock) return '';
+
+    return this.getTextFromRelationships(valueBlock, blockMap, 'CHILD');
+  }
+
+  private extractTable(tableBlock: Block, blockMap: Map<string, Block>): any {
+    // Simplified table extraction for MVP
+    const cells: any[] = [];
+    
+    if (tableBlock.Relationships) {
+      tableBlock.Relationships.forEach(relationship => {
+        if (relationship.Type === 'CHILD' && relationship.Ids) {
+          relationship.Ids.forEach(cellId => {
+            const cellBlock = blockMap.get(cellId);
+            if (cellBlock && cellBlock.BlockType === 'CELL') {
+              cells.push({
+                rowIndex: cellBlock.RowIndex || 0,
+                columnIndex: cellBlock.ColumnIndex || 0,
+                text: this.getTextFromRelationships(cellBlock, blockMap, 'CHILD'),
+              });
+            }
+          });
+        }
+      });
+    }
+
+    return { cells };
+  }
+}
 
 interface TestCase {
   fileName: string;
@@ -107,11 +261,17 @@ async function loadTestCases(): Promise<TestCase[]> {
 }
 
 // Use real Textract OCR to process PDFs
-async function performOCR(fileName: string, textractService: TextractService) {
+async function performOCR(fileName: string, textractService: TuningTextractService) {
   const pdfPath = path.join(__dirname, 'docs', 'test_set', fileName);
+  
+  // Check if file exists
+  if (!fs.existsSync(pdfPath)) {
+    throw new Error(`PDF file not found: ${pdfPath}`);
+  }
   
   // Read PDF file
   const pdfBuffer = fs.readFileSync(pdfPath);
+  console.log(`  PDF file size: ${pdfBuffer.length} bytes`);
   
   // Run actual OCR using Textract
   console.log(`  Running OCR on ${fileName}...`);
@@ -121,6 +281,9 @@ async function performOCR(fileName: string, textractService: TextractService) {
     const textractResult = await textractService.analyzeDocument(pdfBuffer);
     const ocrTime = Date.now() - startTime;
     console.log(`  OCR completed in ${ocrTime}ms`);
+    console.log(`  Extracted text preview: "${textractResult.text.substring(0, 100)}..."`);
+    console.log(`  Blocks found: ${textractResult.blocks?.length || 0}`);
+    console.log(`  Key-value pairs: ${textractResult.keyValuePairs?.size || 0}`);
     return textractResult;
   } catch (error) {
     console.error(`  OCR failed for ${fileName}:`, error);
@@ -340,10 +503,20 @@ async function main() {
     fs.unlinkSync(ocrFailuresLogPath);
   }
   
-  // Check AWS credentials
+  // Check AWS credentials and provide detailed debugging
+  console.log('AWS Region:', process.env.AWS_REGION || 'us-east-1');
+  console.log('AWS Access Key ID:', process.env.AWS_ACCESS_KEY_ID ? `${process.env.AWS_ACCESS_KEY_ID.substring(0, 8)}...` : 'NOT SET');
+  console.log('AWS Secret Access Key:', process.env.AWS_SECRET_ACCESS_KEY ? 'SET' : 'NOT SET');
+  
   if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-    console.error('ERROR: AWS credentials not found in environment variables');
+    console.error('\nERROR: AWS credentials not found in environment variables');
     console.error('Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY');
+    console.error('\nYou can set them by:');
+    console.error('1. Creating a .env file in the project root with:');
+    console.error('   AWS_ACCESS_KEY_ID=your_key');
+    console.error('   AWS_SECRET_ACCESS_KEY=your_secret');
+    console.error('   AWS_REGION=us-east-1');
+    console.error('2. Or export them as environment variables');
     process.exit(1);
   }
   
@@ -351,9 +524,16 @@ async function main() {
     // Load test cases
     const testCases = await loadTestCases();
     
-    // Initialize services
-    const textractService = new TextractService();
+    // Initialize services with explicit AWS config
+    // Create TuningTextractService with environment variables directly to avoid config path issues
+    const textractService = new TuningTextractService();
     const classifier = new DocumentClassifier();
+    
+    console.log('✓ TuningTextractService initialized with direct environment variables');
+    console.log('✓ DocumentClassifier initialized');
+    console.log('\nAWS Configuration:');
+    console.log(`  Region: ${process.env.AWS_REGION || 'us-east-1'}`);
+    console.log(`  Using credentials: ${process.env.AWS_ACCESS_KEY_ID ? 'YES' : 'NO'}`);
     
     // Initialize metrics
     const documentTypes = Array.from(new Set(testCases.map(tc => tc.trueType)));
@@ -379,8 +559,9 @@ async function main() {
         if (isTextractOutputEmpty(ocrResult)) {
           console.log(`  ⚠️  OCR returned empty/unusable content`);
           console.log(`  Text length: ${ocrResult.text?.length || 0}, Confidence: ${(ocrResult.confidence * 100).toFixed(1)}%`);
+          console.log(`  Blocks count: ${ocrResult.blocks?.length || 0}`);
           emptyOCRFiles.push(testCase.fileName);
-          logOCRFailure(testCase.fileName, `Empty OCR output - text length: ${ocrResult.text?.length || 0}, confidence: ${ocrResult.confidence}`);
+          logOCRFailure(testCase.fileName, `Empty OCR output - text length: ${ocrResult.text?.length || 0}, confidence: ${ocrResult.confidence}, blocks: ${ocrResult.blocks?.length || 0}`);
           processed++;
           continue;
         }
