@@ -14,13 +14,15 @@
     "dev:frontend": "npm run dev --workspace=src/frontend",
     "build": "npm run build --workspace=@loanvision/shared && npm run build --workspaces --if-present",
     "start": "npm run start --workspace=src/backend",
-    "tune-classifier": "tsx tuneClassifier.ts"
+    "tune-classifier": "tsx tuneClassifier.ts",
+    "test-ocr": "tsx testOCR.ts"
+    
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "autoprefixer": "^10.4.21",
     "concurrently": "^8.2.2",
-    "csv-parser": "^3.0.0",
+    "csv-parser": "^3.2.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.6.2",

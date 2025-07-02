@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as csv from 'csv-parser';
+import csv from 'csv-parser';
 import { DocumentClassifier, DocumentType } from './src/backend/src/ml/documentClassifier';
 import { TextractService } from './src/backend/src/ocr/textractClient';
 import { config } from './src/backend/src/config';
