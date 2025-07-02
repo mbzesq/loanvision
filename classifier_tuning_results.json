@@ -143,6 +143,11 @@
       "keyValuePairs": 0
     }
   ],
+<<<<<<< HEAD
+=======
+  "totalFiles": 68,
+  "successfulOCR": 32,
+>>>>>>> 4f5e66dc19b28580f884bcbfe28d434895645bb2
   "ocrFailures": [
     "0240610110_NOTE.pdf",
     "03_Mortgages__Deeds_of_Trust_10K_060904.pdf",
@@ -181,6 +186,7 @@
     "Note_0000160868_07.15.98.pdf",
     "Note_0000161126_09.01.98__Copy.pdf"
   ],
+<<<<<<< HEAD
   "ocrFailureRate": 0.5294117647058824,
   "totalFiles": 68,
   "successfulOCR": 32,
@@ -226,4 +232,7 @@
   ],
   "totalOCRFailures": 36,
   "timestamp": "2025-07-02T04:18:15.067Z"
+=======
+  "timestamp": "2025-07-02T02:33:53.933Z"
+>>>>>>> 4f5e66dc19b28580f884bcbfe28d434895645bb2
 }
