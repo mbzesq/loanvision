@@ -24,29 +24,39 @@ npm run tune-classifier
 
 This will:
 1. Load 68 labeled PDFs from `docs/test_set/`
-2. Run AWS Textract OCR on each PDF
-3. Classify the OCR output using the current classifier
-4. Compare predictions against ground truth labels
-5. Generate a confusion matrix and accuracy metrics
-6. Save results to `classifier_tuning_results.json`
+2. Run AWS Textract OCR on each PDF (including scanned/image-based documents)
+3. Check for empty or unusable OCR output and log failures
+4. Classify successful OCR outputs using the current classifier
+5. Compare predictions against ground truth labels
+6. Generate a confusion matrix and accuracy metrics
+7. Save results to `classifier_tuning_results.json` and `logs/` directory
 
 ## Expected Output
 
 ### Console Output:
 - Real-time OCR progress for each document
+- OCR quality assessment (text length, confidence)
 - Individual classification results (predicted vs true)
+- OCR failure notifications with reasons
 - Confusion matrix showing classification patterns
 - Per-class precision, recall, and F1 scores
-- Overall accuracy percentage
+- Overall accuracy percentage and OCR success rate
 - Misclassification analysis
 - Suggested improvements
 
-### JSON Output:
-The script saves detailed results to `classifier_tuning_results.json` including:
-- Complete confusion matrix
-- All metrics (precision, recall, F1)
-- List of misclassified documents
-- OCR success/failure counts
+### File Outputs:
+1. **`classifier_tuning_results.json`** - Complete results including:
+   - Confusion matrix and classification metrics
+   - List of misclassified documents with OCR metadata
+   - OCR success/failure statistics and rates
+   
+2. **`logs/ocr_failures.log`** - Timestamped log of OCR failures:
+   - Empty/unusable OCR outputs
+   - Processing errors with reasons
+   
+3. **`logs/failed_ocr_files.json`** - Structured OCR failure data:
+   - Categorized failure types
+   - Failure rates and statistics
 
 ## Test Set Distribution
 - Note: 11 documents
@@ -70,9 +80,14 @@ Rows represent true document types, columns represent predicted types. Diagonal 
 - **F1 Score**: Harmonic mean of precision and recall
 
 ### Common Issues
-1. **Allonge vs Note confusion**: Short endorsements may be misclassified
-2. **Mortgage vs Deed of Trust**: Regional terminology differences
-3. **Low confidence**: Documents with poor scan quality or unusual formatting
+1. **OCR Failures**: 
+   - Heavily scanned/distorted PDFs may return empty text
+   - Very short documents (< 50 characters) are flagged as unusable
+   - Low confidence OCR (< 50%) are filtered out
+2. **Classification Issues**:
+   - **Allonge vs Note confusion**: Short endorsements may be misclassified
+   - **Mortgage vs Deed of Trust**: Regional terminology differences
+   - **Low confidence**: Documents with poor scan quality or unusual formatting
 
 ## Next Steps
 Based on the results, you can:
