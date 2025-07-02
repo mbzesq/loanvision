@@ -15,17 +15,26 @@ export interface ClassificationResult {
   scores: Map<DocumentType, number>;
 }
 
+interface DocumentPattern {
+  keywords: string[];
+  requiredKeywords: string[];
+  negativeKeywords?: string[];
+  weight: number;
+}
+
 export class DocumentClassifier {
   // Keywords and patterns for each document type
-  private readonly patterns = {
+  private readonly patterns: Record<DocumentType, DocumentPattern> = {
     [DocumentType.NOTE]: {
       keywords: ['promissory note', 'promise to pay', 'principal sum', 'interest rate', 'maturity date'],
       requiredKeywords: ['promise to pay'],
+      negativeKeywords: ['allonge'],
       weight: 1.0,
     },
     [DocumentType.MORTGAGE]: {
-      keywords: ['mortgage', 'mortgagor', 'mortgagee', 'this mortgage', 'mortgage deed'],
+      keywords: ['mortgage', 'mortgagor', 'mortgagee', 'this mortgage', 'mortgage deed', 'security instrument'],
       requiredKeywords: ['mortgage'],
+      negativeKeywords: ['assignment of mortgage'],
       weight: 1.0,
     },
     [DocumentType.DEED_OF_TRUST]: {
@@ -41,7 +50,7 @@ export class DocumentClassifier {
     [DocumentType.ASSIGNMENT]: {
       keywords: ['assignment', 'assignor', 'assignee', 'hereby assigns', 'assignment of mortgage', 'assignment of deed'],
       requiredKeywords: ['assignment'],
-      weight: 1.0,
+      weight: 1.1, // Increased weight to help with longer documents
     },
   };
 
@@ -82,7 +91,7 @@ export class DocumentClassifier {
   private calculateScore(
     text: string, 
     keyValues: Map<string, string>, 
-    pattern: any
+    pattern: DocumentPattern
   ): number {
     let score = 0;
     
@@ -109,6 +118,15 @@ export class DocumentClassifier {
         score += 15;
       }
     });
+
+    // Apply negative keyword penalties
+    if (pattern.negativeKeywords) {
+      for (const negativeKeyword of pattern.negativeKeywords) {
+        if (text.includes(negativeKeyword)) {
+          score *= 0.2; // Significant penalty for negative keywords
+        }
+      }
+    }
 
     // Apply document type weight
     score *= pattern.weight;
@@ -140,7 +158,7 @@ export class DocumentClassifier {
     const absoluteConfidence = Math.min(maxScore / 100, 1);
     
     // Weighted average of relative and absolute confidence
-    return 0.7 * relativeConfidence + 0.3 * absoluteConfidence;
+    return 0.6 * relativeConfidence + 0.4 * absoluteConfidence;
   }
 
   // Method to update classifier with feedback (for future ML improvement)
