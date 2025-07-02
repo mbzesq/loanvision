@@ -46,3 +46,9 @@ vite.config.ts.timestamp-*
 
 # Docker
 /db-data
+
+# OCR Processing Directories
+ocr_optimized_pdfs/
+ocr_results/
+temp_images/
+ocr_pipeline_log.json
