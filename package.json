@@ -16,7 +16,6 @@
     "start": "npm run start --workspace=src/backend",
     "tune-classifier": "tsx tuneClassifier.ts",
     "test-ocr": "tsx testOCR.ts"
-    
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
