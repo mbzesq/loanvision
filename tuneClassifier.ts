@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as csv from 'csv-parser';
+import csv from 'csv-parser';
 import * as dotenv from 'dotenv';
 import { TextractClient, AnalyzeDocumentCommand, Block, AnalyzeDocumentCommandInput } from '@aws-sdk/client-textract';
 import { DocumentClassifier, DocumentType } from './src/backend/src/ml/documentClassifier';
