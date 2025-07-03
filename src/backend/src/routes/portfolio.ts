@@ -9,9 +9,9 @@ router.get('/portfolio/summary', authenticateToken, async (req, res) => {
     const query = `
       SELECT 
         COUNT(*) as loan_count,
-        COALESCE(SUM(unpaid_principal_balance), 0) as total_upb,
-        COALESCE(AVG(unpaid_principal_balance), 0) as average_balance
-      FROM loans
+        COALESCE(SUM(prin_bal), 0) as total_upb,
+        COALESCE(AVG(prin_bal), 0) as average_balance
+      FROM daily_metrics_current
     `;
     
     const result = await pool.query(query);
