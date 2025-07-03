@@ -15,7 +15,7 @@ const LoanStatusChart: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<LoanStatusData[]>('/api/v2/reports/loan-status-distribution');
+        const response = await axios.get<LoanStatusData[]>('/api/reports/loan-status-distribution');
         setData(response.data);
       } catch (err) {
         setError('Failed to fetch loan status distribution');
