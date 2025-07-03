@@ -201,72 +201,31 @@ router.get('/reports/loan-geographical-distribution', authenticateToken, async (
 // --- MONTHLY CASHFLOW ENDPOINT ---
 router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
   try {
+    // Default to the current year if no year is provided in the query
     const year = req.query.year || new Date().getFullYear();
-    
-    // Define months with their database column names
-    const monthsData = [
-      { abbr: 'Jan', full: 'january', order: 1 },
-      { abbr: 'Feb', full: 'february', order: 2 },
-      { abbr: 'Mar', full: 'march', order: 3 },
-      { abbr: 'Apr', full: 'april', order: 4 },
-      { abbr: 'May', full: 'may', order: 5 },
-      { abbr: 'Jun', full: 'june', order: 6 },
-      { abbr: 'Jul', full: 'july', order: 7 },
-      { abbr: 'Aug', full: 'august', order: 8 },
-      { abbr: 'Sep', full: 'september', order: 9 },
-      { abbr: 'Oct', full: 'october', order: 10 },
-      { abbr: 'Nov', full: 'november', order: 11 },
-      { abbr: 'Dec', full: 'december', order: 12 }
-    ];
 
-    // Build individual queries for each month
-    const queries = monthsData.map(month => {
-      const columnName = `${month.full}_${year}`;
-      return {
-        month: month.abbr,
-        order: month.order,
-        query: `SELECT COALESCE(SUM(${columnName}), 0) as total FROM daily_metrics_current`
-      };
-    });
+    const query = `
+      SELECT
+        TO_CHAR(payment_date, 'Mon') as month,
+        EXTRACT(MONTH FROM payment_date) as month_order,
+        SUM(payment_amount) as cashflow
+      FROM monthly_cashflow_data
+      WHERE EXTRACT(YEAR FROM payment_date) = $1
+      GROUP BY month, month_order
+      ORDER BY month_order ASC;
+    `;
 
-    // Execute all queries in parallel for better performance
-    const results = await Promise.all(
-      queries.map(async (q) => {
-        try {
-          const result = await pool.query(q.query);
-          return {
-            month: q.month,
-            order: q.order,
-            cashflow: parseFloat(result.rows[0].total) || 0
-          };
-        } catch (err) {
-          // If column doesn't exist for this year, return 0
-          console.warn(`Column for ${q.month} ${year} might not exist:`, err);
-          return {
-            month: q.month,
-            order: q.order,
-            cashflow: 0
-          };
-        }
-      })
-    );
+    const result = await pool.query(query, [year]);
 
-    // Sort results by month order
-    const sortedResults = results.sort((a, b) => a.order - b.order);
-
-    // Format for frontend
-    const formattedData = sortedResults.map(item => ({
-      month: item.month,
-      cashflow: item.cashflow
+    const formattedData = result.rows.map(row => ({
+      month: row.month,
+      cashflow: parseFloat(row.cashflow)
     }));
 
     res.json(formattedData);
   } catch (error) {
     console.error('Error fetching monthly cashflow:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch monthly cashflow data',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
+    res.status(500).send('Error fetching monthly cashflow');
   }
 });
 
