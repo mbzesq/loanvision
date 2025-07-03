@@ -26,6 +26,7 @@ const MIN_CONFIDENCE = {
   [DocumentType.SECURITY_INSTRUMENT]: 0.6,
   [DocumentType.ASSIGNMENT]: 0.75,
   [DocumentType.ALLONGE]: 0.75,
+  [DocumentType.OTHER]: 0.3,
 };
 
 export class DocumentClassifier {
@@ -74,6 +75,11 @@ export class DocumentClassifier {
       mediumWeightKeywords: [
         'successor', 'benefit', 'binding', 'heirs and assigns'
       ],
+      negativeKeywords: []
+    },
+    [DocumentType.OTHER]: {
+      highWeightKeywords: [],
+      mediumWeightKeywords: [],
       negativeKeywords: []
     },
   };

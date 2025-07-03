@@ -48,8 +48,7 @@ export class FieldExtractor {
     // Extract document-specific fields
     switch (documentType) {
       case DocumentType.NOTE:
-      case DocumentType.MORTGAGE:
-      case DocumentType.DEED_OF_TRUST:
+      case DocumentType.SECURITY_INSTRUMENT:
         this.extractLoanFields(textractResult, fields);
         break;
       case DocumentType.ASSIGNMENT:
