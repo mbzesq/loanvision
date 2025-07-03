@@ -16,42 +16,62 @@ export interface ClassificationResult {
 }
 
 interface DocumentPattern {
-  keywords: string[];
-  requiredKeywords: string[];
+  highWeightKeywords: string[];
+  mediumWeightKeywords: string[];
   negativeKeywords?: string[];
-  weight: number;
 }
 
 export class DocumentClassifier {
-  // Keywords and patterns for each document type
+  // V2 Keywords and patterns for each document type with weighted groups
   private readonly patterns: Record<DocumentType, DocumentPattern> = {
     [DocumentType.NOTE]: {
-      keywords: ['promissory note', 'promise to pay', 'principal sum', 'interest rate', 'maturity date', 'balloon note', 'borrower\'s promise to pay'],
-      requiredKeywords: ['promissory note'],
-      negativeKeywords: ['allonge'],
-      weight: 1.2,
+      highWeightKeywords: [
+        'promissory note', 'promise to pay', 'principal amount', 'interest rate', 
+        'maturity date', 'maker', 'payee', 'default', 'acceleration', 
+        'late charges', 'prepayment'
+      ],
+      mediumWeightKeywords: [
+        'borrower', 'lender', 'payment', 'monthly installment', 'due date'
+      ],
+      negativeKeywords: ['allonge']
     },
     [DocumentType.MORTGAGE]: {
-      keywords: ['mortgage', 'mortgagor', 'mortgagee', 'this mortgage', 'mortgage deed', 'security instrument'],
-      requiredKeywords: ['mortgage'],
-      negativeKeywords: ['assignment of mortgage', 'deed of trust'],
-      weight: 1.2,
+      highWeightKeywords: [
+        'mortgage', 'deed of trust', 'security interest', 'real property', 
+        'legal description', 'mortgagor', 'mortgagee', 'trustee', 'beneficiary', 
+        'foreclosure', 'power of sale', 'lien', 'encumbrance'
+      ],
+      mediumWeightKeywords: [
+        'collateral', 'secured', 'property', 'real estate', 'premises'
+      ],
+      negativeKeywords: ['assignment of mortgage']
     },
     [DocumentType.DEED_OF_TRUST]: {
-      keywords: ['deed of trust', 'trustor', 'trustee', 'beneficiary', 'trust deed'],
-      requiredKeywords: ['deed of trust'],
-      negativeKeywords: ['mortgagee', 'mortgagor'],
-      weight: 1.2,
+      // Deed of Trust will be handled by the Mortgage pattern
+      highWeightKeywords: [],
+      mediumWeightKeywords: [],
+      negativeKeywords: []
     },
     [DocumentType.ALLONGE]: {
-      keywords: ['allonge', 'endorsement', 'pay to the order', 'without recourse'],
-      requiredKeywords: ['allonge'],
-      weight: 1.2, // Higher weight as it's often a shorter document
+      highWeightKeywords: [
+        'allonge', 'endorsement', 'indorsement', 'pay to the order of', 
+        'without recourse', 'with recourse', 'blank endorsement', 
+        'special endorsement', 'attached hereto', 'affixed'
+      ],
+      mediumWeightKeywords: [
+        'transfer', 'negotiate', 'bearer', 'holder'
+      ],
+      negativeKeywords: []
     },
     [DocumentType.ASSIGNMENT]: {
-      keywords: ['assignment', 'assignor', 'assignee', 'hereby assigns', 'assignment of mortgage', 'assignment of deed'],
-      requiredKeywords: ['assignment'],
-      weight: 1.2, // Further increased weight to help with longer documents
+      highWeightKeywords: [
+        'assignment', 'assign', 'transfer', 'convey', 'assignor', 'assignee', 
+        'all right, title and interest', 'mortgage loan', 'servicing rights'
+      ],
+      mediumWeightKeywords: [
+        'successor', 'benefit', 'binding', 'heirs and assigns'
+      ],
+      negativeKeywords: []
     },
   };
 
@@ -65,8 +85,26 @@ export class DocumentClassifier {
 
     // Score each document type
     for (const [docType, pattern] of Object.entries(this.patterns)) {
+      // Skip DEED_OF_TRUST as it's handled by MORTGAGE pattern
+      if (docType === DocumentType.DEED_OF_TRUST) {
+        scores.set(docType as DocumentType, 0);
+        continue;
+      }
+      
       const score = this.calculateScore(text, keyValues, pattern);
       scores.set(docType as DocumentType, score);
+      
+      // Handle MORTGAGE also setting DEED_OF_TRUST score
+      if (docType === DocumentType.MORTGAGE) {
+        // Check if this is specifically a Deed of Trust
+        if (text.includes('deed of trust') || text.includes('trustor') || text.includes('trustee')) {
+          scores.set(DocumentType.DEED_OF_TRUST, score * 1.1); // Slightly higher for deed of trust
+          if (score * 1.1 > maxScore) {
+            maxScore = score * 1.1;
+            predictedType = DocumentType.DEED_OF_TRUST;
+          }
+        }
+      }
       
       if (score > maxScore) {
         maxScore = score;
@@ -95,16 +133,17 @@ export class DocumentClassifier {
     pattern: DocumentPattern
   ): number {
     let score = 0;
+    const wordCount = text.split(/\s+/).length;
     
-    // Check required keywords
-    for (const required of pattern.requiredKeywords) {
-      if (text.includes(required)) {
-        score += 50; // High base score for required keywords
+    // V2 Scoring: High weight keywords (25 points each)
+    for (const keyword of pattern.highWeightKeywords) {
+      if (text.includes(keyword)) {
+        score += 25;
       }
     }
 
-    // Check additional keywords
-    for (const keyword of pattern.keywords) {
+    // V2 Scoring: Medium weight keywords (10 points each)
+    for (const keyword of pattern.mediumWeightKeywords) {
       if (text.includes(keyword)) {
         score += 10;
       }
@@ -114,9 +153,13 @@ export class DocumentClassifier {
     keyValues.forEach((value, key) => {
       const keyLower = key.toLowerCase();
       
-      // Bonus points for form fields that match document type
-      if (pattern.keywords.some((kw: string) => keyLower.includes(kw))) {
+      // Bonus points for form fields that match high weight keywords
+      if (pattern.highWeightKeywords.some((kw: string) => keyLower.includes(kw))) {
         score += 15;
+      }
+      // Smaller bonus for medium weight keywords
+      else if (pattern.mediumWeightKeywords.some((kw: string) => keyLower.includes(kw))) {
+        score += 7;
       }
     });
 
@@ -129,13 +172,17 @@ export class DocumentClassifier {
       }
     }
 
-    // Apply document type weight
-    score *= pattern.weight;
-
-    // Normalize score based on text length (longer documents shouldn't automatically score higher)
-    const wordCount = text.split(/\s+/).length;
-    if (wordCount > 0) {
-      score = score / Math.log(wordCount + 1);
+    // V2 Structural Analysis: Document length-based scoring
+    // For ALLONGE: Short documents get a bonus
+    if (pattern.highWeightKeywords.includes('allonge') && wordCount < 350) {
+      score *= 1.5;
+    }
+    
+    // For NOTE and MORTGAGE: Short documents get penalized
+    if ((pattern.highWeightKeywords.includes('promissory note') || 
+         pattern.highWeightKeywords.includes('mortgage')) && 
+        wordCount < 400) {
+      score *= 0.5;
     }
 
     return score;
