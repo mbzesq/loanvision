@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SummaryCard from '../components/Dashboard/SummaryCard';
+import LoanStatusChart from '../components/Dashboard/LoanStatusChart';
 import axios from '../utils/axios';
 
 interface PortfolioSummary {
@@ -86,6 +87,11 @@ function DashboardPage() {
           title="Average Balance" 
           value={formatCurrency(summary.averageBalance)} 
         />
+      </div>
+
+      {/* Loan Status Chart */}
+      <div style={{ marginBottom: '40px' }}>
+        <LoanStatusChart />
       </div>
 
       <div style={{ 

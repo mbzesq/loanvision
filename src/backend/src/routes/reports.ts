@@ -24,6 +24,34 @@ const buildFilter = (filter?: string) => {
   return { whereClause, values: [searchTerm] };
 };
 
+// --- LOAN STATUS DISTRIBUTION ENDPOINT ---
+router.get('/reports/loan-status-distribution', authenticateToken, async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                legal_status as status,
+                COUNT(*) as count
+            FROM loans 
+            WHERE legal_status IS NOT NULL 
+            GROUP BY legal_status 
+            ORDER BY count DESC
+        `;
+        
+        const result = await pool.query(query);
+        
+        // Transform the result to ensure count is a number
+        const data = result.rows.map(row => ({
+            status: row.status || 'Unknown',
+            count: parseInt(row.count, 10)
+        }));
+        
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching loan status distribution:', error);
+        res.status(500).json({ error: 'Failed to fetch loan status distribution' });
+    }
+});
+
 // --- EXCEL EXPORT ENDPOINT ---
 router.get('/reports/excel', authenticateToken, async (req, res) => {
     const filter = req.query.filter as string | undefined;
