@@ -90,20 +90,94 @@ function DashboardPage() {
         />
       </div>
 
-      {/* Charts Grid */}
+      {/* 2x2 Charts Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+        gridTemplateColumns: 'repeat(1, 1fr)',
         gap: '24px',
         marginBottom: '40px'
-      }}>
+      }} 
+      className="md:grid-cols-2">
+        {/* Chart 1: Loan Status */}
         <LoanStatusChart />
-        <GeographicalChart />
-      </div>
 
-      {/* Monthly Cashflow Chart - Full Width */}
-      <div style={{ marginBottom: '40px' }}>
-        <MonthlyCashflowChart />
+        {/* Chart 2: Placeholder for Geographical Distribution */}
+        <div style={{
+          backgroundColor: '#1e293b',
+          padding: '24px',
+          borderRadius: '8px',
+          color: 'white',
+          height: '400px'
+        }}>
+          <h3 style={{
+            fontWeight: '600',
+            marginBottom: '16px',
+            fontSize: '18px'
+          }}>
+            Geographical Distribution
+          </h3>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 'calc(100% - 40px)',
+            color: '#94a3b8'
+          }}>
+            <p>Map visualization coming soon.</p>
+          </div>
+        </div>
+
+        {/* Chart 3: Placeholder for Monthly Cashflow */}
+        <div style={{
+          backgroundColor: '#1e293b',
+          padding: '24px',
+          borderRadius: '8px',
+          color: 'white',
+          height: '400px'
+        }}>
+          <h3 style={{
+            fontWeight: '600',
+            marginBottom: '16px',
+            fontSize: '18px'
+          }}>
+            Monthly Cashflow
+          </h3>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 'calc(100% - 40px)',
+            color: '#94a3b8'
+          }}>
+            <p>Cashflow data coming soon.</p>
+          </div>
+        </div>
+
+        {/* Chart 4: Placeholder for TBD */}
+        <div style={{
+          backgroundColor: '#1e293b',
+          padding: '24px',
+          borderRadius: '8px',
+          color: 'white',
+          height: '400px'
+        }}>
+          <h3 style={{
+            fontWeight: '600',
+            marginBottom: '16px',
+            fontSize: '18px'
+          }}>
+            Key Metric TBD
+          </h3>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 'calc(100% - 40px)',
+            color: '#94a3b8'
+          }}>
+            <p>Chart coming soon.</p>
+          </div>
+        </div>
       </div>
     </div>
   );

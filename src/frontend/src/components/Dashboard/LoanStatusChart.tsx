@@ -125,6 +125,7 @@ const LoanStatusChart: React.FC = () => {
             outerRadius={100}
             fill="#8884d8"
             dataKey="count"
+            nameKey="status"
           >
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={getPieColor(index)} />
