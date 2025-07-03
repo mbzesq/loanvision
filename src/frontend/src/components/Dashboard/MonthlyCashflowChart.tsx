@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from '../../utils/axios';
 
-interface LoanStatusData {
-  status: string;
-  count: number;
+interface MonthlyCashflowData {
+  month: string;
+  cashflow: number;
 }
 
-const LoanStatusChart: React.FC = () => {
-  const [data, setData] = useState<LoanStatusData[]>([]);
+const MonthlyCashflowChart: React.FC = () => {
+  const [data, setData] = useState<MonthlyCashflowData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<LoanStatusData[]>('/api/reports/loan-status-distribution');
+        const response = await axios.get<MonthlyCashflowData[]>('/api/reports/monthly-cashflow');
         setData(response.data);
       } catch (err) {
-        setError('Failed to fetch loan status distribution');
-        console.error('Error fetching loan status distribution:', err);
+        setError('Failed to fetch monthly cashflow data');
+        console.error('Error fetching monthly cashflow:', err);
       } finally {
         setLoading(false);
       }
@@ -28,19 +28,13 @@ const LoanStatusChart: React.FC = () => {
     fetchData();
   }, []);
 
-  // Professional color palette (blues, greys, etc.)
-  const getPieColor = (index: number): string => {
-    const colors = [
-      '#1f77b4', // Professional Blue
-      '#aec7e8', // Light Blue
-      '#637081', // Dark Grey
-      '#98a8ba', // Medium Grey
-      '#2ca02c', // Professional Green
-      '#d62728', // Professional Red
-      '#ff7f0e', // Professional Orange
-      '#ffbb78', // Light Orange
-    ];
-    return colors[index % colors.length];
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
   };
 
   if (loading) {
@@ -92,7 +86,7 @@ const LoanStatusChart: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <p>No data available</p>
+        <p>No cashflow data available</p>
       </div>
     );
   }
@@ -112,42 +106,49 @@ const LoanStatusChart: React.FC = () => {
         fontWeight: '600',
         color: '#333'
       }}>
-        Loan Status Distribution
+        Monthly Cashflow Trends
       </h3>
       
       <ResponsiveContainer width="100%" height="90%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={({ status, percent }) => `${status} (${(percent * 100).toFixed(1)}%)`}
-            outerRadius={100}
-            fill="#8884d8"
-            dataKey="count"
-          >
-            {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={getPieColor(index)} />
-            ))}
-          </Pie>
+        <LineChart
+          data={data}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 20,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis 
+            dataKey="month"
+            tick={{ fontSize: 12 }}
+          />
+          <YAxis 
+            tick={{ fontSize: 12 }}
+            tickFormatter={formatCurrency}
+          />
           <Tooltip 
-            formatter={(value: number) => [value, 'Count']}
+            formatter={(value: number) => [formatCurrency(value), 'Cashflow']}
+            labelStyle={{ color: '#333' }}
             contentStyle={{
               backgroundColor: 'white',
               border: '1px solid #ccc',
               borderRadius: '4px'
             }}
           />
-          <Legend 
-            verticalAlign="bottom" 
-            height={36}
-            wrapperStyle={{ fontSize: '12px' }}
+          <Line 
+            type="monotone" 
+            dataKey="cashflow" 
+            stroke="#1f77b4" 
+            strokeWidth={3}
+            dot={{ fill: '#1f77b4', strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6, stroke: '#1f77b4', strokeWidth: 2 }}
           />
-        </PieChart>
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );
 };
 
-export default LoanStatusChart;
+export default MonthlyCashflowChart;

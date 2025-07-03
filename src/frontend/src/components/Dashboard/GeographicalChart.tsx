@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import axios from '../../utils/axios';
 
-interface LoanStatusData {
-  status: string;
+interface GeographicalData {
+  state: string;
   count: number;
 }
 
-const LoanStatusChart: React.FC = () => {
-  const [data, setData] = useState<LoanStatusData[]>([]);
+const GeographicalChart: React.FC = () => {
+  const [data, setData] = useState<GeographicalData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<LoanStatusData[]>('/api/reports/loan-status-distribution');
+        const response = await axios.get<GeographicalData[]>('/api/reports/geographical-distribution');
         setData(response.data);
       } catch (err) {
-        setError('Failed to fetch loan status distribution');
-        console.error('Error fetching loan status distribution:', err);
+        setError('Failed to fetch geographical distribution');
+        console.error('Error fetching geographical distribution:', err);
       } finally {
         setLoading(false);
       }
@@ -28,17 +28,12 @@ const LoanStatusChart: React.FC = () => {
     fetchData();
   }, []);
 
-  // Professional color palette (blues, greys, etc.)
-  const getPieColor = (index: number): string => {
+  // Professional color gradient for states
+  const getStateColor = (index: number): string => {
     const colors = [
-      '#1f77b4', // Professional Blue
-      '#aec7e8', // Light Blue
-      '#637081', // Dark Grey
-      '#98a8ba', // Medium Grey
-      '#2ca02c', // Professional Green
-      '#d62728', // Professional Red
-      '#ff7f0e', // Professional Orange
-      '#ffbb78', // Light Orange
+      '#1f77b4', '#2ca02c', '#d62728', '#ff7f0e', '#9467bd',
+      '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+      '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5'
     ];
     return colors[index % colors.length];
   };
@@ -92,7 +87,7 @@ const LoanStatusChart: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <p>No data available</p>
+        <p>No geographical data available</p>
       </div>
     );
   }
@@ -112,42 +107,50 @@ const LoanStatusChart: React.FC = () => {
         fontWeight: '600',
         color: '#333'
       }}>
-        Loan Status Distribution
+        Geographical Distribution by State
       </h3>
       
       <ResponsiveContainer width="100%" height="90%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={({ status, percent }) => `${status} (${(percent * 100).toFixed(1)}%)`}
-            outerRadius={100}
-            fill="#8884d8"
-            dataKey="count"
-          >
-            {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={getPieColor(index)} />
-            ))}
-          </Pie>
+        <BarChart
+          data={data}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 60,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis 
+            dataKey="state"
+            tick={{ fontSize: 11 }}
+            angle={-45}
+            textAnchor="end"
+            height={80}
+            interval={0}
+          />
+          <YAxis 
+            tick={{ fontSize: 12 }}
+            allowDecimals={false}
+          />
           <Tooltip 
             formatter={(value: number) => [value, 'Count']}
+            labelStyle={{ color: '#333' }}
             contentStyle={{
               backgroundColor: 'white',
               border: '1px solid #ccc',
               borderRadius: '4px'
             }}
           />
-          <Legend 
-            verticalAlign="bottom" 
-            height={36}
-            wrapperStyle={{ fontSize: '12px' }}
-          />
-        </PieChart>
+          <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+            {data.map((_, index) => (
+              <Cell key={`cell-${index}`} fill={getStateColor(index)} />
+            ))}
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
 };
 
-export default LoanStatusChart;
+export default GeographicalChart;

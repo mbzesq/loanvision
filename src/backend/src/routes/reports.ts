@@ -52,6 +52,127 @@ router.get('/reports/loan-status-distribution', authenticateToken, async (req, r
     }
 });
 
+// --- GEOGRAPHICAL DISTRIBUTION ENDPOINT ---
+router.get('/reports/geographical-distribution', authenticateToken, async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                state,
+                COUNT(*) as count
+            FROM daily_metrics_current 
+            WHERE state IS NOT NULL 
+            GROUP BY state 
+            ORDER BY count DESC
+        `;
+        
+        const result = await pool.query(query);
+        
+        const data = result.rows.map(row => ({
+            state: row.state || 'Unknown',
+            count: parseInt(row.count, 10)
+        }));
+        
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching geographical distribution:', error);
+        res.status(500).json({ error: 'Failed to fetch geographical distribution' });
+    }
+});
+
+// --- MONTHLY CASHFLOW ENDPOINT ---
+router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                'January 2025' as month, COALESCE(SUM(january_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE january_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'February 2025' as month, COALESCE(SUM(february_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE february_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'March 2025' as month, COALESCE(SUM(march_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE march_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'April 2025' as month, COALESCE(SUM(april_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE april_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'May 2025' as month, COALESCE(SUM(may_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE may_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'June 2025' as month, COALESCE(SUM(june_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE june_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'July 2025' as month, COALESCE(SUM(july_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE july_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'August 2025' as month, COALESCE(SUM(august_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE august_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'September 2025' as month, COALESCE(SUM(september_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE september_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'October 2025' as month, COALESCE(SUM(october_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE october_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'November 2025' as month, COALESCE(SUM(november_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE november_2025 IS NOT NULL
+            UNION ALL
+            SELECT 
+                'December 2025' as month, COALESCE(SUM(december_2025), 0) as cashflow
+            FROM daily_metrics_current 
+            WHERE december_2025 IS NOT NULL
+            ORDER BY 
+                CASE month
+                    WHEN 'January 2025' THEN 1
+                    WHEN 'February 2025' THEN 2
+                    WHEN 'March 2025' THEN 3
+                    WHEN 'April 2025' THEN 4
+                    WHEN 'May 2025' THEN 5
+                    WHEN 'June 2025' THEN 6
+                    WHEN 'July 2025' THEN 7
+                    WHEN 'August 2025' THEN 8
+                    WHEN 'September 2025' THEN 9
+                    WHEN 'October 2025' THEN 10
+                    WHEN 'November 2025' THEN 11
+                    WHEN 'December 2025' THEN 12
+                END
+        `;
+        
+        const result = await pool.query(query);
+        
+        const data = result.rows.map(row => ({
+            month: row.month,
+            cashflow: parseFloat(row.cashflow) || 0
+        }));
+        
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching monthly cashflow:', error);
+        res.status(500).json({ error: 'Failed to fetch monthly cashflow' });
+    }
+});
+
 // --- EXCEL EXPORT ENDPOINT ---
 router.get('/reports/excel', authenticateToken, async (req, res) => {
     const filter = req.query.filter as string | undefined;

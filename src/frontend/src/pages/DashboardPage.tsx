@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import SummaryCard from '../components/Dashboard/SummaryCard';
 import LoanStatusChart from '../components/Dashboard/LoanStatusChart';
+import GeographicalChart from '../components/Dashboard/GeographicalChart';
+import MonthlyCashflowChart from '../components/Dashboard/MonthlyCashflowChart';
 import axios from '../utils/axios';
 
 interface PortfolioSummary {
@@ -89,48 +90,20 @@ function DashboardPage() {
         />
       </div>
 
-      {/* Loan Status Chart */}
-      <div style={{ marginBottom: '40px' }}>
+      {/* Charts Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+        gap: '24px',
+        marginBottom: '40px'
+      }}>
         <LoanStatusChart />
+        <GeographicalChart />
       </div>
 
-      <div style={{ 
-        marginTop: '40px',
-        padding: '20px',
-        backgroundColor: '#f5f5f5',
-        borderRadius: '8px'
-      }}>
-        <h2 style={{ marginBottom: '16px' }}>Quick Actions</h2>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          <Link 
-            to="/upload" 
-            style={{
-              display: 'inline-block',
-              padding: '10px 20px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontSize: '16px'
-            }}
-          >
-            Upload New File
-          </Link>
-          <Link 
-            to="/loans" 
-            style={{
-              display: 'inline-block',
-              padding: '10px 20px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontSize: '16px'
-            }}
-          >
-            View All Loans
-          </Link>
-        </div>
+      {/* Monthly Cashflow Chart - Full Width */}
+      <div style={{ marginBottom: '40px' }}>
+        <MonthlyCashflowChart />
       </div>
     </div>
   );
