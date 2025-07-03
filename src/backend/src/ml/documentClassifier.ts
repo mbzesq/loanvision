@@ -2,8 +2,7 @@ import { TextractResult } from '../ocr/textractClient';
 
 export enum DocumentType {
   NOTE = 'Note',
-  MORTGAGE = 'Mortgage',
-  DEED_OF_TRUST = 'Deed of Trust',
+  SECURITY_INSTRUMENT = 'Security Instrument',
   ALLONGE = 'Allonge',
   ASSIGNMENT = 'Assignment',
   OTHER = 'Other',
@@ -21,11 +20,10 @@ interface DocumentPattern {
   negativeKeywords?: string[];
 }
 
-// V3 Minimum confidence thresholds per document type
+// V3.1 Minimum confidence thresholds per document type
 const MIN_CONFIDENCE = {
   [DocumentType.NOTE]: 0.6,
-  [DocumentType.MORTGAGE]: 0.7,
-  [DocumentType.DEED_OF_TRUST]: 0.7,
+  [DocumentType.SECURITY_INSTRUMENT]: 0.6,
   [DocumentType.ASSIGNMENT]: 0.75,
   [DocumentType.ALLONGE]: 0.75,
 };
@@ -45,24 +43,17 @@ export class DocumentClassifier {
       ],
       negativeKeywords: ['allonge']
     },
-    [DocumentType.MORTGAGE]: {
+    [DocumentType.SECURITY_INSTRUMENT]: {
       highWeightKeywords: [
-        'mortgage', 'mortgagor', 'mortgagee', 'security interest', 'real property', 
-        'legal description', 'foreclosure', 'power of sale', 'lien', 'encumbrance'
+        'mortgage', 'deed of trust', 'security interest', 'real property', 
+        'legal description', 'mortgagor', 'mortgagee', 'trustor', 'trustee', 
+        'beneficiary', 'foreclosure', 'power of sale', 'lien', 'encumbrance'
       ],
       mediumWeightKeywords: [
-        'collateral', 'secured', 'property', 'real estate', 'premises'
+        'collateral', 'secured', 'property', 'real estate', 'premises',
+        'trust deed', 'reconveyance', 'trustee sale'
       ],
-      negativeKeywords: ['assignment of mortgage', 'deed of trust', 'trustee']
-    },
-    [DocumentType.DEED_OF_TRUST]: {
-      highWeightKeywords: [
-        'deed of trust', 'trustor', 'trustee', 'beneficiary'
-      ],
-      mediumWeightKeywords: [
-        'trust deed', 'power of sale', 'reconveyance', 'trustee sale'
-      ],
-      negativeKeywords: ['mortgage', 'mortgagor', 'mortgagee']
+      negativeKeywords: ['assignment of mortgage']
     },
     [DocumentType.ALLONGE]: {
       highWeightKeywords: [
@@ -179,9 +170,8 @@ export class DocumentClassifier {
       score *= 0.7;
     }
     
-    // For MORTGAGE and DEED_OF_TRUST: Short documents get penalized
-    if ((docType === DocumentType.MORTGAGE || docType === DocumentType.DEED_OF_TRUST) && 
-        wordCount < 400) {
+    // For SECURITY_INSTRUMENT: Short documents get penalized
+    if (docType === DocumentType.SECURITY_INSTRUMENT && wordCount < 400) {
       score *= 0.5;
     }
 

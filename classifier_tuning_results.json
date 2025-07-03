@@ -1,27 +1,20 @@
 {
   "totalFiles": 70,
-  "overallAccuracy": 72.86,
+  "overallAccuracy": 74.29,
   "byDocumentType": {
     "Note": {
       "total": 8,
-      "correct": 3,
-      "precision": 50,
-      "recall": 37.5,
-      "f1Score": 42.86
+      "correct": 2,
+      "precision": 100,
+      "recall": 25,
+      "f1Score": 40
     },
-    "Mortgage": {
-      "total": 6,
-      "correct": 0,
-      "precision": 0,
-      "recall": 0,
-      "f1Score": 0
-    },
-    "Deed of Trust": {
-      "total": 3,
-      "correct": 0,
-      "precision": 0,
-      "recall": 0,
-      "f1Score": 0
+    "Security Instrument": {
+      "total": 9,
+      "correct": 5,
+      "precision": 55.56,
+      "recall": 55.56,
+      "f1Score": 55.56
     },
     "Allonge": {
       "total": 27,
@@ -32,32 +25,32 @@
     },
     "Assignment": {
       "total": 23,
-      "correct": 22,
-      "precision": 95.65,
-      "recall": 95.65,
-      "f1Score": 95.65
+      "correct": 19,
+      "precision": 95,
+      "recall": 82.61,
+      "f1Score": 88.37
     },
     "Other": {
       "total": 3,
       "correct": 2,
-      "precision": 12.5,
+      "precision": 14.29,
       "recall": 66.67,
-      "f1Score": 21.05
+      "f1Score": 23.53
     }
   },
   "detailedResults": [
     {
       "fileName": "0240610110_NOTE.json",
       "trueType": "Note",
-      "predictedType": "Other",
+      "predictedType": "Security Instrument",
       "confidence": 0.735,
       "correct": false
     },
     {
       "fileName": "03_Mortgages__Deeds_of_Trust_10K_060904.json",
-      "trueType": "Mortgage",
-      "predictedType": "Note",
-      "confidence": 0.764,
+      "trueType": "Security Instrument",
+      "predictedType": "Other",
+      "confidence": 0.5,
       "correct": false
     },
     {
@@ -70,15 +63,15 @@
     {
       "fileName": "100011939_Hakani_Note.json",
       "trueType": "Note",
-      "predictedType": "Note",
-      "confidence": 0.763,
-      "correct": true
+      "predictedType": "Other",
+      "confidence": 0.55,
+      "correct": false
     },
     {
       "fileName": "100011939_Hakani_Recorded_Mortgage.json",
-      "trueType": "Mortgage",
-      "predictedType": "Note",
-      "confidence": 0.764,
+      "trueType": "Security Instrument",
+      "predictedType": "Other",
+      "confidence": 0.5,
       "correct": false
     },
     {
@@ -119,9 +112,9 @@
     {
       "fileName": "1005345774_Lemieux_Note.json",
       "trueType": "Note",
-      "predictedType": "Note",
-      "confidence": 0.745,
-      "correct": true
+      "predictedType": "Other",
+      "confidence": 0.473,
+      "correct": false
     },
     {
       "fileName": "1005345774_Recorded_Assignment_to_ATC.json",
@@ -161,16 +154,16 @@
     {
       "fileName": "1006344787_Abernathy_Recorded_AOM_MERS_to_SRP (1).json",
       "trueType": "Assignment",
-      "predictedType": "Assignment",
-      "confidence": 0.9540000000000001,
-      "correct": true
+      "predictedType": "Other",
+      "confidence": 0.669,
+      "correct": false
     },
     {
       "fileName": "1006344787_Abernathy_Recorded_AOM_MERS_to_SRP.json",
       "trueType": "Assignment",
-      "predictedType": "Assignment",
-      "confidence": 0.9540000000000001,
-      "correct": true
+      "predictedType": "Other",
+      "confidence": 0.669,
+      "correct": false
     },
     {
       "fileName": "1006344787_Recorded_Assignment_to_ATC.json",
@@ -203,13 +196,13 @@
     {
       "fileName": "1006344978_Piller_Note__Allonges.json",
       "trueType": "Allonge",
-      "predictedType": "Other",
-      "confidence": 0.564,
+      "predictedType": "Security Instrument",
+      "confidence": 0.6,
       "correct": false
     },
     {
       "fileName": "1006344978_Piller_Recorded_Mortgage.json",
-      "trueType": "Mortgage",
+      "trueType": "Security Instrument",
       "predictedType": "Assignment",
       "confidence": 0.831,
       "correct": false
@@ -281,21 +274,21 @@
       "fileName": "160868_Johnson_Recorded_AOM_Christiana_to_SN.json",
       "trueType": "Assignment",
       "predictedType": "Assignment",
-      "confidence": 0.94,
+      "confidence": 0.904,
       "correct": true
     },
     {
       "fileName": "160868_Johnson_Recorded_AOM_SN_to_WFF.json",
       "trueType": "Assignment",
       "predictedType": "Assignment",
-      "confidence": 0.94,
+      "confidence": 0.919,
       "correct": true
     },
     {
       "fileName": "160868_Johnson_Recorded_AOM_WFF_to_SRP.json",
       "trueType": "Assignment",
       "predictedType": "Assignment",
-      "confidence": 0.94,
+      "confidence": 0.919,
       "correct": true
     },
     {
@@ -337,21 +330,21 @@
       "fileName": "179052_See_Allonge_to_SRP_20137_LLC.json",
       "trueType": "Allonge",
       "predictedType": "Allonge",
-      "confidence": 0.9,
+      "confidence": 0.85,
       "correct": true
     },
     {
       "fileName": "179052_See_Note__Allonge.json",
       "trueType": "Allonge",
       "predictedType": "Other",
-      "confidence": 0.645,
+      "confidence": 0.5379999999999999,
       "correct": false
     },
     {
       "fileName": "179052_See_Note_w_Allonge.json",
       "trueType": "Allonge",
       "predictedType": "Other",
-      "confidence": 0.614,
+      "confidence": 0.475,
       "correct": false
     },
     {
@@ -363,10 +356,10 @@
     },
     {
       "fileName": "179052_See_Recorded_Mortgage.json",
-      "trueType": "Mortgage",
-      "predictedType": "Other",
+      "trueType": "Security Instrument",
+      "predictedType": "Security Instrument",
       "confidence": 0.635,
-      "correct": false
+      "correct": true
     },
     {
       "fileName": "197844Note_Allonge_to_ATC.json",
@@ -385,9 +378,9 @@
     {
       "fileName": "197844_ROBINSON_REC_AOM_WFF_TO_SRP_2013.2_LLC.json",
       "trueType": "Assignment",
-      "predictedType": "Assignment",
-      "confidence": 0.82,
-      "correct": true
+      "predictedType": "Security Instrument",
+      "confidence": 0.7190000000000001,
+      "correct": false
     },
     {
       "fileName": "197844_revised_allonge_SN_Commercial_to_WFF.json",
@@ -442,7 +435,7 @@
       "fileName": "240610110_Recorded_Assignment_to_ATC.json",
       "trueType": "Assignment",
       "predictedType": "Other",
-      "confidence": 0.727,
+      "confidence": 0.536,
       "correct": false
     },
     {
@@ -454,17 +447,17 @@
     },
     {
       "fileName": "247305968___286044___Mortgage_Joachin (1).json",
-      "trueType": "Mortgage",
-      "predictedType": "Other",
-      "confidence": 0.424,
-      "correct": false
+      "trueType": "Security Instrument",
+      "predictedType": "Security Instrument",
+      "confidence": 0.615,
+      "correct": true
     },
     {
       "fileName": "247305968___286044___Mortgage_Joachin.json",
-      "trueType": "Mortgage",
-      "predictedType": "Other",
-      "confidence": 0.424,
-      "correct": false
+      "trueType": "Security Instrument",
+      "predictedType": "Security Instrument",
+      "confidence": 0.615,
+      "correct": true
     },
     {
       "fileName": "247305968___286044___Note_Joachin.json",
@@ -477,50 +470,50 @@
       "fileName": "Allonge_0000160868_07.15.98 (1).json",
       "trueType": "Allonge",
       "predictedType": "Allonge",
-      "confidence": 0.972,
+      "confidence": 0.88,
       "correct": true
     },
     {
       "fileName": "Allonge_0000160868_07.15.98.json",
       "trueType": "Allonge",
       "predictedType": "Allonge",
-      "confidence": 0.972,
+      "confidence": 0.88,
       "correct": true
     },
     {
       "fileName": "Credit_File_Documents__01_10258655Note.json",
       "trueType": "Note",
-      "predictedType": "Other",
-      "confidence": 0.491,
-      "correct": false
+      "predictedType": "Note",
+      "confidence": 0.782,
+      "correct": true
     },
     {
       "fileName": "Credit_File_Documents__07_10258719RecMtg.json",
       "trueType": "Other",
-      "predictedType": "Note",
-      "confidence": 0.621,
+      "predictedType": "Security Instrument",
+      "confidence": 0.62,
       "correct": false
     },
     {
       "fileName": "Deed_of_Trust_0000160868_07.15.98.json",
-      "trueType": "Deed of Trust",
-      "predictedType": "Other",
-      "confidence": 0.486,
-      "correct": false
+      "trueType": "Security Instrument",
+      "predictedType": "Security Instrument",
+      "confidence": 0.745,
+      "correct": true
     },
     {
       "fileName": "Deed_of_Trust_0000197844_07.06.05.json",
-      "trueType": "Deed of Trust",
+      "trueType": "Security Instrument",
       "predictedType": "Other",
-      "confidence": 0.512,
+      "confidence": 0.467,
       "correct": false
     },
     {
       "fileName": "Deed_of_Trust_RECORDED_0000161126_09.01.98__Copy.json",
-      "trueType": "Deed of Trust",
-      "predictedType": "Other",
-      "confidence": 0.486,
-      "correct": false
+      "trueType": "Security Instrument",
+      "predictedType": "Security Instrument",
+      "confidence": 0.7,
+      "correct": true
     },
     {
       "fileName": "Note_0000160868_07.15.98.json",
@@ -533,7 +526,7 @@
       "fileName": "Note_0000161126_09.01.98__Copy.json",
       "trueType": "Note",
       "predictedType": "Other",
-      "confidence": 0.71,
+      "confidence": 0.475,
       "correct": false
     }
   ]
