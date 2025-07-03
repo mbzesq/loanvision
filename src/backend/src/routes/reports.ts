@@ -173,6 +173,31 @@ router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
     }
 });
 
+// --- GEOGRAPHICAL DISTRIBUTION ENDPOINT ---
+router.get('/reports/loan-geographical-distribution', authenticateToken, async (req, res) => {
+    try {
+        const query = `
+            SELECT state, COUNT(*) as count
+            FROM daily_metrics_current
+            WHERE state IS NOT NULL AND state != ''
+            GROUP BY state
+            ORDER BY count DESC
+        `;
+        
+        const result = await pool.query(query);
+        
+        const data = result.rows.map(row => ({
+            state: row.state,
+            count: parseInt(row.count, 10)
+        }));
+        
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching loan geographical distribution:', error);
+        res.status(500).json({ error: 'Failed to fetch loan geographical distribution' });
+    }
+});
+
 // --- EXCEL EXPORT ENDPOINT ---
 router.get('/reports/excel', authenticateToken, async (req, res) => {
     const filter = req.query.filter as string | undefined;
