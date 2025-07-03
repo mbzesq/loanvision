@@ -201,34 +201,30 @@ router.get('/reports/loan-geographical-distribution', authenticateToken, async (
 // --- MONTHLY CASHFLOW ENDPOINT ---
 router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
   try {
-    // Get year from query parameter, default to current year
     const year = req.query.year || new Date().getFullYear();
-    
     const months = [
-      "january", "february", "march", "april", "may", "june",
-      "july", "august", "september", "october", "november", "december"
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
     ];
 
     const unionParts = months.map((month, index) => {
-      const monthAbbr = month.charAt(0).toUpperCase() + month.slice(1, 3);
-      // Dynamically create the column name, e.g., "january_2025"
+      const monthAbbr = month.slice(0, 3);
       const columnName = `${month.toLowerCase()}_${year}`;
 
-      // IMPORTANT: Check if the column exists in your DB schema before using it in a real production app
-      // For now, we assume it exists based on our current data.
       return `SELECT '${monthAbbr}' as month, ${index + 1} as month_order, COALESCE(SUM(${columnName}), 0) as cashflow FROM daily_metrics_current`;
     });
 
+    // This query structure is now correct for PostgreSQL
     const query = `
-      SELECT month, cashflow FROM (
+      SELECT month, month_order, cashflow 
+      FROM (
         ${unionParts.join(' UNION ALL ')}
       ) as monthly_data
-      ORDER BY month_order;
+      ORDER BY month_order ASC;
     `;
 
     const result = await pool.query(query);
 
-    // Format data for the chart
     const formattedData = result.rows.map(row => ({
       month: row.month,
       cashflow: parseFloat(row.cashflow)
