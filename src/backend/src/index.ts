@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // This entire block should be added right after const app = express();
-const allowedOrigins = ['https://loanvision-frontend.onrender.com'];
+const allowedOrigins = ['https://loanvision-frontend.onrender.com', 'https://nplvision.com'];
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
