@@ -21,14 +21,24 @@ interface DocumentPattern {
   negativeKeywords?: string[];
 }
 
+// V3 Minimum confidence thresholds per document type
+const MIN_CONFIDENCE = {
+  [DocumentType.NOTE]: 0.6,
+  [DocumentType.MORTGAGE]: 0.7,
+  [DocumentType.DEED_OF_TRUST]: 0.7,
+  [DocumentType.ASSIGNMENT]: 0.75,
+  [DocumentType.ALLONGE]: 0.75,
+};
+
 export class DocumentClassifier {
-  // V2 Keywords and patterns for each document type with weighted groups
+  // V3 Keywords and patterns for each document type with weighted groups
   private readonly patterns: Record<DocumentType, DocumentPattern> = {
     [DocumentType.NOTE]: {
       highWeightKeywords: [
         'promissory note', 'promise to pay', 'principal amount', 'interest rate', 
         'maturity date', 'maker', 'payee', 'default', 'acceleration', 
-        'late charges', 'prepayment'
+        'late charges', 'prepayment', 'for value received', 'undersigned promises', 
+        'order of', 'together with interest', 'unpaid balance'
       ],
       mediumWeightKeywords: [
         'borrower', 'lender', 'payment', 'monthly installment', 'due date'
@@ -37,20 +47,22 @@ export class DocumentClassifier {
     },
     [DocumentType.MORTGAGE]: {
       highWeightKeywords: [
-        'mortgage', 'deed of trust', 'security interest', 'real property', 
-        'legal description', 'mortgagor', 'mortgagee', 'trustee', 'beneficiary', 
-        'foreclosure', 'power of sale', 'lien', 'encumbrance'
+        'mortgage', 'mortgagor', 'mortgagee', 'security interest', 'real property', 
+        'legal description', 'foreclosure', 'power of sale', 'lien', 'encumbrance'
       ],
       mediumWeightKeywords: [
         'collateral', 'secured', 'property', 'real estate', 'premises'
       ],
-      negativeKeywords: ['assignment of mortgage']
+      negativeKeywords: ['assignment of mortgage', 'deed of trust', 'trustee']
     },
     [DocumentType.DEED_OF_TRUST]: {
-      // Deed of Trust will be handled by the Mortgage pattern
-      highWeightKeywords: [],
-      mediumWeightKeywords: [],
-      negativeKeywords: []
+      highWeightKeywords: [
+        'deed of trust', 'trustor', 'trustee', 'beneficiary'
+      ],
+      mediumWeightKeywords: [
+        'trust deed', 'power of sale', 'reconveyance', 'trustee sale'
+      ],
+      negativeKeywords: ['mortgage', 'mortgagor', 'mortgagee']
     },
     [DocumentType.ALLONGE]: {
       highWeightKeywords: [
@@ -85,26 +97,8 @@ export class DocumentClassifier {
 
     // Score each document type
     for (const [docType, pattern] of Object.entries(this.patterns)) {
-      // Skip DEED_OF_TRUST as it's handled by MORTGAGE pattern
-      if (docType === DocumentType.DEED_OF_TRUST) {
-        scores.set(docType as DocumentType, 0);
-        continue;
-      }
-      
-      const score = this.calculateScore(text, keyValues, pattern);
+      const score = this.calculateScore(text, keyValues, pattern, docType as DocumentType);
       scores.set(docType as DocumentType, score);
-      
-      // Handle MORTGAGE also setting DEED_OF_TRUST score
-      if (docType === DocumentType.MORTGAGE) {
-        // Check if this is specifically a Deed of Trust
-        if (text.includes('deed of trust') || text.includes('trustor') || text.includes('trustee')) {
-          scores.set(DocumentType.DEED_OF_TRUST, score * 1.1); // Slightly higher for deed of trust
-          if (score * 1.1 > maxScore) {
-            maxScore = score * 1.1;
-            predictedType = DocumentType.DEED_OF_TRUST;
-          }
-        }
-      }
       
       if (score > maxScore) {
         maxScore = score;
@@ -115,8 +109,9 @@ export class DocumentClassifier {
     // Calculate confidence based on score distribution
     const confidence = this.calculateConfidence(scores, predictedType);
 
-    // Default to OTHER if confidence is too low
-    if (confidence < 0.3) {
+    // V3: Use per-type confidence thresholds
+    const minConfidence = MIN_CONFIDENCE[predictedType] || 0.3;
+    if (confidence < minConfidence) {
       predictedType = DocumentType.OTHER;
     }
 
@@ -130,7 +125,8 @@ export class DocumentClassifier {
   private calculateScore(
     text: string, 
     keyValues: Map<string, string>, 
-    pattern: DocumentPattern
+    pattern: DocumentPattern,
+    docType: DocumentType
   ): number {
     let score = 0;
     const wordCount = text.split(/\s+/).length;
@@ -172,15 +168,19 @@ export class DocumentClassifier {
       }
     }
 
-    // V2 Structural Analysis: Document length-based scoring
+    // V3 Structural Analysis: Document length-based scoring
     // For ALLONGE: Short documents get a bonus
-    if (pattern.highWeightKeywords.includes('allonge') && wordCount < 350) {
+    if (docType === DocumentType.ALLONGE && wordCount < 350) {
       score *= 1.5;
     }
     
-    // For NOTE and MORTGAGE: Short documents get penalized
-    if ((pattern.highWeightKeywords.includes('promissory note') || 
-         pattern.highWeightKeywords.includes('mortgage')) && 
+    // For NOTE: V3 adjusted - lower threshold and less severe penalty
+    if (docType === DocumentType.NOTE && wordCount < 300) {
+      score *= 0.7;
+    }
+    
+    // For MORTGAGE and DEED_OF_TRUST: Short documents get penalized
+    if ((docType === DocumentType.MORTGAGE || docType === DocumentType.DEED_OF_TRUST) && 
         wordCount < 400) {
       score *= 0.5;
     }
