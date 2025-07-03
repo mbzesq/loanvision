@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import SummaryCard from '../components/Dashboard/SummaryCard';
 import LoanStatusChart from '../components/Dashboard/LoanStatusChart';
 import GeographicalDistributionChart from '../components/Dashboard/GeographicalDistributionChart';
+import MonthlyCashflowChart from '../components/Dashboard/MonthlyCashflowChart';
 import axios from '../utils/axios';
 
 interface PortfolioSummary {
@@ -97,13 +98,8 @@ function DashboardPage() {
         {/* Chart 2: Geographical Distribution */}
         <GeographicalDistributionChart />
 
-        {/* Chart 3: Placeholder for Monthly Cashflow */}
-        <div className="bg-slate-800 p-6 rounded-lg text-white h-[400px]">
-          <h3 className="font-semibold mb-4">Monthly Cashflow</h3>
-          <div className="flex items-center justify-center h-full text-slate-400">
-            <p>Cashflow data coming soon.</p>
-          </div>
-        </div>
+        {/* Chart 3: Monthly Cashflow */}
+        <MonthlyCashflowChart />
 
         {/* Chart 4: Placeholder for Key Metric TBD */}
         <div className="bg-slate-800 p-6 rounded-lg text-white h-[400px]">

@@ -123,10 +123,12 @@ const MonthlyCashflowChart: React.FC = () => {
           <XAxis 
             dataKey="month"
             tick={{ fontSize: 12 }}
+            stroke="#666"
           />
           <YAxis 
             tick={{ fontSize: 12 }}
             tickFormatter={formatCurrency}
+            stroke="#666"
           />
           <Tooltip 
             formatter={(value: number) => [formatCurrency(value), 'Cashflow']}
@@ -134,7 +136,8 @@ const MonthlyCashflowChart: React.FC = () => {
             contentStyle={{
               backgroundColor: 'white',
               border: '1px solid #ccc',
-              borderRadius: '4px'
+              borderRadius: '4px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
             }}
           />
           <Line 
@@ -143,7 +146,7 @@ const MonthlyCashflowChart: React.FC = () => {
             stroke="#1f77b4" 
             strokeWidth={3}
             dot={{ fill: '#1f77b4', strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6, stroke: '#1f77b4', strokeWidth: 2 }}
+            activeDot={{ r: 6, stroke: '#1f77b4', strokeWidth: 2, fill: '#fff' }}
           />
         </LineChart>
       </ResponsiveContainer>

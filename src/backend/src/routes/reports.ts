@@ -198,6 +198,39 @@ router.get('/reports/loan-geographical-distribution', authenticateToken, async (
     }
 });
 
+// --- MONTHLY CASHFLOW ENDPOINT ---
+router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
+  try {
+    const query = `
+      SELECT 'Jan' as month, 1 as month_order, COALESCE(SUM(january_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Feb' as month, 2 as month_order, COALESCE(SUM(february_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Mar' as month, 3 as month_order, COALESCE(SUM(march_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Apr' as month, 4 as month_order, COALESCE(SUM(april_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'May' as month, 5 as month_order, COALESCE(SUM(may_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Jun' as month, 6 as month_order, COALESCE(SUM(june_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Jul' as month, 7 as month_order, COALESCE(SUM(july_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Aug' as month, 8 as month_order, COALESCE(SUM(august_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Sep' as month, 9 as month_order, COALESCE(SUM(september_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Oct' as month, 10 as month_order, COALESCE(SUM(october_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Nov' as month, 11 as month_order, COALESCE(SUM(november_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
+      SELECT 'Dec' as month, 12 as month_order, COALESCE(SUM(december_2025), 0) as cashflow FROM daily_metrics_current
+      ORDER BY month_order;
+    `;
+    const result = await pool.query(query);
+
+    // Format data for the chart
+    const formattedData = result.rows.map(row => ({
+      month: row.month,
+      cashflow: parseFloat(row.cashflow)
+    }));
+
+    res.json(formattedData);
+  } catch (error) {
+    console.error('Error fetching monthly cashflow:', error);
+    res.status(500).send('Error fetching monthly cashflow');
+  }
+});
+
 // --- EXCEL EXPORT ENDPOINT ---
 router.get('/reports/excel', authenticateToken, async (req, res) => {
     const filter = req.query.filter as string | undefined;
