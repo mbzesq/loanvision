@@ -26,21 +26,22 @@ export class DocumentClassifier {
   // Keywords and patterns for each document type
   private readonly patterns: Record<DocumentType, DocumentPattern> = {
     [DocumentType.NOTE]: {
-      keywords: ['promissory note', 'promise to pay', 'principal sum', 'interest rate', 'maturity date'],
-      requiredKeywords: ['promise to pay'],
+      keywords: ['promissory note', 'promise to pay', 'principal sum', 'interest rate', 'maturity date', 'balloon note', 'borrower\'s promise to pay'],
+      requiredKeywords: ['promissory note'],
       negativeKeywords: ['allonge'],
-      weight: 1.0,
+      weight: 1.2,
     },
     [DocumentType.MORTGAGE]: {
       keywords: ['mortgage', 'mortgagor', 'mortgagee', 'this mortgage', 'mortgage deed', 'security instrument'],
       requiredKeywords: ['mortgage'],
-      negativeKeywords: ['assignment of mortgage'],
-      weight: 1.0,
+      negativeKeywords: ['assignment of mortgage', 'deed of trust'],
+      weight: 1.2,
     },
     [DocumentType.DEED_OF_TRUST]: {
       keywords: ['deed of trust', 'trustor', 'trustee', 'beneficiary', 'trust deed'],
       requiredKeywords: ['deed of trust'],
-      weight: 1.0,
+      negativeKeywords: ['mortgagee', 'mortgagor'],
+      weight: 1.2,
     },
     [DocumentType.ALLONGE]: {
       keywords: ['allonge', 'endorsement', 'pay to the order', 'without recourse'],
@@ -50,7 +51,7 @@ export class DocumentClassifier {
     [DocumentType.ASSIGNMENT]: {
       keywords: ['assignment', 'assignor', 'assignee', 'hereby assigns', 'assignment of mortgage', 'assignment of deed'],
       requiredKeywords: ['assignment'],
-      weight: 1.1, // Increased weight to help with longer documents
+      weight: 1.2, // Further increased weight to help with longer documents
     },
   };
 

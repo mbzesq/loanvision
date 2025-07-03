@@ -1,68 +1,68 @@
 {
-  "accuracy": 0.65,
+  "accuracy": 0.5166666666666667,
   "precision": {
     "Note": 0,
-    "Mortgage": 0,
-    "Deed of Trust": 0,
-    "Allonge": 1,
-    "Assignment": 1,
-    "Other": 0
+    "Mortgage": 0.25,
+    "Deed of Trust": 0.5,
+    "Allonge": 0.9375,
+    "Assignment": 0.9285714285714286,
+    "Other": 0.041666666666666664
   },
   "recall": {
     "Note": 0,
-    "Mortgage": 0,
-    "Deed of Trust": 0,
-    "Allonge": 1,
-    "Assignment": 0.6,
-    "Other": 0
+    "Mortgage": 0.2,
+    "Deed of Trust": 0.3333333333333333,
+    "Allonge": 0.6521739130434783,
+    "Assignment": 0.7222222222222222,
+    "Other": 1
   },
   "f1Score": {
     "Note": 0,
-    "Mortgage": 0,
-    "Deed of Trust": 0,
-    "Allonge": 1,
-    "Assignment": 0.7499999999999999,
-    "Other": 0
+    "Mortgage": 0.22222222222222224,
+    "Deed of Trust": 0.4,
+    "Allonge": 0.7692307692307693,
+    "Assignment": 0.8125000000000001,
+    "Other": 0.07999999999999999
   },
   "confusionMatrix": {
     "Note": {
       "Note": 0,
-      "Mortgage": 0,
-      "Deed of Trust": 0,
-      "Allonge": 0,
+      "Mortgage": 2,
+      "Deed of Trust": 1,
+      "Allonge": 1,
       "Assignment": 0,
-      "Other": 3
+      "Other": 6
     },
     "Mortgage": {
       "Note": 0,
-      "Mortgage": 0,
+      "Mortgage": 1,
       "Deed of Trust": 0,
       "Allonge": 0,
-      "Assignment": 0,
-      "Other": 0
+      "Assignment": 1,
+      "Other": 3
     },
     "Deed of Trust": {
       "Note": 0,
       "Mortgage": 0,
-      "Deed of Trust": 0,
+      "Deed of Trust": 1,
       "Allonge": 0,
       "Assignment": 0,
-      "Other": 0
+      "Other": 2
     },
     "Allonge": {
       "Note": 0,
       "Mortgage": 0,
       "Deed of Trust": 0,
-      "Allonge": 7,
+      "Allonge": 15,
       "Assignment": 0,
-      "Other": 0
+      "Other": 8
     },
     "Assignment": {
       "Note": 0,
-      "Mortgage": 0,
+      "Mortgage": 1,
       "Deed of Trust": 0,
       "Allonge": 0,
-      "Assignment": 6,
+      "Assignment": 13,
       "Other": 4
     },
     "Other": {
@@ -71,7 +71,7 @@
       "Deed of Trust": 0,
       "Allonge": 0,
       "Assignment": 0,
-      "Other": 0
+      "Other": 1
     }
   },
   "misclassified": [
@@ -79,61 +79,237 @@
       "fileName": "0240610110_NOTE.pdf",
       "trueType": "Note",
       "predictedType": "Other",
-      "confidence": 0.21232152350910574,
+      "confidence": 0.19982152350910573,
       "ocrTextLength": 12488,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "03_Mortgages__Deeds_of_Trust_10K_060904.pdf",
+      "trueType": "Mortgage",
+      "predictedType": "Other",
+      "confidence": 0.1923787545170188,
+      "ocrTextLength": 54208,
       "keyValuePairs": 0
     },
     {
       "fileName": "100011939_Hakani_Note.pdf",
       "trueType": "Note",
-      "predictedType": "Other",
-      "confidence": 0.06688430719922098,
+      "predictedType": "Deed of Trust",
+      "confidence": 0.43352998128246395,
       "ocrTextLength": 31783,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "100011939_Hakani_Recorded_Mortgage.pdf",
+      "trueType": "Mortgage",
+      "predictedType": "Other",
+      "confidence": 0.19242573494175125,
+      "ocrTextLength": 53629,
       "keyValuePairs": 0
     },
     {
       "fileName": "1005345774_Lemieux_Note.pdf",
       "trueType": "Note",
-      "predictedType": "Other",
-      "confidence": 0.11700187511873969,
+      "predictedType": "Mortgage",
+      "confidence": 0.4321815205302955,
       "ocrTextLength": 44158,
       "keyValuePairs": 0
     },
     {
-      "fileName": "160868_Johnson_Recorded_AOM_Christiana_to_SN.pdf",
-      "trueType": "Assignment",
+      "fileName": "1005855303ALLONGE.pdf",
+      "trueType": "Allonge",
       "predictedType": "Other",
-      "confidence": 0.10641882244784437,
-      "ocrTextLength": 2432,
+      "confidence": 0.23471959646557203,
+      "ocrTextLength": 562,
       "keyValuePairs": 0
     },
     {
-      "fileName": "160868_Johnson_Recorded_AOM_SN_to_WFF.pdf",
-      "trueType": "Assignment",
+      "fileName": "1006344415ALLONGE.pdf",
+      "trueType": "Allonge",
       "predictedType": "Other",
-      "confidence": 0.18406999362090734,
-      "ocrTextLength": 2482,
+      "confidence": 0.23598475154381038,
+      "ocrTextLength": 532,
       "keyValuePairs": 0
     },
     {
-      "fileName": "160868_Johnson_Recorded_AOM_WFF_to_SRP.pdf",
+      "fileName": "1006344787ALLONGE.pdf",
+      "trueType": "Allonge",
+      "predictedType": "Other",
+      "confidence": 0.2371396561599407,
+      "ocrTextLength": 499,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "1006344787_Recorded_Assignment_to_ATC.pdf",
       "trueType": "Assignment",
       "predictedType": "Other",
-      "confidence": 0.18409214270050828,
-      "ocrTextLength": 2484,
+      "confidence": 0.2722237224747217,
+      "ocrTextLength": 2566,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "1006344978ALLONGE.pdf",
+      "trueType": "Allonge",
+      "predictedType": "Other",
+      "confidence": 0.23598475154381038,
+      "ocrTextLength": 538,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "1006346264ALLONGE.pdf",
+      "trueType": "Allonge",
+      "predictedType": "Other",
+      "confidence": 0.23554936697242762,
+      "ocrTextLength": 553,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "1006346471ALLONGE.pdf",
+      "trueType": "Allonge",
+      "predictedType": "Other",
+      "confidence": 0.23598475154381038,
+      "ocrTextLength": 532,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "160868_Recorded_Assignment_to_ATC.pdf",
+      "trueType": "Assignment",
+      "predictedType": "Other",
+      "confidence": 0.2730531462634088,
+      "ocrTextLength": 2304,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "179052_See_Note__Allonge.pdf",
+      "trueType": "Note",
+      "predictedType": "Other",
+      "confidence": 0.13376222985473496,
+      "ocrTextLength": 6203,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "179052_See_Note_w_Allonge.pdf",
+      "trueType": "Note",
+      "predictedType": "Other",
+      "confidence": 0.13023855419929953,
+      "ocrTextLength": 10627,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "197844Recorded_Assignment_to_ATC.pdf",
+      "trueType": "Assignment",
+      "predictedType": "Other",
+      "confidence": 0.20622103230360506,
+      "ocrTextLength": 2324,
       "keyValuePairs": 0
     },
     {
       "fileName": "197844_ROBINSON_REC_AOM_WFF_TO_SRP_2013.2_LLC.pdf",
       "trueType": "Assignment",
-      "predictedType": "Other",
-      "confidence": 0.127045482646868,
+      "predictedType": "Mortgage",
+      "confidence": 0.5074909158352483,
       "ocrTextLength": 2834,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "197844_revised_allonge_SN_Commercial_to_WFF.pdf",
+      "trueType": "Allonge",
+      "predictedType": "Other",
+      "confidence": 0.23432375515207138,
+      "ocrTextLength": 578,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "20011671_Lalone_Original_Note_Confirm.pdf",
+      "trueType": "Note",
+      "predictedType": "Allonge",
+      "confidence": 0.7043842690060148,
+      "ocrTextLength": 158,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "240610110_Recorded_Assignment_to_ATC.pdf",
+      "trueType": "Assignment",
+      "predictedType": "Other",
+      "confidence": 0.1376772426738696,
+      "ocrTextLength": 3966,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "247305968___286044___Mortgage_Joachin.pdf",
+      "trueType": "Mortgage",
+      "predictedType": "Assignment",
+      "confidence": 0.4685800761317985,
+      "ocrTextLength": 27520,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "247305968___286044___Note_Joachin.pdf",
+      "trueType": "Note",
+      "predictedType": "Other",
+      "confidence": 0.2027322323323678,
+      "ocrTextLength": 7820,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "Allonge_0000160868_07.15.98.pdf",
+      "trueType": "Allonge",
+      "predictedType": "Other",
+      "confidence": 0.2777963522682648,
+      "ocrTextLength": 1620,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "Credit_File_Documents__01_10258655Note.pdf",
+      "trueType": "Note",
+      "predictedType": "Mortgage",
+      "confidence": 0.5325467990587424,
+      "ocrTextLength": 40106,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "Credit_File_Documents__07_10258719RecMtg.pdf",
+      "trueType": "Mortgage",
+      "predictedType": "Other",
+      "confidence": 0.19644001133383623,
+      "ocrTextLength": 24970,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "Deed_of_Trust_0000160868_07.15.98.pdf",
+      "trueType": "Deed of Trust",
+      "predictedType": "Other",
+      "confidence": 0.23377518818842802,
+      "ocrTextLength": 38537,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "Deed_of_Trust_0000197844_07.06.05.pdf",
+      "trueType": "Deed of Trust",
+      "predictedType": "Other",
+      "confidence": 0.2003987709816304,
+      "ocrTextLength": 12117,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "Note_0000160868_07.15.98.pdf",
+      "trueType": "Note",
+      "predictedType": "Other",
+      "confidence": 0.2370344888766236,
+      "ocrTextLength": 13521,
+      "keyValuePairs": 0
+    },
+    {
+      "fileName": "Note_0000161126_09.01.98__Copy.pdf",
+      "trueType": "Note",
+      "predictedType": "Other",
+      "confidence": 0.1907165642252616,
+      "ocrTextLength": 10602,
       "keyValuePairs": 0
     }
   ],
-  "totalFiles": 20,
-  "successfulOCR": 20,
-  "successfulClassifications": 20,
-  "timestamp": "2025-07-02T23:38:51.943Z"
+  "totalFiles": 60,
+  "successfulOCR": 60,
+  "successfulClassifications": 60,
+  "timestamp": "2025-07-03T00:00:06.074Z"
 }
