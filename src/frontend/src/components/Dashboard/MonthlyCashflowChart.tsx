@@ -7,7 +7,11 @@ interface MonthlyCashflowData {
   cashflow: number;
 }
 
-const MonthlyCashflowChart: React.FC = () => {
+interface MonthlyCashflowChartProps {
+  year: string;
+}
+
+const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = ({ year }) => {
   const [data, setData] = useState<MonthlyCashflowData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,8 +19,10 @@ const MonthlyCashflowChart: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<MonthlyCashflowData[]>('/api/reports/monthly-cashflow');
+        setLoading(true);
+        const response = await axios.get<MonthlyCashflowData[]>(`/api/reports/monthly-cashflow?year=${year}`);
         setData(response.data);
+        setError(null);
       } catch (err) {
         setError('Failed to fetch monthly cashflow data');
         console.error('Error fetching monthly cashflow:', err);
@@ -26,7 +32,7 @@ const MonthlyCashflowChart: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [year]);
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString('en-US', {
@@ -106,7 +112,7 @@ const MonthlyCashflowChart: React.FC = () => {
         fontWeight: '600',
         color: '#333'
       }}>
-        Monthly Cashflow Trends
+        Monthly Cashflow Trends - {year}
       </h3>
       
       <ResponsiveContainer width="100%" height="90%">

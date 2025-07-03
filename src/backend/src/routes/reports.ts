@@ -201,21 +201,32 @@ router.get('/reports/loan-geographical-distribution', authenticateToken, async (
 // --- MONTHLY CASHFLOW ENDPOINT ---
 router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
   try {
-    const query = `
-      SELECT 'Jan' as month, 1 as month_order, COALESCE(SUM(january_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Feb' as month, 2 as month_order, COALESCE(SUM(february_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Mar' as month, 3 as month_order, COALESCE(SUM(march_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Apr' as month, 4 as month_order, COALESCE(SUM(april_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'May' as month, 5 as month_order, COALESCE(SUM(may_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Jun' as month, 6 as month_order, COALESCE(SUM(june_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Jul' as month, 7 as month_order, COALESCE(SUM(july_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Aug' as month, 8 as month_order, COALESCE(SUM(august_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Sep' as month, 9 as month_order, COALESCE(SUM(september_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Oct' as month, 10 as month_order, COALESCE(SUM(october_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Nov' as month, 11 as month_order, COALESCE(SUM(november_2025), 0) as cashflow FROM daily_metrics_current UNION ALL
-      SELECT 'Dec' as month, 12 as month_order, COALESCE(SUM(december_2025), 0) as cashflow FROM daily_metrics_current
-      ORDER BY month_order;
-    `;
+    // Get year from query parameter, default to current year
+    const year = req.query.year || new Date().getFullYear();
+    
+    // Define month names and abbreviations
+    const months = [
+      { full: 'january', abbr: 'Jan' },
+      { full: 'february', abbr: 'Feb' },
+      { full: 'march', abbr: 'Mar' },
+      { full: 'april', abbr: 'Apr' },
+      { full: 'may', abbr: 'May' },
+      { full: 'june', abbr: 'Jun' },
+      { full: 'july', abbr: 'Jul' },
+      { full: 'august', abbr: 'Aug' },
+      { full: 'september', abbr: 'Sep' },
+      { full: 'october', abbr: 'Oct' },
+      { full: 'november', abbr: 'Nov' },
+      { full: 'december', abbr: 'Dec' }
+    ];
+
+    // Dynamically construct SQL query based on the year
+    const queryParts = months.map((month, index) => 
+      `SELECT '${month.abbr}' as month, ${index + 1} as month_order, COALESCE(SUM(${month.full}_${year}), 0) as cashflow FROM daily_metrics_current`
+    );
+
+    const query = queryParts.join(' UNION ALL ') + ' ORDER BY month_order;';
+    
     const result = await pool.query(query);
 
     // Format data for the chart
@@ -227,7 +238,10 @@ router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
     res.json(formattedData);
   } catch (error) {
     console.error('Error fetching monthly cashflow:', error);
-    res.status(500).send('Error fetching monthly cashflow');
+    res.status(500).json({ 
+      error: 'Failed to fetch monthly cashflow data',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
