@@ -31,7 +31,7 @@ router.get('/reports/loan-status-distribution', authenticateToken, async (req, r
             SELECT 
                 legal_status as status,
                 COUNT(*) as count
-            FROM loans 
+            FROM daily_metrics_current 
             WHERE legal_status IS NOT NULL 
             GROUP BY legal_status 
             ORDER BY count DESC
