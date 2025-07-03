@@ -204,29 +204,28 @@ router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
     // Get year from query parameter, default to current year
     const year = req.query.year || new Date().getFullYear();
     
-    // Define month names and abbreviations
     const months = [
-      { full: 'january', abbr: 'Jan' },
-      { full: 'february', abbr: 'Feb' },
-      { full: 'march', abbr: 'Mar' },
-      { full: 'april', abbr: 'Apr' },
-      { full: 'may', abbr: 'May' },
-      { full: 'june', abbr: 'Jun' },
-      { full: 'july', abbr: 'Jul' },
-      { full: 'august', abbr: 'Aug' },
-      { full: 'september', abbr: 'Sep' },
-      { full: 'october', abbr: 'Oct' },
-      { full: 'november', abbr: 'Nov' },
-      { full: 'december', abbr: 'Dec' }
+      "january", "february", "march", "april", "may", "june",
+      "july", "august", "september", "october", "november", "december"
     ];
 
-    // Dynamically construct SQL query based on the year
-    const queryParts = months.map((month, index) => 
-      `SELECT '${month.abbr}' as month, ${index + 1} as month_order, COALESCE(SUM(${month.full}_${year}), 0) as cashflow FROM daily_metrics_current`
-    );
+    const unionParts = months.map((month, index) => {
+      const monthAbbr = month.charAt(0).toUpperCase() + month.slice(1, 3);
+      // Dynamically create the column name, e.g., "january_2025"
+      const columnName = `${month.toLowerCase()}_${year}`;
 
-    const query = queryParts.join(' UNION ALL ') + ' ORDER BY month_order;';
-    
+      // IMPORTANT: Check if the column exists in your DB schema before using it in a real production app
+      // For now, we assume it exists based on our current data.
+      return `SELECT '${monthAbbr}' as month, ${index + 1} as month_order, COALESCE(SUM(${columnName}), 0) as cashflow FROM daily_metrics_current`;
+    });
+
+    const query = `
+      SELECT month, cashflow FROM (
+        ${unionParts.join(' UNION ALL ')}
+      ) as monthly_data
+      ORDER BY month_order;
+    `;
+
     const result = await pool.query(query);
 
     // Format data for the chart
