@@ -202,32 +202,62 @@ router.get('/reports/loan-geographical-distribution', authenticateToken, async (
 router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
   try {
     const year = req.query.year || new Date().getFullYear();
-    const months = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+    
+    // Define months with their database column names
+    const monthsData = [
+      { abbr: 'Jan', full: 'january', order: 1 },
+      { abbr: 'Feb', full: 'february', order: 2 },
+      { abbr: 'Mar', full: 'march', order: 3 },
+      { abbr: 'Apr', full: 'april', order: 4 },
+      { abbr: 'May', full: 'may', order: 5 },
+      { abbr: 'Jun', full: 'june', order: 6 },
+      { abbr: 'Jul', full: 'july', order: 7 },
+      { abbr: 'Aug', full: 'august', order: 8 },
+      { abbr: 'Sep', full: 'september', order: 9 },
+      { abbr: 'Oct', full: 'october', order: 10 },
+      { abbr: 'Nov', full: 'november', order: 11 },
+      { abbr: 'Dec', full: 'december', order: 12 }
     ];
 
-    const unionParts = months.map((month, index) => {
-      const monthAbbr = month.slice(0, 3);
-      const columnName = `${month.toLowerCase()}_${year}`;
-
-      return `SELECT '${monthAbbr}' as month, ${index + 1} as month_order, COALESCE(SUM(${columnName}), 0) as cashflow FROM daily_metrics_current`;
+    // Build individual queries for each month
+    const queries = monthsData.map(month => {
+      const columnName = `${month.full}_${year}`;
+      return {
+        month: month.abbr,
+        order: month.order,
+        query: `SELECT COALESCE(SUM(${columnName}), 0) as total FROM daily_metrics_current`
+      };
     });
 
-    // This query structure is now correct for PostgreSQL
-    const query = `
-      SELECT month, month_order, cashflow 
-      FROM (
-        ${unionParts.join(' UNION ALL ')}
-      ) as monthly_data
-      ORDER BY month_order ASC;
-    `;
+    // Execute all queries in parallel for better performance
+    const results = await Promise.all(
+      queries.map(async (q) => {
+        try {
+          const result = await pool.query(q.query);
+          return {
+            month: q.month,
+            order: q.order,
+            cashflow: parseFloat(result.rows[0].total) || 0
+          };
+        } catch (err) {
+          // If column doesn't exist for this year, return 0
+          console.warn(`Column for ${q.month} ${year} might not exist:`, err);
+          return {
+            month: q.month,
+            order: q.order,
+            cashflow: 0
+          };
+        }
+      })
+    );
 
-    const result = await pool.query(query);
+    // Sort results by month order
+    const sortedResults = results.sort((a, b) => a.order - b.order);
 
-    const formattedData = result.rows.map(row => ({
-      month: row.month,
-      cashflow: parseFloat(row.cashflow)
+    // Format for frontend
+    const formattedData = sortedResults.map(item => ({
+      month: item.month,
+      cashflow: item.cashflow
     }));
 
     res.json(formattedData);
