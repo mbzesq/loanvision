@@ -355,21 +355,35 @@ router.get('/reports/foreclosure-tracking', authenticateToken, async (req, res) 
         COUNT(*) as count
       FROM foreclosure_events
       WHERE fc_status IS NOT NULL AND fc_status != ''
-      GROUP BY milestone
+      GROUP BY 
+        CASE 
+          WHEN eviction_completed_date IS NOT NULL THEN 'Eviction Completed'
+          WHEN real_estate_owned_date IS NOT NULL THEN 'REO'
+          WHEN sale_held_date IS NOT NULL THEN 'Sale Held'
+          WHEN sale_scheduled_date IS NOT NULL THEN 'Sale Scheduled'
+          WHEN judgment_date IS NOT NULL THEN 'Judgment Entered'
+          WHEN service_completed_date IS NOT NULL THEN 'Service Completed'
+          WHEN complaint_filed_date IS NOT NULL THEN 'Complaint Filed'
+          WHEN title_received_date IS NOT NULL THEN 'Title Received'
+          WHEN title_ordered_date IS NOT NULL THEN 'Title Ordered'
+          WHEN referral_date IS NOT NULL THEN 'Referred to Attorney'
+          WHEN fc_start_date IS NOT NULL THEN 'Foreclosure Started'
+          ELSE 'Not Started'
+        END
       ORDER BY 
-        CASE milestone
-          WHEN 'Not Started' THEN 1
-          WHEN 'Foreclosure Started' THEN 2
-          WHEN 'Referred to Attorney' THEN 3
-          WHEN 'Title Ordered' THEN 4
-          WHEN 'Title Received' THEN 5
-          WHEN 'Complaint Filed' THEN 6
-          WHEN 'Service Completed' THEN 7
-          WHEN 'Judgment Entered' THEN 8
-          WHEN 'Sale Scheduled' THEN 9
-          WHEN 'Sale Held' THEN 10
-          WHEN 'REO' THEN 11
-          WHEN 'Eviction Completed' THEN 12
+        CASE 
+          WHEN eviction_completed_date IS NOT NULL THEN 12
+          WHEN real_estate_owned_date IS NOT NULL THEN 11
+          WHEN sale_held_date IS NOT NULL THEN 10
+          WHEN sale_scheduled_date IS NOT NULL THEN 9
+          WHEN judgment_date IS NOT NULL THEN 8
+          WHEN service_completed_date IS NOT NULL THEN 7
+          WHEN complaint_filed_date IS NOT NULL THEN 6
+          WHEN title_received_date IS NOT NULL THEN 5
+          WHEN title_ordered_date IS NOT NULL THEN 4
+          WHEN referral_date IS NOT NULL THEN 3
+          WHEN fc_start_date IS NOT NULL THEN 2
+          ELSE 1
         END;
     `;
     
@@ -385,7 +399,13 @@ router.get('/reports/foreclosure-tracking', authenticateToken, async (req, res) 
         COUNT(*) as count
       FROM foreclosure_events
       WHERE fc_status IS NOT NULL AND fc_status != ''
-      GROUP BY timeline_status;
+      GROUP BY 
+        CASE 
+          WHEN fc_start_date IS NULL THEN 'Not in Foreclosure'
+          WHEN fc_start_date <= CURRENT_DATE - INTERVAL '365 days' AND eviction_completed_date IS NULL THEN 'Overdue'
+          WHEN fc_start_date <= CURRENT_DATE - INTERVAL '270 days' AND sale_held_date IS NULL THEN 'Delayed'
+          ELSE 'On Track'
+        END;
     `;
 
     // Execute all queries
