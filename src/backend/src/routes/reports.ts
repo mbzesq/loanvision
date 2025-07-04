@@ -111,67 +111,55 @@ router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
     // Default to 2025 if no year is provided in the query
     const year = req.query.year || '2025';
 
-    // Use a simple approach that aggregates monthly columns directly
+    // Use a single query to get all monthly data at once
     const query = `
       SELECT
         'Jan' as month, 1 as month_order, COALESCE(SUM(january_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE january_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Feb' as month, 2 as month_order, COALESCE(SUM(february_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE february_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Mar' as month, 3 as month_order, COALESCE(SUM(march_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE march_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Apr' as month, 4 as month_order, COALESCE(SUM(april_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE april_2025 IS NOT NULL
       UNION ALL
       SELECT
         'May' as month, 5 as month_order, COALESCE(SUM(may_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE may_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Jun' as month, 6 as month_order, COALESCE(SUM(june_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE june_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Jul' as month, 7 as month_order, COALESCE(SUM(july_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE july_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Aug' as month, 8 as month_order, COALESCE(SUM(august_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE august_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Sep' as month, 9 as month_order, COALESCE(SUM(september_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE september_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Oct' as month, 10 as month_order, COALESCE(SUM(october_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE october_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Nov' as month, 11 as month_order, COALESCE(SUM(november_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE november_2025 IS NOT NULL
       UNION ALL
       SELECT
         'Dec' as month, 12 as month_order, COALESCE(SUM(december_2025), 0) as cashflow
       FROM daily_metrics_current
-      WHERE december_2025 IS NOT NULL
       ORDER BY month_order ASC;
     `;
 
