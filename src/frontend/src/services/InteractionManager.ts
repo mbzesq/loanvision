@@ -492,7 +492,7 @@ class InteractionManager {
     
     // Build query string from filters
     const queryString = Object.entries(filters || {})
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
       .join('&');
     
     const url = queryString ? `/${page}?${queryString}` : `/${page}`;
@@ -520,8 +520,8 @@ class InteractionManager {
     this.emit('filters-changed', this.filterState);
   }
 
-  public setFilter(key: keyof FilterState, value: string) {
-    this.filterState[key] = value;
+  public setFilter(key: keyof FilterState, value: any) {
+    (this.filterState as any)[key] = value;
     this.emit('filters-changed', this.filterState);
   }
 }
