@@ -7,20 +7,36 @@ interface MonthlyCashflowData {
   cashflow: number;
 }
 
-interface MonthlyCashflowChartProps {
-  year: string;
-}
+interface MonthlyCashflowChartProps {}
 
-const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = ({ year }) => {
+const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
   const [data, setData] = useState<MonthlyCashflowData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [year, setYear] = useState<string>('2025');
+  const [investor, setInvestor] = useState<string>('all');
+  const [investors, setInvestors] = useState<string[]>([]);
 
+  // Fetch investors list
+  useEffect(() => {
+    const fetchInvestors = async () => {
+      try {
+        const response = await axios.get<string[]>('/api/reports/investors');
+        setInvestors(response.data);
+      } catch (err) {
+        console.error('Error fetching investors:', err);
+      }
+    };
+
+    fetchInvestors();
+  }, []);
+
+  // Fetch cashflow data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get<MonthlyCashflowData[]>(`/api/reports/monthly-cashflow?year=${year}`);
+        const response = await axios.get<MonthlyCashflowData[]>(`/api/reports/monthly-cashflow?year=${year}&investor=${investor}`);
         setData(response.data);
         setError(null);
       } catch (err) {
@@ -32,7 +48,7 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = ({ year }) => 
     };
 
     fetchData();
-  }, [year]);
+  }, [year, investor]);
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString('en-US', {
@@ -115,7 +131,57 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = ({ year }) => 
         Monthly Cashflow Trends - {year}
       </h3>
       
-      <ResponsiveContainer width="100%" height="90%">
+      {/* Controls */}
+      <div style={{
+        display: 'flex',
+        gap: '16px',
+        marginBottom: '20px',
+        alignItems: 'center'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>Year:</label>
+          <select
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            style={{
+              padding: '6px 12px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              fontSize: '14px',
+              backgroundColor: 'white'
+            }}
+          >
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>Investor:</label>
+          <select
+            value={investor}
+            onChange={(e) => setInvestor(e.target.value)}
+            style={{
+              padding: '6px 12px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              fontSize: '14px',
+              backgroundColor: 'white',
+              minWidth: '150px'
+            }}
+          >
+            <option value="all">All Investors</option>
+            {investors.map(investorName => (
+              <option key={investorName} value={investorName}>
+                {investorName}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      
+      <ResponsiveContainer width="100%" height="75%">
         <LineChart
           data={data}
           margin={{

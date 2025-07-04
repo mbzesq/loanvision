@@ -15,7 +15,6 @@ function DashboardPage() {
   const [summary, setSummary] = useState<PortfolioSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
 
   useEffect(() => {
     const fetchPortfolioSummary = async () => {
@@ -76,26 +75,6 @@ function DashboardPage() {
         marginBottom: '32px' 
       }}>
         <h1 style={{ margin: 0 }}>Portfolio Dashboard</h1>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <label style={{ fontSize: '14px', color: '#666' }}>Year:</label>
-          <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '4px',
-              border: '1px solid #ddd',
-              backgroundColor: 'white',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-          </select>
-        </div>
       </div>
       
       <div style={{
@@ -127,7 +106,7 @@ function DashboardPage() {
         <GeographicalDistributionChart />
 
         {/* Chart 3: Monthly Cashflow */}
-        <MonthlyCashflowChart year={selectedYear} />
+        <MonthlyCashflowChart />
 
         {/* Chart 4: Placeholder for Key Metric TBD */}
         <div className="bg-slate-800 p-6 rounded-lg text-white h-[400px]">

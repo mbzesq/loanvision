@@ -105,75 +105,212 @@ router.get('/reports/loan-geographical-distribution', authenticateToken, async (
     }
 });
 
+// --- DEBUG MONTHLY DATA ENDPOINT ---
+router.get('/reports/debug-monthly', authenticateToken, async (req, res) => {
+  try {
+    // Check if we have any data at all
+    const tableCheck = await pool.query('SELECT COUNT(*) as total FROM daily_metrics_current');
+    
+    // Check column structure
+    const columnCheck = await pool.query(`
+      SELECT column_name, data_type
+      FROM information_schema.columns
+      WHERE table_name = 'daily_metrics_current' AND column_name LIKE '%2025%'
+      ORDER BY column_name
+    `);
+    
+    // Check actual data in monthly columns
+    const dataCheck = await pool.query(`
+      SELECT 
+        COUNT(*) as total_rows,
+        COUNT(january_2025) as jan_count,
+        COUNT(february_2025) as feb_count,
+        COUNT(march_2025) as mar_count,
+        SUM(january_2025) as jan_sum,
+        SUM(february_2025) as feb_sum,
+        SUM(march_2025) as mar_sum,
+        AVG(january_2025) as jan_avg,
+        MAX(january_2025) as jan_max,
+        MIN(january_2025) as jan_min
+      FROM daily_metrics_current
+    `);
+    
+    // Get sample data
+    const sampleData = await pool.query(`
+      SELECT loan_id, january_2025, february_2025, march_2025
+      FROM daily_metrics_current 
+      WHERE january_2025 IS NOT NULL OR february_2025 IS NOT NULL OR march_2025 IS NOT NULL
+      LIMIT 5
+    `);
+    
+    res.json({
+      table_info: tableCheck.rows[0],
+      columns: columnCheck.rows,
+      data_analysis: dataCheck.rows[0],
+      sample_data: sampleData.rows
+    });
+  } catch (error) {
+    console.error('Error in debug endpoint:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // --- MONTHLY CASHFLOW ENDPOINT ---
 router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
   try {
     // Default to 2025 if no year is provided in the query
     const year = req.query.year || '2025';
+    const investor = req.query.investor as string;
 
-    // Use a single query to get all monthly data at once
+    // Build WHERE clause for investor filter
+    const whereClause = investor && investor !== 'all' ? 'WHERE investor_name = $1' : '';
+    const queryParams = investor && investor !== 'all' ? [investor] : [];
+
+    // Use a single query to get all monthly data at once, grouped by investor if needed
     const query = `
       SELECT
-        'Jan' as month, 1 as month_order, COALESCE(SUM(january_2025), 0) as cashflow
+        'Jan' as month, 
+        1 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(january_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Feb' as month, 2 as month_order, COALESCE(SUM(february_2025), 0) as cashflow
+        'Feb' as month, 
+        2 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(february_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Mar' as month, 3 as month_order, COALESCE(SUM(march_2025), 0) as cashflow
+        'Mar' as month, 
+        3 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(march_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Apr' as month, 4 as month_order, COALESCE(SUM(april_2025), 0) as cashflow
+        'Apr' as month, 
+        4 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(april_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'May' as month, 5 as month_order, COALESCE(SUM(may_2025), 0) as cashflow
+        'May' as month, 
+        5 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(may_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Jun' as month, 6 as month_order, COALESCE(SUM(june_2025), 0) as cashflow
+        'Jun' as month, 
+        6 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(june_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Jul' as month, 7 as month_order, COALESCE(SUM(july_2025), 0) as cashflow
+        'Jul' as month, 
+        7 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(july_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Aug' as month, 8 as month_order, COALESCE(SUM(august_2025), 0) as cashflow
+        'Aug' as month, 
+        8 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(august_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Sep' as month, 9 as month_order, COALESCE(SUM(september_2025), 0) as cashflow
+        'Sep' as month, 
+        9 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(september_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Oct' as month, 10 as month_order, COALESCE(SUM(october_2025), 0) as cashflow
+        'Oct' as month, 
+        10 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(october_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Nov' as month, 11 as month_order, COALESCE(SUM(november_2025), 0) as cashflow
+        'Nov' as month, 
+        11 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(november_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       UNION ALL
       SELECT
-        'Dec' as month, 12 as month_order, COALESCE(SUM(december_2025), 0) as cashflow
+        'Dec' as month, 
+        12 as month_order, 
+        ${investor && investor !== 'all' ? 'investor_name as investor,' : ''}
+        COALESCE(SUM(december_2025), 0) as cashflow
       FROM daily_metrics_current
+      ${whereClause}
+      ${investor && investor !== 'all' ? 'GROUP BY investor_name' : ''}
       ORDER BY month_order ASC;
     `;
 
-    const result = await pool.query(query);
+    const result = await pool.query(query, queryParams);
 
     const formattedData = result.rows.map(row => ({
       month: row.month,
-      cashflow: parseFloat(row.cashflow) || 0
+      cashflow: parseFloat(row.cashflow) || 0,
+      ...(investor && investor !== 'all' && { investor: row.investor })
     }));
 
     res.json(formattedData);
   } catch (error) {
     console.error('Error fetching monthly cashflow:', error);
     res.status(500).json({ error: 'Failed to fetch monthly cashflow' });
+  }
+});
+
+// --- INVESTORS LIST ENDPOINT ---
+router.get('/reports/investors', authenticateToken, async (req, res) => {
+  try {
+    const query = `
+      SELECT DISTINCT investor_name
+      FROM daily_metrics_current
+      WHERE investor_name IS NOT NULL AND investor_name != ''
+      ORDER BY investor_name ASC;
+    `;
+    
+    const result = await pool.query(query);
+    
+    const investors = result.rows.map(row => row.investor_name);
+    
+    res.json(investors);
+  } catch (error) {
+    console.error('Error fetching investors:', error);
+    res.status(500).json({ error: 'Failed to fetch investors' });
   }
 });
 
