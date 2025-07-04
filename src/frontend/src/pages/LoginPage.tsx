@@ -100,12 +100,14 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
+            {/* Temporarily hidden - Sign up functionality preserved for future restoration
             <p className="text-sm text-center text-gray-600">
               Don't have an account?{' '}
               <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
                 Sign up
               </Link>
             </p>
+            */}
           </CardFooter>
         </form>
       </Card>
