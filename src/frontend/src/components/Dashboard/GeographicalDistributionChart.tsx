@@ -84,6 +84,7 @@ const GeographicalDistributionChart: React.FC = () => {
   const handleMouseEnter = (geo: any, event: React.MouseEvent) => {
     const stateName = geo.properties.name;
     const count = getLoanCount(stateName);
+    
     setTooltip({
       content: `${stateName}: ${count} loans`,
       x: event.clientX,
@@ -94,6 +95,7 @@ const GeographicalDistributionChart: React.FC = () => {
   const handleMouseMove = (geo: any, event: React.MouseEvent) => {
     const stateName = geo.properties.name;
     const count = getLoanCount(stateName);
+    
     setTooltip({
       content: `${stateName}: ${count} loans`,
       x: event.clientX,
@@ -171,15 +173,17 @@ const GeographicalDistributionChart: React.FC = () => {
   }
 
   return (
-    <div style={{
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      padding: '24px',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      border: '1px solid #e0e0e0',
-      height: '400px',
-      position: 'relative'
-    }}>
+    <div 
+      className="geographic-map-container"
+      style={{
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        padding: '24px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e0e0e0',
+        height: '400px',
+        position: 'relative'
+      }}>
       <h3 style={{
         margin: '0 0 20px 0',
         fontSize: '18px',
@@ -235,8 +239,8 @@ const GeographicalDistributionChart: React.FC = () => {
         <div
           style={{
             position: 'fixed',
-            left: Math.min(tooltip.x + 15, window.innerWidth - 200), // Prevent overflow right
-            top: Math.max(tooltip.y - 40, 10), // Prevent overflow top
+            left: tooltip.x + 15,
+            top: tooltip.y - 40,
             backgroundColor: 'rgba(0, 0, 0, 0.9)',
             color: 'white',
             padding: '12px 16px',
