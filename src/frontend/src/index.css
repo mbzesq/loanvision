@@ -1,4 +1,7 @@
 
+/* Import our modern design system */
+@import './styles/design-system.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -53,8 +56,19 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
+  
   body {
-    @apply font-sans bg-slate-50 text-slate-800;
+    font-family: var(--font-family-sans);
+    background-color: var(--bg-secondary);
+    color: var(--neutral-900);
+    line-height: var(--line-height-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  html {
+    scroll-behavior: smooth;
   }
 }

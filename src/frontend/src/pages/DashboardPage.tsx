@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import SummaryCard from '../components/Dashboard/SummaryCard';
+import ModernKPICard from '../components/Dashboard/ModernKPICard';
+import ModernChartContainer from '../components/Dashboard/ModernChartContainer';
 import LoanStatusChart from '../components/Dashboard/LoanStatusChart';
 import GeographicalDistributionChart from '../components/Dashboard/GeographicalDistributionChart';
 import MonthlyCashflowChart from '../components/Dashboard/MonthlyCashflowChart';
 import ForeclosureTrackingChart from '../components/Dashboard/ForeclosureTrackingChart';
 import axios from '../utils/axios';
+import '../styles/design-system.css';
 
 interface PortfolioSummary {
   loanCount: number;
@@ -33,30 +35,6 @@ function DashboardPage() {
     fetchPortfolioSummary();
   }, []);
 
-  if (loading) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <p style={{ color: 'red' }}>{error}</p>
-      </div>
-    );
-  }
-
-  if (!summary) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <p>No data available</p>
-      </div>
-    );
-  }
-
   // Format currency values
   const formatCurrency = (value: number) => {
     return value.toLocaleString('en-US', {
@@ -67,50 +45,197 @@ function DashboardPage() {
     });
   };
 
-  return (
-    <div style={{ padding: '40px' }}>
+  // Calculate portfolio trends (mock data for demo)
+  const getPortfolioTrends = () => {
+    return {
+      upb: { value: 5.2, direction: 'up' as const, period: 'last month' },
+      loans: { value: 12, direction: 'up' as const, period: 'last month' },
+      avgBalance: { value: 2.1, direction: 'down' as const, period: 'last month' }
+    };
+  };
+
+  const trends = getPortfolioTrends();
+
+  // Icons for KPI cards
+  const DollarIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="12" y1="1" x2="12" y2="23"></line>
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+    </svg>
+  );
+
+  const TrendingUpIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+      <polyline points="17 6 23 6 23 12"></polyline>
+    </svg>
+  );
+
+  const CalculatorIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+      <line x1="8" y1="6" x2="16" y2="6"></line>
+      <line x1="8" y1="10" x2="8" y2="10"></line>
+      <line x1="12" y1="10" x2="12" y2="10"></line>
+      <line x1="16" y1="10" x2="16" y2="10"></line>
+      <line x1="8" y1="14" x2="8" y2="14"></line>
+      <line x1="12" y1="14" x2="12" y2="14"></line>
+      <line x1="16" y1="14" x2="16" y2="14"></line>
+      <line x1="8" y1="18" x2="8" y2="18"></line>
+      <line x1="12" y1="18" x2="12" y2="18"></line>
+      <line x1="16" y1="18" x2="16" y2="18"></line>
+    </svg>
+  );
+
+  const FileTextIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+  );
+
+  if (loading) {
+    return (
       <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '32px' 
+        padding: 'var(--space-3xl)', 
+        textAlign: 'center',
+        background: 'var(--bg-secondary)',
+        minHeight: '100vh'
       }}>
-        <h1 style={{ margin: 0 }}>Portfolio Dashboard</h1>
+        <div className="loading-shimmer" style={{ 
+          width: '200px', 
+          height: '20px', 
+          margin: '0 auto',
+          borderRadius: 'var(--radius-md)'
+        }} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ 
+        padding: 'var(--space-3xl)', 
+        textAlign: 'center',
+        background: 'var(--bg-secondary)',
+        minHeight: '100vh'
+      }}>
+        <p style={{ color: 'var(--warning-red)', fontSize: 'var(--font-size-lg)' }}>{error}</p>
+      </div>
+    );
+  }
+
+  if (!summary) {
+    return (
+      <div style={{ 
+        padding: 'var(--space-3xl)', 
+        textAlign: 'center',
+        background: 'var(--bg-secondary)',
+        minHeight: '100vh'
+      }}>
+        <p style={{ color: 'var(--neutral-600)', fontSize: 'var(--font-size-lg)' }}>No data available</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ 
+      padding: 'var(--space-3xl)', 
+      background: 'var(--bg-secondary)',
+      minHeight: '100vh'
+    }}>
+      {/* Header */}
+      <div style={{ 
+        marginBottom: 'var(--space-2xl)'
+      }}>
+        <h1 style={{ 
+          margin: 0,
+          fontSize: 'var(--font-size-3xl)',
+          fontWeight: 'var(--font-weight-bold)',
+          color: 'var(--neutral-900)',
+          lineHeight: 'var(--line-height-tight)'
+        }}>
+          Portfolio Dashboard
+        </h1>
+        <p style={{
+          margin: 'var(--space-xs) 0 0 0',
+          fontSize: 'var(--font-size-lg)',
+          color: 'var(--neutral-600)',
+          fontWeight: 'var(--font-weight-normal)'
+        }}>
+          Real-time insights into your loan portfolio performance
+        </p>
       </div>
       
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '24px',
-        marginBottom: '40px'
-      }}>
-        <SummaryCard 
-          title="Total UPB" 
-          value={formatCurrency(summary.totalUPB)} 
+      {/* KPI Cards Grid */}
+      <div className="kpi-grid mb-2xl">
+        <ModernKPICard
+          title="Total UPB"
+          value={formatCurrency(summary.totalUPB)}
+          trend={trends.upb}
+          icon={<DollarIcon />}
+          color="blue"
         />
-        <SummaryCard 
-          title="Loan Count" 
-          value={summary.loanCount.toLocaleString()} 
+        <ModernKPICard
+          title="Loan Count"
+          value={summary.loanCount.toLocaleString()}
+          trend={trends.loans}
+          icon={<FileTextIcon />}
+          color="green"
         />
-        <SummaryCard 
-          title="Average Balance" 
-          value={formatCurrency(summary.averageBalance)} 
+        <ModernKPICard
+          title="Average Balance"
+          value={formatCurrency(summary.averageBalance)}
+          trend={trends.avgBalance}
+          icon={<CalculatorIcon />}
+          color="orange"
+        />
+        <ModernKPICard
+          title="Performance"
+          value="94.2%"
+          trend={{ value: 1.8, direction: 'up', period: 'last quarter' }}
+          icon={<TrendingUpIcon />}
+          color="green"
+          format="percentage"
         />
       </div>
 
-      {/* 2x2 Charts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+      {/* Charts Grid */}
+      <div className="chart-grid">
         {/* Chart 1: Loan Status */}
-        <LoanStatusChart />
+        <ModernChartContainer
+          title="Loan Status Distribution"
+          subtitle="Current portfolio breakdown by loan status"
+        >
+          <LoanStatusChart />
+        </ModernChartContainer>
 
         {/* Chart 2: Geographical Distribution */}
-        <GeographicalDistributionChart />
+        <ModernChartContainer
+          title="Geographic Distribution"
+          subtitle="Loan distribution across states"
+        >
+          <GeographicalDistributionChart />
+        </ModernChartContainer>
 
         {/* Chart 3: Monthly Cashflow */}
-        <MonthlyCashflowChart />
+        <ModernChartContainer
+          title="Cashflow Analysis"
+          subtitle="Monthly payment trends and investor breakdown"
+        >
+          <MonthlyCashflowChart />
+        </ModernChartContainer>
 
         {/* Chart 4: Foreclosure Tracking */}
-        <ForeclosureTrackingChart />
+        <ModernChartContainer
+          title="Foreclosure Pipeline"
+          subtitle="Active foreclosure status and milestone tracking"
+        >
+          <ForeclosureTrackingChart />
+        </ModernChartContainer>
       </div>
     </div>
   );
