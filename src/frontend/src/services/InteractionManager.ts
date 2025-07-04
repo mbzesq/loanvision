@@ -131,7 +131,7 @@ class InteractionManager {
   private handleGeographicClick(dataPoint: any, _context: any) {
     const modalData: ModalData = {
       type: 'state-detail',
-      title: `${dataPoint.state} Portfolio Details`,
+      title: `${dataPoint.stateName || dataPoint.state} Portfolio Details`,
       data: {
         state: dataPoint.state,
         loanCount: dataPoint.loanCount,
@@ -141,7 +141,7 @@ class InteractionManager {
       },
       actions: [
         { label: 'Close', action: 'close' },
-        { label: 'View All Loans', action: 'navigate', payload: { page: 'loans', filters: { state: dataPoint.state } } }
+        { label: 'View Loans', action: 'navigate', payload: { page: 'loans', filters: { state: dataPoint.state } } }
       ]
     };
     
@@ -161,8 +161,7 @@ class InteractionManager {
       },
       actions: [
         { label: 'Close', action: 'close' },
-        { label: 'Filter Dashboard', action: 'filter', payload: { status: dataPoint.status } },
-        { label: 'View Details', action: 'navigate', payload: { page: 'loans', filters: { status: dataPoint.status } } }
+        { label: 'View Loans', action: 'navigate', payload: { page: 'loans', filters: { status: dataPoint.status } } }
       ]
     };
     

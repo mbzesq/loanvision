@@ -3,6 +3,21 @@ import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import axios from '../../utils/axios';
 import interactionManager from '../../services/InteractionManager';
 
+// State name to abbreviation mapping
+const stateNameToAbbr: Record<string, string> = {
+  'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
+  'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
+  'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA',
+  'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD',
+  'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO',
+  'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ',
+  'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH',
+  'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+  'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
+  'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY',
+  'District of Columbia': 'DC'
+};
+
 interface GeographicalData {
   state: string;
   count: number;
@@ -82,9 +97,10 @@ const GeographicalDistributionChart: React.FC = () => {
 
   const handleStateClick = (geo: any) => {
     const stateName = geo.properties.name;
+    const stateAbbr = stateNameToAbbr[stateName];
     const count = getLoanCount(stateName);
     
-    if (count > 0) {
+    if (count > 0 && stateAbbr) {
       const mockStateData = {
         totalUPB: count * 150000, // Mock calculation
         avgBalance: 145000 + Math.random() * 50000, // Mock data
@@ -98,7 +114,8 @@ const GeographicalDistributionChart: React.FC = () => {
       interactionManager.handleChartClick({
         chartType: 'geographic',
         dataPoint: {
-          state: stateName,
+          state: stateAbbr, // Pass abbreviation for filtering
+          stateName: stateName, // Keep full name for display
           loanCount: count,
           ...mockStateData
         },

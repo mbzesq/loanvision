@@ -96,8 +96,10 @@ function LoanExplorerPage() {
       urlFilters.assetStatus = [status];
     }
     if (milestone) {
-      // Map milestone to timeline status for foreclosure filtering
-      urlFilters.timelineStatus = [milestone];
+      // For foreclosure milestones, we'll show all loans and let the user
+      // see the foreclosure-related data without pre-filtering
+      // This avoids having to guess the exact legal_status values
+      console.log('Foreclosure milestone filter from URL:', milestone);
     }
     if (month) {
       // Could be used for date filtering in the future
