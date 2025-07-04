@@ -143,7 +143,9 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
       padding: '24px',
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
       border: '1px solid #e0e0e0',
-      height: '400px'
+      height: '400px',
+      position: 'relative',
+      overflow: 'visible'
     }}>
       <h3 style={{
         margin: '0 0 20px 0',
@@ -151,7 +153,7 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
         fontWeight: '600',
         color: '#333'
       }}>
-        Monthly Cashflow Trends - {year}
+        Monthly Cashflow Trends
       </h3>
       
       {/* Controls */}
@@ -185,7 +187,7 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
           </select>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
           <label style={{ 
             fontSize: 'var(--font-size-sm)', 
             fontWeight: 'var(--font-weight-medium)', 
@@ -200,7 +202,10 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
             style={{
               padding: '6px 12px',
               fontSize: 'var(--font-size-sm)',
-              minWidth: '150px'
+              minWidth: '120px',
+              maxWidth: '180px',
+              position: 'relative',
+              zIndex: 100
             }}
           >
             <option value="all">All Investors</option>

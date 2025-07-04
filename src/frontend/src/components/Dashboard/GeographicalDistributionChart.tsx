@@ -91,6 +91,16 @@ const GeographicalDistributionChart: React.FC = () => {
     });
   };
 
+  const handleMouseMove = (geo: any, event: React.MouseEvent) => {
+    const stateName = geo.properties.name;
+    const count = getLoanCount(stateName);
+    setTooltip({
+      content: `${stateName}: ${count} loans`,
+      x: event.clientX,
+      y: event.clientY
+    });
+  };
+
   const handleMouseLeave = () => {
     setTooltip(null);
   };
@@ -209,6 +219,7 @@ const GeographicalDistributionChart: React.FC = () => {
                       pressed: { outline: 'none' }
                     }}
                     onMouseEnter={(event) => handleMouseEnter(geo, event)}
+                    onMouseMove={(event) => handleMouseMove(geo, event)}
                     onMouseLeave={handleMouseLeave}
                     onClick={() => handleStateClick(geo)}
                   />
@@ -224,15 +235,19 @@ const GeographicalDistributionChart: React.FC = () => {
         <div
           style={{
             position: 'fixed',
-            left: tooltip.x + 10,
-            top: tooltip.y - 30,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            left: Math.min(tooltip.x + 15, window.innerWidth - 200), // Prevent overflow right
+            top: Math.max(tooltip.y - 40, 10), // Prevent overflow top
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
             color: 'white',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            fontSize: '12px',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
             pointerEvents: 'none',
-            zIndex: 1000
+            zIndex: 9999,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+            whiteSpace: 'nowrap',
+            maxWidth: '200px'
           }}
         >
           {tooltip.content}
