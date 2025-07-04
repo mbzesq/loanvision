@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import axios from '../../utils/axios';
+import '../../styles/design-system.css';
 
 interface MonthlyCashflowData {
   month: string;
@@ -139,16 +140,21 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
         alignItems: 'center'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <label style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>Year:</label>
+          <label style={{ 
+            fontSize: 'var(--font-size-sm)', 
+            fontWeight: 'var(--font-weight-medium)', 
+            color: 'var(--neutral-600)' 
+          }}>
+            Year:
+          </label>
           <select
             value={year}
             onChange={(e) => setYear(e.target.value)}
+            className="btn-secondary"
             style={{
               padding: '6px 12px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              backgroundColor: 'white'
+              fontSize: 'var(--font-size-sm)',
+              minWidth: '80px'
             }}
           >
             <option value="2024">2024</option>
@@ -158,16 +164,20 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <label style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>Investor:</label>
+          <label style={{ 
+            fontSize: 'var(--font-size-sm)', 
+            fontWeight: 'var(--font-weight-medium)', 
+            color: 'var(--neutral-600)' 
+          }}>
+            Investor:
+          </label>
           <select
             value={investor}
             onChange={(e) => setInvestor(e.target.value)}
+            className="btn-secondary"
             style={{
               padding: '6px 12px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              backgroundColor: 'white',
+              fontSize: 'var(--font-size-sm)',
               minWidth: '150px'
             }}
           >
@@ -182,7 +192,7 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
       </div>
       
       <ResponsiveContainer width="100%" height="75%">
-        <LineChart
+        <AreaChart
           data={data}
           margin={{
             top: 20,
@@ -191,36 +201,50 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
             bottom: 20,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <defs>
+            <linearGradient id="cashflowGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--primary-blue)" stopOpacity={0.1}/>
+              <stop offset="95%" stopColor="var(--primary-blue)" stopOpacity={0.02}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--neutral-300)" opacity={0.5} />
           <XAxis 
             dataKey="month"
-            tick={{ fontSize: 12 }}
-            stroke="#666"
+            tick={{ fontSize: 'var(--font-size-xs)', fill: 'var(--neutral-500)' }}
+            stroke="var(--neutral-400)"
+            tickLine={false}
           />
           <YAxis 
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 'var(--font-size-xs)', fill: 'var(--neutral-500)' }}
             tickFormatter={formatCurrency}
-            stroke="#666"
+            stroke="var(--neutral-400)"
+            tickLine={false}
           />
           <Tooltip 
             formatter={(value: number) => [formatCurrency(value), 'Cashflow']}
-            labelStyle={{ color: '#333' }}
+            labelStyle={{ 
+              color: 'var(--neutral-900)',
+              fontWeight: 'var(--font-weight-medium)',
+              fontSize: 'var(--font-size-sm)'
+            }}
             contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+              backgroundColor: 'var(--bg-primary)',
+              border: '1px solid var(--neutral-300)',
+              borderRadius: 'var(--radius-md)',
+              boxShadow: 'var(--shadow-lg)',
+              fontSize: 'var(--font-size-sm)'
             }}
           />
-          <Line 
-            type="monotone" 
-            dataKey="cashflow" 
-            stroke="#1f77b4" 
+          <Area
+            type="monotone"
+            dataKey="cashflow"
+            stroke="var(--primary-blue)"
             strokeWidth={3}
-            dot={{ fill: '#1f77b4', strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6, stroke: '#1f77b4', strokeWidth: 2, fill: '#fff' }}
+            fill="url(#cashflowGradient)"
+            dot={{ fill: 'var(--primary-blue)', strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6, stroke: 'var(--primary-blue)', strokeWidth: 2, fill: 'var(--bg-primary)' }}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

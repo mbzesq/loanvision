@@ -29,25 +29,25 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
       case 'green':
         return {
           accent: 'var(--success-green)',
-          bg: 'rgba(16, 185, 129, 0.1)',
+          bg: 'rgba(16, 185, 129, 0.06)',
           text: 'var(--success-green)'
         };
       case 'red':
         return {
           accent: 'var(--warning-red)',
-          bg: 'rgba(239, 68, 68, 0.1)',
+          bg: 'rgba(239, 68, 68, 0.06)',
           text: 'var(--warning-red)'
         };
       case 'orange':
         return {
           accent: 'var(--warning-orange)',
-          bg: 'rgba(245, 158, 11, 0.1)',
+          bg: 'rgba(245, 158, 11, 0.06)',
           text: 'var(--warning-orange)'
         };
       default:
         return {
           accent: 'var(--primary-blue)',
-          bg: 'rgba(37, 99, 235, 0.1)',
+          bg: 'rgba(37, 99, 235, 0.06)',
           text: 'var(--primary-blue)'
         };
     }
@@ -160,13 +160,14 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
-            color: trend.direction === 'up' ? 'var(--success-green)' : 
-                   trend.direction === 'down' ? 'var(--warning-red)' : 'var(--neutral-500)'
+            color: trend.direction === 'up' ? '#059669' : 
+                   trend.direction === 'down' ? '#DC2626' : 'var(--neutral-500)',
+            opacity: 0.8
           }}>
             <TrendIcon direction={trend.direction} />
             <span>{formatTrendValue(trend.value)}</span>
           </div>
-          <span style={{ color: 'var(--neutral-500)' }}>
+          <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--font-size-xs)' }}>
             vs {trend.period}
           </span>
         </div>

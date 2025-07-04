@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from '../../utils/axios';
+import '../../styles/design-system.css';
 
 interface ForeclosureData {
   total_foreclosure_loans: number;
@@ -133,28 +134,20 @@ const ForeclosureTrackingChart: React.FC = () => {
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={() => setActiveView('milestones')}
+            className={activeView === 'milestones' ? 'btn-primary' : 'btn-secondary'}
             style={{
               padding: '6px 12px',
-              border: activeView === 'milestones' ? '2px solid #1f77b4' : '1px solid #ccc',
-              borderRadius: '4px',
-              backgroundColor: activeView === 'milestones' ? '#f0f8ff' : 'white',
-              fontSize: '12px',
-              cursor: 'pointer',
-              color: activeView === 'milestones' ? '#1f77b4' : '#666'
+              fontSize: 'var(--font-size-xs)'
             }}
           >
             Milestones
           </button>
           <button
             onClick={() => setActiveView('timeline')}
+            className={activeView === 'timeline' ? 'btn-primary' : 'btn-secondary'}
             style={{
               padding: '6px 12px',
-              border: activeView === 'timeline' ? '2px solid #1f77b4' : '1px solid #ccc',
-              borderRadius: '4px',
-              backgroundColor: activeView === 'timeline' ? '#f0f8ff' : 'white',
-              fontSize: '12px',
-              cursor: 'pointer',
-              color: activeView === 'timeline' ? '#1f77b4' : '#666'
+              fontSize: 'var(--font-size-xs)'
             }}
           >
             Timeline Status
@@ -170,34 +163,40 @@ const ForeclosureTrackingChart: React.FC = () => {
               data={data.milestone_breakdown}
               margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--neutral-300)" opacity={0.5} />
               <XAxis 
                 dataKey="milestone"
                 angle={-45}
                 textAnchor="end"
                 height={80}
-                tick={{ fontSize: 10 }}
-                stroke="#666"
+                tick={{ fontSize: 'var(--font-size-xs)', fill: 'var(--neutral-500)' }}
+                stroke="var(--neutral-400)"
+                tickLine={false}
               />
               <YAxis 
-                tick={{ fontSize: 12 }}
-                stroke="#666"
+                tick={{ fontSize: 'var(--font-size-xs)', fill: 'var(--neutral-500)' }}
+                stroke="var(--neutral-400)"
+                tickLine={false}
               />
               <Tooltip 
-                formatter={(value: number) => [value, 'Loans']}
-                labelStyle={{ color: '#333', fontSize: '12px' }}
+                formatter={(value: number) => [value.toLocaleString(), 'Loans']}
+                labelStyle={{ 
+                  color: 'var(--neutral-900)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  fontSize: 'var(--font-size-sm)'
+                }}
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                  fontSize: '12px'
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--neutral-300)',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: 'var(--shadow-lg)',
+                  fontSize: 'var(--font-size-sm)'
                 }}
               />
               <Bar 
                 dataKey="count" 
-                fill="#1f77b4"
-                radius={[2, 2, 0, 0]}
+                fill="var(--primary-blue)"
+                radius={[4, 4, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>

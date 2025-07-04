@@ -29,16 +29,16 @@ const LoanStatusChart: React.FC = () => {
     fetchData();
   }, []);
 
-  // Modern color palette
+  // Softer, more sophisticated color palette
   const MODERN_COLORS = [
-    '#2563EB', // Primary Blue
-    '#10B981', // Success Green
-    '#F59E0B', // Warning Orange
-    '#EF4444', // Warning Red
-    '#8B5CF6', // Purple
-    '#06B6D4', // Cyan
-    '#84CC16', // Lime
-    '#F97316', // Orange
+    '#3B82F6', // Softer Blue
+    '#22C55E', // Softer Green  
+    '#F59E0B', // Balanced Orange
+    '#EF4444', // Controlled Red
+    '#A855F7', // Softer Purple
+    '#14B8A6', // Softer Teal
+    '#84CC16', // Natural Lime
+    '#F97316', // Warm Orange
   ];
 
   if (loading) {
@@ -112,7 +112,8 @@ const LoanStatusChart: React.FC = () => {
           dataKey="count"
           nameKey="status"
           stroke="var(--bg-primary)"
-          strokeWidth={2}
+          strokeWidth={3}
+          paddingAngle={2}
         >
           {data.map((_, index) => (
             <Cell key={`cell-${index}`} fill={MODERN_COLORS[index % MODERN_COLORS.length]} />
