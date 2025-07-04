@@ -521,8 +521,10 @@ export class SOLCalculationService {
           };
 
           const result = await this.calculateLoanSOL(loanData);
-          await this.storeCalculationResult(result);
-          processed++;
+          if (result) {
+            await this.storeCalculationResult(result);
+            processed++;
+          }
           
           if (processed % 100 === 0) {
             console.log(`  Processed ${processed} loans...`);

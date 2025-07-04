@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
 import { SOLCalculationService } from '../services/SOLCalculationService';
-import { authMiddleware } from '../middleware/auth';
+import { authMiddleware } from '../middleware/authMiddleware';
 
 export function createSOLRoutes(pool: Pool): Router {
   const router = Router();
