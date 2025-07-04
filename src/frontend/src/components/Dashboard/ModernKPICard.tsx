@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../styles/design-system.css';
+import interactionManager from '../../services/InteractionManager';
 
 interface TrendData {
   value: number;
@@ -14,6 +15,9 @@ interface ModernKPICardProps {
   icon?: React.ReactNode;
   color?: 'blue' | 'green' | 'red' | 'orange';
   format?: 'currency' | 'number' | 'percentage';
+  onClick?: () => void;
+  clickable?: boolean;
+  drillDownData?: any;
 }
 
 const ModernKPICard: React.FC<ModernKPICardProps> = ({ 
@@ -22,7 +26,10 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
   trend, 
   icon, 
   color = 'blue',
-  format = 'currency'
+  format = 'currency',
+  onClick,
+  clickable = true,
+  drillDownData
 }) => {
   const getColorClasses = (colorType: string) => {
     switch (colorType) {
@@ -59,6 +66,26 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
     return format === 'percentage' ? `${value}%` : value.toLocaleString();
   };
 
+  const handleClick = () => {
+    if (clickable && (onClick || drillDownData)) {
+      if (onClick) {
+        onClick();
+      } else if (drillDownData) {
+        interactionManager.handleChartClick({
+          chartType: 'kpi-card',
+          dataPoint: {
+            title,
+            value,
+            trend,
+            format,
+            ...drillDownData
+          },
+          context: { color }
+        });
+      }
+    }
+  };
+
   const TrendIcon = ({ direction }: { direction: 'up' | 'down' | 'neutral' }) => {
     if (direction === 'up') {
       return (
@@ -85,10 +112,13 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
 
   return (
     <div 
-      className="kpi-card animate-fade-in"
+      className={`kpi-card animate-fade-in ${clickable ? 'kpi-card-clickable' : ''}`}
       style={{
-        background: `linear-gradient(135deg, ${colors.bg} 0%, rgba(255,255,255,0.9) 100%)`
+        background: `linear-gradient(135deg, ${colors.bg} 0%, rgba(255,255,255,0.9) 100%)`,
+        cursor: clickable ? 'pointer' : 'default',
+        transition: 'all var(--transition-normal)'
       }}
+      onClick={handleClick}
     >
       {/* Top accent bar */}
       <div 

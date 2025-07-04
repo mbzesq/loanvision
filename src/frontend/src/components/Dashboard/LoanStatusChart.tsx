@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import axios from '../../utils/axios';
+import interactionManager from '../../services/InteractionManager';
 import '../../styles/design-system.css';
 
 interface LoanStatusData {
@@ -40,6 +41,36 @@ const LoanStatusChart: React.FC = () => {
     '#84CC16', // Natural Lime
     '#F97316', // Warm Orange
   ];
+
+  // Handle pie slice click
+  const handleSliceClick = (entry: LoanStatusData, index: number) => {
+    const mockCalculatedData = {
+      totalUPB: entry.count * 150000, // Mock calculation
+      avgDaysInStatus: Math.floor(Math.random() * 90) + 30, // Mock data
+      subCategories: [
+        { name: '0-30 days', count: Math.floor(entry.count * 0.6) },
+        { name: '31-60 days', count: Math.floor(entry.count * 0.3) },
+        { name: '60+ days', count: Math.floor(entry.count * 0.1) }
+      ]
+    };
+
+    interactionManager.handleChartClick({
+      chartType: 'pie-status',
+      dataPoint: {
+        status: entry.status,
+        count: entry.count,
+        ...mockCalculatedData
+      },
+      context: { chartType: 'loan-status', colorIndex: index }
+    });
+  };
+
+  // Handle legend item click for filtering
+  const handleLegendClick = (entry: any) => {
+    console.log('Legend clicked:', entry);
+    // This could toggle filters instead of showing modal
+    interactionManager.setFilter('status', entry.value);
+  };
 
   if (loading) {
     return (
@@ -114,9 +145,14 @@ const LoanStatusChart: React.FC = () => {
           stroke="var(--bg-primary)"
           strokeWidth={3}
           paddingAngle={2}
+          onClick={handleSliceClick}
         >
           {data.map((_, index) => (
-            <Cell key={`cell-${index}`} fill={MODERN_COLORS[index % MODERN_COLORS.length]} />
+            <Cell 
+              key={`cell-${index}`} 
+              fill={MODERN_COLORS[index % MODERN_COLORS.length]}
+              className="pie-slice-clickable"
+            />
           ))}
         </Pie>
         <Tooltip 
@@ -138,11 +174,13 @@ const LoanStatusChart: React.FC = () => {
           verticalAlign="bottom" 
           height={50}
           iconType="circle"
+          onClick={handleLegendClick}
           wrapperStyle={{
             fontSize: 'var(--font-size-sm)',
             color: 'var(--neutral-600)',
             fontWeight: 'var(--font-weight-medium)',
-            paddingTop: 'var(--space-md)'
+            paddingTop: 'var(--space-md)',
+            cursor: 'pointer'
           }}
         />
       </PieChart>

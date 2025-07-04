@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from '../../utils/axios';
+import interactionManager from '../../services/InteractionManager';
 import '../../styles/design-system.css';
 
 interface ForeclosureData {
@@ -40,6 +41,42 @@ const ForeclosureTrackingChart: React.FC = () => {
     'Delayed': '#FF9800', 
     'Overdue': '#F44336',
     'Not in Foreclosure': '#9E9E9E'
+  };
+
+  // Handle bar click for milestone breakdown
+  const handleBarClick = (entry: any) => {
+    const mockData = {
+      avgDaysInMilestone: Math.floor(Math.random() * 60) + 15,
+      nextActions: [
+        'Review documentation',
+        'Schedule hearing',
+        'Contact borrower'
+      ],
+      urgentCases: Math.floor(entry.count * 0.15)
+    };
+
+    interactionManager.handleChartClick({
+      chartType: 'foreclosure-bar',
+      dataPoint: {
+        milestone: entry.milestone,
+        count: entry.count,
+        ...mockData
+      },
+      context: { chartType: 'foreclosure-milestones' }
+    });
+  };
+
+  // Handle pie slice click for timeline status
+  const handleTimelineClick = (entry: any) => {
+    interactionManager.handleChartClick({
+      chartType: 'foreclosure-bar',
+      dataPoint: {
+        milestone: entry.status,
+        count: entry.count,
+        avgDaysInMilestone: Math.floor(Math.random() * 45) + 20
+      },
+      context: { chartType: 'foreclosure-timeline' }
+    });
   };
 
   if (loading) {
@@ -197,6 +234,8 @@ const ForeclosureTrackingChart: React.FC = () => {
                 dataKey="count" 
                 fill="var(--primary-blue)"
                 radius={[4, 4, 0, 0]}
+                onClick={handleBarClick}
+                className="bar-element-clickable"
               />
             </BarChart>
           </ResponsiveContainer>
@@ -214,11 +253,13 @@ const ForeclosureTrackingChart: React.FC = () => {
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="count"
+                onClick={handleTimelineClick}
               >
                 {data.timeline_status.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={timelineColors[entry.status as keyof typeof timelineColors] || '#8884d8'} 
+                    fill={timelineColors[entry.status as keyof typeof timelineColors] || '#8884d8'}
+                    className="pie-slice-clickable"
                   />
                 ))}
               </Pie>

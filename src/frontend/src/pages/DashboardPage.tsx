@@ -178,6 +178,19 @@ function DashboardPage() {
           trend={trends.upb}
           icon={<DollarIcon />}
           color="blue"
+          clickable={true}
+          drillDownData={{
+            filters: { sortBy: 'upb', order: 'desc' },
+            breakdown: {
+              byStatus: summary.totalUPB * 0.4,
+              byGeography: summary.totalUPB * 0.6
+            },
+            historicalData: [
+              { month: 'Jan', value: summary.totalUPB * 0.95 },
+              { month: 'Feb', value: summary.totalUPB * 0.98 },
+              { month: 'Mar', value: summary.totalUPB }
+            ]
+          }}
         />
         <ModernKPICard
           title="Loan Count"
@@ -185,6 +198,15 @@ function DashboardPage() {
           trend={trends.loans}
           icon={<FileTextIcon />}
           color="green"
+          clickable={true}
+          drillDownData={{
+            filters: { sortBy: 'count', showDistribution: true },
+            breakdown: {
+              current: Math.floor(summary.loanCount * 0.7),
+              delinquent: Math.floor(summary.loanCount * 0.2),
+              foreclosure: Math.floor(summary.loanCount * 0.1)
+            }
+          }}
         />
         <ModernKPICard
           title="Average Balance"
@@ -192,6 +214,15 @@ function DashboardPage() {
           trend={trends.avgBalance}
           icon={<CalculatorIcon />}
           color="orange"
+          clickable={true}
+          drillDownData={{
+            filters: { sortBy: 'balance', showDistribution: true },
+            breakdown: {
+              median: summary.averageBalance * 0.85,
+              mean: summary.averageBalance,
+              p90: summary.averageBalance * 1.4
+            }
+          }}
         />
         <ModernKPICard
           title="Performance"
@@ -200,6 +231,20 @@ function DashboardPage() {
           icon={<TrendingUpIcon />}
           color="green"
           format="percentage"
+          clickable={true}
+          drillDownData={{
+            filters: { showPerformanceMetrics: true },
+            breakdown: {
+              collections: 94.2,
+              onTime: 89.5,
+              recovery: 98.1
+            },
+            historicalData: [
+              { month: 'Q1', value: 92.4 },
+              { month: 'Q2', value: 93.8 },
+              { month: 'Q3', value: 94.2 }
+            ]
+          }}
         />
       </div>
 

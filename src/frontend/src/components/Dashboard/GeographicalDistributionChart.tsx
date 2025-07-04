@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import axios from '../../utils/axios';
+import interactionManager from '../../services/InteractionManager';
 
 interface GeographicalData {
   state: string;
@@ -77,6 +78,33 @@ const GeographicalDistributionChart: React.FC = () => {
 
   const handleMouseLeave = () => {
     setTooltip(null);
+  };
+
+  const handleStateClick = (geo: any) => {
+    const stateName = geo.properties.name;
+    const count = getLoanCount(stateName);
+    
+    if (count > 0) {
+      const mockStateData = {
+        totalUPB: count * 150000, // Mock calculation
+        avgBalance: 145000 + Math.random() * 50000, // Mock data
+        topCities: [
+          { name: 'Primary City', count: Math.floor(count * 0.4) },
+          { name: 'Secondary City', count: Math.floor(count * 0.3) },
+          { name: 'Other Cities', count: Math.floor(count * 0.3) }
+        ]
+      };
+
+      interactionManager.handleChartClick({
+        chartType: 'geographic',
+        dataPoint: {
+          state: stateName,
+          loanCount: count,
+          ...mockStateData
+        },
+        context: { chartType: 'geographical-distribution' }
+      });
+    }
   };
 
   if (loading) {
@@ -156,13 +184,16 @@ const GeographicalDistributionChart: React.FC = () => {
                       default: { outline: 'none' },
                       hover: { 
                         outline: 'none',
-                        fill: '#1f77b4',
-                        cursor: 'pointer'
+                        fill: count > 0 ? '#1f77b4' : getColor(count),
+                        cursor: count > 0 ? 'pointer' : 'default',
+                        stroke: count > 0 ? '#2563EB' : '#ffffff',
+                        strokeWidth: count > 0 ? 2 : 0.5
                       },
                       pressed: { outline: 'none' }
                     }}
                     onMouseEnter={(event) => handleMouseEnter(geo, event)}
                     onMouseLeave={handleMouseLeave}
+                    onClick={() => handleStateClick(geo)}
                   />
                 );
               })

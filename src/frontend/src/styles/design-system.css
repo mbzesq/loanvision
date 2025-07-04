@@ -205,6 +205,16 @@
   transform: translateY(-2px);
 }
 
+.kpi-card-clickable:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+}
+
+.kpi-card-clickable:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
 /* Chart Container */
 .chart-container {
   background: var(--bg-primary);
@@ -302,6 +312,50 @@
   .chart-container {
     padding: var(--space-md);
   }
+}
+
+/* Interactive Chart Elements */
+.chart-element-clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chart-element-clickable:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
+
+.pie-slice-clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pie-slice-clickable:hover {
+  stroke: var(--primary-blue);
+  stroke-width: 2px;
+  filter: brightness(1.1);
+}
+
+.bar-element-clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.bar-element-clickable:hover {
+  filter: brightness(1.15);
+  transform: scaleY(1.05);
+  transform-origin: bottom;
+}
+
+.map-state-clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.map-state-clickable:hover {
+  stroke: var(--primary-blue);
+  stroke-width: 2px;
+  filter: brightness(1.1);
 }
 
 /* Animations */

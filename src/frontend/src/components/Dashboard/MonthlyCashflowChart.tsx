@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import axios from '../../utils/axios';
+import interactionManager from '../../services/InteractionManager';
 import '../../styles/design-system.css';
 
 interface MonthlyCashflowData {
@@ -58,6 +59,27 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     });
+  };
+
+  // Handle area chart point click
+  const handlePointClick = (entry: any) => {
+    if (entry && entry.payload) {
+      const mockData = {
+        loanCount: Math.floor(Math.random() * 50) + 20,
+        collections: entry.payload.cashflow * 0.85,
+        advances: entry.payload.cashflow * 0.15
+      };
+
+      interactionManager.handleChartClick({
+        chartType: 'cashflow-point',
+        dataPoint: {
+          month: entry.payload.month,
+          cashflow: entry.payload.cashflow,
+          ...mockData
+        },
+        context: { year, investor }
+      });
+    }
   };
 
   if (loading) {
@@ -241,8 +263,9 @@ const MonthlyCashflowChart: React.FC<MonthlyCashflowChartProps> = () => {
             stroke="var(--primary-blue)"
             strokeWidth={3}
             fill="url(#cashflowGradient)"
-            dot={{ fill: 'var(--primary-blue)', strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6, stroke: 'var(--primary-blue)', strokeWidth: 2, fill: 'var(--bg-primary)' }}
+            dot={{ fill: 'var(--primary-blue)', strokeWidth: 2, r: 4, cursor: 'pointer' }}
+            activeDot={{ r: 6, stroke: 'var(--primary-blue)', strokeWidth: 2, fill: 'var(--bg-primary)', cursor: 'pointer' }}
+            onClick={handlePointClick}
           />
         </AreaChart>
       </ResponsiveContainer>
