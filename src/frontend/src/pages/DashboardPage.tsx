@@ -171,7 +171,7 @@ function DashboardPage() {
       </div>
       
       {/* KPI Cards Grid */}
-      <div className="kpi-grid mb-2xl">
+      <div className="kpi-grid mb-3xl">
         <ModernKPICard
           title="Total UPB"
           value={formatCurrency(summary.totalUPB)}
