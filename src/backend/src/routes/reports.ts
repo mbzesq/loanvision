@@ -151,7 +151,7 @@ router.get('/reports/debug-monthly', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Error in debug endpoint:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error occurred' });
   }
 });
 
