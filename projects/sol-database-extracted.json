@@ -1,0 +1,1712 @@
+{
+  "metadata": {
+  "document_title": "Comprehensive 51-Jurisdiction Analysis of Mortgage Foreclosure Statutes of Limitations",
+  "extraction_date": "2025-07-04",
+  "total_jurisdictions": 51,
+  "version": "1.0",
+  "extraction_notes": "Extracted from comprehensive research on state and D.C. foreclosure laws, including statutes, case law, and procedural rules."
+  },
+  "jurisdictions": {
+  "AL": {
+  "state_code": "AL",
+  "state_name": "Alabama",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 20,
+  "note_years": 6,
+  "foreclosure_years": 20,
+  "deficiency_years": null,
+  "additional_periods": {
+  "power_of_sale": 20
+  }
+  },
+  "trigger_events": ["maturity_date", "last_payment_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "out_of_state_residence", "partial_payment", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["power_of_sale_voided"]
+  },
+  "special_provisions": ["power_of_sale_common", "right_of_redemption_1_year"],
+  "statute_citations": ["Ala. Code § 35-10-20", "Ala. Code § 6-2-33"],
+  "key_cases": ["E.g., In re Fegans, 570 B.R. 373 (Bankr. N.D. Ala. 2017)"],
+  "notes": ["The 20-year period is a statute of repose for the power of sale, effectively the SOL for non-judicial foreclosure. It runs from the original maturity date, or the last payment if the maturity date was extended."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "AK": {
+  "state_code": "AK",
+  "state_name": "Alaska",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 6,
+  "foreclosure_years": 10,
+  "deficiency_years": 3,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "out_of_state_residence", "disability"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_prevalent", "deficiency_judgment_generally_prohibited_in_non_judicial"],
+  "statute_citations": ["AS 09.10.030", "AS 09.10.053"],
+  "key_cases": ["Moorman v. Thomas, 94 P.3d 1136 (Alaska 2004)"],
+  "notes": ["The 10-year SOL applies to actions on sealed instruments, which includes deeds of trust. The 6-year SOL for contracts applies to the note but the longer 10-year period governs foreclosure."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "AZ": {
+  "state_code": "AZ",
+  "state_name": "Arizona",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": 0.25,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": false,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": false,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["zombie_mortgage_possible", "lien_remains_as_a_cloud_on_title_but_is_unenforceable"]
+  },
+  "special_provisions": ["deceleration_permitted", "non_judicial_deed_of_trust_sales_are_common"],
+  "statute_citations": ["A.R.S. § 12-548", "A.R.S. § 33-816"],
+  "key_cases": ["Andra R. Miller Living Trust v. T.D. Serv. Co. of Ariz., 440 P.3d 1127 (Ariz. 2019)"],
+  "notes": ["While the 6-year SOL bars foreclosure, Arizona law does not automatically extinguish the lien. This can create a 'zombie mortgage' that clouds title but cannot be actively foreclosed upon."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "AR": {
+  "state_code": "AR",
+  "state_name": "Arkansas",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 5,
+  "note_years": 5,
+  "foreclosure_years": 5,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "last_payment_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "partial_payment_noted_on_record"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": ["payments_must_be_endorsed_on_the_margin_of_the_record"]
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["statute_of_limitations_for_foreclosure_is_tied_to_the_underlying_note"],
+  "statute_citations": ["Ark. Code Ann. § 16-56-111", "Ark. Code Ann. § 18-49-101"],
+  "key_cases": ["Green v. Ocwen Loan Servicing, LLC, 2014 Ark. 173"],
+  "notes": ["The SOL is 5 years from the maturity date. Partial payments can toll the statute, but only if they are endorsed on the margin of the mortgage record in the county recorder's office."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "CA": {
+  "state_code": "CA",
+  "state_name": "California",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 4,
+  "foreclosure_years": 4,
+  "deficiency_years": 0.25,
+  "additional_periods": {
+  "non_judicial_power_of_sale_primary": 10,
+  "non_judicial_power_of_sale_secondary": 60
+  }
+  },
+  "trigger_events": ["maturity_date", "default_date_for_note"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["lien_extinguishment_is_automatic_upon_note_SOL_expiration"]
+  },
+  "special_provisions": ["dual_sol_system", "power_of_sale_is_the_dominant_method"],
+  "statute_citations": ["Cal. Civ. Code § 2911", "Cal. Code Civ. Proc. § 337", "Cal. Civ. Code § 882.020"],
+  "key_cases": ["Flack v. Boland, 11 Cal. 2d 103 (1938)"],
+  "notes": ["Complex dual system. For judicial foreclosure, the SOL is tied to the note (4 years). For non-judicial (power of sale), the SOL is 10 years from the maturity date stated in the deed, or 60 years if no date is stated. The lien is extinguished when the SOL on the note runs."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "CO": {
+  "state_code": "CO",
+  "state_name": "Colorado",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 15,
+  "note_years": 6,
+  "foreclosure_years": 15,
+  "deficiency_years": 6,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "last_payment_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["foreclosure_through_public_trustee_is_common"],
+  "statute_citations": ["C.R.S. § 38-39-207", "C.R.S. § 13-80-103.5"],
+  "key_cases": ["Mortgage Investments Corp. v. Battle Mountain Corp., 70 P.3d 1176 (Colo. 2003)"],
+  "notes": ["A 15-year statute of repose effectively serves as the SOL for foreclosure, running from the maturity date. A separate 6-year SOL applies to the note for deficiency purposes."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "CT": {
+  "state_code": "CT",
+  "state_name": "Connecticut",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["last_payment_date", "default_date", "date_of_recording"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "statutory_prohibition"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_only", "strict_foreclosure_is_an_option"],
+  "statute_citations": ["Conn. Gen. Stat. Ann. § 49-13a", "Conn. Gen. Stat. Ann. § 52-576"],
+  "key_cases": ["U.S. Bank, N.A. v. Blowers, 177 A.3d 1160 (Conn. 2018)"],
+  "notes": ["Effective July 1, 2025, a new law sets a 10-year SOL for foreclosure. The trigger is the earliest of: 10 years from last payment, 10 years from default, or 40 years from recording. Previously, the law was less clear, often tied to the 6-year SOL on the note."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "DE": {
+  "state_code": "DE",
+  "state_name": "Delaware",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 20,
+  "note_years": null,
+  "foreclosure_years": 20,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["default_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": false,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["common_law_presumption_of_payment_after_20_years"]
+  },
+  "special_provisions": ["judicial_foreclosure_only", "scire_facias_sur_mortgage_proceeding"],
+  "statute_citations": ["10 Del. C. § 8106 (applies to note if not under seal)"],
+  "key_cases": ["De Nour v. Historic Roser-Smyth & Co., 2005 WL 1421029 (Del. Ch. 2005)"],
+  "notes": ["Delaware lacks a specific foreclosure SOL statute. Instead, it relies on a common law rebuttable presumption of payment after 20 years of no demand or payment. This effectively acts as the SOL."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "DC": {
+  "state_code": "DC",
+  "state_name": "District of Columbia",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 12,
+  "note_years": 12,
+  "foreclosure_years": 12,
+  "deficiency_years": 3,
+  "additional_periods": {}
+  },
+  "trigger_events": ["default_date", "acceleration_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_common"],
+  "statute_citations": ["D.C. Code § 12–301(6)", "D.C. Code § 42-815"],
+  "key_cases": ["Liu v. U.S. Bank N.A., 13 A.3d 747 (D.C. 2011)"],
+  "notes": ["The SOL is 12 years for an instrument under seal, which applies to most deeds of trust. The 3-year SOL for simple contracts applies to deficiency judgments unless the note itself was under seal."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "FL": {
+  "state_code": "FL",
+  "state_name": "Florida",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 5,
+  "foreclosure_years": 5,
+  "deficiency_years": 1,
+  "additional_periods": {
+  "lien_termination": 5
+  }
+  },
+  "trigger_events": ["each_missed_payment", "acceleration_date", "maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "mortgagor_payments"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": false,
+  "other": ["dismissal_of_prior_foreclosure_decelerates_loan"]
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["lien_terminates_5_years_after_maturity_date"]
+  },
+  "special_provisions": ["deceleration_by_dismissal_is_key", "each_missed_payment_is_a_new_default"],
+  "statute_citations": ["Fla. Stat. § 95.11(2)(c)", "Fla. Stat. § 95.281"],
+  "key_cases": ["Bartram v. U.S. Bank, N.A., 211 So. 3d 1009 (Fla. 2016)"],
+  "notes": ["Seminal Bartram case established that the SOL runs from each missed payment. Dismissal of an accelerated foreclosure case resets the SOL clock, allowing new actions on subsequent defaults. The lien is extinguished 5 years after the final maturity date, which is a hard stop."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "GA": {
+  "state_code": "GA",
+  "state_name": "Georgia",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 7,
+  "note_years": 6,
+  "foreclosure_years": 7,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "fraud"],
+  "revival_methods": {
+  "partial_payment": false,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["reversion_of_title_to_grantor"]
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_dominant", "confirmation_of_sale_required_for_deficiency"],
+  "statute_citations": ["O.C.G.A. § 44-14-80", "O.C.G.A. § 9-3-24"],
+  "key_cases": ["Yates v. Fabe, 684 S.E.2d 287 (Ga. Ct. App. 2009)"],
+  "notes": ["The power of sale in a security deed is voided 7 years after the maturity date of the debt. If no maturity date is stated, it's 7 years from the date of the conveyance."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "HI": {
+  "state_code": "HI",
+  "state_name": "Hawaii",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": 1,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": false,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["zombie_mortgage_possible"]
+  },
+  "special_provisions": ["deceleration_likely_permitted", "non_judicial_foreclosure_is_common"],
+  "statute_citations": ["HRS § 657-1"],
+  "key_cases": ["Santiago v. Tanaka, 366 P.3d 612 (Haw. 2016)"],
+  "notes": ["The 6-year SOL for actions on debt applies. Hawaii courts tend to follow the majority rule that a new cause of action accrues for each missed payment, similar to Florida's pre-Bartram framework."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "ID": {
+  "state_code": "ID",
+  "state_name": "Idaho",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 5,
+  "note_years": 5,
+  "foreclosure_years": 5,
+  "deficiency_years": 0.25,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["one_action_rule", "deed_of_trust_act_governs_non_judicial"],
+  "statute_citations": ["Idaho Code § 5-214A", "Idaho Code § 5-216"],
+  "key_cases": ["Trusty v. Ray, 249 P.2d 814 (Idaho 1952)"],
+  "notes": ["A 5-year SOL applies to both the note and the mortgage, running from the maturity date of the obligation."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "IL": {
+  "state_code": "IL",
+  "state_name": "Illinois",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 7,
+  "note_years": 10,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "statutory_prohibition"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_only", "mortgage_lien_expires_7_years_after_the_foreclosure_sol_runs"],
+  "statute_citations": ["735 ILCS 5/13-115", "735 ILCS 5/13-116", "735 ILCS 5/13-206"],
+  "key_cases": ["Deutsche Bank Nat'l Trust Co. v. Cortez, 80 N.E.3d 60 (Ill. App. Ct. 2017)"],
+  "notes": ["The SOL for foreclosure is the later of 10 years from default or 10 years from the maturity date. A separate statute provides that the lien itself is extinguished 7 years after the foreclosure SOL expires."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "IN": {
+  "state_code": "IN",
+  "state_name": "Indiana",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 6,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {
+  "pre_2012_mortgages": 20
+  }
+  },
+  "trigger_events": ["maturity_date", "execution_date", "recording_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "non-residence_of_debtor"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_only", "trigger_depends_on_what_is_stated_in_the_recorded_mortgage"],
+  "statute_citations": ["Ind. Code § 32-28-4-1", "Ind. Code § 34-11-2-7", "Ind. Code § 34-11-2-9"],
+  "key_cases": ["KS&E Sports v. Runnels, 72 N.E.3d 892 (Ind. 2017)"],
+  "notes": ["Lien expires 10 years from maturity date if stated in the mortgage. If no maturity date, it's 10 years from the execution or recording date. A shorter 6-year SOL applies to the note."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "IA": {
+  "state_code": "IA",
+  "state_name": "Iowa",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 10,
+  "foreclosure_years": 10,
+  "deficiency_years": 2,
+  "additional_periods": {
+  "ancient_mortgage": 20
+  }
+  },
+  "trigger_events": ["maturity_date", "filing_of_extension_affidavit"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": false,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": ["extension_affidavit_can_extend_sol_for_10_years"]
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_is_more_common", "ancient_mortgage_statute_bars_foreclosure_after_20_years_regardless_of_maturity_date"],
+  "statute_citations": ["Iowa Code § 614.1(5)", "Iowa Code § 614.21"],
+  "key_cases": ["Bank of America, N.A. v. Schulte, 843 N.W.2d 876 (Iowa 2014)"],
+  "notes": ["The SOL is 10 years from the maturity date. An affidavit of extension can be filed to extend the SOL for another 10 years. A 20-year statute of repose (ancient mortgage statute) provides a final cutoff."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "KS": {
+  "state_code": "KS",
+  "state_name": "Kansas",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 5,
+  "foreclosure_years": 5,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "partial_payment", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": false,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["zombie_mortgage_possible", "lien_is_not_extinguished_by_sol"]
+  },
+  "special_provisions": ["judicial_foreclosure_only", "deceleration_is_permitted"],
+  "statute_citations": ["K.S.A. § 60-511"],
+  "key_cases": ["L.P.P. Mortgage Ltd. v. Hayse, 7 P.3d 1259 (Kan. Ct. App. 2000)"],
+  "notes": ["The SOL for foreclosure is tied to the 5-year SOL for written contracts. Importantly, the lien is not extinguished when the SOL runs, creating the potential for a 'zombie mortgage' that clouds title."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "KY": {
+  "state_code": "KY",
+  "state_name": "Kentucky",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 15,
+  "note_years": 15,
+  "foreclosure_years": 15,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_only", "lien_is_extinguished_when_enforcement_of_note_is_barred"],
+  "statute_citations": ["KRS 413.090"],
+  "key_cases": ["Moulton v. EVB, 479 S.W.3d 91 (Ky. Ct. App. 2015)"],
+  "notes": ["A 15-year SOL applies to written contracts, which covers both the note and the mortgage foreclosure action. The clock generally runs from the maturity date."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "LA": {
+  "state_code": "LA",
+  "state_name": "Louisiana",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 5,
+  "foreclosure_years": 5,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "acknowledgment_of_debt"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["executory_process_is_a_unique_form_of_expedited_judicial_foreclosure"],
+  "statute_citations": ["La. Civ. Code Ann. art. 3498"],
+  "key_cases": ["Wells Fargo Bank, N.A. v. Babin, 218 So. 3d 1076 (La. Ct. App. 2017)"],
+  "notes": ["Louisiana law is based on Civil Code. The action on a promissory note is subject to a 5-year prescriptive period (SOL). Foreclosure via executory process must be brought within this period."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "ME": {
+  "state_code": "ME",
+  "state_name": "Maine",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 20,
+  "note_years": 6,
+  "foreclosure_years": 20,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["default_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": false,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["zombie_mortgage_possible"]
+  },
+  "special_provisions": ["judicial_foreclosure_only"],
+  "statute_citations": ["14 M.R.S. § 6101", "14 M.R.S. § 752 (applies to note)"],
+  "key_cases": ["Pushard v. Bank of Am., N.A., 155 A.3d 414 (Me. 2017)"],
+  "notes": ["Maine has a 20-year SOL for foreclosure actions. A separate 6-year SOL applies to the underlying note, meaning a deficiency judgment may be time-barred while a foreclosure action is still viable."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "MD": {
+  "state_code": "MD",
+  "state_name": "Maryland",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 12,
+  "note_years": 12,
+  "foreclosure_years": 12,
+  "deficiency_years": 12,
+  "additional_periods": {}
+  },
+  "trigger_events": ["default_date", "acceleration_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["foreclosure_process_is_quasi_judicial", "instrument_under_seal_is_standard"],
+  "statute_citations": ["Md. Code Ann., Cts. & Jud. Proc. § 5-102"],
+  "key_cases": ["Wellington Co., Inc. Profit Sharing Plan and Trust v. Shakiba, 952 A.2d 328 (Md. Ct. Spec. App. 2008)"],
+  "notes": ["A 12-year SOL applies to instruments under seal, which includes most mortgages and deeds of trust in Maryland."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "MA": {
+  "state_code": "MA",
+  "state_name": "Massachusetts",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 5,
+  "deficiency_years": 2,
+  "additional_periods": {
+  "obsolete_mortgage": 35
+  }
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["power_of_sale_becomes_unenforceable"]
+  },
+  "special_provisions": ["non_judicial_foreclosure_common_but_requires_judicial_order_under_SCRA"],
+  "statute_citations": ["Mass. Gen. Laws ch. 260, § 33"],
+  "key_cases": ["U.S. Bank Nat'l Ass'n v. Ibanez, 941 N.E.2d 40 (Mass. 2011)"],
+  "notes": ["Complex framework. The power of sale becomes unenforceable 5 years after the stated maturity date. If no maturity date is stated, an 'obsolete mortgage' statute voids the mortgage after 35 years from the recording date."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "MI": {
+  "state_code": "MI",
+  "state_name": "Michigan",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 15,
+  "note_years": 6,
+  "foreclosure_years": 15,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "last_payment_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["foreclosure_by_advertisement_is_common", "note_and_mortgage_have_separate_sols"],
+  "statute_citations": ["MCL 600.5803", "MCL 600.5807"],
+  "key_cases": ["Covenant Med. Ctr., Inc. v. State Farm Mut. Auto. Ins. Co., 895 N.W.2d 490 (Mich. 2017)"],
+  "notes": ["The SOL for foreclosure is 15 years from the due date or last payment. The SOL for the note is 6 years, so a deficiency claim can be time-barred even if foreclosure is permissible."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "MN": {
+  "state_code": "MN",
+  "state_name": "Minnesota",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 15,
+  "note_years": 6,
+  "foreclosure_years": 15,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": false,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["foreclosure_by_advertisement_is_common", "note_and_mortgage_have_separate_sols"],
+  "statute_citations": ["Minn. Stat. § 541.03", "Minn. Stat. § 541.05"],
+  "key_cases": ["Residential Funding Co., LLC v. Favelu, 799 N.W.2d 619 (Minn. Ct. App. 2011)"],
+  "notes": ["The SOL to foreclose is 15 years from the maturity date. The 6-year SOL on the note can bar a deficiency judgment earlier."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "MS": {
+  "state_code": "MS",
+  "state_name": "Mississippi",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 3,
+  "foreclosure_years": 3,
+  "deficiency_years": 1,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "fraudulent_concealment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["lien_and_power_of_sale_are_extinguished_when_note_is_barred"]
+  },
+  "special_provisions": ["sol_on_foreclosure_is_tied_to_the_sol_on_the_note"],
+  "statute_citations": ["Miss. Code Ann. § 15-1-49", "Miss. Code Ann. § 89-1-55"],
+  "key_cases": ["Consumer Choice Home Improvement v. Trustmark Nat'l Bank, 783 So. 2d 695 (Miss. 2001)"],
+  "notes": ["The SOL for foreclosure is tied to the SOL on the underlying note (3 years for negotiable instruments). When the note is barred, the lien is extinguished."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "MO": {
+  "state_code": "MO",
+  "state_name": "Missouri",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 10,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "partial_payment", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_dominant"],
+  "statute_citations": ["§ 516.110 RSMo", "§ 516.150 RSMo"],
+  "key_cases": ["Federal National Mortgage Ass'n v. Wilson, 407 S.W.3d 602 (Mo. Ct. App. 2013)"],
+  "notes": ["The SOL to foreclose is 10 years, running from the maturity date of the note."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "MT": {
+  "state_code": "MT",
+  "state_name": "Montana",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 8,
+  "note_years": 8,
+  "foreclosure_years": 8,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "filing_of_extension_affidavit"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": false,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": ["extension_affidavit_can_be_filed"]
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["one_action_rule"],
+  "statute_citations": ["Mont. Code Ann. § 71-1-222", "Mont. Code Ann. § 27-2-202"],
+  "key_cases": ["Jones v. Jones, 275 P.3d 893 (Mont. 2012)"],
+  "notes": ["The SOL for foreclosure is 8 years from the maturity of the debt. The lien can be extended for an additional 8 years by filing an affidavit."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "NE": {
+  "state_code": "NE",
+  "state_name": "Nebraska",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 5,
+  "foreclosure_years": 10,
+  "deficiency_years": 0.25,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "partial_payment", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["deed_of_trust_act_governs_non_judicial_sales"],
+  "statute_citations": ["Neb. Rev. Stat. § 25-202", "Neb. Rev. Stat. § 25-216"],
+  "key_cases": ["PSB-G.P., v. Paschal, 803 N.W.2d 769 (Neb. 2011)"],
+  "notes": ["The SOL for foreclosure is 10 years from the maturity date. The SOL on the note for deficiency is 5 years."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "NV": {
+  "state_code": "NV",
+  "state_name": "Nevada",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": 0.5,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": false,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["zombie_mortgage_possible"]
+  },
+  "special_provisions": ["one_action_rule", "deceleration_likely_permitted"],
+  "statute_citations": ["NRS 11.190"],
+  "key_cases": ["Clayton v. Gardner, 813 P.2d 997 (Nev. 1991)"],
+  "notes": ["The 6-year SOL for written contracts applies to foreclosure. The lien is generally not extinguished, allowing for potential 'zombie mortgage' issues."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "NH": {
+  "state_code": "NH",
+  "state_name": "New Hampshire",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 20,
+  "note_years": 6,
+  "foreclosure_years": 20,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["default_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_common"],
+  "statute_citations": ["RSA 508:2", "RSA 382-A:3-118"],
+  "key_cases": ["Leavitt v. Jenner, 86 A.3d 669 (N.H. 2014)"],
+  "notes": ["The SOL for 'real actions' is 20 years, which has been held to apply to mortgage foreclosures. The note has a shorter 6-year SOL."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "NJ": {
+  "state_code": "NJ",
+  "state_name": "New Jersey",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 20,
+  "deficiency_years": 0.25,
+  "additional_periods": {
+  "residential_mortgage_act": 6,
+  "residential_mortgage_act_alt": 36
+  }
+  },
+  "trigger_events": ["default_date", "maturity_date", "recording_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["fair_foreclosure_act_provides_specific_sols_for_residential_mortgages"],
+  "statute_citations": ["N.J.S.A. 2A:50-56.1", "N.J.S.A. 2A:14-1"],
+  "key_cases": ["Security Nat. Partners v. Mahler, 765 A.2d 221 (N.J. Super. Ct. App. Div. 2001)"],
+  "notes": ["Complex residential vs. non-residential rules. For residential, SOL is the earliest of: 6 years from maturity, 36 years from recording, or 20 years from default. For non-residential, a general 20-year SOL on the mortgage applies."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "NM": {
+  "state_code": "NM",
+  "state_name": "New Mexico",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": false,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["zombie_mortgage_possible"]
+  },
+  "special_provisions": ["judicial_foreclosure_only", "deceleration_is_permitted"],
+  "statute_citations": ["NMSA § 37-1-3"],
+  "key_cases": ["LSF9 Master Participation Trust v. Sanchez, 425 P.3d 232 (N.M. Ct. App. 2018)"],
+  "notes": ["The 6-year SOL for written contracts applies. Like several other states, the lien is not automatically extinguished when the SOL bars the remedy, creating potential title issues."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "NY": {
+  "state_code": "NY",
+  "state_name": "New York",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "statutory_prohibition"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": ["deceleration_severely_restricted_by_fapa"]
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["borrower_can_bring_action_to_quiet_title_and_discharge_mortgage"]
+  },
+  "special_provisions": ["foreclosure_abuse_prevention_act_fapa", "judicial_foreclosure_only"],
+  "statute_citations": ["N.Y. C.P.L.R. § 213(4)", "N.Y. R.P.A.P.L. § 1501(4)"],
+  "key_cases": ["Freedom Mortgage Corp. v. Engel, 37 N.Y.3d 1 (2021) (overturned by FAPA)"],
+  "notes": ["The 6-year SOL runs from acceleration. The Foreclosure Abuse Prevention Act (FAPA) retroactively eliminated a lender's ability to unilaterally revoke acceleration to reset the SOL, making the initial acceleration date critical. An expired SOL extinguishes the lien."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "NC": {
+  "state_code": "NC",
+  "state_name": "North Carolina",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 3,
+  "foreclosure_years": 10,
+  "deficiency_years": 1,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "last_payment_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["power_of_sale_becomes_inoperative"]
+  },
+  "special_provisions": ["quasi_judicial_process_for_non_judicial_foreclosure"],
+  "statute_citations": ["N.C. Gen. Stat. § 45-21.12A", "N.C. Gen. Stat. § 1-47(3)"],
+  "key_cases": ["In re Lake Townsend Prop., Inc., 748 S.E.2d 610 (N.C. Ct. App. 2013)"],
+  "notes": ["The SOL for foreclosure is 10 years after the power of sale becomes absolute or the last payment is made. The SOL on the note is a much shorter 3 years."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "ND": {
+  "state_code": "ND",
+  "state_name": "North Dakota",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 6,
+  "foreclosure_years": 10,
+  "deficiency_years": 0.25,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_only", "strong_anti_deficiency_statutes"],
+  "statute_citations": ["N.D. Cent. Code § 35-03-14", "N.D. Cent. Code § 28-01-15"],
+  "key_cases": ["First State Bank of New Rockford v. Anderson, 452 N.W.2d 90 (N.D. 1990)"],
+  "notes": ["A 10-year SOL applies to foreclosure actions, running from the maturity date."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "OH": {
+  "state_code": "OH",
+  "state_name": "Ohio",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 21,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment", "maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "out_of_state_residence"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": false,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": true,
+  "special_effects": ["mortgage_lien_survives_but_action_to_enforce_it_is_barred", "dormant_mineral_act_logic_applied"]
+  },
+  "special_provisions": ["note_and_mortgage_are_separate_actions_with_separate_sols"],
+  "statute_citations": ["Ohio Rev. Code Ann. § 2305.06", "Ohio Rev. Code Ann. § 5301.30"],
+  "key_cases": ["Deutsche Bank Nat’l Trust Co. v. Holden, 147 Ohio St. 3d 85 (2016)"],
+  "notes": ["Extremely complex. SOL on the note is 6 years. SOL on the foreclosure action itself is also 6 years (previously 8 and 15). However, the lien itself has a 21-year survivability under a separate statute. A lender can foreclose on the lien even after the SOL on the note has expired, but cannot get a deficiency judgment."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "OK": {
+  "state_code": "OK",
+  "state_name": "Oklahoma",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 7,
+  "note_years": 5,
+  "foreclosure_years": 7,
+  "deficiency_years": 0.25,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": ["lien_can_be_renewed_by_filing_notice"]
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["power_of_sale_foreclosure_act"],
+  "statute_citations": ["46 O.S. § 301"],
+  "key_cases": ["State ex rel. Freeling v. Smith, 184 P. 917 (Okla. 1919)"],
+  "notes": ["The mortgage lien ceases to exist 7 years after the maturity date of the obligation."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "OR": {
+  "state_code": "OR",
+  "state_name": "Oregon",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 6,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "date_payment_extended_to"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": false,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_common"],
+  "statute_citations": ["ORS 88.110", "ORS 12.080"],
+  "key_cases": ["U.S. Bank N.A. v. Neighbor, 355 P.3d 928 (Or. Ct. App. 2015)"],
+  "notes": ["A 10-year statute of repose bars foreclosure, running from the maturity date. This acts as a final cutoff."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "PA": {
+  "state_code": "PA",
+  "state_name": "Pennsylvania",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 20,
+  "note_years": 4,
+  "foreclosure_years": 20,
+  "deficiency_years": 0.5,
+  "additional_periods": {}
+  },
+  "trigger_events": ["default_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_only", "presumption_of_payment_after_20_years"],
+  "statute_citations": ["42 Pa. C.S.A. § 5525(a)(7) (note)", "42 Pa. C.S.A. § 5529 (sealed instrument)"],
+  "key_cases": ["JP Morgan Chase Bank, N.A. v. Taggart, 203 A.3d 187 (Pa. 2019)"],
+  "notes": ["While the SOL on the note is 4 years, a 20-year SOL applies to the mortgage if it is an instrument under seal. There is also a common law presumption of payment after 20 years."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "RI": {
+  "state_code": "RI",
+  "state_name": "Rhode Island",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 10,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_common"],
+  "statute_citations": ["R.I. Gen. Laws § 9-1-13"],
+  "key_cases": ["Beagan v. Citizens Bank, N.A., 2016 WL 4473017 (R.I. Super. Ct. 2016)"],
+  "notes": ["The 10-year SOL for civil actions applies to foreclosure, generally running from the date of each missed payment or from acceleration."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "SC": {
+  "state_code": "SC",
+  "state_name": "South Carolina",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 20,
+  "note_years": 3,
+  "foreclosure_years": 20,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "recording_date_if_no_maturity_stated"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": false,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_only"],
+  "statute_citations": ["S.C. Code Ann. § 29-1-10"],
+  "key_cases": ["Federal Land Bank of Columbia v. Fogle, 185 S.E. 747 (S.C. 1936)"],
+  "notes": ["A 20-year SOL runs from the maturity date, effectively making the lien invalid after that period. The SOL on the note is a much shorter 3 years."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "SD": {
+  "state_code": "SD",
+  "state_name": "South Dakota",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 15,
+  "note_years": 6,
+  "foreclosure_years": 15,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "last_payment_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["foreclosure_by_advertisement_is_common"],
+  "statute_citations": ["SDCL 21-47-2", "SDCL 15-2-6"],
+  "key_cases": ["First Nat. Bank of Philip v. Ryman, 230 N.W.2d 58 (S.D. 1975)"],
+  "notes": ["The SOL for foreclosure is 15 years from the due date. The note has a shorter 6-year SOL."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "TN": {
+  "state_code": "TN",
+  "state_name": "Tennessee",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 6,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "statutory_prohibition"],
+  "revival_methods": {
+  "partial_payment": false,
+  "written_acknowledgment": false,
+  "new_promise": false,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_common"],
+  "statute_citations": ["Tenn. Code Ann. § 28-2-111"],
+  "key_cases": ["Womack v. First Nat. Bank of Shelbyville, 116 S.W.2d 1017 (Tenn. 1938)"],
+  "notes": ["The lien of a mortgage or deed of trust is barred after 10 years from the maturity date."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "TX": {
+  "state_code": "TX",
+  "state_name": "Texas",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 4,
+  "note_years": 4,
+  "foreclosure_years": 4,
+  "deficiency_years": 2,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": ["lien_can_be_extended_by_written_agreement"]
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["real_property_lien_and_power_of_sale_become_void"]
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_dominant", "deceleration_is_permitted_but_with_strict_notice_requirements"],
+  "statute_citations": ["Tex. Civ. Prac. & Rem. Code § 16.035"],
+  "key_cases": ["Holy Cross Church of God in Christ v. Wolf, 44 S.W.3d 562 (Tex. 2001)"],
+  "notes": ["A strict 4-year SOL runs from the date of accrual (acceleration or maturity). If it expires, the lien and power of sale are void. The SOL can be reset or extended by agreement."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "UT": {
+  "state_code": "UT",
+  "state_name": "Utah",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": 0.25,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["right_to_foreclose_is_forfeited"]
+  },
+  "special_provisions": ["one_action_rule"],
+  "statute_citations": ["Utah Code Ann. § 70A-3-118", "Utah Code Ann. § 57-1-34"],
+  "key_cases": ["Deleeuw v. Nationstar Mortgage LLC, 404 P.3d 1075 (Utah 2017)"],
+  "notes": ["The SOL for foreclosure is tied to the 6-year SOL on the underlying note."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "VT": {
+  "state_code": "VT",
+  "state_name": "Vermont",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": 15,
+  "note_years": 6,
+  "foreclosure_years": 15,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["default_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "out_of_state_residence"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["judicial_foreclosure_only", "strict_foreclosure_is_the_primary_method"],
+  "statute_citations": ["12 V.S.A. § 502", "12 V.S.A. § 511"],
+  "key_cases": ["Huntington v. McCarty, 62 A.3d 483 (Vt. 2012)"],
+  "notes": ["The SOL for foreclosure (an action for possession) is 15 years. The note is subject to a 6-year SOL."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "VA": {
+  "state_code": "VA",
+  "state_name": "Virginia",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 20,
+  "note_years": 6,
+  "foreclosure_years": 20,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_common"],
+  "statute_citations": ["Va. Code Ann. § 8.01-242"],
+  "key_cases": ["Gleason v. Dominion Sav. Bank, FSB, 412 S.E.2d 718 (Va. 1992)"],
+  "notes": ["A 20-year SOL applies to enforce a deed of trust, running from the maturity date."],
+  "risk_level": "LOW",
+  "last_updated": "2025-07-04"
+  },
+  "WA": {
+  "state_code": "WA",
+  "state_name": "Washington",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["lien_is_extinguished_when_note_is_no_longer_enforceable"]
+  },
+  "special_provisions": ["deceleration_is_permitted"],
+  "statute_citations": ["RCW 4.16.040"],
+  "key_cases": ["Edmundson v. Bank of America, 378 P.3d 272 (Wash. Ct. App. 2016)"],
+  "notes": ["The 6-year SOL for written contracts applies to foreclosure. A new SOL begins for each missed installment. If the debt is accelerated, the 6-year period runs on the entire balance."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "WV": {
+  "state_code": "WV",
+  "state_name": "West Virginia",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 10,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date", "last_payment_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "statutory_prohibition"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["non_judicial_foreclosure_is_common"],
+  "statute_citations": ["W. Va. Code § 55-2-6", "W. Va. Code § 55-2-5"],
+  "key_cases": ["Miller v. Diversified Loan Servs. Co., 382 S.E.2d 514 (W. Va. 1989)"],
+  "notes": ["A 10-year SOL applies to both judicial and non-judicial foreclosure actions, running from the maturity date."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  },
+  "WI": {
+  "state_code": "WI",
+  "state_name": "Wisconsin",
+  "foreclosure_types": ["judicial"],
+  "sol_periods": {
+  "lien_years": null,
+  "note_years": 6,
+  "foreclosure_years": 6,
+  "deficiency_years": null,
+  "additional_periods": {
+  "sealed_instrument": 20
+  }
+  },
+  "trigger_events": ["acceleration_date", "each_missed_payment"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": false,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": ["zombie_mortgage_possible"]
+  },
+  "special_provisions": ["judicial_foreclosure_only", "deceleration_permitted"],
+  "statute_citations": ["Wis. Stat. § 893.43"],
+  "key_cases": ["Bank of New York Mellon v. Klomsten, 911 N.W.2d 364 (Wis. Ct. App. 2018)"],
+  "notes": ["The SOL on the foreclosure action is 6 years from the date of default/acceleration. Wisconsin does not appear to extinguish the lien upon expiration, creating potential 'zombie mortgage' scenarios."],
+  "risk_level": "HIGH",
+  "last_updated": "2025-07-04"
+  },
+  "WY": {
+  "state_code": "WY",
+  "state_name": "Wyoming",
+  "foreclosure_types": ["judicial", "non_judicial"],
+  "sol_periods": {
+  "lien_years": 10,
+  "note_years": 10,
+  "foreclosure_years": 10,
+  "deficiency_years": null,
+  "additional_periods": {}
+  },
+  "trigger_events": ["maturity_date"],
+  "tolling_provisions": ["bankruptcy_filing", "military_service", "partial_payment", "written_acknowledgment"],
+  "revival_methods": {
+  "partial_payment": true,
+  "written_acknowledgment": true,
+  "new_promise": true,
+  "other": []
+  },
+  "effect_of_expiration": {
+  "lien_extinguished": true,
+  "foreclosure_barred": true,
+  "deficiency_barred": true,
+  "becomes_unsecured": false,
+  "special_effects": []
+  },
+  "special_provisions": ["foreclosure_by_advertisement_is_common"],
+  "statute_citations": ["Wyo. Stat. Ann. § 1-3-103", "Wyo. Stat. Ann. § 34-4-102"],
+  "key_cases": ["Broussard v. T-M Land & Cattle Co., 131 P.3d 378 (Wyo. 2006)"],
+  "notes": ["A 10-year SOL applies to foreclosure, running from the date the cause of action accrues, which is generally the maturity date."],
+  "risk_level": "MEDIUM",
+  "last_updated": "2025-07-04"
+  }
+  }
+ }
