@@ -39,7 +39,6 @@ export interface ModalAction {
 class InteractionManager {
   private modalStack: HTMLElement[] = [];
   private filterState: FilterState = {};
-  private navigationHistory: NavigationState[] = [];
   private listeners: Map<string, Function[]> = new Map();
 
   constructor() {
@@ -129,7 +128,7 @@ class InteractionManager {
     }
   }
 
-  private handleGeographicClick(dataPoint: any, context: any) {
+  private handleGeographicClick(dataPoint: any, _context: any) {
     const modalData: ModalData = {
       type: 'state-detail',
       title: `${dataPoint.state} Portfolio Details`,
@@ -149,7 +148,7 @@ class InteractionManager {
     this.showModal(modalData);
   }
 
-  private handleStatusClick(dataPoint: any, context: any) {
+  private handleStatusClick(dataPoint: any, _context: any) {
     const modalData: ModalData = {
       type: 'status-detail',
       title: `${dataPoint.status} Loans`,
@@ -170,7 +169,7 @@ class InteractionManager {
     this.showModal(modalData);
   }
 
-  private handleForeclosureClick(dataPoint: any, context: any) {
+  private handleForeclosureClick(dataPoint: any, _context: any) {
     const modalData: ModalData = {
       type: 'foreclosure-detail',
       title: `${dataPoint.milestone} Foreclosure Details`,
@@ -190,7 +189,7 @@ class InteractionManager {
     this.showModal(modalData);
   }
 
-  private handleCashflowClick(dataPoint: any, context: any) {
+  private handleCashflowClick(dataPoint: any, _context: any) {
     // For cashflow points, show period details
     const modalData: ModalData = {
       type: 'kpi-detail',
@@ -211,7 +210,7 @@ class InteractionManager {
     this.showModal(modalData);
   }
 
-  private handleKPIClick(dataPoint: any, context: any) {
+  private handleKPIClick(dataPoint: any, _context: any) {
     const modalData: ModalData = {
       type: 'kpi-detail',
       title: `${dataPoint.title} Details`,
@@ -316,7 +315,7 @@ class InteractionManager {
   }
 
   private getStateDetailContent(modalData: ModalData): string {
-    const { state, loanCount, totalUPB, avgBalance } = modalData.data;
+    const { loanCount, totalUPB, avgBalance } = modalData.data;
     
     return `
       <div class="modal-header" style="padding: 24px 24px 16px; border-bottom: 1px solid #e5e7eb;">
@@ -353,7 +352,7 @@ class InteractionManager {
   }
 
   private getStatusDetailContent(modalData: ModalData): string {
-    const { status, count, totalUPB, avgDaysInStatus } = modalData.data;
+    const { count, totalUPB, avgDaysInStatus } = modalData.data;
     
     return `
       <div class="modal-header" style="padding: 24px 24px 16px; border-bottom: 1px solid #e5e7eb;">
@@ -424,7 +423,7 @@ class InteractionManager {
   }
 
   private getKPIDetailContent(modalData: ModalData): string {
-    const { title, value, trend } = modalData.data;
+    const { value, trend } = modalData.data;
     
     return `
       <div class="modal-header" style="padding: 24px 24px 16px; border-bottom: 1px solid #e5e7eb;">
@@ -521,8 +520,8 @@ class InteractionManager {
     this.emit('filters-changed', this.filterState);
   }
 
-  public setFilter(key: string, value: any) {
-    this.filterState[key as keyof FilterState] = value;
+  public setFilter(key: keyof FilterState, value: string) {
+    this.filterState[key] = value;
     this.emit('filters-changed', this.filterState);
   }
 }
