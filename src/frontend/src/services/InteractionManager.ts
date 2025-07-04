@@ -284,14 +284,24 @@ class InteractionManager {
     // Create modal content based on type
     modal.innerHTML = this.getModalContent(modalData);
 
+    // Store action payloads in a Map to avoid JSON parsing issues
+    const actionPayloads = new Map<string, any>();
+    modalData.actions?.forEach((action, index) => {
+      if (action.payload) {
+        actionPayloads.set(`action-${index}`, action.payload);
+      }
+    });
+
     // Add event listeners for actions
     modal.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       const action = target.dataset.action;
+      const payloadKey = target.dataset.payloadKey;
       
       if (action) {
         e.preventDefault();
-        this.handleModalAction(action, target.dataset.payload ? JSON.parse(target.dataset.payload) : null);
+        const payload = payloadKey ? actionPayloads.get(payloadKey) : null;
+        this.handleModalAction(action, payload);
       }
     });
 
@@ -339,10 +349,10 @@ class InteractionManager {
         </div>
       </div>
       <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; justify-content: flex-end;">
-        ${modalData.actions?.map(action => `
+        ${modalData.actions?.map((action, index) => `
           <button class="btn btn-${action.action === 'close' ? 'secondary' : 'primary'}" 
                   data-action="${action.action}"
-                  data-payload="${action.payload ? JSON.stringify(action.payload) : ''}"
+                  data-payload-key="${action.payload ? `action-${index}` : ''}"
                   style="padding: 8px 16px; border-radius: 6px; font-weight: 500; border: none; cursor: pointer; ${action.action === 'close' ? 'background: #f3f4f6; color: #374151;' : 'background: #2563eb; color: white;'}">
             ${action.label}
           </button>
@@ -377,10 +387,10 @@ class InteractionManager {
         </div>
       </div>
       <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; justify-content: flex-end;">
-        ${modalData.actions?.map(action => `
+        ${modalData.actions?.map((action, index) => `
           <button class="btn btn-${action.action === 'close' ? 'secondary' : 'primary'}" 
                   data-action="${action.action}"
-                  data-payload="${action.payload ? JSON.stringify(action.payload) : ''}"
+                  data-payload-key="${action.payload ? `action-${index}` : ''}"
                   style="padding: 8px 16px; border-radius: 6px; font-weight: 500; border: none; cursor: pointer; ${action.action === 'close' ? 'background: #f3f4f6; color: #374151;' : 'background: #2563eb; color: white;'}">
             ${action.label}
           </button>
@@ -410,10 +420,10 @@ class InteractionManager {
         </div>
       </div>
       <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; justify-content: flex-end;">
-        ${modalData.actions?.map(action => `
+        ${modalData.actions?.map((action, index) => `
           <button class="btn btn-${action.action === 'close' ? 'secondary' : 'primary'}" 
                   data-action="${action.action}"
-                  data-payload="${action.payload ? JSON.stringify(action.payload) : ''}"
+                  data-payload-key="${action.payload ? `action-${index}` : ''}"
                   style="padding: 8px 16px; border-radius: 6px; font-weight: 500; border: none; cursor: pointer; ${action.action === 'close' ? 'background: #f3f4f6; color: #374151;' : 'background: #2563eb; color: white;'}">
             ${action.label}
           </button>
@@ -439,10 +449,10 @@ class InteractionManager {
         </div>
       </div>
       <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; justify-content: flex-end;">
-        ${modalData.actions?.map(action => `
+        ${modalData.actions?.map((action, index) => `
           <button class="btn btn-${action.action === 'close' ? 'secondary' : 'primary'}" 
                   data-action="${action.action}"
-                  data-payload="${action.payload ? JSON.stringify(action.payload) : ''}"
+                  data-payload-key="${action.payload ? `action-${index}` : ''}"
                   style="padding: 8px 16px; border-radius: 6px; font-weight: 500; border: none; cursor: pointer; ${action.action === 'close' ? 'background: #f3f4f6; color: #374151;' : 'background: #2563eb; color: white;'}">
             ${action.label}
           </button>
