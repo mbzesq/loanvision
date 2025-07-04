@@ -337,54 +337,43 @@ router.get('/reports/foreclosure-tracking', authenticateToken, async (req, res) 
     
     // 3. Milestone breakdown - count loans at each major milestone
     const milestoneBreakdownQuery = `
-      SELECT 
-        CASE 
-          WHEN eviction_completed_date IS NOT NULL THEN 'Eviction Completed'
-          WHEN real_estate_owned_date IS NOT NULL THEN 'REO'
-          WHEN sale_held_date IS NOT NULL THEN 'Sale Held'
-          WHEN sale_scheduled_date IS NOT NULL THEN 'Sale Scheduled'
-          WHEN judgment_date IS NOT NULL THEN 'Judgment Entered'
-          WHEN service_completed_date IS NOT NULL THEN 'Service Completed'
-          WHEN complaint_filed_date IS NOT NULL THEN 'Complaint Filed'
-          WHEN title_received_date IS NOT NULL THEN 'Title Received'
-          WHEN title_ordered_date IS NOT NULL THEN 'Title Ordered'
-          WHEN referral_date IS NOT NULL THEN 'Referred to Attorney'
-          WHEN fc_start_date IS NOT NULL THEN 'Foreclosure Started'
-          ELSE 'Not Started'
-        END as milestone,
-        COUNT(*) as count
-      FROM foreclosure_events
-      WHERE fc_status IS NOT NULL AND fc_status != ''
-      GROUP BY 
-        CASE 
-          WHEN eviction_completed_date IS NOT NULL THEN 'Eviction Completed'
-          WHEN real_estate_owned_date IS NOT NULL THEN 'REO'
-          WHEN sale_held_date IS NOT NULL THEN 'Sale Held'
-          WHEN sale_scheduled_date IS NOT NULL THEN 'Sale Scheduled'
-          WHEN judgment_date IS NOT NULL THEN 'Judgment Entered'
-          WHEN service_completed_date IS NOT NULL THEN 'Service Completed'
-          WHEN complaint_filed_date IS NOT NULL THEN 'Complaint Filed'
-          WHEN title_received_date IS NOT NULL THEN 'Title Received'
-          WHEN title_ordered_date IS NOT NULL THEN 'Title Ordered'
-          WHEN referral_date IS NOT NULL THEN 'Referred to Attorney'
-          WHEN fc_start_date IS NOT NULL THEN 'Foreclosure Started'
-          ELSE 'Not Started'
-        END
-      ORDER BY 
-        CASE 
-          WHEN eviction_completed_date IS NOT NULL THEN 12
-          WHEN real_estate_owned_date IS NOT NULL THEN 11
-          WHEN sale_held_date IS NOT NULL THEN 10
-          WHEN sale_scheduled_date IS NOT NULL THEN 9
-          WHEN judgment_date IS NOT NULL THEN 8
-          WHEN service_completed_date IS NOT NULL THEN 7
-          WHEN complaint_filed_date IS NOT NULL THEN 6
-          WHEN title_received_date IS NOT NULL THEN 5
-          WHEN title_ordered_date IS NOT NULL THEN 4
-          WHEN referral_date IS NOT NULL THEN 3
-          WHEN fc_start_date IS NOT NULL THEN 2
-          ELSE 1
-        END;
+      WITH milestone_data AS (
+        SELECT 
+          CASE 
+            WHEN eviction_completed_date IS NOT NULL THEN 'Eviction Completed'
+            WHEN real_estate_owned_date IS NOT NULL THEN 'REO'
+            WHEN sale_held_date IS NOT NULL THEN 'Sale Held'
+            WHEN sale_scheduled_date IS NOT NULL THEN 'Sale Scheduled'
+            WHEN judgment_date IS NOT NULL THEN 'Judgment Entered'
+            WHEN service_completed_date IS NOT NULL THEN 'Service Completed'
+            WHEN complaint_filed_date IS NOT NULL THEN 'Complaint Filed'
+            WHEN title_received_date IS NOT NULL THEN 'Title Received'
+            WHEN title_ordered_date IS NOT NULL THEN 'Title Ordered'
+            WHEN referral_date IS NOT NULL THEN 'Referred to Attorney'
+            WHEN fc_start_date IS NOT NULL THEN 'Foreclosure Started'
+            ELSE 'Not Started'
+          END as milestone,
+          CASE 
+            WHEN eviction_completed_date IS NOT NULL THEN 12
+            WHEN real_estate_owned_date IS NOT NULL THEN 11
+            WHEN sale_held_date IS NOT NULL THEN 10
+            WHEN sale_scheduled_date IS NOT NULL THEN 9
+            WHEN judgment_date IS NOT NULL THEN 8
+            WHEN service_completed_date IS NOT NULL THEN 7
+            WHEN complaint_filed_date IS NOT NULL THEN 6
+            WHEN title_received_date IS NOT NULL THEN 5
+            WHEN title_ordered_date IS NOT NULL THEN 4
+            WHEN referral_date IS NOT NULL THEN 3
+            WHEN fc_start_date IS NOT NULL THEN 2
+            ELSE 1
+          END as sort_order
+        FROM foreclosure_events
+        WHERE fc_status IS NOT NULL AND fc_status != ''
+      )
+      SELECT milestone, COUNT(*) as count
+      FROM milestone_data
+      GROUP BY milestone, sort_order
+      ORDER BY sort_order;
     `;
     
     // 4. On Track vs Overdue status (simplified logic)
