@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
@@ -96,10 +96,10 @@ function LoanExplorerPage() {
       urlFilters.assetStatus = [status];
     }
     if (milestone) {
-      // For foreclosure milestones, we'll show all loans and let the user
-      // see the foreclosure-related data without pre-filtering
-      // This avoids having to guess the exact legal_status values
-      console.log('Foreclosure milestone filter from URL:', milestone);
+      // For foreclosure milestones: Legal Status = FC + Latest milestone = clicked milestone
+      urlFilters.assetStatus = ['FC']; // Must be currently in foreclosure
+      // Store the milestone for custom filtering logic
+      (urlFilters as any).foreclosureMilestone = milestone;
     }
     if (month) {
       // Could be used for date filtering in the future
@@ -118,6 +118,26 @@ function LoanExplorerPage() {
     setActiveFilters(filters);
     setHasAppliedFilter(true);
   };
+
+  // Function to determine the latest completed foreclosure milestone
+  const getLatestForeclosureMilestone = useCallback((loan: Loan): string | null => {
+    const milestones = [
+      { name: 'FC Start', date: loan.fc_start_date },
+      { name: 'Referral', date: loan.referral_date },
+      { name: 'Title Ordered', date: loan.title_ordered_date },
+      { name: 'Title Received', date: loan.title_received_date },
+      { name: 'Complaint Filed', date: loan.complaint_filed_date },
+      { name: 'Service Completed', date: loan.service_completed_date },
+      { name: 'Judgment', date: loan.judgment_date }
+    ];
+
+    // Filter milestones that have dates and sort by date (latest first)
+    const completedMilestones = milestones
+      .filter(milestone => milestone.date)
+      .sort((a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime());
+
+    return completedMilestones.length > 0 ? completedMilestones[0].name : null;
+  }, []);
 
   const handleShowAll = () => {
     setActiveFilters(initialFilters);
@@ -271,9 +291,24 @@ function LoanExplorerPage() {
         }
       }
 
+      // Foreclosure milestone filter (custom logic for dashboard drill-down)
+      const foreclosureMilestone = (activeFilters as any).foreclosureMilestone;
+      if (foreclosureMilestone) {
+        // Must be currently in foreclosure (legal_status = 'FC')
+        if (loan.legal_status !== 'FC') {
+          return false;
+        }
+        
+        // Latest completed milestone must match the clicked milestone
+        const latestMilestone = getLatestForeclosureMilestone(loan);
+        if (latestMilestone !== foreclosureMilestone) {
+          return false;
+        }
+      }
+
       return true; // If all checks pass, include the loan
     });
-  }, [loans, activeFilters, hasAppliedFilter, globalFilter]);
+  }, [loans, activeFilters, hasAppliedFilter, globalFilter, getLatestForeclosureMilestone]);
 
   // Helper function for proper date formatting
   const formatDate = (value: string | null | undefined) => {
@@ -512,7 +547,7 @@ function LoanExplorerPage() {
               📊 Dashboard filter applied: 
               {searchParams.get('state') && <span className="ml-1">State: {searchParams.get('state')}</span>}
               {searchParams.get('status') && <span className="ml-1">Status: {searchParams.get('status')}</span>}
-              {searchParams.get('milestone') && <span className="ml-1">Milestone: {searchParams.get('milestone')}</span>}
+              {searchParams.get('milestone') && <span className="ml-1">Foreclosure Milestone: {searchParams.get('milestone')} (Legal Status: FC)</span>}
             </p>
           </div>
         )}
