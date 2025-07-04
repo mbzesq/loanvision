@@ -314,6 +314,109 @@ router.get('/reports/investors', authenticateToken, async (req, res) => {
   }
 });
 
+// --- FORECLOSURE TRACKING ENDPOINT ---
+router.get('/reports/foreclosure-tracking', authenticateToken, async (req, res) => {
+  try {
+    // 1. Total loans in foreclosure
+    const totalForeclosureQuery = `
+      SELECT COUNT(*) as total_foreclosure_loans
+      FROM foreclosure_events 
+      WHERE fc_status IS NOT NULL AND fc_status != '';
+    `;
+    
+    // 2. Breakdown by foreclosure status
+    const statusBreakdownQuery = `
+      SELECT 
+        fc_status,
+        COUNT(*) as count
+      FROM foreclosure_events 
+      WHERE fc_status IS NOT NULL AND fc_status != ''
+      GROUP BY fc_status
+      ORDER BY count DESC;
+    `;
+    
+    // 3. Milestone breakdown - count loans at each major milestone
+    const milestoneBreakdownQuery = `
+      SELECT 
+        CASE 
+          WHEN eviction_completed_date IS NOT NULL THEN 'Eviction Completed'
+          WHEN real_estate_owned_date IS NOT NULL THEN 'REO'
+          WHEN sale_held_date IS NOT NULL THEN 'Sale Held'
+          WHEN sale_scheduled_date IS NOT NULL THEN 'Sale Scheduled'
+          WHEN judgment_date IS NOT NULL THEN 'Judgment Entered'
+          WHEN service_completed_date IS NOT NULL THEN 'Service Completed'
+          WHEN complaint_filed_date IS NOT NULL THEN 'Complaint Filed'
+          WHEN title_received_date IS NOT NULL THEN 'Title Received'
+          WHEN title_ordered_date IS NOT NULL THEN 'Title Ordered'
+          WHEN referral_date IS NOT NULL THEN 'Referred to Attorney'
+          WHEN fc_start_date IS NOT NULL THEN 'Foreclosure Started'
+          ELSE 'Not Started'
+        END as milestone,
+        COUNT(*) as count
+      FROM foreclosure_events
+      WHERE fc_status IS NOT NULL AND fc_status != ''
+      GROUP BY milestone
+      ORDER BY 
+        CASE milestone
+          WHEN 'Not Started' THEN 1
+          WHEN 'Foreclosure Started' THEN 2
+          WHEN 'Referred to Attorney' THEN 3
+          WHEN 'Title Ordered' THEN 4
+          WHEN 'Title Received' THEN 5
+          WHEN 'Complaint Filed' THEN 6
+          WHEN 'Service Completed' THEN 7
+          WHEN 'Judgment Entered' THEN 8
+          WHEN 'Sale Scheduled' THEN 9
+          WHEN 'Sale Held' THEN 10
+          WHEN 'REO' THEN 11
+          WHEN 'Eviction Completed' THEN 12
+        END;
+    `;
+    
+    // 4. On Track vs Overdue status (simplified logic)
+    const timelineStatusQuery = `
+      SELECT 
+        CASE 
+          WHEN fc_start_date IS NULL THEN 'Not in Foreclosure'
+          WHEN fc_start_date <= CURRENT_DATE - INTERVAL '365 days' AND eviction_completed_date IS NULL THEN 'Overdue'
+          WHEN fc_start_date <= CURRENT_DATE - INTERVAL '270 days' AND sale_held_date IS NULL THEN 'Delayed'
+          ELSE 'On Track'
+        END as timeline_status,
+        COUNT(*) as count
+      FROM foreclosure_events
+      WHERE fc_status IS NOT NULL AND fc_status != ''
+      GROUP BY timeline_status;
+    `;
+
+    // Execute all queries
+    const [totalResult, statusResult, milestoneResult, timelineResult] = await Promise.all([
+      pool.query(totalForeclosureQuery),
+      pool.query(statusBreakdownQuery),
+      pool.query(milestoneBreakdownQuery),
+      pool.query(timelineStatusQuery)
+    ]);
+
+    res.json({
+      total_foreclosure_loans: parseInt(totalResult.rows[0].total_foreclosure_loans, 10),
+      status_breakdown: statusResult.rows.map(row => ({
+        status: row.fc_status,
+        count: parseInt(row.count, 10)
+      })),
+      milestone_breakdown: milestoneResult.rows.map(row => ({
+        milestone: row.milestone,
+        count: parseInt(row.count, 10)
+      })),
+      timeline_status: timelineResult.rows.map(row => ({
+        status: row.timeline_status,
+        count: parseInt(row.count, 10)
+      }))
+    });
+  } catch (error) {
+    console.error('Error fetching foreclosure tracking data:', error);
+    res.status(500).json({ error: 'Failed to fetch foreclosure tracking data' });
+  }
+});
+
 // --- EXCEL EXPORT ENDPOINT ---
 router.get('/reports/excel', authenticateToken, async (req, res) => {
     const filter = req.query.filter as string | undefined;

@@ -3,6 +3,7 @@ import SummaryCard from '../components/Dashboard/SummaryCard';
 import LoanStatusChart from '../components/Dashboard/LoanStatusChart';
 import GeographicalDistributionChart from '../components/Dashboard/GeographicalDistributionChart';
 import MonthlyCashflowChart from '../components/Dashboard/MonthlyCashflowChart';
+import ForeclosureTrackingChart from '../components/Dashboard/ForeclosureTrackingChart';
 import axios from '../utils/axios';
 
 interface PortfolioSummary {
@@ -108,13 +109,8 @@ function DashboardPage() {
         {/* Chart 3: Monthly Cashflow */}
         <MonthlyCashflowChart />
 
-        {/* Chart 4: Placeholder for Key Metric TBD */}
-        <div className="bg-slate-800 p-6 rounded-lg text-white h-[400px]">
-          <h3 className="font-semibold mb-4">Key Metric TBD</h3>
-          <div className="flex items-center justify-center h-full text-slate-400">
-            <p>Chart coming soon.</p>
-          </div>
-        </div>
+        {/* Chart 4: Foreclosure Tracking */}
+        <ForeclosureTrackingChart />
       </div>
     </div>
   );
