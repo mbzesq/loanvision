@@ -309,8 +309,27 @@ select.btn-secondary:focus {
 
 .chart-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: var(--space-lg);
+}
+
+/* Ensure 4 columns on large screens */
+@media (min-width: 1440px) {
+  .chart-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Ensure 2 columns on medium screens */
+@media (min-width: 768px) and (max-width: 1439px) {
+  .chart-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Adjust chart container for smaller spaces */
+.chart-container {
+  min-height: 360px;
 }
 
 /* Responsive */

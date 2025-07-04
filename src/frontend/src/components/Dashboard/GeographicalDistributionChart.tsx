@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import axios from '../../utils/axios';
 import interactionManager from '../../services/InteractionManager';
+import Tooltip from './Tooltip';
 
 // State name to abbreviation mapping
 const stateNameToAbbr: Record<string, string> = {
@@ -234,28 +235,13 @@ const GeographicalDistributionChart: React.FC = () => {
         </ComposableMap>
       </div>
 
-      {/* Tooltip */}
+      {/* Tooltip using Portal */}
       {tooltip && (
-        <div
-          style={{
-            position: 'fixed',
-            left: tooltip.x + 15,
-            top: tooltip.y - 40,
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            color: 'white',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '500',
-            pointerEvents: 'none',
-            zIndex: 9999,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-            whiteSpace: 'nowrap',
-            maxWidth: '200px'
-          }}
-        >
-          {tooltip.content}
-        </div>
+        <Tooltip 
+          content={tooltip.content}
+          x={tooltip.x}
+          y={tooltip.y}
+        />
       )}
 
       {/* Legend */}
