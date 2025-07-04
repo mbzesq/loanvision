@@ -34,12 +34,6 @@ const ForeclosureTrackingChart: React.FC = () => {
   }, []);
 
   // Color schemes
-  const milestoneColors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-    '#DDA0DD', '#F4A460', '#87CEEB', '#DEB887', '#FFB6C1',
-    '#98FB98', '#F0E68C'
-  ];
-
   const timelineColors = {
     'On Track': '#4CAF50',
     'Delayed': '#FF9800', 
