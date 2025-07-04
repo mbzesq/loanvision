@@ -1,0 +1,2466 @@
+Comprehensive 51-Jurisdiction Analysis
+of Mortgage Foreclosure Statutes of
+Limitations for Mortgage-Backed
+Security Investors
+I. Executive Summary & Strategic Overview
+
+A. Introduction and Purpose
+
+This report provides a comprehensive legal and analytical framework for understanding
+mortgage foreclosure statutes of limitations (SOL) across all 50 states and the District of
+Columbia. It is designed for Mortgage-Backed Securities (MBS) investors to assess and
+mitigate risks associated with the enforceability of mortgage liens over time, particularly within
+portfolios of non-performing and re-performing loans. The enforceability of a mortgage is not
+perpetual; it is governed by a complex web of state-specific statutes and interpretive case law
+that dictates the maximum time a lender has to initiate a foreclosure action. Failure to comply
+with these time limits can, in many jurisdictions, result in the complete extinguishment of the
+security interest, rendering the collateral worthless and leading to a total loss on the investment.
+This analysis provides the detailed, jurisdiction-specific intelligence necessary for prudent risk
+management, asset valuation, and investment strategy in the MBS market.
+
+B. Key Findings at a Glance
+
+A nationwide survey reveals extreme variance in foreclosure SOL regimes, posing a significant
+challenge for investors with geographically diverse portfolios. Key findings include:
+• Divergent Time Periods: The time allowed to initiate foreclosure varies dramatically,
+from as short as four years in Texas and five years in Florida to 15 years in Michigan and
+as long as 60 years in specific circumstances in California.1 This disparity directly impacts
+the risk profile of aged delinquent loans.
+• Critical Triggering Events: The event that starts the SOL clock is a pivotal and often
+litigated issue. The three primary triggers are (1) the date of each missed installment
+
+•
+
+•
+
+payment, giving rise to a rolling SOL for each payment; (2) the lender's affirmative
+acceleration of the entire loan balance, which typically starts a single, final SOL period for
+the whole debt; and (3) the loan's contractual maturity date.5 The legal interpretation of
+what constitutes a valid acceleration or a subsequent "deceleration" is a major source of
+legal risk.
+The Lien's Fate: A crucial distinction exists between states where an expired SOL
+extinguishes the underlying mortgage lien itself, rendering the debt unsecured (e.g.,
+Texas 6), and states where it merely bars the
+remedy of foreclosure, potentially leaving a "zombie mortgage" that still clouds title and
+may be satisfied upon a future sale of the property (e.g., Ohio 7).
+Legislative Volatility: The legal landscape is not static. Recent legislative actions, most
+notably New York's Foreclosure Abuse Prevention Act (FAPA), have radically altered the
+risk calculus for lenders. FAPA prevents lenders from unilaterally revoking a prior
+acceleration to reset the SOL, a practice that was previously a key risk mitigant.8 This
+trend toward borrower-protective legislation underscores the need for continuous
+monitoring.
+
+C. Jurisdictional Risk "Heat Map" for MBS Investors
+
+For the purposes of portfolio risk assessment, jurisdictions can be categorized into conceptual
+risk tiers based on the confluence of SOL period, trigger mechanisms, and the consequence of
+expiration.
+• High-Risk Jurisdictions: These states present the greatest risk of collateral loss due to
+strict and unforgiving SOL regimes. They are typically characterized by short SOL periods
+(4-6 years), triggers based on acceleration that can be inadvertently but irrevocably
+activated by routine servicing communications, and statutes that extinguish the lien upon
+expiration. New York (post-FAPA) and Texas are prime examples. In these states, a
+single procedural misstep or delay in a foreclosure action can lead to a complete write-off
+of the asset.
+• Medium-Risk Jurisdictions: This category includes states with moderate SOL periods
+(e.g., 10-15 years) or where the legal framework is ambiguous or in flux. Ohio and Illinois
+fit this profile. Ohio, for instance, has conflicting lines of case law regarding whether the
+expiration of the SOL on the promissory note bars an action on the mortgage, creating
+significant legal uncertainty.10 Illinois has a 10-year SOL but case law suggests that if the
+action on the note is barred, the mortgage lien may also be unenforceable.12 These states
+require careful, case-by-case analysis and present moderate risk.
+• Low-Risk Jurisdictions: These states offer a more stable and predictable environment
+for lien enforcement. They are characterized by very long SOL periods or triggers tied to
+the loan's final maturity date, which provides a clear and extended window for
+enforcement. California, with its 60-year SOL for deeds of trust lacking a recorded
+maturity date, and South Carolina, with its 20-year SOL from maturity, are examples of
+lower-risk jurisdictions from a purely temporal perspective.4
+
+D. Overarching Strategic Implications
+
+This analysis yields several critical strategic imperatives for MBS investors:
+1. Servicing is Paramount: The complexity and variance of SOL triggers mean that loan
+servicing cannot be a passive, automated process. The language used in default notices
+and acceleration letters has profound legal consequences and can inadvertently start an
+SOL clock that the servicer is not prepared to manage.1
+2. Due Diligence is Non-Negotiable: The value of a non-performing loan is directly tied to
+the enforceability of its underlying lien. Investors must incorporate a loan-level SOL
+analysis into the due diligence and pricing of any MBS acquisition. A loan's date of
+origination is far less important than its default and acceleration history.8
+3. Bankruptcy is a Universal Constant: Across all jurisdictions, the automatic stay
+imposed by a borrower's bankruptcy filing is the most common and reliable tolling event,
+pausing the SOL clock pursuant to federal law.15 Understanding the interplay between the
+federal bankruptcy stay and state-specific SOL rules is essential for managing timelines
+on distressed assets.
+
+II. Master Summary Table: 51-Jurisdiction Foreclosure
+Statutes of Limitations
+The following table provides a consolidated overview of the key statutory limitation parameters
+for all 50 states and the District of Columbia. This table is intended as a high-level reference; the
+detailed jurisdictional analyses in Section III provide essential context and interpretation.
+State
+Primary
+Statute of
+Statute of Limitations
+Key Legal
+Foreclosure Limitations
+Trigger(s)
+Authority/Citation
+Type(s)
+Period (Years)
+Alabama
+Non-Judicial 20 (Lien); 6
+Maturity Date (Lien);
+Common Law; Ala.
+(Note)
+Default/Acceleration
+Code § 6-2-34
+(Note)
+Alaska
+Non-Judicial 10 (Deed of
+Maturity Date;
+Alaska Stat. §
+Trust); 6 (Note) Default/Acceleration
+34.20.150; §
+09.10.050
+Arizona
+Non-Judicial 6
+Accrual of cause of action A.R.S. § 12-548
+(each missed payment or
+acceleration)
+Arkansas
+Both
+5
+Maturity date of the
+Ark. Code Ann. §
+underlying debt; last
+18-49-101
+payment noted on record
+California
+Non-Judicial; 10 (if maturity
+Maturity
+Cal. Civ. Code §
+Judicial
+ascertainable); Date/Recordation (Non- 2911; Cal. Code
+60 (if not); 4
+Judicial); Default
+Civ. Proc. § 337
+(Judicial)
+(Judicial)
+Colorado
+Non-Judicial 6
+Each missed payment;
+C.R.S. § 13-80(Public
+Acceleration; Maturity
+103.5
+Trustee)
+Date
+
+Connecticut
+
+Judicial
+
+10 (or 40)
+
+Delaware
+
+Judicial
+
+District of
+Columbia
+Florida
+
+Both
+
+10 (if maturity
+ascertainable);
+40 (if not)
+12
+
+Earliest of: 10 yrs from
+Conn. Gen. Stat.
+maturity, 10 yrs from
+Ann. § 52-576; § 49uncured default, or 40 yrs 13a (as amended)
+from recording
+Maturity Date;
+10 Del. C. § 8106;
+Recordation Date
+25 Del. C. § 2123
+
+Accrual of cause of action D.C. Code § 12(default)
+301(6)
+Judicial
+5 (Foreclosure); Each missed payment;
+Fla. Stat. §
+1 (Deficiency)
+Acceleration; Maturity
+95.11(2)(c)
+Date
+Georgia
+Non-Judicial 7
+Maturity Date; Date of
+Ga. Code Ann. § 44conveyance if no maturity 14-80
+date
+Hawaii
+Both
+6
+Accrual of cause of action Haw. Rev. Stat. §
+(default/acceleration)
+657-1
+Idaho
+Non-Judicial 5
+Maturity Date; Accrual of Idaho Code § 5cause of action if no
+214A
+maturity date
+Illinois
+Judicial
+10
+Accrual of right of action 735 ILCS 5/13-115
+(default)
+Indiana
+Judicial
+10 (for
+Maturity Date; Execution Ind. Code § 32-28mortgages post- Date; Recording Date
+4-1; § 32-28-4-2
+6/30/2012)
+Iowa
+Both
+10
+Accrual of cause of action Iowa Code §
+(default)
+614.1(5)
+Kansas
+Judicial
+5
+Accrual of cause of action Kan. Stat. Ann. §
+(default)
+60-511
+Kentucky
+Judicial
+15 (Lien); 6
+Accrual of cause of action KRS § 413.090;
+(Note)
+(default/acceleration)
+KRS § 355.3-118
+Louisiana
+Judicial
+5
+When payment is due
+La. Civ. Code art.
+3498
+Maine
+Judicial
+20
+Breach of condition
+14 M.R.S.A. § 6101
+(default)
+et seq.
+Maryland
+Non-Judicial 12 (for
+Maturity Date; Last
+Md. Code Ann., Cts.
+instruments
+Payment Date;
+& Jud. Proc. § 5under seal)
+Recordation Date
+102; Real Prop. § 7106(c)
+Massachusetts Non-Judicial 5 (from maturity); Maturity Date; Recording Mass. Gen. Laws
+35 (from
+Date
+ch. 260, § 33
+recording if no
+term)
+Michigan
+Non-Judicial 15
+Mortgage becomes due; Mich. Comp. Laws §
+Last payment was made 600.5803
+Minnesota
+Non-Judicial 15
+Maturity Date
+Minn. Stat. § 541.03
+
+Mississippi
+Missouri
+
+Non-Judicial 6 (Note); 1
+(Deficiency)
+Non-Judicial 10
+
+Montana
+
+Non-Judicial 8
+
+Nebraska
+
+Non-Judicial 5
+
+Nevada
+
+Non-Judicial 6
+
+New
+Hampshire
+New Jersey
+
+Non-Judicial 20
+Judicial
+
+6 (or 36)
+
+New Mexico
+
+Judicial
+
+6
+
+New York
+
+Judicial
+
+6
+
+North Carolina QuasiJudicial
+
+10
+
+North Dakota
+
+Judicial
+
+10
+
+Ohio
+
+Judicial
+
+Oklahoma
+
+Both
+
+6 (Note); 8
+(Mortgage, pre2021); 21 (Lien
+expiration)
+5 (Note); 10
+(Lien)
+
+Oregon
+
+Non-Judicial 10
+
+Pennsylvania
+
+Judicial
+
+Rhode Island
+
+4 (Contract); 20
+(Sealed
+Instrument)
+Non-Judicial 10
+
+South Carolina Judicial
+
+20
+
+South Dakota
+
+Non-Judicial 15
+
+Tennessee
+
+Non-Judicial 6
+
+Maturity Date;
+Acceleration
+Maturity Date
+
+Miss. Code Ann. §
+75-3-118; § 15-1-23
+Mo. Rev. Stat. §
+516.150
+Maturity Date (can be
+Mont. Code Ann. §
+extended)
+71-1-210
+Accrual of cause of action Neb. Rev. Stat. §
+(default)
+25-205
+Accrual of cause of action Nev. Rev. Stat. §
+(default/acceleration)
+11.190
+Accrual of right to recover N.H. Rev. Stat. Ann.
+real estate
+§ 508:2
+Earliest of: 6 yrs from
+N.J.S.A. 2A:50-56.1
+maturity, 36 yrs from
+recording, or 6 yrs from
+default
+Accrual of cause of action N.M. Stat. Ann. §
+(default)
+37-1-3
+Acceleration of the debt N.Y. C.P.L.R. §
+213(4)
+Forfeiture of mortgage; N.C. Gen. Stat. § 1Power of sale becomes 47(3)
+absolute
+Accrual of cause of action N.D. Cent. Code §
+(default)
+28-01-15
+Acceleration (Note);
+Ohio Rev. Code §
+Breach (Mortgage);
+1303.16; § 2305.06;
+Recording/Maturity (Lien) § 5301.30
+Accrual of cause of action 12A O.S. § 2-725;
+(Note); Maturity Date
+46 O.S. § 301
+(Lien)
+Maturity Date of the
+Or. Rev. Stat. §
+mortgage debt
+88.110
+Breach of contract
+42 Pa. C.S.A. §
+(default)
+5525; § 5529
+Accrual of cause of action R.I. Gen. Laws § 9(default)
+1-13
+Maturity Date
+S.C. Code Ann. §
+29-1-10
+Accrual of cause of action SDCL § 15-2-7
+(default)
+Due date; Acceleration
+Tenn. Code Ann. §
+47-3-118
+
+Texas
+
+Non-Judicial 4
+
+Utah
+
+Non-Judicial 6
+
+Vermont
+Virginia
+
+Judicial
+15
+Non-Judicial 5
+
+Washington
+
+Non-Judicial 6
+
+West Virginia
+
+Both
+
+Wisconsin
+Wyoming
+
+10 (Contract);
+5/35 (Lien)
+Judicial
+6 (Note); 20
+(Judgment)
+Non-Judicial 10
+
+Maturity Date;
+Acceleration
+
+Tex. Civ. Prac. &
+Rem. Code §
+16.035
+Due date; Acceleration
+Utah Code Ann. §
+70A-3-118
+Accrual of right of entry 12 V.S.A. § 502
+Breach of contract
+Va. Code Ann. §
+(default)
+8.01-246
+Each missed installment; Wash. Rev. Code §
+Acceleration
+4.16.040
+Breach (Contract);
+W. Va. Code § 55-2Maturity/Recording (Lien) 6; § 55-2-5
+Accrual of cause of action Wis. Stat. § 893.43
+(default)
+Maturing of
+Wyo. Stat. Ann. §
+mortgage/debt;
+34-4-102
+Recording Date
+
+III. Detailed Jurisdictional Analysis
+This section provides an in-depth analysis of the foreclosure statute of limitations for each of the
+51 jurisdictions. Each entry details the applicable time periods, trigger events, the impact of
+foreclosure method, rules for tolling, and the ultimate effect of an expired statute on the
+mortgage lien.
+
+Alabama
+
+•
+
+•
+
+Period & Foreclosure Method: Alabama is primarily a non-judicial foreclosure state,
+where lenders utilize a "power of sale" clause contained within the mortgage or deed of
+trust to sell the property at auction without extensive court oversight.17 While a judicial
+foreclosure process exists, it is less common.18 The statutory framework for limitations is
+multifaceted. An action on a written contract (the promissory note) is subject to a
+6-year SOL.19 For contracts executed "under seal," this period extends to
+10 years.19 However, the most critical period for lien enforceability is the common law
+"rule of prescription" or doctrine of laches, which establishes a presumptive
+20-year period after which a mortgage lien is considered extinguished if there has been
+no recognition of the debt.
+Triggering Events: The 20-year prescriptive period for the mortgage lien is generally
+understood to run from the final maturity date of the loan. In contrast, the shorter 6-year
+SOL on the promissory note begins to run from the date of the borrower's default or the
+lender's subsequent acceleration of the debt.17
+
+•
+
+•
+
+Tolling: General principles of tolling apply. A borrower's bankruptcy filing imposes an
+automatic stay on collection activities, which will toll the running of the SOL for the
+duration of the stay, consistent with federal law under 11 U.S.C. § 108(c).20
+Effect of Expiration: The expiration of the 6-year SOL on the promissory note bars the
+lender from obtaining a personal deficiency judgment against the borrower after a
+foreclosure sale. However, it does not extinguish the mortgage lien itself or the power to
+foreclose within the longer prescriptive period.19 If the 20-year prescriptive period lapses
+without any action by the lender or acknowledgment by the borrower, the mortgage lien is
+considered extinguished and unenforceable, barring foreclosure entirely. Alabama law
+also provides a statutory post-sale right of redemption, typically for one year, which allows
+the foreclosed homeowner to reclaim the property by paying the full purchase price plus
+costs and interest.21
+
+Alaska
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Alaska permits both judicial and non-judicial
+foreclosures, with the non-judicial "power of sale" method being the most common for
+residential properties.22 The SOL to foreclose a deed of trust is
+10 years from the maturity date of the obligation.22 The SOL to bring an action on the
+underlying promissory note is
+6 years from the accrual of the cause of action (e.g., default or acceleration).22 For other
+contracts, the SOL is
+3 years.24
+Triggering Events: The 10-year period for foreclosing the deed of trust is explicitly tied to
+the maturity date of the loan. The 6-year period for an action on the note is triggered by
+default or acceleration of the debt.
+Tolling: The SOL is tolled during a bankruptcy stay pursuant to federal law.25 Alaska
+statutes do not provide for extensive state-specific tolling provisions for mortgage
+foreclosure outside of general principles.
+Effect of Expiration: Expiration of the 6-year SOL on the note would bar a deficiency
+judgment. Expiration of the 10-year SOL on the deed of trust extinguishes the power of
+sale, rendering the lien unenforceable through non-judicial foreclosure. The underlying
+debt, if not time-barred, would become unsecured.
+
+Arizona
+
+•
+
+•
+
+Period & Foreclosure Method: Arizona is predominantly a non-judicial foreclosure
+state, utilizing deeds of trust with a power of sale.26 A judicial foreclosure process is also
+available but is less common.27 The SOL for an action on a debt evidenced by a written
+contract, which includes both the promissory note and the deed of trust, is
+6 years.28
+Triggering Events: The 6-year SOL accrues when the cause of action arises. For an
+installment contract like a mortgage, a separate cause of action accrues for each missed
+payment. Therefore, a lender can foreclose on any payments that have defaulted within
+
+•
+
+•
+
+the preceding 6 years. If the lender formally accelerates the loan, the 6-year SOL begins
+to run on the entire outstanding balance from the date of acceleration.28
+Tolling: A bankruptcy filing by the borrower will toll the SOL for the duration of the
+automatic stay under 11 U.S.C. § 108(c). Arizona case law confirms that the enforcement
+period is tolled while a creditor is precluded from collection attempts.15
+Effect of Expiration: If the 6-year SOL expires on the entire accelerated debt, the lender
+is barred from foreclosing or suing on the note. This effectively extinguishes the lender's
+ability to recover the debt through the collateral. However, a recent appellate decision
+concerning a land sale contract (where the seller retains title) suggests a critical nuance:
+while the SOL may bar enforcement of the debt, it does not extinguish the lender's title to
+the property, creating a complex legal situation where the lender cannot foreclose but still
+holds legal title.28 For typical deeds of trust where title passes to the borrower at closing,
+expiration of the SOL on the debt is generally understood to render the lien
+unenforceable.
+
+Arkansas
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Arkansas law permits both judicial and non-judicial
+foreclosures.29 The SOL for foreclosure is directly tied to the limitation period for a suit on
+the underlying debt.30 For written contracts, this period is
+5 years.30
+Triggering Events: The 5-year SOL begins to run from the maturity date of the
+indebtedness. A crucial feature of Arkansas law is that for any partial payments to extend
+the SOL as to third parties (like junior lienholders or subsequent purchasers), the payment
+must be noted on the margin of the mortgage record in the county land records. If
+payments are not so noted, the lien becomes unenforceable as to third parties 5 years
+after the original maturity date or 5 years from the last payment that was noted on the
+record.30
+Tolling: A bankruptcy filing will toll the SOL.32 Arkansas law also provides for tolling under
+specific circumstances, such as for certain medical malpractice claims, but does not have
+a broad, generally applicable tolling statute for foreclosures outside of bankruptcy and
+common law principles.33
+Effect of Expiration: The statute explicitly states that if a foreclosure suit is not brought
+within the limitation period for the underlying debt, it is a "sufficient defense".30 This
+effectively bars the foreclosure action and renders the lien unenforceable. The debt
+becomes unsecured.
+
+California
+
+•
+
+Period & Foreclosure Method: California allows both judicial and non-judicial
+foreclosures, though the non-judicial power of sale process is overwhelmingly favored due
+to its efficiency and cost-effectiveness.34 The SOL framework is distinctly different for each
+method.
+
+Judicial Foreclosure: This court-supervised process is subject to a 4-year SOL,
+which aligns with the statute for actions on written contracts. The action must be
+commenced within four years of the default on the underlying promissory note.4
+o Non-Judicial Foreclosure: The power of sale under a deed of trust has a much
+longer and more complex limitation period. Under Cal. Civ. Code § 2911, the lien
+expires and the power of sale becomes unenforceable at the later of two dates:
+1. 10 years after the final maturity date of the loan, if that date is
+"ascertainable from the record."
+2. 60 years from the date the deed of trust was recorded, if the final maturity
+date is not ascertainable from the public record.4
+Triggering Events: For a judicial foreclosure, the 4-year clock is triggered by the
+borrower's default on the promissory note.4 For a non-judicial foreclosure, the trigger is
+not the default but rather the
+maturity date or the recording date of the instrument, as described above. A lender's
+acceleration of the note does not start the 10/60 year clock for exercising the power of
+sale, a point of immense strategic importance for lenders.
+Tolling: The SOL is tolled during a borrower's bankruptcy proceeding due to the
+automatic stay, as provided by 11 U.S.C. § 108(c).15
+Effect of Expiration: Expiration of the 4-year SOL on the note bars the remedy of a
+judicial foreclosure and extinguishes the lien for that purpose.36 Critically, it does
+not affect the lender's ability to use the non-judicial power of sale, provided the 10/60 year
+period has not expired. When the 10/60 year period under Cal. Civ. Code § 2911 expires,
+the lien is extinguished for all purposes, and the power of sale becomes void and
+unenforceable.4
+Analysis of the "Ascertainable from the Record" Provision: The bifurcated 10/60 year
+rule for non-judicial foreclosures creates a significant analytical challenge for investors.
+Lenders frequently omit the maturity date from the original recorded deed of trust
+specifically to benefit from the longer 60-year period.4 However, the life of a loan can
+involve subsequent recorded documents. For instance, if a borrower defaults and then
+enters into a loan modification, that modification agreement is often recorded. If the
+recorded modification contains a new, specific maturity date, that date is now
+"ascertainable from the record." This act can inadvertently and irrevocably switch the
+applicable SOL from the 60-year period (from the original recording) to the much shorter
+10-year period running from the new maturity date. For an MBS investor acquiring a pool
+of re-performing or modified loans, this means due diligence cannot stop at the original
+deed of trust. A full review of the entire chain of recorded title documents is necessary to
+accurately determine the operative SOL and assess the risk of lien expiration.
+o
+
+•
+
+•
+•
+
+•
+
+Colorado
+
+•
+
+•
+
+Period & Foreclosure Method: Colorado primarily utilizes a non-judicial foreclosure
+process overseen by a public trustee in each county.38 A judicial foreclosure process is
+also available but is less common. The SOL for an action on the promissory note is
+6 years.38
+Triggering Events: The trigger for the 6-year SOL is nuanced. A cause of action accrues
+for each missed installment payment, starting a separate 6-year clock for that specific
+payment. If a lender chooses to accelerate the debt, the 6-year SOL begins to run on the
+
+•
+•
+
+entire outstanding balance from the date of acceleration. However, if the lender does not
+accelerate the debt despite a default, the SOL on the entire principal balance does not
+begin to run until the loan's contractual maturity date.38 This gives lenders significant
+flexibility and can extend the enforcement window for many years past the initial default.
+Tolling: Standard tolling principles, including for bankruptcy, apply.
+Effect of Expiration: If the 6-year SOL runs on the entire accelerated debt, the lender is
+barred from obtaining a judgment on the note. This also bars the ability to foreclose.
+Because Colorado law allows a lender to wait until the maturity date to sue for the full
+amount if it never accelerated, a loan could be in default for many years, yet the SOL for
+foreclosure on the principal balance may not have even started to run.38 This makes a
+careful review of the servicing history and any acceleration notices critical to determining
+enforceability.
+
+Connecticut
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Connecticut is a judicial foreclosure state.41 The
+process can result in a "strict foreclosure" (where the court transfers title directly to the
+lender if there is no equity) or a "foreclosure by sale" (a public auction).41 Recent
+legislation has substantially clarified the SOL. A foreclosure action on a residential
+mortgage must be commenced by the earliest of:
+1. 10 years from the final payment or maturity date stated in the loan documents (or
+as extended in writing).
+2. 10 years from the date of an uncured default.
+3. 40 years from the date the mortgage was recorded (or executed, if unrecorded),
+provided the repayment period is not longer than 40 years.43
+Triggering Events: The statute provides three alternative triggers, with the one resulting
+in the earliest expiration date controlling: the maturity date, the date of uncured default,
+or the date of recording/execution. A payment on account after a default can reset the
+10-year clock from the date of that payment.44
+Tolling: The SOL is tolled during a bankruptcy stay.46 The statute also explicitly provides
+that if a law or order prohibits foreclosure during the final 2 years of the limitation period,
+the period is extended by the duration of the prohibition.43
+Effect of Expiration: Expiration of the SOL bars the commencement of a foreclosure
+action. Furthermore, a related statute provides that an unreleased mortgage becomes
+invalid as a lien 10 years after the time for full performance has expired (previously 20
+years), provided the owner has been in undisturbed possession.44 This effectively
+extinguishes the lien.
+
+Delaware
+
+•
+
+Period & Foreclosure Method: Delaware is a judicial foreclosure state, often utilizing a
+specialized procedure known as scire facias sur-mortgage.48 The SOL framework is based
+on lien expiration rather than a typical contract limitations period. A mortgage lien expires:
+
+•
+
+•
+
+•
+
+1. 10 years after the maturity date, if the maturity date is ascertainable from the
+recorded mortgage.
+2. 40 years from the date of recording, if the maturity date is not ascertainable from
+the record.51
+Triggering Events: The trigger is either the maturity date or the date of recording,
+depending on the contents of the recorded mortgage instrument. Default or acceleration
+are not the primary triggers for the lien expiration statute.
+Tolling: General tolling principles apply, including for bankruptcy stays.52 Delaware law
+also allows parties to a written contract over $100,000 to contractually extend the
+limitations period up to 20 years.52
+Effect of Expiration: The statute provides that upon expiration of the applicable 10 or 40year period, the mortgage lien is extinguished. An attorney can then follow a statutory
+procedure to have the mortgage formally satisfied of record.51 The expiration of the lien
+bars any foreclosure action.
+
+District of Columbia
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: The District of Columbia permits both judicial and nonjudicial foreclosures.54 While non-judicial was historically more common, the introduction
+of a mandatory mediation program for non-judicial cases led many lenders to shift to the
+judicial process to bypass that requirement.54 The applicable SOL is
+12 years for an action on an instrument under seal, which includes a deed of trust.55
+Triggering Events: The 12-year period begins to run when the cause of action
+accrues, which is generally the date of the borrower's default. If the debt is accelerated,
+the cause of action for the entire balance accrues at that time.
+Tolling: The SOL is tolled during a bankruptcy stay. General common law tolling
+principles would also apply.
+Effect of Expiration: Expiration of the 12-year SOL bars the lender from bringing a
+foreclosure action, either judicially or non-judicially. The lien becomes unenforceable.
+
+Florida
+
+•
+
+•
+
+Period & Foreclosure Method: Florida is exclusively a judicial foreclosure state,
+requiring a lawsuit to foreclose.56 The SOL to foreclose a mortgage is
+5 years.2 A separate, much shorter
+1-year SOL applies to actions for a deficiency judgment, running from the day after the
+clerk issues the certificate of title following the foreclosure sale.14
+Triggering Events: Florida law recognizes multiple trigger points, offering lenders
+significant flexibility.
+1. Each Missed Installment: A distinct 5-year SOL begins to run on each individual
+monthly payment that is missed. A lender can initiate foreclosure based on any
+default that occurred within the last 5 years.58
+2. Acceleration: When the lender accelerates the loan, a single 5-year SOL
+commences for the entire outstanding debt from the date of acceleration.
+
+•
+
+•
+
+•
+
+3. Maturity Date: If the loan is never accelerated, the right to foreclose on the final
+principal balance accrues at the loan's maturity date, starting a 5-year SOL from
+that point.14
+Tolling & Resetting: A bankruptcy filing tolls the SOL.59 The most significant aspect of
+Florida law is the "deceleration" rule established by the Florida Supreme Court in
+Bartram v. U.S. Bank. The court held that when a foreclosure action is dismissed
+(voluntarily or involuntarily, with or without prejudice), it has the legal effect of decelerating
+the loan and returning the parties to their prior contractual relationship.14 This means that a
+subsequent missed payment by the borrower constitutes a
+new default, which starts a new 5-year SOL. This rule provides a powerful safety valve for
+lenders, preventing a single failed foreclosure attempt from becoming fatal due to an
+expired SOL.
+Effect of Expiration: If the 5-year SOL runs on the entire accelerated balance and the
+action is not saved by the Bartram rule, the foreclosure is barred. However, the lien itself
+is not automatically extinguished by the SOL on the foreclosure remedy. A separate
+"statute of repose," Fla. Stat. § 95.281, provides an ultimate end date for the lien's validity:
+5 years after the maturity date (if ascertainable from the record) or 20 years from the
+mortgage date (if not ascertainable).61 After this period, the lien terminates.
+Analysis of the Bartram "Reset" Rule: The Bartram decision makes Florida a
+comparatively lower-risk state for MBS investors regarding SOLs. Unlike jurisdictions like
+New York post-FAPA, where a dismissed foreclosure after the SOL has run can be
+catastrophic, Florida provides a clear judicial mechanism to "reset" the clock. For an
+investor, this means that a portfolio of non-performing Florida loans has a higher
+probability of ultimate recovery, even if prior foreclosure attempts have failed. A servicer's
+procedural error leading to dismissal does not necessarily result in a total loss of
+collateral. The lender can simply wait for the borrower to miss the next post-dismissal
+payment, which creates a fresh cause of action and a new 5-year window to foreclose.
+This predictability is a significant positive factor in asset valuation.
+
+Georgia
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Georgia is a non-judicial foreclosure state, relying on a
+power of sale in the security deed.62 The SOL is not a fixed period for "foreclosure" but is
+framed as a "reversion" of title. Title conveyed by a security deed automatically reverts to
+the borrower:
+1. 7 years after the maturity of the last installment stated or fixed in the recorded
+document.
+2. If no maturity date is stated, 7 years from the date of the conveyance.62
+Triggering Events: The trigger is the maturity date or, if none is stated in the record, the
+date of the security deed itself. A foreclosure action commenced before the reversion
+date prevents the reversion from occurring, provided the foreclosure is completed without
+undue delay.62
+Tolling: A bankruptcy filing and the resulting automatic stay will toll the running of the
+reversionary period.65 Georgia law also allows the lender to extend the reversion period by
+filing a renewal affidavit on the public record before the initial period expires.62
+
+•
+
+Effect of Expiration: Once the 7-year period runs, title to the property automatically
+reverts to the borrower by operation of law. The security deed becomes void, and the
+lender loses its lien and the power to foreclose.62 The debt becomes unsecured.
+
+Hawaii
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Hawaii permits both judicial and non-judicial
+foreclosures, though recent legislative changes have pushed most residential
+foreclosures into the judicial process.66 The SOL for an action on a promissory note or
+mortgage is
+6 years.67
+Triggering Events: The 6-year SOL begins to run from the accrual of the cause of
+action, which is typically the date of default or, if applicable, the date of acceleration.
+Tolling: General tolling principles apply, including for bankruptcy.
+Effect of Expiration: Expiration of the 6-year SOL bars the foreclosure action. For
+registered (Land Court) property, Hawaii law provides a powerful finality rule: once a new
+certificate of title is issued to the purchaser after a foreclosure, the foreclosure proceeding
+cannot be impeached or challenged, even if there were defects, including a potential SOL
+violation.68 This provides significant protection to the finality of the foreclosure sale for
+third-party purchasers and lenders who take title.
+
+Idaho
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: Idaho is primarily a non-judicial foreclosure state.69 The
+SOL for foreclosing a mortgage on real property is
+5 years.70
+Triggering Events: The 5-year period runs from the maturity date of the obligation. If
+the loan documents do not state a maturity date, the SOL runs from the date of the
+accrual of the cause of action, which would be the date of default.70
+Tolling: Standard tolling provisions, such as for a bankruptcy stay, apply.
+Effect of Expiration: Failure to commence a foreclosure action within the 5-year period
+bars the remedy and renders the lien unenforceable.71
+
+Illinois
+
+•
+
+Period & Foreclosure Method: Illinois is a judicial foreclosure state, requiring a lawsuit
+to foreclose.72 The SOL for commencing a mortgage foreclosure action is
+10 years.74 The SOL for an action on a written contract (the promissory note) is also 10
+years.75
+
+•
+•
+
+•
+
+Triggering Events: The 10-year period begins to run after the right of action accrues,
+which is typically the date of default or acceleration.72
+Tolling: Illinois has a specific tolling statute, 735 ILCS 5/13-216, which states that when
+the commencement of an action is stayed by a "statutory prohibition," the time of the
+prohibition is not part of the limitation period. The automatic stay in bankruptcy is
+considered such a statutory prohibition, meaning the SOL is tolled for the entire duration
+of the bankruptcy case.77
+Effect of Expiration: If the 10-year SOL on the note expires, Illinois case law suggests
+that the mortgage lien, being merely an incident to the debt, is also extinguished and can
+no longer be foreclosed.12 The reasoning is that the "existence of the debt...is essential to
+the life of the mortgage," and when the debt is barred, the mortgage is gone.12 This makes
+the expiration of the SOL fatal to the lien.
+
+Indiana
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Indiana is a judicial foreclosure state.81 The SOL for
+foreclosures is complex and depends on the mortgage's date and contents. For
+mortgages executed
+after June 30, 2012:
+1. If the maturity date is ascertainable from the record, the lien expires 10 years after
+the maturity date.
+2. If the maturity date is not ascertainable but the execution date is, the lien expires 10
+years after the execution date.
+3. If neither date is ascertainable, the lien expires 10 years after the recording date.83
+For mortgages executed before July 1, 2012, the periods are 20 years instead of
+10.84
+Triggering Events: The trigger is determined by the contents of the recorded mortgage,
+based on the maturity date, execution date, or recording date as outlined above.
+Indiana courts have also recognized that for installment loans, a cause of action accrues
+on each missed payment, and a lender can sue for the entire amount within six years of
+the final maturity date if it chooses not to accelerate.85
+Tolling: Indiana law provides for tolling of the SOL in specific circumstances, such as for
+persons under a legal disability or for nonresident defendants.87 A bankruptcy filing will
+also toll the SOL.88
+Effect of Expiration: The statute is clear that upon the expiration of the applicable 10 or
+20-year period, the mortgage lien "expires".83 The lien is extinguished, and the foreclosure
+remedy is barred. The property owner can request that the county recorder certify on the
+record that the lien is satisfied by lapse of time.84
+
+Iowa
+
+•
+
+Period & Foreclosure Method: Iowa permits both judicial and non-judicial
+foreclosures, though judicial is common. The SOL for an action on a written contract is 10
+
+•
+
+•
+•
+
+years [Iowa Code § 614.1(5)]. A special statute provides that a mortgage foreclosure is
+barred after 20 years from the date of the mortgage if the record does not show a maturity
+date, or 10 years from the maturity date if one is stated [Iowa Code § 614.21].
+Triggering Events: The SOL is triggered by the accrual of the cause of action (default)
+for the 10-year contract period, or by the mortgage date/maturity date for the 20/10 year
+lien expiration statute.
+Tolling: Standard tolling provisions apply, including for bankruptcy stays.
+Effect of Expiration: Expiration of the SOL bars the foreclosure action and extinguishes
+the lien.
+
+Kansas
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Kansas is a judicial foreclosure state. The SOL for an
+action on a written agreement is 5 years. The SOL for foreclosure is tied to the
+enforceability of the underlying note.
+Triggering Events: The 5-year period begins to run when the cause of action accrues,
+which is the date of default or acceleration.
+Tolling: Standard tolling provisions apply, including for bankruptcy stays.
+Effect of Expiration: If the SOL on the note expires, the right to foreclose the mortgage
+is also barred.
+
+Kentucky
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Kentucky is a judicial foreclosure state; non-judicial
+foreclosure is not permitted.89 The SOL framework has multiple layers. An action to
+enforce a promissory note must be commenced within
+6 years after the due date or acceleration.90 However, the SOL for an action on a written
+contract is
+15 years. Courts generally apply the longer 15-year period to the enforcement of the
+mortgage lien itself.
+Triggering Events: The SOL begins to run upon the accrual of the cause of action,
+which is typically the date of default or acceleration.
+Tolling: A bankruptcy filing will toll the SOL.
+Effect of Expiration: Expiration of the 6-year SOL on the note may bar a personal
+deficiency judgment against the borrower. However, the lender may still be able to
+enforce the mortgage lien via foreclosure within the longer 15-year period. Expiration of
+the 15-year period bars the foreclosure action entirely.
+
+Louisiana
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Louisiana is a judicial foreclosure state, but it offers
+two distinct procedures: "ordinary process" (a standard lawsuit) and "executory process".91
+Executory process is a faster, more streamlined judicial proceeding available when the
+mortgage is in "authentic form" and contains a "confession of judgment" clause, which is
+common.93 The time limit for enforcing a promissory note is known as a "prescriptive
+period," which is
+5 years [La. Civ. Code art. 3498].
+Triggering Events: The 5-year prescriptive period begins to run from the time payment
+is due. For an installment note, this can mean a separate period runs for each missed
+installment. If the note is accelerated, the period runs on the entire debt from the date of
+acceleration.
+Tolling: The prescriptive period can be "interrupted" by the filing of a suit or by the
+debtor's acknowledgment of the debt. It can be "suspended" for various reasons,
+including a bankruptcy filing.95
+Effect of Expiration: If the 5-year prescriptive period on the note runs without interruption
+or suspension, the obligation is extinguished. Because the mortgage is an accessory to
+the primary obligation (the note), the mortgage also becomes unenforceable, and
+foreclosure is barred.96
+
+Maine
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Maine is a judicial foreclosure state.97 The SOL for a
+mortgage foreclosure action is
+20 years.
+Triggering Events: The 20-year period begins to run from the breach of a condition in
+the mortgage, which is typically the date of default.
+Tolling: Maine law recognizes tolling of the SOL, including for bankruptcy stays.98
+Effect of Expiration: Expiration of the 20-year SOL bars the foreclosure action and
+renders the mortgage lien unenforceable.99
+
+Maryland
+
+•
+
+•
+
+Period & Foreclosure Method: Maryland is primarily a non-judicial foreclosure state.
+A judicial process is also available. The law is unusual in that there is no specific statute
+of limitations for a non-judicial foreclosure sale.100 However, other statutes create
+effective time limits:
+o An action on an instrument "under seal," such as a deed of trust, has a 12-year
+SOL. This would apply to a judicial foreclosure.100
+o More definitively, a statute of repose provides that a mortgage or deed of trust is not
+enforceable if an action has not been brought within 12 years from the last
+payment date or maturity date set forth in the instrument, or 40 years from the
+date of recordation if no such date is included.100
+Triggering Events: The triggers are the last payment date/maturity date or the
+recordation date, as specified in the statute of repose.
+
+•
+•
+
+Tolling: General tolling principles apply, including for bankruptcy.
+Effect of Expiration: Expiration of the applicable period under the statute of repose
+renders the mortgage lien unenforceable, barring foreclosure.
+
+Massachusetts
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Massachusetts is primarily a non-judicial foreclosure
+state, though it has a unique requirement for a judicial hearing under the Servicemembers
+Civil Relief Act (SCRA) for all residential foreclosures.101 The SOL is complex and
+governed by the state's "obsolete mortgage" statute:
+1. For mortgages with a stated term or maturity date, the power of sale expires 5
+years after the maturity date.
+2. For mortgages with no stated term or maturity date, the power of sale expires 35
+years from the date of recording.102
+Triggering Events: The trigger is either the maturity date or the recording date,
+depending on the mortgage's terms. The SOL can be extended by recording an extension
+agreement or an affidavit of non-satisfaction before the original period expires.102
+Tolling: The statute explicitly states that the period is not extended by non-residence,
+disability, or partial payment.102 A bankruptcy stay, however, would toll the statute under
+federal law.15
+Effect of Expiration: Upon expiration of the applicable 5 or 35-year period, the statute
+declares that the mortgage "shall be considered discharged for all purposes" without any
+further action needed.102 This extinguishes the lien completely.
+
+Michigan
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Michigan permits both judicial and non-judicial
+foreclosures, with the non-judicial "foreclosure by advertisement" being the most common
+method.105 The SOL for foreclosing a mortgage, by either method, is
+15 years.3 The SOL for suing on the promissory note is shorter, at
+6 years.108
+Triggering Events: The 15-year SOL for foreclosure begins to run from the later of two
+dates: (1) when the mortgage becomes due (i.e., the maturity date), or (2) when the last
+payment was made on the mortgage.3
+Tolling: The SOL can be tolled by the filing of a complaint or by other events acquiring
+jurisdiction over the defendant.110 A bankruptcy filing will also toll the statute. A partial
+payment can restart the SOL clock.111
+Effect of Expiration: Expiration of the 15-year SOL bars any action or proceeding to
+foreclose the mortgage.3 The lien becomes unenforceable. Expiration of the 6-year SOL
+on the note bars a deficiency judgment but does not prevent a timely foreclosure within
+the 15-year window.112
+
+Minnesota
+
+•
+•
+•
+•
+
+Period & Foreclosure Method: Minnesota is primarily a non-judicial foreclosure state.
+The SOL for foreclosure is 15 years from the maturity date of the mortgage.
+Triggering Events: The 15-year period is triggered by the maturity date of the mortgage
+debt.
+Tolling: Standard tolling provisions apply, including for bankruptcy.
+Effect of Expiration: Once the 15-year period has run from the maturity date, the
+mortgage lien ceases to be valid, and any action to foreclose is barred.
+
+Mississippi
+
+•
+
+•
+•
+
+•
+
+Period & Foreclosure Method: Mississippi allows both judicial and non-judicial
+foreclosures, with the non-judicial power of sale process being dominant.113 The SOL to
+enforce a negotiable promissory note is
+6 years.115 The general SOL for other actions is 3 years.115 The SOL for foreclosure is tied
+to the enforceability of the underlying debt. There is a separate
+1-year SOL to bring an action for a deficiency judgment after the foreclosure sale.115
+Triggering Events: The 6-year SOL on the note is triggered by the stated maturity date
+or, if applicable, the accelerated due date.116
+Tolling: Mississippi law provides for tolling if a notice of claim is filed with a governmental
+entity, but general foreclosure tolling relies on common law principles and the federal
+bankruptcy stay.117
+Effect of Expiration: If the SOL on the underlying debt expires, the remedy on the
+mortgage is also barred. The lien becomes unenforceable. The statute explicitly states
+that the expiration of a limitations period does not prevent property from being considered
+"abandoned" under the state's unclaimed property act, but this is distinct from lien
+enforceability.118
+
+Missouri
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Missouri is a non-judicial foreclosure state. The SOL
+for an action on a written promise to pay money is 10 years. The mortgage lien itself
+expires 20 years after the maturity date stated in the mortgage.
+Triggering Events: The 10-year SOL on the note is triggered by the accrual of the
+cause of action (default). The 20-year lien expiration is triggered by the maturity date.
+Tolling: Standard tolling provisions apply.
+Effect of Expiration: Expiration of the 10-year SOL on the note bars a deficiency
+judgment. The lien itself remains enforceable until the 20-year period from maturity
+expires, at which point it is extinguished.
+
+Montana
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: Montana permits both judicial and non-judicial
+foreclosures, with non-judicial being common for properties under 40 acres via the Small
+Tract Financing Act (STFA).119 The SOL for enforcing a mortgage is
+8 years after the maturity of the debt.120
+Triggering Events: The 8-year period runs from the maturity date of the entire
+obligation. The period can be renewed for an additional 8 years by recording an affidavit
+before the original period expires.120
+Tolling: Standard tolling provisions apply, including for bankruptcy.
+Effect of Expiration: After the 8-year period (or any valid extension) expires, the
+mortgage is no longer a valid lien against the property, and foreclosure is barred.
+
+Nebraska
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Nebraska is a non-judicial foreclosure state. The SOL
+for an action upon a written contract is 5 years. The SOL for foreclosure is tied to this
+period.
+Triggering Events: The 5-year period begins when the cause of action accrues, which
+is the date of default or acceleration.
+Tolling: Standard tolling provisions apply.
+Effect of Expiration: Expiration of the 5-year SOL bars the foreclosure action and
+renders the lien unenforceable.
+
+Nevada
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Nevada allows both judicial and non-judicial
+foreclosures, with the non-judicial process being the most common.121 The SOL for an
+action on a written contract is
+6 years.
+Triggering Events: The 6-year SOL accrues from the date of the breach of contract
+(default) or acceleration.
+Tolling: Standard tolling provisions apply. Making a payment on a time-barred debt can
+restart the SOL.
+Effect of Expiration: If the SOL on the underlying note expires, the right to foreclose is
+also extinguished. The debt becomes time-barred, and while the debt collector can still
+attempt to collect, they cannot use the courts to enforce it.123
+
+New Hampshire
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: New Hampshire is primarily a non-judicial foreclosure
+state, utilizing a power of sale.124 The SOL for an action for the recovery of real estate is
+20 years.125 The SOL for an action on the promissory note is
+6 years from the due date or acceleration.126
+Triggering Events: The 20-year SOL for foreclosure begins when the right to recover
+first accrued (i.e., upon default). The 6-year SOL on the note is triggered by the due
+date or acceleration.
+Tolling: A bankruptcy filing tolls the SOL pursuant to 11 U.S.C. § 108(c), which provides
+a minimum 30-day window after the stay is lifted, but does not create a day-for-day tolling
+independent of state law.127
+Effect of Expiration: Expiration of the 6-year SOL on the note bars a deficiency
+judgment. However, the foreclosure itself is governed by the longer 20-year period. If the
+20-year period expires, the foreclosure is barred, and the lien is rendered unenforceable.
+
+New Jersey
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: New Jersey is a judicial foreclosure state.128 A 2019 law
+significantly changed the SOL for residential mortgages. The action must now be
+commenced by the
+earliest of the following dates:
+1. 6 years from the maturity date.
+2. 36 years from the date the mortgage was recorded.
+3. 6 years from the date of the uncured default (this was changed from a 20-year
+period).129
+Triggering Events: The statute provides three distinct triggers—maturity date,
+recording date, and date of default—with the shortest resulting period being the
+controlling one.
+Tolling: A partial payment or written acknowledgment of the debt can reset the SOL
+clock.132 A bankruptcy filing will also toll the statute.
+Effect of Expiration: Expiration of the applicable SOL period bars the commencement of
+a foreclosure action, rendering the lien unenforceable.
+
+New Mexico
+
+•
+
+Period & Foreclosure Method: New Mexico is primarily a judicial foreclosure state,
+though a non-judicial process exists but is rarely used.133 The SOL for an action founded
+upon a written contract or promissory note is
+6 years.133
+
+•
+•
+•
+
+Triggering Events: The 6-year period commences when the cause of action accrues,
+which is the date of default or acceleration.
+Tolling: Standard tolling provisions apply, including for bankruptcy.
+Effect of Expiration: Expiration of the 6-year SOL bars the foreclosure action. The debt
+becomes time-barred, and the lien is unenforceable.135
+
+New York
+
+•
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: New York is a judicial foreclosure state.136 The SOL for
+a mortgage foreclosure action is
+6 years.8
+Triggering Events: The 6-year SOL is triggered when the lender accelerates the
+mortgage debt. This is a singular event that starts the clock on the entire debt. An
+acceleration can occur through a clear and unequivocal demand letter or, most
+commonly, by the filing of a foreclosure complaint.138 Without acceleration, a separate 6year SOL runs on each missed installment.139
+Tolling & Resetting: A bankruptcy filing tolls the SOL for the duration of the automatic
+stay.140 The most significant development is the 2022
+Foreclosure Abuse Prevention Act (FAPA).
+o Pre-FAPA: Under the Engel court decision, a lender could unilaterally revoke a
+prior acceleration simply by voluntarily discontinuing its foreclosure lawsuit. This
+action stopped the 6-year SOL from running and allowed the lender to re-accelerate
+and file a new foreclosure later.8
+o Post-FAPA: FAPA legislatively overruled Engel. Now, once a loan is accelerated,
+the 6-year SOL continues to run regardless of whether the lender discontinues the
+action. A lender cannot unilaterally de-accelerate the loan or reset the SOL clock.
+Any extension or waiver of the SOL must be in a written agreement with the
+borrower.8
+Effect of Expiration: If the 6-year SOL expires after acceleration, the foreclosure action
+is permanently barred. The homeowner can then bring a "quiet title" action under Real
+Property Actions and Proceedings Law (RPAPL) § 1501(4) to have the court declare the
+mortgage cancelled and discharged of record.142 The expiration of the SOL effectively
+extinguishes the lien.
+Analysis of FAPA's Impact: FAPA has transformed New York into one of the highestrisk jurisdictions for MBS investors holding non-performing loans. The law removes the
+lender's ability to correct procedural errors by discontinuing and refiling. A single
+foreclosure action that is commenced and later dismissed for any reason after the 6-year
+SOL has run from the initial acceleration will likely result in a total loss of the collateral.
+This places an immense premium on flawless and expeditious prosecution of foreclosures
+in New York. Investors must re-evaluate any New York assets where a foreclosure was
+commenced more than six years ago, as they carry a heightened risk of being rendered
+unenforceable.
+
+North Carolina
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: North Carolina uses a quasi-judicial foreclosure
+process. It is a non-judicial power of sale that requires a preliminary hearing before the
+clerk of court to obtain an order authorizing the sale.144 The SOL for foreclosure of a
+mortgage where the mortgagor has been in possession is
+10 years.146 The SOL for an action on a written contract is 3 years, or 10 years if under
+seal.148
+Triggering Events: The 10-year foreclosure SOL begins to run after the forfeiture of the
+mortgage or after the power of sale becomes absolute (i.e., upon default).146
+Tolling: A bankruptcy filing tolls the SOL under federal law.15 A partial payment or a
+written acknowledgment of the debt can reset the SOL on the note.148
+Effect of Expiration: Expiration of the 10-year SOL bars the foreclosure proceeding.
+North Carolina case law suggests that if the underlying debt is barred, the mortgage
+securing it is also unenforceable.147 A separate statute creates a presumption that a lien
+expires 15 years after the maturity date, but this presumption primarily benefits
+subsequent creditors and purchasers for value, not the original borrower.149
+
+North Dakota
+
+•
+•
+•
+•
+
+Period & Foreclosure Method: North Dakota is a judicial foreclosure state. The SOL
+for foreclosing a mortgage is 10 years from the last payment due date.
+Triggering Events: The 10-year period is triggered by the last payment due date as
+stated in the mortgage.
+Tolling: Standard tolling provisions apply.
+Effect of Expiration: Expiration of the 10-year SOL bars the foreclosure action and
+renders the lien unenforceable.
+
+Ohio
+
+•
+
+Period & Foreclosure Method: Ohio is a judicial foreclosure state.150 Its SOL regime is
+one of the most complex and litigated in the country, with separate and distinct limitation
+periods for the note and the mortgage.
+o Action on the Note: The SOL for an action on a promissory note (a written
+contract) is 6 years from the due date or acceleration. This period was changed
+from 8 years in 2021, which itself was changed from 15 years in 2012. The
+applicable period depends on when the cause of action accrued.10
+o Action on the Mortgage (Foreclosure): The SOL for an action on the mortgage
+itself is currently governed by the written contract statute (6 years, formerly 8).
+However, Ohio courts have held that an action in ejectment, another remedy
+available to a mortgagee, has a 21-year SOL.10
+
+Lien Expiration: A separate statute of repose, R.C. 5301.30, provides that a
+mortgage lien expires 21 years after the later of the mortgage date or the stated
+maturity date, as to subsequent bona fide purchasers.156
+Triggering Events: The SOL on the note is triggered by the due date of each installment
+or by acceleration of the entire debt.10 The SOL on the mortgage action is triggered by
+the
+breach of the condition (default).
+Tolling: A bankruptcy filing tolls the SOL. The federal code provides an extension until 30
+days after the stay terminates.157 Ohio's general tolling statutes for absence from the state
+or legal disability also apply.158
+Effect of Expiration: This is the central point of conflict in Ohio law. The Ohio Supreme
+Court held in Deutsche Bank v. Holden that an action on the note is separate and distinct
+from an action on the mortgage.155 Following this, some Ohio appellate courts have ruled
+that even if the 6-year SOL on the note expires (barring a personal deficiency judgment),
+a lender can still pursue an
+in rem foreclosure action on the mortgage within the longer limitation periods.7 However,
+federal bankruptcy courts in Ohio, citing older Ohio Supreme Court precedent (
+Hopkins v. Clyde), have held the opposite: that the mortgage is merely an incident of the
+debt, and if the SOL bars action on the note, the foreclosure action is also barred.11 This
+split in authority creates significant uncertainty for investors.
+Analysis of Ohio's Legal Uncertainty: The conflicting lines of authority between Ohio's
+state appellate courts and the federal bankruptcy courts within the state create a high-risk
+environment. An MBS investor cannot be certain which SOL will be applied. If the federal
+court view prevails, an Ohio loan is functionally similar to a New York loan, with a 6-year
+"death clock" on the lien. If the state appellate view prevails, the lien survives much
+longer, preserving collateral value even if a deficiency is uncollectible. This uncertainty
+must be priced into any Ohio-based MBS, and foreclosure actions in Ohio should be
+pursued with the more conservative 6-year SOL in mind to mitigate the risk of a total loss.
+o
+
+•
+
+•
+
+•
+
+•
+
+Oklahoma
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: Oklahoma permits both judicial and non-judicial
+foreclosures, with judicial being more common.161 The SOL for an action on a written
+contract (the note) is
+5 years. A separate statute provides that a mortgage lien ceases to be a lien 10 years
+after the last maturing obligation becomes due.163
+Triggering Events: The 5-year SOL on the note is triggered by the accrual of the cause
+of action (default or acceleration). The 10-year lien expiration is triggered by the final
+maturity date of the loan.
+Tolling: Oklahoma law provides for tolling, and a bankruptcy stay will also toll the
+statute.164
+Effect of Expiration: If the 5-year SOL on the note expires, a deficiency judgment is
+barred. If the 10-year period from maturity expires, the mortgage lien itself ceases to exist,
+and foreclosure is barred.163
+
+Oregon
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: Oregon allows both judicial and non-judicial
+foreclosures, with non-judicial being the standard method.165 The SOL for foreclosure is
+10 years.167 The SOL for an action on the note is 6 years.
+Triggering Events: The 10-year foreclosure SOL runs from the later of: the maturity date
+of the debt, the expiration of the term of the debt, or the date to which payment has been
+extended by a recorded agreement.167
+Tolling: Standard tolling provisions apply, including for bankruptcy.
+Effect of Expiration: After the 10-year period expires, the statute provides that the
+mortgage "shall not be a lien upon such property".167 This extinguishes the lien and bars
+foreclosure.
+
+Pennsylvania
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Pennsylvania is a judicial foreclosure state.168 The SOL
+is typically
+4 years for an action on a contract.169 However, mortgages in Pennsylvania are often
+considered "instruments under seal," which are subject to a
+20-year SOL.
+Triggering Events: The SOL begins to run on the date the debt comes due, i.e., upon
+default.169
+Tolling: A partial payment or a new written promise to pay can reset the SOL clock.169 A
+bankruptcy filing will also toll the statute.
+Effect of Expiration: Expiration of the applicable SOL (most conservatively, 4 years)
+bars the foreclosure action. A judgment lien in Pennsylvania is valid for 5 years but can be
+revived, potentially extending enforceability.170
+
+Rhode Island
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Rhode Island permits both judicial and non-judicial
+foreclosures, with non-judicial being the most common.171 The general SOL for civil
+actions, including those on written contracts like mortgages, is
+10 years.173
+Triggering Events: The 10-year period begins when the cause of action accrues,
+which is the date of default or acceleration.
+Tolling: A partial payment or written acknowledgment of the debt can restart the SOL
+clock.173 A bankruptcy filing will also toll the statute.
+Effect of Expiration: Expiration of the 10-year SOL bars the creditor from filing a lawsuit
+to foreclose.173 The lien becomes unenforceable through legal action.
+
+South Carolina
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: South Carolina is a judicial foreclosure state.175 The
+SOL for a mortgage lien is
+20 years.13
+Triggering Events: The 20-year period runs from the date for the maturity of the lien. If
+no maturity date is stated, it runs from the date of the mortgage. The period can be
+extended by recording a note of payment or a written acknowledgment of the debt before
+the original period expires.13
+Tolling: The SOL is tolled during a bankruptcy stay.177
+Effect of Expiration: After the 20-year period lapses, the mortgage no longer constitutes
+a lien on the real estate, and foreclosure is barred.13
+
+South Dakota
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: South Dakota is primarily a non-judicial foreclosure
+state. The SOL for foreclosing a mortgage is 15 years after the cause of action has
+accrued.
+Triggering Events: The 15-year period is triggered by the accrual of the cause of
+action, which is the date of default.
+Tolling: Standard tolling provisions apply.
+Effect of Expiration: Expiration of the 15-year SOL bars the foreclosure action.
+
+Tennessee
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: Tennessee allows both judicial and non-judicial
+foreclosures, with non-judicial being the standard.179 The SOL for an action to enforce a
+promissory note is
+6 years.180 The right to foreclose is generally tied to the enforceability of the note.
+Triggering Events: The 6-year SOL runs from the due date or, if accelerated, the
+accelerated due date.180 For a demand note where no demand is made, the action is
+barred if no payments have been made for a continuous period of 10 years.180
+Tolling: Tennessee has a specific statute that tolls the limitations period for enforcing
+liens when a creditor is stayed by a bankruptcy filing.181
+Effect of Expiration: If the 6-year SOL on the note expires, the right to foreclose the
+mortgage is also barred, and the lien becomes unenforceable.123
+
+Texas
+
+•
+
+•
+
+•
+
+•
+
+Period & Foreclosure Method: Texas is a non-judicial foreclosure state, though a
+judicial process is also available.182 The SOL for both judicial and non-judicial foreclosure
+is
+4 years.1
+Triggering Events: The 4-year SOL begins to run on the accrual of the cause of
+action. For an installment loan, this can be the final maturity date of the note. However,
+if the lender accelerates the debt, the 4-year period begins to run immediately from the
+date of acceleration. A valid acceleration requires both a clear notice of intent to
+accelerate and a notice of the acceleration itself.1
+Tolling & Resetting: A bankruptcy filing tolls the SOL for the duration of the automatic
+stay.16 Prior to a 2019 law change, a partial payment could restart the SOL. Now, for debt
+buyers, a payment does
+not revive a time-barred debt.185 A lender can rescind a prior acceleration by sending a
+clear notice, which would stop the 4-year clock and return the loan to an installment basis,
+but this must be done before the SOL expires.
+Effect of Expiration: Texas law is unequivocal. Upon the expiration of the 4-year
+limitations period, the "real property lien and a power of sale to enforce the real property
+lien become void".6 This completely extinguishes the security interest, and the lender
+cannot foreclose. This makes Texas a high-risk jurisdiction for aged delinquent loans.
+
+Utah
+
+•
+
+•
+•
+
+•
+
+Period & Foreclosure Method: Utah is primarily a non-judicial foreclosure state.186 The
+SOL to enforce a promissory note is
+6 years.187 The right to foreclose is tied to the enforceability of the note.
+Triggering Events: The 6-year SOL runs from the due date or, if accelerated, the
+accelerated due date.187
+Tolling: Utah law does not appear to allow for "banking" of time tolled by a prior action to
+be applied to a future limitations period.187 A bankruptcy stay would toll the statute under
+federal law.
+Effect of Expiration: If a lender fails to commence foreclosure (by filing a notice of
+default) or file a lawsuit within the 6-year period, it forfeits its right to enforce the trust
+deed, and the lien becomes unenforceable.187
+
+Vermont
+
+•
+
+•
+•
+
+Period & Foreclosure Method: Vermont is a judicial foreclosure state, using either a
+"strict foreclosure" or a "foreclosure by judicial sale".188 The SOL for an action to enforce a
+mortgage is based on the statute for recovery of lands, which is
+15 years.190
+Triggering Events: The 15-year period begins to run from the time the right of entry
+accrues, which is the date of the borrower's default.191
+Tolling: A bankruptcy filing will toll the SOL.192
+
+•
+
+Effect of Expiration: The Vermont Supreme Court has held that the expiration of the
+SOL does not extinguish the underlying debt but only bars the remedy of foreclosure.190
+This creates a "zombie mortgage" situation where the lien remains on the property,
+clouding title, but cannot be actively enforced through foreclosure.
+
+Virginia
+
+•
+
+•
+•
+•
+
+Period & Foreclosure Method: Virginia allows both judicial and non-judicial
+foreclosures, with the non-judicial process being dominant.193 The SOL for an action on a
+written contract is
+5 years.195
+Triggering Events: The 5-year SOL begins when the breach of contract occurs (i.e.,
+upon default).196
+Tolling: Virginia has a complex tolling statute that addresses events like the death of a
+party or the filing of a nonsuit.197 A bankruptcy stay will also toll the statute.
+Effect of Expiration: Expiration of the 5-year SOL bars the foreclosure action and
+renders the lien unenforceable.
+
+Washington
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: Washington permits both judicial and non-judicial
+foreclosures, with non-judicial being the most common.198 The SOL for an action on a
+written contract is
+6 years.199
+Triggering Events: The SOL is complex. A separate 6-year period runs for each missed
+installment payment. If the lender accelerates the loan, the 6-year SOL begins to run
+on the entire balance. If the borrower files for bankruptcy and receives a discharge,
+severing personal liability, the 6-year SOL on the in rem foreclosure action begins to run
+from the date of discharge.199
+Tolling: Standard tolling provisions apply. A written acknowledgment of the debt can
+restart the SOL.200
+Effect of Expiration: If the SOL expires, the foreclosure action is barred. A borrower may
+be able to bring a quiet title action to remove the expired lien.
+
+West Virginia
+
+•
+
+Period & Foreclosure Method: West Virginia allows both judicial and non-judicial
+foreclosures.201 The SOL for a written contract is
+10 years.202 A separate, complex lien expiration statute also applies:
+1. If maturity date is ascertainable, the lien expires 5 years after that date.
+
+•
+•
+•
+
+2. If maturity date is not ascertainable, the lien expires 35 years after the date of the
+lien instrument.203
+Triggering Events: The 10-year contract SOL is triggered by the breach (default). The
+lien expiration statute is triggered by the maturity date or the instrument date.
+Tolling: West Virginia has a specific statute tolling the SOL during a bankruptcy stay.204
+Effect of Expiration: Expiration of the applicable period under the lien expiration statute
+(W. Va. Code § 55-2-5) extinguishes the lien and bars foreclosure.203
+
+Wisconsin
+
+•
+•
+•
+•
+
+Period & Foreclosure Method: Wisconsin is a judicial foreclosure state. The SOL for
+an action on a promissory note is 6 years. The SOL on a judgment is 20 years.
+Triggering Events: The 6-year period begins when the cause of action accrues, which
+is the date of default or acceleration.
+Tolling: Standard tolling provisions apply.
+Effect of Expiration: Expiration of the 6-year SOL on the note bars the foreclosure
+action.
+
+Wyoming
+
+•
+
+•
+
+•
+•
+
+Period & Foreclosure Method: Wyoming allows both judicial and non-judicial
+foreclosures, with non-judicial being more common.205 The SOL for foreclosure by
+advertisement is
+10 years.206 The SOL for written contracts is also 10 years.207
+Triggering Events: The 10-year period runs from the maturing of the mortgage or the
+debt secured thereby. If the maturity date is not ascertainable from the mortgage, the
+SOL runs from the date the mortgage was recorded.206
+Tolling: Standard tolling provisions apply.
+Effect of Expiration: Expiration of the 10-year SOL bars a foreclosure by
+advertisement.206 The lien becomes unenforceable.
+
+IV. Strategic Implications and Recommendations for
+MBS Investors
+
+A. Risk Mitigation and Servicing Protocols
+
+The vast and complex landscape of state-specific SOLs necessitates a proactive and
+sophisticated approach to loan servicing and portfolio management. Relying on a one-size-fitsall approach is a recipe for significant financial loss.
+• Implement a Jurisdiction-Specific "SOL Alert System": Servicing platforms must be
+enhanced to incorporate a dynamic SOL tracking module. For each loan, the system
+should log the jurisdiction, the applicable SOL period(s), and the potential trigger dates
+(e.g., date of first uncured default, date of acceleration, contractual maturity date). The
+system must generate automated alerts for assets approaching their SOL deadline, with
+escalating priority for those in high-risk states like Texas and New York. This is critical
+because the event that starts the clock—often an acceleration notice—can be a routine
+servicing action that, if not properly tracked, can lead to the inadvertent loss of the lien
+years later.1
+• Enforce Legally-Vetted Communication Protocols: All borrower communications
+related to default must be standardized and legally vetted on a state-by-state basis. The
+distinction between a "notice of default," a "demand letter," and a "notice of acceleration"
+is not merely semantic; it is a legal distinction that can determine when a short and
+unforgiving SOL period begins.1 Servicers must have clear, unambiguous protocols for
+when to accelerate a loan and, in states where it is permitted and advantageous (like
+Florida), how to validly decelerate a loan to reset the SOL clock following a dismissed
+foreclosure.5
+
+B. Due Diligence for Portfolio Acquisition
+
+The risk of acquiring unenforceable liens is a primary threat to an MBS investor's returns. A
+rigorous due diligence process focused on SOLs is essential.
+• Mandate Loan-Level SOL Analysis: For any acquisition of non-performing or reperforming loan pools, due diligence must extend beyond basic credit metrics to a loanlevel legal analysis of SOL status. This requires a comprehensive review of the entire
+servicing history, including all default notices sent to the borrower, and a full litigation
+history for any prior foreclosure attempts. An investor cannot accurately value an asset
+based on its origination date alone. A loan originated in 2006 could have had its SOL
+triggered by an acceleration in 2018, making it a high-risk asset in a state with a 6-year
+SOL. The history of prior dismissed foreclosures is particularly critical; in Florida, it may
+reset the clock and make the loan safely enforceable, while in New York, it may mean the
+lien is already void under FAPA.8
+• Develop a "Lien Validity" Score: A quantitative risk score should be assigned to each
+asset based on its SOL status. Factors should include the time remaining on the SOL, the
+legal clarity of the trigger event in that jurisdiction, and the consequence of expiration (lien
+extinguishment vs. remedy bar). Assets in high-risk states with SOLs nearing expiration
+must be priced at a significant discount to reflect the binary risk of total collateral loss.
+
+C. Jurisdictional Risk Management & The "Lien vs. Remedy"
+Dichotomy
+
+Not all expired statutes of limitations are created equal. Investors must understand and price the
+critical difference between states where the SOL extinguishes the lien itself and those where it
+merely bars the foreclosure remedy.
+• In a state like Texas, an expired 4-year SOL renders the lien "void," and the collateral is
+lost to the investor forever.6 The asset's recovery value becomes zero.
+• In a state like Ohio or Vermont, the legal situation is more ambiguous. The expiration of
+the SOL on the note may bar a deficiency judgment and potentially the remedy of
+foreclosure, but the lien may survive as a "zombie mortgage".7 This dormant lien still
+clouds the property's title. The homeowner cannot sell or refinance the property without
+addressing it. This provides the investor with passive leverage; while they cannot force a
+sale, they can wait for the borrower to initiate a transaction that requires clear title and
+then negotiate a payoff. An asset with a zombie mortgage is not worthless, but its value is
+significantly impaired due to the loss of an active remedy and the uncertainty of the
+recovery timeline. This distinction must be incorporated into valuation models.
+
+D. Monitoring Evolving Law
+
+The legal environment for foreclosures is dynamic, with a clear trend in some states toward
+greater borrower protection. New York's FAPA is a landmark piece of legislation that
+dramatically shifted risk from borrowers to lenders.8 It is plausible that other states with large
+foreclosure inventories and influential consumer advocacy groups could enact similar laws.
+Investors must dedicate resources to monitoring state legislatures for proposals that could alter
+SOL rules, particularly those that would limit a lender's ability to reset the clock after a failed
+foreclosure attempt. Risk models must be flexible enough to adapt to these potential changes,
+as a single new law can fundamentally alter the value and risk profile of an entire state's
+portfolio.
+
+V. Appendix: Table of Key Cases and Legislative Acts
+Jurisdiction Case/Act Name
+California Flack v. Boland
+
+Citation
+Core Holding / Significance for MBS Investors
+11 Cal. 2d 103 Established that judicial foreclosure is subject to
+(1938)
+the 4-year SOL for written contracts, distinct
+from the longer period for non-judicial
+foreclosure. 4
+California Cal. Civil Code § Cal. Civ. Code Establishes the 10/60 year SOL for non-judicial
+2911
+§ 2911
+foreclosure based on whether the maturity date
+is "ascertainable from the record." 4
+Florida
+Bartram v. U.S. 211 So. 3d
+Held that dismissal of a foreclosure action
+Bank, N.A.
+1009 (Fla.
+decelerates the loan, allowing a new foreclosure
+2016)
+
+to be filed on a subsequent default with a new 5year SOL. Highly lender-favorable. 14
+Florida
+Fla. Stat. §
+Fla. Stat. §
+Provides an ultimate statute of repose,
+95.281
+95.281
+terminating a mortgage lien 5 years after
+maturity or 20 years from the mortgage date if
+maturity is not ascertainable. 61
+Illinois
+735 ILCS 5/13- 735 ILCS 5/13- Provides for tolling of the SOL during a statutory
+216
+216
+prohibition, which includes the automatic stay in
+bankruptcy. 77
+New York Foreclosure
+N.Y. C.P.L.R. § Overruled Engel decision. Prevents lenders from
+Abuse Prevention 203, 205,
+unilaterally revoking a loan acceleration to stop
+Act (FAPA)
+213(4), etc.
+or reset the 6-year SOL. A monumental shift in
+risk to lenders. 8
+Ohio
+Deutsche Bank v. 147 Ohio St. 3d Held that an action on the note is separate and
+Holden
+85 (2016)
+distinct from an action on the mortgage, opening
+the door for arguments that the lien survives the
+expiration of the SOL on the note. 155
+Texas
+Holy Cross
+44 S.W.3d 562 Clarified that effective acceleration, which
+Church v. Wolf
+(Tex. 2001)
+triggers the 4-year SOL, requires both a notice
+of intent to accelerate and a clear notice of the
+acceleration itself. 1
+Texas
+Tex. Civ. Prac. & Tex. Civ. Prac. Explicitly states that upon expiration of the 4Rem. Code §
+& Rem. Code § year SOL, the real property lien and power of
+16.035(d)
+16.035(d)
+sale become "void." 6
+Federal
+U.S. Bankruptcy 11 U.S.C. §
+Provides for the tolling of non-bankruptcy
+Code § 108(c)
+108(c)
+statutes of limitations, extending the period for a
+creditor to act until at least 30 days after the
+automatic stay is terminated. 15
+
+Works cited
+1. Texas Foreclosure Laws and Procedures - Nolo, accessed July 3, 2025,
+
+https://www.nolo.com/legal-encyclopedia/texas-foreclosure-laws-procedures.html
+2. Florida Foreclosure Laws and Procedures: All You Should Know - Loan Lawyers,
+
+3.
+4.
+5.
+
+6.
+
+7.
+
+accessed July 3, 2025, https://www.fight13.com/foreclosure-defenselawyer/florida-foreclosure-laws
+MCL - Section 600.5803 - Michigan Legislature, accessed July 3, 2025,
+https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-600-5803
+Is There a Deadline to Foreclose in California? | McCarthy Law PLC, accessed
+July 3, 2025, https://mccarthylawyer.com/2015/01/16/deadline-foreclose-california/
+The Statute of Limitations in Foreclosure Actions - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/the-statute-limitations-foreclosureactions.html
+Texas Civil Practice and Remedies Code - CIV PRAC & REM § 16.035 | FindLaw,
+accessed July 3, 2025, https://codes.findlaw.com/tx/civil-practice-and-remediescode/civ-prac-rem-sect-16-035/
+Appeals Court Expands Ohio Statute of Limitations Decision - Safeguard
+Properties, accessed July 3, 2025, https://safeguardproperties.com/appeals-courtexpands-ohio-statute-of-limitations-decision/
+
+8. New York Passes Foreclosure Statute-of-Limitations Law - Nolo, accessed July 3,
+
+2025, https://www.nolo.com/legal-updates/new-york-passes-foreclosure-statuteof-limitations-law.html
+9. New York's Foreclosure Abuse Prevention Act: What You Need to Know | Blank
+Rome LLP, accessed July 3, 2025, https://www.blankrome.com/publications/newyorks-foreclosure-abuse-prevention-act-what-you-need-know
+10. Mortgagee remedies and Ohio statute of limitations - Finney Law Firm, accessed
+July 3, 2025, https://finneylawfirm.com/mortgagee-remedies-and-ohio-statute-oflimitations/
+11. A Tale of Two Fishers: Unsettling Ohio's “Well-Settled Law” on the Proper Statute
+of Limitations for Mortgage Foreclosure Actions, accessed July 3, 2025,
+https://businesslawtoday.org/2018/11/tale-two-fishers-unsettling-ohios-wellsettled-law-proper-statute-limitations-mortgage-foreclosure-actions/
+12. STATUTE OF LIMITATIONS BARRED ACTION ON THE NOTE | KEY POINTS,
+accessed July 3, 2025, https://www.dallegal.com/post/statute-of-limitations-barredaction-on-the-note-key-points
+13. South Carolina Code of Laws Unannotated, accessed July 3, 2025,
+https://www.scstatehouse.gov/code/t29c001.php
+14. Statute of Limitations for Florida Mortgage Foreclosures - Nolo, accessed July 3,
+2025, https://www.nolo.com/legal-encyclopedia/florida-foreclosure-statuteslimitations.html
+15. Tolling - State vs Bankruptcy Laws - Diane Drain, accessed July 3, 2025,
+https://dianedrain.com/bankruptcy-case-law/case-law-tolling-state-vs-bankruptcy/
+16. Fifth Circuit applies Texas common law to hold that time to foreclose is stayed
+during mortgagor's bankruptcy - Noonan & Lieberman, accessed July 3, 2025,
+https://www.noonanandlieberman.com/updates/fifth-circuit-applies-texas-commonlaw-to-hold-that-time-to-foreclose-is-stayed-during-mortgagors-bankruptcy/
+17. Foreclosure Laws in Alabama - LawInfo.com, accessed July 3, 2025,
+https://www.lawinfo.com/resources/foreclosure/alabama/
+18. Judicial vs. Non-Judicial Foreclosure: What's the Difference? - Wolfe Jones,
+accessed July 3, 2025, https://www.wolfejones.com/blog/7/judicial-vs-non-judicialforeclosure-what-s-the-difference
+19. Statute of Limitations on Debt Collection in Alabama | Solo Blog - SoloSuit,
+accessed July 3, 2025, https://www.solosuit.com/posts/statute-limitations-debtalabama
+20. Facing Foreclosure | Montgomery Bankruptcy Lawyers Sellers Law Firm,
+accessed July 3, 2025, https://www.sellerslawfirm.com/practiceareas/bankruptcy/chapter-13/facing-foreclosure/
+21. Foreclosure Laws and Process in Alabama - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/summary-alabamas-foreclosurelaws.html
+22. Alaska Foreclosure Laws and Procedures - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/alaska-foreclosure-laws-andprocedures.html
+23. Foreclosure Laws in Alaska - LawInfo.com, accessed July 3, 2025,
+https://www.lawinfo.com/resources/foreclosure/alaska/
+
+24. Alaska Statute of Limitations on Debt | Solo Blog - SoloSuit, accessed July 3,
+
+2025, https://www.solosuit.com/posts/statute-limitations-debt-ak
+25. General Questions About Filing a Bankruptcy Case, accessed July 3, 2025,
+
+https://www.akb.uscourts.gov/sites/akb/files/General%20Questions%20About%20
+Filing%20a%20Bankruptcy%20Case.pdf
+26. State-by-State Guide to Foreclosure Laws - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/50-state-chart-key-aspects-stateforeclosure-law.html
+27. The Lender-Borrower Tangle: Understanding California and Arizona AntiDeficiency Legislation | Buchalter Law Firm, accessed July 3, 2025,
+https://www.buchalter.com/publication/the-lender-borrower-tangle-understandingcalifornia-and-arizona-anti-deficiency-legislation/
+28. Arizona Court of Appeals Narrows Statute of Limitations Application, accessed
+July 3, 2025,
+https://www.consumerfinancialserviceslawmonitor.com/2023/03/arizona-court-ofappeals-narrows-statute-of-limitations-application/
+29. Foreclosure Laws in Arkansas - LawInfo.com, accessed July 3, 2025,
+https://www.lawinfo.com/resources/foreclosure/arkansas/
+30. Arkansas Code § 18-49-101 (2024) - Limitation of actions - Justia Law, accessed
+July 3, 2025, https://law.justia.com/codes/arkansas/title-18/subtitle-4/chapter49/section-18-49-101/
+31. Arkansas Code Title 18. Property § 18-49-101 | FindLaw, accessed July 3, 2025,
+https://codes.findlaw.com/ar/title-18-property/ar-code-sect-18-49-101/
+32. Arkansas Foreclosure Laws and Procedures - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/summary-arkansas-foreclosurelaws.html
+33. Arkansas Code § 16-114-212 (2024) - Tolling of the statute of limitations - Justia
+Law, accessed July 3, 2025, https://law.justia.com/codes/arkansas/title-16/subtitle7/chapter-114/subchapter-2/section-16-114-212/
+34. The California Foreclosure Process – Consumer & Business - Los Angeles
+County, accessed July 3, 2025, https://dcba.lacounty.gov/portfolio/foreclosure/
+35. Commercial Mortgage Foreclosure (CA) - Alston & Bird, accessed July 3, 2025,
+https://www.alston.com/-/media/files/insights/publications/2021/02/commercialmortgage-foreclosure-ca.pdf
+36. California Code, Civil Code - CIV § 2911 - Codes - FindLaw, accessed July 3,
+2025, https://codes.findlaw.com/ca/civil-code/civ-sect-2911/
+37. Flack v. Boland - Justia Law, accessed July 3, 2025,
+https://law.justia.com/cases/california/supreme-court/2d/11/103.html
+38. Statute of Limitations on Colorado Home Loan Default, accessed July 3, 2025,
+https://frascona.com/statute-of-limitations-on-colorado-home-loan-default/
+39. Understanding Foreclosure Laws in Colorado | Baker Law Group, PLLC,
+accessed July 3, 2025, https://jbakerlawgroup.com/understanding-foreclosurelaws-in-colorado/
+40. Colorado Debt Collection Statute of Limitations (Complete Guide 2023) | Solo
+Blog, accessed July 3, 2025, https://www.solosuit.com/posts/statute-limitationsdebt-co
+
+41. 3 Types of Judicial Foreclosure in Connecticut - Lawrence & Jurkiewicz, LLC,
+
+accessed July 3, 2025, https://www.lawjur.com/3-types-of-judicial-foreclosure-inconnecticut/
+42. Strict Foreclosure in Connecticut: How the Process Works - Upsolve, accessed
+July 3, 2025, https://upsolve.org/learn/strict-foreclosure-ct/
+43. Connecticut Amends Action to Foreclose Mortgage Commencement Provisions TENA, accessed July 3, 2025, https://www.tenaco.com/connecticut-amendsaction-to-foreclose-mortgage-commencement-provisions/
+44. File No. 150 - Connecticut General Assembly, accessed July 3, 2025,
+https://www.cga.ct.gov/2024/fc/pdf/2024HB-05342-R000150-FC.PDF
+45. AN ACT CONCERNING MORTGAGE FORECLOSURES AND UNDISCHARGED
+MORTGAGES., accessed July 3, 2025,
+https://www.cga.ct.gov/2025/ba/pdf/2025HB-06878-R000190-BA.pdf
+46. Bankruptcy Court Holds that Bankruptcy Rule 9006(b) Permits Bankruptcy Courts
+to Extend Statutes of Limitations - Nelson Mullins, accessed July 3, 2025,
+https://www.nelsonmullins.com/insights/blogs/red-zone/bankruptcy101/bankruptcy-court-holds-that-bankruptcy-rule-9006-b-permits-bankruptcycourts-to-extend-statutes-of-limitations
+47. Connecticut General Statutes Title 49. Mortgages and Liens § 49-13a - Codes FindLaw, accessed July 3, 2025, https://codes.findlaw.com/ct/title-49-mortgagesand-liens/ct-gen-st-sect-49-13a/
+48. Foreclosure and Eviction Process in Delaware | BlueHub Capital, accessed July 3,
+2025, https://bluehubcapital.org/foreclosure-relief/foreclosure-and-evictionprocess-delaware
+49. Delaware Foreclosure Process - Rental Housing, accessed July 3, 2025,
+https://www.rhol.com/members/rental/DE/DEForeclosure.asp
+50. Delaware Foreclosure Laws and Process - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/delaware-foreclosure-laws-andprocedures.html
+51. 25 Delaware Code § 2123 (2024) - Satisfaction of mortgage after lapse of time. Justia Law, accessed July 3, 2025, https://law.justia.com/codes/delaware/title25/chapter-21/section-2123/
+52. Delaware Statute of Limitations Breach of Contract Rules - UpCounsel, accessed
+July 3, 2025, https://www.upcounsel.com/delaware-breach-of-contract-statute-oflimitations
+53. Bankruptcy Court Holds Equitable Tolling Doesn't Apply to Look-Back Period,
+accessed July 3, 2025, https://www.cozen.com/newsresources/publications/2012/bankruptcy-court-holds-equitable-tolling-doesntapply-to-look-back-period-delaware-business-court-insider
+54. Foreclosure Process and Laws in the District of Columbia, accessed July 3, 2025,
+https://www.alllaw.com/articles/nolo/foreclosure/district-of-columbia-foreclosurelaws.html
+55. § 12–301. Limitation of time for bringing actions. | D.C. Law Library, accessed July
+3, 2025, https://code.dccouncil.gov/dc/council/code/sections/12-301
+56. What You Must Know About Florida's Commercial Mortgage Foreclosure Process,
+accessed July 3, 2025,
+
+https://www.carltonfields.com/insights/publications/2013/what-you-must-knowabout-florida-s-commercial-mort
+57. The Foreclosure Process in Florida - LeavenLaw, accessed July 3, 2025,
+https://www.leavenlaw.com/Foreclosure/Foreclosure-Process
+58. Statute of Limitations in Mortgage Foreclosure Actions Does Not Run against
+Monthly Installment Payments - Saxon Gilmore, accessed July 3, 2025,
+https://www.saxongilmore.com/statute-of-limitations-in-mortgage-foreclosureactions-does-not-run-against-monthly-installment-payments/
+59. Statute of Limitations on Foreclosure Actions - Daily Law, PLLC, accessed July 3,
+2025, https://daily-law.com/real-estate-law/statute-of-limitations-on-foreclosureactions/
+60. Foreclosing Bartram - The Florida Bar, accessed July 3, 2025,
+https://www.floridabar.org/the-florida-bar-journal/foreclosing-bartram/
+61. The 2024 Florida Statutes (including 2025 Special Session C) - Online Sunshine,
+accessed July 3, 2025,
+http://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&URL=0
+000-0099/0095/Sections/0095.281.html
+62. Georgia Code Title 44. Property § 44-14-80 - Codes - FindLaw, accessed July 3,
+2025, https://codes.findlaw.com/ga/title-44-property/ga-code-sect-44-14-80/
+63. Is Georgia a Judicial Foreclosure State? Learn the Facts Here - Mark Bandy Law,
+accessed July 3, 2025, https://markbandylaw.com/is-georgia-a-judicialforeclosure-state-2/
+64. Expiration of security deeds in Georgia - Gomez & Golomb Law Office, accessed
+July 3, 2025, https://gandglegal.com/expiration-of-security-deeds-in-georgia/
+65. Georgia Code § 44-14-85 (2021) - Withdrawal of Foreclosure Proceedings After
+Acceleration of Maturity of Indebtedness; Effect on Running of Statute of
+Limitations - Justia Law, accessed July 3, 2025,
+https://law.justia.com/codes/georgia/2021/title-44/chapter-14/article-3/part2/section-44-14-85/
+66. FORECLOSURE: - LawHelp.org, accessed July 3, 2025,
+https://www.lawhelp.org/hi/resource/foreclosure-process/download/C75ACB3DB67B-4976-ADDA-4622D85AE7DE.pdf
+67. HRS - Hawaii.gov, accessed July 3, 2025,
+https://files.hawaii.gov/dcca/dfi/Laws_html/HRS0454F/HRS_0454F-0042.htm
+68. 2024 Hawaii Revised Statutes :: Title 28. Property :: 501. Land Court Registration
+:: 501-118 Foreclosure. - Justia Law, accessed July 3, 2025,
+https://law.justia.com/codes/hawaii/title-28/chapter-501/section-501-118/
+69. IDAHO NON-JUDICIAL FORECLOSURE PROCESS - Title Financial Specialty
+Services, accessed July 3, 2025, https://titlefss.com/wpcontent/uploads/sites/5/2021/04/tfss_id_njfprocess_web.pdf
+70. Section 5-214A – Idaho State Legislature, accessed July 3, 2025,
+https://legislature.idaho.gov/statutesrules/idstat/title5/t5ch2/sect5-214a/
+71. Mortgage Fraud and Foreclosure - Idaho Legal Aid Services, accessed July 3,
+2025,
+https://www.idaholegalaid.org/files/Mortgage%20Fraud%20and%20Foreclosure.p
+df
+
+72. The Complete Illinois Foreclosure Timeline - Steven Grace Law, accessed July 3,
+
+2025, https://www.stevengracelaw.com/2024/complete-illinois-foreclosuretimeline/
+73. What Are My Rights In an Illinois Foreclosure? - O'Flaherty Law, accessed July 3,
+2025, https://www.oflaherty-law.com/learn-about-law/what-are-my-rights-in-anillinois-foreclosure
+74. Article XIII - Limitations :: 2024 Illinois Compiled Statutes - Justia Law, accessed
+July 3, 2025, https://law.justia.com/codes/illinois/chapter-735/act-735-ilcs-5/articlexiii/
+75. Illinois Civil Statute of Limitations Laws - FindLaw, accessed July 3, 2025,
+https://www.findlaw.com/state/illinois-law/illinois-civil-statute-of-limitationslaws.html
+76. What Are the Statutes of Limitations for Debts in Illinois? | Chicago Creditor's
+Rights Attorneys, accessed July 3, 2025, https://www.walinskilaw.com/chicagocollections-lawyer/what-are-the-statutes-of-limitations-for-debts-in-illinois
+77. STATUTE OF LIMITATIONS ISSUES - Wright, Finlay & Zak, LLP, accessed July
+3, 2025, https://www.wrightlegal.net/documents/publications/Statute-ofLimitations-Issues-ALFN-Angle.pdf
+78. Illinois Statutes Chapter 735. Civil Procedure § 5/13-216 - Codes - FindLaw,
+accessed July 3, 2025, https://codes.findlaw.com/il/chapter-735-civil-procedure/ilst-sect-735-5-13-216/
+79. UNITED STATES DISTRICT COURT FOR THE SOUTHERN, accessed July 3,
+2025, https://www.govinfo.gov/content/pkg/USCOURTS-ilsd-4_06-cv04068/pdf/USCOURTS-ilsd-4_06-cv-04068-0.pdf
+80. ILLINOIS CIRCUIT COURT DISMISSES FORECLOSURE COMPLAINT FINDING
+FAILURE OF CONDITIONS PRECEDENT & STATUTE OF LIMITATIONS
+BARRED ACTION ON THE NOTE & PREVENTED FORECLOSURE, accessed
+July 3, 2025, https://dallegal.com/illinois-circuit-court-dismisses-foreclosurecomplaint-finding-failure-of-conditions-precedent-statute-of-limitations-barredaction-on-the-note-prevented-foreclosure/
+81. Foreclosure Process and Laws in Indiana - AllLaw, accessed July 3, 2025,
+https://www.alllaw.com/articles/nolo/foreclosure/indiana-foreclosure-laws.html
+82. Judicial vs. Non-Judicial Foreclosure | American Association of Private Lenders,
+accessed July 3, 2025, https://aaplonline.com/articles/featured/judicial-vs-nonjudicial-foreclosure/
+83. Mortgagee Beware | Barrett McNagny LLP, accessed July 3, 2025,
+https://www.barrettlaw.com/blog/business-and-corporate-law/financialinstitutions/mortgagee-beware
+84. Indiana Code Title 32. Property § 32-28-4-2 | FindLaw, accessed July 3, 2025,
+https://codes.findlaw.com/in/title-32-property/in-code-sect-32-28-4-2/
+85. Indiana Supreme Court Holds Statute of Limitations for Foreclosure Should Not
+Be Shortened Under “Rule of Reasonableness” - Riker Danzig, accessed July 3,
+2025, https://riker.com/blog/banking-title-insurance-and-real-estatelitigation/indiana-supreme-court-holds-statute-of-limitations-for-foreclosure-shouldnot-be-shortened-under-rule-of-reasonableness/
+
+86. Indiana Supreme Court Addresses the Statute of Limitations, accessed July 3,
+
+2025, https://www.logs.com/blog/indiana-supreme-court-addresses-the-statute-oflimitations
+87. Indiana Code | Chapter 4 - TOLLING OF STATUTE OF LIMITATIONS:
+NONRESIDENT DEFENDANT | Casetext, accessed July 3, 2025,
+https://casetext.com/statute/indiana-code/title-34-civil-law-and-procedure/article11-limitation-of-actions/chapter-4-tolling-of-statute-of-limitations-nonresidentdefendant
+88. Judgment Enforcement - Indiana Commercial Foreclosure Law, accessed July 3,
+2025,
+https://commercialforeclosureblog.typepad.com/indiana_commercial_forecl/judgm
+ent-enforcement/
+89. Foreclosure Law in Kentucky - LawInfo.com, accessed July 3, 2025,
+https://www.lawinfo.com/resources/foreclosure/kentucky/
+90. 355.3-118 Statute of limitations. (1) Except as provided in subsection (5) of this
+section, an action to enforce the obligatio, accessed July 3, 2025,
+https://apps.legislature.ky.gov/law/statutes/statute.aspx?id=33446
+91. Louisiana Foreclosure Laws & Process Overview [2024] - Amerinote Xchange,
+accessed July 3, 2025, https://www.amerinotexchange.com/foreclosurelaw/louisiana/
+92. Executory Process for Foreclosure in Louisiana - The National Law Review,
+accessed July 3, 2025, https://natlawreview.com/article/demystifying-swampexecutory-process-louisiana
+93. Louisiana Foreclosure Laws and Procedures - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/summary-louisianas-foreclosurelaws.html
+94. Executory Process Foreclosure on Real Estate in Louisiana, accessed July 3,
+2025, https://www.louisianalawblog.com/bankruptcy-and-businessreorganization/executory-process-foreclosure-on-real-estate-in-louisiana/
+95. Louisiana Civil Statute of Limitations Laws - FindLaw, accessed July 3, 2025,
+https://www.findlaw.com/state/louisiana-law/louisiana-civil-statute-of-limitationslaws.html
+96. Can a debt collector still collect on a debt that is several years old in Louisiana?,
+accessed July 3, 2025, https://www.simonfitzgerald.com/faq/can-a-debt-collectorstill-collect-on-a-debt-that-is-several-years-old-in-louisiana/
+97. Home Mortgage Foreclosures | Pine Tree Legal Assistance, accessed July 3,
+2025, https://www.ptla.org/home-mortgage-foreclosures
+98. Title 11, §2-1506: Statute of limitations - Maine Legislature, accessed July 3,
+2025, https://www.mainelegislature.org/legis/statutes/11/title11sec2-1506.html
+99. Dealing with Unreleased Mortgages In New Hampshire – Pending legislation By:
+Michelle Radie-Coffin, Esq., Associate Senior Und - Stewart Title, accessed July
+3, 2025,
+https://www.stewart.com/content/dam/stewart/Microsites/massachusetts/pdfs/newengland-update-2-12-25.pdf
+
+100. There is no Statute of Limitations for a Foreclosure Sale | Gordon Feinblatt LLC,
+
+accessed July 3, 2025, https://www.gfrlaw.com/what-we-do/insights/there-nostatute-limitations-foreclosure-sale
+101. Foreclosures - Middlesex North Registry of Deeds, accessed July 3, 2025,
+https://massrods.com/middlesexnorth/foreclosures/
+102. 2006 Massachusetts Code - Section 33. :: Limitation on mortgage foreclosures Justia Law, accessed July 3, 2025,
+https://law.justia.com/codes/massachusetts/2006/gl-pt3-toc/260-33.html
+103. General Law - Part III, Title V, Chapter 260, Section 33 - Massachusetts
+Legislature, accessed July 3, 2025,
+https://malegislature.gov/Laws/GeneralLaws/Partiii/Titlev/Chapter260/Section33
+104. Massachusetts General Laws Part III. Courts, Judicial Officers and Proceedings
+in Civil Cases (Ch. 211-262) Ch. 260, § 33 - Codes - FindLaw, accessed July 3,
+2025, https://codes.findlaw.com/ma/part-iii-courts-judicial-officers-andproceedings-in-civil-cases-ch-211-262/ma-gen-laws-ch-260-sect-33/
+105. Home Foreclosure - State of Michigan, accessed July 3, 2025,
+https://www.michigan.gov/reinventretirement/reinventing/crisismanagement/home-foreclosure
+106. Overview of Michigan's Mortgage Foreclosure Process – as of June 19, 2014,
+accessed July 3, 2025, https://miforeclosure.mplp.org/sites/default/files/OverviewMI-Foreclosure-Process-June-2014.pdf
+107. www.legislature.mi.gov, accessed July 3, 2025,
+https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-6005803#:~:text=No%20person%20shall%20bring%20or,was%20made%20on%20th
+e%20mortgage.
+108. REVISED JUDICATURE ACT OF 1961 (EXCERPT) Act 236 of 1961 CHAPTER
+58 LIMITATION OF ACTIONS 600.5801 Limitation on actions - Michigan
+Legislature, accessed July 3, 2025,
+https://www.legislature.mi.gov/documents/mcl/pdf/mcl-236-1961-58.pdf
+109. Michigan Statute of Limitations for Debt, accessed July 3, 2025,
+https://www.fregolaw.com/michigan-statute-of-limitations-debt/
+110. MCL - Section 600.5856 - Michigan Legislature, accessed July 3, 2025,
+https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-600-5856
+111. Michigan Debt Collection Laws - Acclaim Legal Services, accessed July 3, 2025,
+https://acclaimlegalservices.com/debt-solutions/harassing-debt-collections/statuteof-limitations-for-debt-collection-in-michigan.html
+112. Michigan Court of Appeal Issues Ruling on Foreclosure Statute of Limitations PLG News - Padgett Law Group, accessed July 3, 2025,
+https://www.padgettlawgroup.com/plg-news/michigan-court-of-appeal-issuesruling-on-foreclosure-statute-of-limitations
+113. Pros and Cons of Foreclosure Processes in Mississippi - The National Law
+Review, accessed July 3, 2025, https://natlawreview.com/article/mississippiforeclosure-basics
+114. Mississippi Foreclosure Law - United Capital Mortgage Assistance, accessed
+July 3, 2025, https://www.ucma.com/mississippi-foreclosure-law.php
+
+115. Foreclosures - Jackson, MS Real Estate Attorney | McGehee Loan Closings,
+
+Inc., accessed July 3, 2025,
+https://mcgeheeloanclosings.com/services/foreclosures/
+116. HOME FORECLOSURE IN MISSISSIPPI - Bond & Botes Law Offices, accessed
+July 3, 2025, https://www.bondnbotes.com/blog/home-foreclosure-mississippi
+117. Mississippi Code § 11-46-11 (2024) - Statute of limitations; notice of claim
+requirements; savings clause in favor of infants and those of unsound mind Justia Law, accessed July 3, 2025, https://law.justia.com/codes/mississippi/title11/chapter-46/section-11-46-11/
+118. Mississippi Code § 89-12-35 (2024) - Effect of expiration of period of limitation Justia Law, accessed July 3, 2025, https://law.justia.com/codes/mississippi/title89/chapter-12/section-89-12-35/
+119. Foreclosure Process and Laws in Montana - AllLaw, accessed July 3, 2025,
+https://www.alllaw.com/articles/nolo/foreclosure/montana-foreclosure-laws.html
+120. 71-1-210. Period of mortgage -- renewal, MCA - Montana State Legislature,
+accessed July 3, 2025,
+https://archive.legmt.gov/bills/mca/title_0710/chapter_0010/part_0020/section_010
+0/0710-0010-0020-0100.html
+121. Does Nevada Law Allow for a Redemption Period After a Foreclosure? - LawInfo,
+accessed July 3, 2025,
+https://www.lawinfo.com/resources/foreclosure/nevada/does-nevada-law-allowfor-a-redemption-period.html
+122. Intro to Foreclosures - Civil Law Self-Help Center, accessed July 3, 2025,
+https://www.civillawselfhelpcenter.org/self-help/foreclosure-mediation/intro-toforeclosures
+123. Statute of Limitations on Debt Collection by State, accessed July 3, 2025,
+https://www.incharge.org/understanding-debt/credit-card/what-is-statute-oflimitations-all-50-states/
+124. Foreclosure Basics - 603 Legal Aid, accessed July 3, 2025,
+https://www.603legalaid.org/foreclosure-relief
+125. New Hampshire Revised Statutes Section 508:2 (2024) - Real Actions. - Justia
+Law, accessed July 3, 2025, https://law.justia.com/codes/new-hampshire/titlelii/chapter-508/section-508-2/
+126. New Hampshire Revised Statutes Section 382-A:3-118 (2024) - Justia Law,
+accessed July 3, 2025, https://law.justia.com/codes/new-hampshire/title-xxxiva/chapter-382-a/section-382-a-3-118/
+127. STATE OF MICHIGAN COURT OF APPEALS, accessed July 3, 2025,
+https://www.michbar.org/file/opinions/appeals/2002/060402/15177.pdf
+128. Foreclosure Self-Help - NJ Courts, accessed July 3, 2025,
+https://www.njcourts.gov/self-help/foreclosure
+129. Statute of Limitations (N.J.S.A. 2A:50-56.1) - LSNJLAW, accessed July 3, 2025,
+https://www.lsnjlaw.org/legal-topics/housing/homeownership/foreclosure/pages/statute-of-limitations-aspx
+130. Foreclosure Laws In NJ: Residential vs Non-Residential Mortgages, accessed
+July 3, 2025, https://bathweg.com/foreclosure-laws-in-nj-residential-vs-nonresidential-mortgages/
+
+131. 2024 New Jersey Revised Statutes :: Title 2A - Administration of Civil and
+
+Criminal Justice :: Section 2A:50-56.1 - Statute of limitations relative to residential
+mortgage foreclosures. - Justia Law, accessed July 3, 2025,
+https://law.justia.com/codes/new-jersey/title-2a/section-2a-50-56-1/
+132. Debt in New Jersey: Know the Statute of Limitations ⚖- Updated Feb 2025,
+accessed July 3, 2025, https://www.straffilaw.com/what-is-the-statute-oflimitations-on-debt-in-nj/
+133. New Mexico Foreclosure Laws and Procedures, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/summary-new-mexicos-foreclosurelaws.html
+134. FOREC FORECLOSURE - Law Access New Mexico, accessed July 3, 2025,
+https://lawaccess.org/sites/lawaccess.org/files/Foreclosure.pdf
+135. Statute of Limitations on Debt Collection in New Mexico | Solo Blog - SoloSuit,
+accessed July 3, 2025, https://www.solosuit.com/posts/statute-limitations-debtnew-mexico
+136. Understanding New York State's Mortgage Foreclosure Process - Homes and
+Community Renewal, accessed July 3, 2025,
+https://hcr.ny.gov/system/files/documents/2018/10/factsheetnysforeclosure.pdf
+137. Foreclosure Law in New York - LawInfo.com, accessed July 3, 2025,
+https://www.lawinfo.com/resources/foreclosure/new-york/
+138. What is the Statute of Limitations in a New York State Foreclosure Case? What
+is Quiet Title? What is the Engel Decision? What is the NYS Foreclosure Abuse
+Prevention Act? - Ronald D Weiss PC, accessed July 3, 2025, https://www.nybankruptcy.com/what-is-the-statute-of-limitations-in-a-new-york-state-foreclosurecase-what-is-quiet-title-what-is-the-engel-decision-what-is-the-nys-foreclosureabuse-prevention-act/
+139. Statutes of Limitations in Residential Foreclosure Actions - Empire Justice
+Center, accessed July 3, 2025, https://empirejustice.org/wpcontent/uploads/2018/02/AGHOPPWebinar_StatutesofLimitationsinResidentialFor
+eclosureActions_ppt.pdf
+140. How Bankruptcy Impacts New York's Statute of Limitations - Roach & Lin,
+accessed July 3, 2025, https://www.roachlin.com/how-bankruptcy-impacts-newyorks-statute-of-limitations/
+141. NY State Assembly Bill 2021-A7737B, accessed July 3, 2025,
+https://www.nysenate.gov/legislation/bills/2021/A7737
+142. How to Clear a Mortgage Lien off Title Using Real Property and Proceedings Law
+1501(4), accessed July 3, 2025, https://www.quaillaw.com/foreclosure-law/how-toclear-a-mortgage-lien/
+143. Defeating New York Foreclosure Case Past Statute of Limitations, accessed July
+3, 2025, https://lawspino.com/statute-limitations-residential-mortgageforeclosures/
+144. How Foreclosure Works in North Carolina and Your Legal Rights - Koontz Law,
+PLLC, accessed July 3, 2025, https://www.koontzlawnc.com/how-foreclosureworks-in-north-carolina-and-your-legal-rights
+145. Foreclosures | North Carolina Judicial Branch, accessed July 3, 2025,
+https://www.nccourts.gov/help-topics/housing/foreclosures
+
+146. NC General Statutes - Chapter 1 Article 5, accessed July 3, 2025,
+
+https://www.ncleg.net/EnactedLegislation/Statutes/PDF/ByArticle/Chapter_1/Articl
+e_5.pdf
+147. Mortgages and Deeds of Trust -- Statute of Limitations Barring Foreclosures and
+Right of Redemption -- Nature of Possession Required, accessed July 3, 2025,
+https://scholarship.law.unc.edu/cgi/viewcontent.cgi?referer=&httpsredir=1&article=
+5477&context=nclr
+148. North Carolina Statute of Limitations | Smith Debnam Law, accessed July 3,
+2025, https://www.smithdebnamlaw.com/article/statute-of-limitations-in-northcarolina/
+149. Presumption of Note Expiration Limited - Williams Mullen, accessed July 3, 2025,
+https://www.williamsmullen.com/insights/news/legal-news/presumption-noteexpiration-limited
+150. Ohio Foreclosure Laws and Procedures - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/ohio-foreclosure-procedures.html
+151. Ohio Foreclosure Law: Introduction - LibGuides at Franklin County Law Library,
+accessed July 3, 2025, https://fclawlib.libguides.com/foreclosure
+152. Section 2305.06 - Ohio Revised Code, accessed July 3, 2025,
+https://codes.ohio.gov/ohio-revised-code/section-2305.06
+153. Section 2305.06 - Ohio Revised Code, accessed July 3, 2025,
+https://codes.ohio.gov/ohio-revised-code/section-2305.06/9-28-2012
+154. 2006 Ohio Revised Code - 2305.06. Contract in writing. - Justia Law, accessed
+July 3, 2025, https://law.justia.com/codes/ohio/2006/orc/jd_230506-89f1.html
+155. Ohio: Developments re SOLs in Foreclosure Actions - USFN, accessed July 3,
+2025, https://www.usfn.org/blogpost/1296766/293750/Ohio-Developments-reSOLs-in-Foreclosure-Actions
+156. Section 5301.30 | Expiration of mortgage lien - limitation. - Ohio Laws, accessed
+July 3, 2025, https://codes.ohio.gov/ohio-revised-code/section-5301.30
+157. Beware the effect of bankruptcy on the statute of limitations - DeBlasis Law Firm,
+LLC, accessed July 3, 2025, https://www.deblasislaw.com/blog/2021/10/bewarethe-effect-of-bankruptcy-on-the-statute-of-limitations/
+158. Section 2305.15 - Ohio Revised Code, accessed July 3, 2025,
+https://codes.ohio.gov/ohio-revised-code/section-2305.15
+159. Section 2305.16 - Ohio Revised Code, accessed July 3, 2025,
+https://codes.ohio.gov/ohio-revised-code/section-2305.16
+160. Ohio Bankruptcy Court Strikes Down Mortgage, Imposes Six-Year Statute of
+Limitations, accessed July 3, 2025, https://www.weltman.com/publication-ohiobankruptcy-court-strikes-down-mortgage-imposes-six-year-statute-of-limitations
+161. Oklahoma Foreclosure Process and Laws - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/summary-oklahomas-foreclosurelaws.html
+162. Oklahoma Foreclosure Defense | The Gooding Law Firm, P.C., accessed July 3,
+2025, https://www.goodingfirm.com/bankruptcy-101/foreclosure
+163. OKLAHOMA STATUTES TITLE 46. MORTGAGES, accessed July 3, 2025,
+https://oksenate.gov/sites/default/files/2022-05/os46.pdf
+
+164. 2024 Oklahoma Statutes :: Title 12A. Commercial Code :: §12A-2-725. Statute of
+
+Limitations in Contracts for Sale. - Justia Law, accessed July 3, 2025,
+https://law.justia.com/codes/oklahoma/title-12a/section-12a-2-725/
+165. Oregon Foreclosure Laws and Procedures - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/summary-oregons-foreclosure-laws.html
+166. Oregon Foreclosure Laws & Process Overview [2024], accessed July 3, 2025,
+https://www.amerinotexchange.com/foreclosure-law/oregon/
+167. ORS 88.110 – Duration of real property mortgage lien; when suit for foreclosure
+barred, accessed July 3, 2025, https://oregon.public.law/statutes/ors_88.110
+168. Is Pennsylvania a Nonjudicial Foreclosure State?, accessed July 3, 2025,
+https://www.youngmarrlaw.com/is-pennsylvania-a-nonjudicial-foreclosure-state/
+169. The Pennsylvania Statute of Limitations on Debt Collection - American
+Bankruptcy Institute, accessed July 3, 2025, https://www.abi.org/feed-item/thepennsylvania-statute-of-limitations-on-debt-collection
+170. How Long Are Pennsylvania Judgments Valid For? - Flaherty Fardo, LLC,
+accessed July 3, 2025, https://www.pghfirm.com/faqs/how-long-are-pennsylvaniajudgments-valid-for
+171. Rhode Island Foreclosure Laws & Process Overview [2024], accessed July 3,
+2025, https://www.amerinotexchange.com/foreclosure-law/rhode-island/
+172. Real Estate Foreclosures | D. Baker Law Group P. C., accessed July 3, 2025,
+http://dbakerlawgroup.com/real-estate-foreclosures/
+173. Rhode Island Statute of Limitations on Debt | Solo Blog - SoloSuit, accessed July
+3, 2025, https://www.solosuit.com/posts/rhode-island-statute-limitations-debt
+174. General Laws of Rhode Island Section 9-1-13. (2024) - Limitation of actions
+generally — Product liability. - Justia Law, accessed July 3, 2025,
+https://law.justia.com/codes/rhode-island/title-9/chapter-9-1/section-9-1-13/
+175. 3 Things Lenders Should Know About South Carolina's Foreclosure Laws,
+accessed July 3, 2025, https://www.crawfordvk.com/south-carolinas-foreclosurelaws/
+176. South Carolina Foreclosure FAQ - DeMott Law Firm, PA, accessed July 3, 2025,
+https://demottlawfirm.com/south-carolina-foreclosure/
+177. FAQs | District of South Carolina | United States Bankruptcy Court, accessed
+July 3, 2025, https://www.scb.uscourts.gov/court-info/faq
+178. Code of Laws – Title 15 - South Carolina Legislature, accessed July 3, 2025,
+https://www.scstatehouse.gov/code/t15c003.php
+179. What Are Tennessee Foreclosure Procedures?, accessed July 3, 2025,
+https://www.berkeattys.com/blog/2014/february/what-are-tennessee-foreclosureprocedures-/
+180. Tennessee Code § 47-3-118 (2024) - Statute of limitations - Justia Law,
+accessed July 3, 2025, https://law.justia.com/codes/tennessee/title-47/chapter3/part-1/section-47-3-118/
+181. Tolling of limitations period for perfection or enforcement of liens against debtor
+in bankruptcy :: 2024 Tennessee Code :: U.S. Codes and Statutes - Justia Law,
+accessed July 3, 2025, https://law.justia.com/codes/tennessee/title-66/chapter21/part-1/section-66-21-110/
+
+182. The Foreclosure Process - Texas State Law Library, accessed July 3, 2025,
+
+https://guides.sll.texas.gov/foreclosure/the-foreclosure-process
+183. Foreclosure Process and Laws in Texas - AllLaw, accessed July 3, 2025,
+
+https://www.alllaw.com/articles/nolo/foreclosure/texas-foreclosure-laws.html
+184. Effective Acceleration and Statute of Limitations in Texas Foreclosure: Holy
+
+Cross Church v. Johnny Wolf - CaseMine, accessed July 3, 2025,
+https://www.casemine.com/commentary/us/effective-acceleration-and-statute-oflimitations-in-texas-foreclosure:-holy-cross-church-v.-johnny-wolf/view
+185. Time-Barred Debts - Debt Collection - Guides at Texas State Law Library,
+accessed July 3, 2025, https://guides.sll.texas.gov/debt-collection/time-barreddebts
+186. Foreclosure Attorney South Jordan, Ogden and Salt Lake City Utah - Beutler
+Law, accessed July 3, 2025, https://beutler-law.com/foreclosure/
+187. New Guidance on the Statute of Limitations for Foreclosures - Kesler | Rust,
+accessed July 3, 2025, http://keslerrust.com/entry/new-guidance-on-the-statute-oflimitations-for-foreclosures
+188. Vermont Foreclosure Laws and Procedures - Nolo, accessed July 3, 2025,
+https://www.nolo.com/legal-encyclopedia/vermont-foreclosure-laws-andprocedures.html
+189. Foreclosure Process and Laws in Vermont - AllLaw, accessed July 3, 2025,
+https://www.alllaw.com/articles/nolo/foreclosure/vermont-foreclosure-laws.html
+190. Foreclosure Defense and Mediation Training 3-Part Webinar Series - Vermont
+Bar Association, accessed July 3, 2025, https://www.vtbar.org/wpcontent/uploads/2021/03/Materials-Part-1.pdf
+191. Vermont Statutes Title 12. Court Procedure, § 502 | FindLaw, accessed July 3,
+2025, https://codes.findlaw.com/vt/title-12-court-procedure/vt-st-tit-12-sect-502/
+192. Bankruptcy in Vermont FAQs | VTLawHelp.org, accessed July 3, 2025,
+https://vtlawhelp.org/bankruptcy-faqs
+193. Foreclosure in Virginia - Shenandoah Legal Group, P.C., accessed July 3, 2025,
+https://www.shenlegal.com/the-slg-law-blog/2018/1/12/foreclosure-virginia
+194. Judicial vs. Non-Judicial Foreclosure Under the Law - Justia, accessed July 3,
+2025, https://www.justia.com/foreclosure/judicial-vs-non-judicial-foreclosure/
+195. Statute of Limitations on Debt in Virginia | Solo Blog - SoloSuit, accessed July 3,
+2025, https://www.solosuit.com/posts/statute-limitations-debt-virginia
+196. PRESENT: All the Justices DENNIS W. KERNS OPINION BY v. Record No.
+171068 JUSTICE D. ARTHUR KELSEY SEPTEMBER 27, 2018 WELLS FA Virginia's Judicial System, accessed July 3, 2025,
+https://www.vacourts.gov/opinions/opnscvwp/1171068.pdf
+197. § 8.01-229. Suspension or tolling of statute of limitations; effect of disabilities;
+effect of death; injunction; prevention of service by defendant; dismissal, nonsuit
+or abatement; devise for payment of debts; new promises; debts proved in
+creditors' suits - Virginia Law, accessed July 3, 2025,
+https://law.lis.virginia.gov/vacode/title8.01/chapter4/section8.01-229/
+198. Foreclosure | Washington Law Help, accessed July 3, 2025,
+https://www.washingtonlawhelp.org/en/foreclosure
+
+199. Statute of Limitations and Quiet Title in Washington State - WA Debt Law,
+
+accessed July 3, 2025, https://wadebtlaw.com/blog/statute-of-limitations-andquiet-title-in-washington-state/
+200. Enforcing Promissory Notes after Statutes of Limitations Expire, accessed July 3,
+2025, https://rrsfirm.com/how-can-you-enforce-promissory-notes-and-mortgagesafter-their-limitations-expire/
+201. West Virginia Foreclosure Law - United Capital Mortgage Assistance, accessed
+July 3, 2025, https://www.ucma.com/west-virginia-foreclosure-law.php
+202. Statutes of Limitations: West Virginia | Dinsmore, accessed July 3, 2025,
+https://www.dinsmore.com/content/uploads/2018/07/Statutes-of-Limitations-WestVirginia-W-011-2110.pdf
+203. West Virginia Code | §55-2-5, accessed July 3, 2025,
+https://code.wvlegislature.gov/55-2-5/
+204. West Virginia Code | §55-2-22, accessed July 3, 2025,
+https://code.wvlegislature.gov/55-2-22/
+205. Homes - The Law Offices of Patrick M. Hunter - Wyoming Bankruptcy Law Firm,
+accessed July 3, 2025, https://www.pmhunterlaw.com/general-information/specialtopics/homes/
+206. Wyoming Statutes Title 34. Property, Conveyances and Security Transactions §
+34-4-102, accessed July 3, 2025, https://codes.findlaw.com/wy/title-34-propertyconveyances-and-security-transactions/wy-st-sect-34-4-102
+207. Wyoming Statute of Limitations on Debt Collection | Solo Blog, accessed July 3,
+2025, https://www.solosuit.com/posts/statute-limitations-debt-wyoming
+208. BARTRAM v. BANK NATIONAL ASSOCIATION (2016) - FindLaw Caselaw,
+accessed July 3, 2025, https://caselaw.findlaw.com/court/fl-supremecourt/1753204.html
+209. Trinity Fin. v. D'Apolito :: 2024 - Ohio Case Law, accessed July 3, 2025,
+https://law.justia.com/cases/ohio/seventh-district-court-of-appeals/2024/23-ma0028.html
+210. Holy Cross Church of God in Christ v. Wolf – Case Brief Summary (Texas) |
+Lawpipe, accessed July 3, 2025,
+https://www.lawpipe.com/Texas/Holy_Cross_Church_of_God_in_Christ_v_Wolf.ht
+ml
+
+
