@@ -141,7 +141,7 @@ class InteractionManager {
       },
       actions: [
         { label: 'Close', action: 'close' },
-        { label: 'View All Loans', action: 'navigate', payload: { page: 'loan-explorer', filters: { state: dataPoint.state } } }
+        { label: 'View All Loans', action: 'navigate', payload: { page: 'loans', filters: { state: dataPoint.state } } }
       ]
     };
     
@@ -162,7 +162,7 @@ class InteractionManager {
       actions: [
         { label: 'Close', action: 'close' },
         { label: 'Filter Dashboard', action: 'filter', payload: { status: dataPoint.status } },
-        { label: 'View Details', action: 'navigate', payload: { page: 'loan-explorer', filters: { status: dataPoint.status } } }
+        { label: 'View Details', action: 'navigate', payload: { page: 'loans', filters: { status: dataPoint.status } } }
       ]
     };
     
@@ -182,7 +182,7 @@ class InteractionManager {
       },
       actions: [
         { label: 'Close', action: 'close' },
-        { label: 'View Loans', action: 'navigate', payload: { page: 'loan-explorer', filters: { milestone: dataPoint.milestone } } }
+        { label: 'View Loans', action: 'navigate', payload: { page: 'loans', filters: { milestone: dataPoint.milestone } } }
       ]
     };
     
@@ -203,7 +203,7 @@ class InteractionManager {
       },
       actions: [
         { label: 'Close', action: 'close' },
-        { label: 'View Period Loans', action: 'navigate', payload: { page: 'loan-explorer', filters: { month: dataPoint.month } } }
+        { label: 'View Period Loans', action: 'navigate', payload: { page: 'loans', filters: { month: dataPoint.month } } }
       ]
     };
     
@@ -223,7 +223,7 @@ class InteractionManager {
       },
       actions: [
         { label: 'Close', action: 'close' },
-        { label: 'View Details', action: 'navigate', payload: { page: 'loan-explorer', filters: dataPoint.filters } }
+        { label: 'View Details', action: 'navigate', payload: { page: 'loans', filters: dataPoint.filters } }
       ]
     };
     

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
@@ -69,6 +70,7 @@ const columnHelper = createColumnHelper<Loan>();
 const allLoanColumns = [ 'loan_id', 'investor_name', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'prin_bal', 'int_rate', 'next_pymt_due', 'last_pymt_received', 'loan_type', 'legal_status', 'lien_pos', 'fc_status' ];
 
 function LoanExplorerPage() {
+  const [searchParams] = useSearchParams();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,8 +78,37 @@ function LoanExplorerPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [exporting, setExporting] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<FilterValues>(initialFilters);
-  const [hasAppliedFilter, setHasAppliedFilter] = useState(false);
+  
+  // Initialize filters from URL parameters
+  const getInitialFilters = (): FilterValues => {
+    const urlFilters = { ...initialFilters };
+    
+    // Check for URL parameters and apply them to filters
+    const state = searchParams.get('state');
+    const status = searchParams.get('status');
+    const milestone = searchParams.get('milestone');
+    const month = searchParams.get('month');
+    
+    if (state) {
+      urlFilters.propertyState = [state];
+    }
+    if (status) {
+      urlFilters.assetStatus = [status];
+    }
+    if (milestone) {
+      // Map milestone to timeline status for foreclosure filtering
+      urlFilters.timelineStatus = [milestone];
+    }
+    if (month) {
+      // Could be used for date filtering in the future
+      console.log('Month filter from URL:', month);
+    }
+    
+    return urlFilters;
+  };
+
+  const [activeFilters, setActiveFilters] = useState<FilterValues>(getInitialFilters());
+  const [hasAppliedFilter, setHasAppliedFilter] = useState(!!searchParams.toString());
   const [isExportModalOpen, setExportModalOpen] = useState(false);
   const [customExportColumns, setCustomExportColumns] = useState<string[]>(['loan_id', 'prin_bal', 'legal_status']); // Set some defaults
 
@@ -473,6 +504,16 @@ function LoanExplorerPage() {
         <p className="text-slate-600 mt-1">
           Analyze and filter your loan portfolio
         </p>
+        {searchParams.toString() && (
+          <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-700 font-medium">
+              📊 Dashboard filter applied: 
+              {searchParams.get('state') && <span className="ml-1">State: {searchParams.get('state')}</span>}
+              {searchParams.get('status') && <span className="ml-1">Status: {searchParams.get('status')}</span>}
+              {searchParams.get('milestone') && <span className="ml-1">Milestone: {searchParams.get('milestone')}</span>}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Main Grid */}
