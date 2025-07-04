@@ -1,14 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
 import { SOLCalculationService } from '../services/SOLCalculationService';
-import { authMiddleware } from '../middleware/authMiddleware';
+import { authenticateToken } from '../middleware/authMiddleware';
 
 export function createSOLRoutes(pool: Pool): Router {
   const router = Router();
   const solService = new SOLCalculationService(pool);
 
   // All routes require authentication
-  router.use(authMiddleware);
+  router.use(authenticateToken);
 
   /**
    * GET /api/sol/jurisdictions
