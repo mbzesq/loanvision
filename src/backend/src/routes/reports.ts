@@ -79,99 +79,6 @@ router.get('/reports/geographical-distribution', authenticateToken, async (req, 
     }
 });
 
-// --- MONTHLY CASHFLOW ENDPOINT ---
-router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
-    try {
-        const query = `
-            SELECT 
-                'January 2025' as month, COALESCE(SUM(january_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE january_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'February 2025' as month, COALESCE(SUM(february_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE february_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'March 2025' as month, COALESCE(SUM(march_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE march_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'April 2025' as month, COALESCE(SUM(april_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE april_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'May 2025' as month, COALESCE(SUM(may_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE may_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'June 2025' as month, COALESCE(SUM(june_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE june_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'July 2025' as month, COALESCE(SUM(july_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE july_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'August 2025' as month, COALESCE(SUM(august_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE august_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'September 2025' as month, COALESCE(SUM(september_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE september_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'October 2025' as month, COALESCE(SUM(october_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE october_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'November 2025' as month, COALESCE(SUM(november_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE november_2025 IS NOT NULL
-            UNION ALL
-            SELECT 
-                'December 2025' as month, COALESCE(SUM(december_2025), 0) as cashflow
-            FROM daily_metrics_current 
-            WHERE december_2025 IS NOT NULL
-            ORDER BY 
-                CASE month
-                    WHEN 'January 2025' THEN 1
-                    WHEN 'February 2025' THEN 2
-                    WHEN 'March 2025' THEN 3
-                    WHEN 'April 2025' THEN 4
-                    WHEN 'May 2025' THEN 5
-                    WHEN 'June 2025' THEN 6
-                    WHEN 'July 2025' THEN 7
-                    WHEN 'August 2025' THEN 8
-                    WHEN 'September 2025' THEN 9
-                    WHEN 'October 2025' THEN 10
-                    WHEN 'November 2025' THEN 11
-                    WHEN 'December 2025' THEN 12
-                END
-        `;
-        
-        const result = await pool.query(query);
-        
-        const data = result.rows.map(row => ({
-            month: row.month,
-            cashflow: parseFloat(row.cashflow) || 0
-        }));
-        
-        res.json(data);
-    } catch (error) {
-        console.error('Error fetching monthly cashflow:', error);
-        res.status(500).json({ error: 'Failed to fetch monthly cashflow' });
-    }
-});
 
 // --- GEOGRAPHICAL DISTRIBUTION ENDPOINT ---
 router.get('/reports/loan-geographical-distribution', authenticateToken, async (req, res) => {
@@ -201,31 +108,84 @@ router.get('/reports/loan-geographical-distribution', authenticateToken, async (
 // --- MONTHLY CASHFLOW ENDPOINT ---
 router.get('/reports/monthly-cashflow', authenticateToken, async (req, res) => {
   try {
-    // Default to the current year if no year is provided in the query
-    const year = req.query.year || new Date().getFullYear();
+    // Default to 2025 if no year is provided in the query
+    const year = req.query.year || '2025';
 
+    // Use a simple approach that aggregates monthly columns directly
     const query = `
       SELECT
-        TO_CHAR(payment_date, 'Mon') as month,
-        EXTRACT(MONTH FROM payment_date) as month_order,
-        SUM(payment_amount) as cashflow
-      FROM monthly_cashflow_data
-      WHERE EXTRACT(YEAR FROM payment_date) = $1
-      GROUP BY month, month_order
+        'Jan' as month, 1 as month_order, COALESCE(SUM(january_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE january_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Feb' as month, 2 as month_order, COALESCE(SUM(february_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE february_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Mar' as month, 3 as month_order, COALESCE(SUM(march_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE march_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Apr' as month, 4 as month_order, COALESCE(SUM(april_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE april_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'May' as month, 5 as month_order, COALESCE(SUM(may_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE may_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Jun' as month, 6 as month_order, COALESCE(SUM(june_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE june_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Jul' as month, 7 as month_order, COALESCE(SUM(july_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE july_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Aug' as month, 8 as month_order, COALESCE(SUM(august_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE august_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Sep' as month, 9 as month_order, COALESCE(SUM(september_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE september_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Oct' as month, 10 as month_order, COALESCE(SUM(october_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE october_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Nov' as month, 11 as month_order, COALESCE(SUM(november_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE november_2025 IS NOT NULL
+      UNION ALL
+      SELECT
+        'Dec' as month, 12 as month_order, COALESCE(SUM(december_2025), 0) as cashflow
+      FROM daily_metrics_current
+      WHERE december_2025 IS NOT NULL
       ORDER BY month_order ASC;
     `;
 
-    const result = await pool.query(query, [year]);
+    const result = await pool.query(query);
 
     const formattedData = result.rows.map(row => ({
       month: row.month,
-      cashflow: parseFloat(row.cashflow)
+      cashflow: parseFloat(row.cashflow) || 0
     }));
 
     res.json(formattedData);
   } catch (error) {
     console.error('Error fetching monthly cashflow:', error);
-    res.status(500).send('Error fetching monthly cashflow');
+    res.status(500).json({ error: 'Failed to fetch monthly cashflow' });
   }
 });
 
