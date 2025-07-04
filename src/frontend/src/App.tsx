@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import LoanDetailPage from './pages/LoanDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import LandingPage from './pages/LandingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from '@loanvision/shared/components/ui/toaster';
@@ -17,12 +18,13 @@ function App() {
       <AuthProvider>
         <Routes>
           {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
           {/* Protected routes */}
           <Route element={<MainLayout />}>
-            <Route path="/" element={
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardPage />
               </ProtectedRoute>

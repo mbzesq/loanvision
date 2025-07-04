@@ -7,6 +7,7 @@ import loansRouter from './routes/loans';
 import portfolioRouter from './routes/portfolio';
 import reportsRouter from './routes/reports';
 import authRouter from './routes/auth';
+import betaAccessRouter from './routes/betaAccess';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
@@ -15,7 +16,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // This entire block should be added right after const app = express();
-const allowedOrigins = ['https://loanvision-frontend.onrender.com', 'https://nplvision.com'];
+const allowedOrigins = [
+  'https://loanvision-frontend.onrender.com', 
+  'https://nplvision.com',
+  'http://localhost:3001', // Development frontend
+  'http://localhost:5173', // Vite development server
+  'http://127.0.0.1:5173'  // Alternative localhost
+];
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
@@ -52,6 +59,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api', betaAccessRouter);
 app.use('/api', uploadRouter);
 app.use('/api', loansRouter);
 app.use('/api', portfolioRouter);

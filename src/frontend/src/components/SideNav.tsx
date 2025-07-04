@@ -4,7 +4,7 @@ import { LayoutDashboard, Table, Upload } from 'lucide-react';
 import { Logo } from './Logo';
 
 const navLinks = [
-  { to: '/', text: 'Dashboard', icon: LayoutDashboard },
+  { to: '/dashboard', text: 'Dashboard', icon: LayoutDashboard },
   { to: '/loans', text: 'Loan Explorer', icon: Table },
   { to: '/upload', text: 'Import Data', icon: Upload },
 ];

@@ -1,11 +1,21 @@
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { Pool } from 'pg';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
 
-// Set up proper working directory context
-const __dirname = dirname(fileURLToPath(import.meta.url));
-process.chdir(join(__dirname, '..'));
+// Load environment variables from the backend directory
+dotenv.config({ path: resolve(__dirname, '..', '.env') });
 
-import pool from '../src/db';
+// Create database connection pool
+const pool = new Pool({
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
+  database: process.env.DB_NAME || 'nplvision',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'password',
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
 
 async function runDiagnostics() {
   console.log('=== CASHFLOW DATA DIAGNOSTICS ===\n');
