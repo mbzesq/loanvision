@@ -502,18 +502,18 @@ export function mapDailyMetricsCurrentData(row: any, reportDate: string): DailyM
     pymt_method: getValue(row, ['Pymt Method']),
     draft_day: getValue(row, ['Draft Day']),
     spoc: getValue(row, ['SPOC']),
-    january_2025: cleanCurrency(getValue(row, ['Jan-25'])),
-    february_2025: cleanCurrency(getValue(row, ['Feb-25'])),
-    march_2025: cleanCurrency(getValue(row, ['Mar-25'])),
-    april_2025: cleanCurrency(getValue(row, ['Apr-25'])),
-    may_2025: cleanCurrency(getValue(row, ['May-25'])),
-    june_2025: cleanCurrency(getValue(row, ['Jun-25'])),
-    july_2025: cleanCurrency(getValue(row, ['Jul-25'])),
-    august_2025: cleanCurrency(getValue(row, ['Aug-25'])),
-    september_2025: cleanCurrency(getValue(row, ['Sep-25'])),
-    october_2025: cleanCurrency(getValue(row, ['Oct-25'])),
-    november_2025: cleanCurrency(getValue(row, ['Nov-25'])),
-    december_2025: cleanCurrency(getValue(row, ['Dec-25']))
+    january_2025: cleanCurrency(getValue(row, ['Jan-25', 'January 2025', 'Jan 2025', 'january_2025'])),
+    february_2025: cleanCurrency(getValue(row, ['Feb-25', 'February 2025', 'Feb 2025', 'february_2025'])),
+    march_2025: cleanCurrency(getValue(row, ['Mar-25', 'March 2025', 'Mar 2025', 'march_2025'])),
+    april_2025: cleanCurrency(getValue(row, ['Apr-25', 'April 2025', 'Apr 2025', 'april_2025'])),
+    may_2025: cleanCurrency(getValue(row, ['May-25', 'May 2025', 'may_2025'])),
+    june_2025: cleanCurrency(getValue(row, ['Jun-25', 'June 2025', 'Jun 2025', 'june_2025'])),
+    july_2025: cleanCurrency(getValue(row, ['Jul-25', 'July 2025', 'Jul 2025', 'july_2025'])),
+    august_2025: cleanCurrency(getValue(row, ['Aug-25', 'August 2025', 'Aug 2025', 'august_2025'])),
+    september_2025: cleanCurrency(getValue(row, ['Sep-25', 'September 2025', 'Sep 2025', 'september_2025'])),
+    october_2025: cleanCurrency(getValue(row, ['Oct-25', 'October 2025', 'Oct 2025', 'october_2025'])),
+    november_2025: cleanCurrency(getValue(row, ['Nov-25', 'November 2025', 'Nov 2025', 'november_2025'])),
+    december_2025: cleanCurrency(getValue(row, ['Dec-25', 'December 2025', 'Dec 2025', 'december_2025']))
   };
 }
 
