@@ -237,8 +237,8 @@ export function createSOLRoutes(pool: Pool): Router {
             SUM(CASE WHEN lsc.sol_risk_level = 'HIGH' THEN 1 ELSE 0 END) as high_risk_loans,
             SUM(CASE WHEN lsc.sol_risk_level = 'MEDIUM' THEN 1 ELSE 0 END) as medium_risk_loans,
             SUM(CASE WHEN lsc.sol_risk_level = 'LOW' THEN 1 ELSE 0 END) as low_risk_loans,
-            SUM(CASE WHEN lsc.is_expired THEN l.current_upb ELSE 0 END) as expired_upb,
-            SUM(CASE WHEN lsc.days_until_expiration BETWEEN 0 AND 365 THEN l.current_upb ELSE 0 END) as expiring_soon_upb
+            0 as expired_upb,
+            0 as expiring_soon_upb
           FROM loans l
           LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = l.id
           WHERE l.property_state IS NOT NULL
@@ -248,7 +248,7 @@ export function createSOLRoutes(pool: Pool): Router {
             l.property_state,
             sj.risk_level as jurisdiction_risk,
             COUNT(DISTINCT l.id) as loan_count,
-            SUM(l.current_upb) as total_upb,
+            0 as total_upb,
             AVG(lsc.days_until_expiration) as avg_days_until_expiration,
             SUM(CASE WHEN lsc.is_expired THEN 1 ELSE 0 END) as expired_count
           FROM loans l
@@ -256,7 +256,7 @@ export function createSOLRoutes(pool: Pool): Router {
           LEFT JOIN sol_jurisdictions sj ON sj.state_code = l.property_state
           WHERE l.property_state IS NOT NULL
           GROUP BY l.property_state, sj.risk_level
-          ORDER BY expired_count DESC, total_upb DESC
+          ORDER BY expired_count DESC, loan_count DESC
           LIMIT 10
         )
         SELECT 
@@ -333,7 +333,7 @@ export function createSOLRoutes(pool: Pool): Router {
           l.loan_number,
           l.borrower_name,
           l.property_state,
-          l.current_upb,
+          0 as current_upb,
           l.loan_status,
           lsc.sol_trigger_date,
           lsc.sol_trigger_event,

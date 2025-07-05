@@ -126,15 +126,6 @@ const SOLMonitorCard: React.FC = () => {
           }}>
             Loans: {formatNumber(data.value)}
           </p>
-          {data.upb > 0 && (
-            <p style={{ 
-              fontSize: 'var(--font-size-sm)', 
-              color: 'var(--neutral-600)',
-              margin: '2px 0'
-            }}>
-              UPB: {formatCurrency(data.upb)}
-            </p>
-          )}
           <p style={{ 
             fontSize: 'var(--font-size-xs)', 
             color: 'var(--neutral-500)',
