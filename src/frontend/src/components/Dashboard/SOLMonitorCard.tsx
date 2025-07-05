@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import solService, { SOLPortfolioSummary } from '../../services/solService';
+import solService from '../../services/solService';
 import interactionManager from '../../services/InteractionManager';
 import '../../styles/design-system.css';
 
