@@ -147,7 +147,6 @@ const SOLInfoCard: React.FC<SOLInfoCardProps> = ({
     );
   }
 
-  const priorityLevel = solService.getPriorityLevel(solData);
   const isCritical = solService.isCritical(solData);
 
   if (compact) {

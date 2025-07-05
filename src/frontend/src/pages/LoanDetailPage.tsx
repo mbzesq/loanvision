@@ -295,7 +295,7 @@ const LoanDetailPage = () => {
               <CardTitle className="text-lg">Statute of Limitations</CardTitle>
             </CardHeader>
             <CardContent>
-              <SOLInfoCard loanId={parseInt(loanId)} showCalculateButton={true} />
+              <SOLInfoCard loanId={parseInt(loanId || '0')} showCalculateButton={true} />
             </CardContent>
           </Card>
         </div>

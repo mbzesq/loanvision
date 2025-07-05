@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import solService, { SOLPortfolioSummary } from '../../services/solService';
 import interactionManager from '../../services/InteractionManager';
 import '../../styles/design-system.css';
@@ -13,7 +13,6 @@ interface SOLData {
 
 const SOLMonitorCard: React.FC = () => {
   const [data, setData] = useState<SOLData[]>([]);
-  const [summary, setSummary] = useState<SOLPortfolioSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +21,6 @@ const SOLMonitorCard: React.FC = () => {
       try {
         setLoading(true);
         const portfolioSummary = await solService.getPortfolioSummary();
-        setSummary(portfolioSummary);
 
         // Calculate SOL categories
         const today = new Date();

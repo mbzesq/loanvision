@@ -18,7 +18,7 @@ export interface NavigationState {
 }
 
 export interface ChartClickData {
-  chartType: 'geographic' | 'pie-status' | 'foreclosure-bar' | 'cashflow-point' | 'kpi-card';
+  chartType: 'geographic' | 'pie-status' | 'foreclosure-bar' | 'cashflow-point' | 'kpi-card' | 'sol-monitor';
   dataPoint: any;
   context: any;
 }
