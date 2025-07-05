@@ -5,6 +5,7 @@ import LoanStatusChart from '../components/Dashboard/LoanStatusChart';
 import GeographicalDistributionChart from '../components/Dashboard/GeographicalDistributionChart';
 import MonthlyCashflowChart from '../components/Dashboard/MonthlyCashflowChart';
 import ForeclosureTrackingChart from '../components/Dashboard/ForeclosureTrackingChart';
+import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
 import axios from '../utils/axios';
 import '../styles/design-system.css';
 
@@ -250,7 +251,10 @@ function DashboardPage() {
 
       {/* Charts Grid */}
       <div className="chart-grid">
-        {/* Chart 1: Loan Status */}
+        {/* Chart 1: SOL Monitor */}
+        <SOLMonitorCard />
+
+        {/* Chart 2: Loan Status */}
         <ModernChartContainer
           title="Loan Status Distribution"
           subtitle="Current portfolio breakdown by loan status"
@@ -258,7 +262,7 @@ function DashboardPage() {
           <LoanStatusChart />
         </ModernChartContainer>
 
-        {/* Chart 2: Geographical Distribution */}
+        {/* Chart 3: Geographical Distribution */}
         <ModernChartContainer
           title="Geographic Distribution"
           subtitle="Loan distribution across states"
@@ -266,7 +270,7 @@ function DashboardPage() {
           <GeographicalDistributionChart />
         </ModernChartContainer>
 
-        {/* Chart 3: Monthly Cashflow */}
+        {/* Chart 4: Monthly Cashflow */}
         <ModernChartContainer
           title="Cashflow Analysis"
           subtitle="Monthly payment trends and investor breakdown"
@@ -274,7 +278,7 @@ function DashboardPage() {
           <MonthlyCashflowChart />
         </ModernChartContainer>
 
-        {/* Chart 4: Foreclosure Tracking */}
+        {/* Chart 5: Foreclosure Tracking */}
         <ModernChartContainer
           title="Foreclosure Pipeline"
           subtitle="Active foreclosure status and milestone tracking"

@@ -11,6 +11,7 @@ import { useToast } from '@loanvision/shared/hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
 import { DocumentAnalysisCard } from '../components/DocumentAnalysisCard';
+import SOLInfoCard from '../components/SOL/SOLInfoCard';
 
 // Enhanced interface for detailed loan data including origination and payment history
 interface LoanDetail extends Loan {
@@ -285,6 +286,16 @@ const LoanDetailPage = () => {
                   <span className="text-slate-500 italic">Calculation coming soon</span>
                 </DetailItem>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* SOL Information Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Statute of Limitations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SOLInfoCard loanId={parseInt(loanId)} showCalculateButton={true} />
             </CardContent>
           </Card>
         </div>

@@ -315,8 +315,15 @@ select.btn-secondary:focus {
   gap: var(--space-lg);
 }
 
-/* Maintain 2x2 grid on all desktop screens */
-@media (min-width: 768px) {
+/* 3-column grid for wider screens to accommodate 5 charts */
+@media (min-width: 1200px) {
+  .chart-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 2-column grid on medium screens */
+@media (min-width: 768px) and (max-width: 1199px) {
   .chart-grid {
     grid-template-columns: repeat(2, 1fr);
   }
