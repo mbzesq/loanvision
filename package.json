@@ -5,14 +5,13 @@
   "private": true,
   "workspaces": [
     "src/backend",
-    "src/frontend",
-    "src/shared"
+    "src/frontend"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev --workspace=src/backend",
     "dev:frontend": "npm run dev --workspace=src/frontend",
-    "build": "npm run build --workspace=@loanvision/shared && npm run build --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
     "start": "npm run start --workspace=src/backend",
     "tune-classifier": "tsx tuneClassifier.ts",
     "test-ocr": "tsx testOCR.ts"
