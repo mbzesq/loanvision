@@ -118,10 +118,10 @@ class SOLDataImporter {
          VALUES ($1, $2, $3, $4, $5, $6)`,
         [
           jurisdictionId,
-          jurisdiction.sol_periods.lien_years || null,
-          jurisdiction.sol_periods.note_years || null,
-          jurisdiction.sol_periods.foreclosure_years || null,
-          jurisdiction.sol_periods.deficiency_years || null,
+          this.convertToInteger(jurisdiction.sol_periods.lien_years),
+          this.convertToInteger(jurisdiction.sol_periods.note_years),
+          this.convertToInteger(jurisdiction.sol_periods.foreclosure_years),
+          this.convertToInteger(jurisdiction.sol_periods.deficiency_years),
           jurisdiction.sol_periods.additional_periods ? JSON.stringify(jurisdiction.sol_periods.additional_periods) : null
         ]
       );
@@ -275,6 +275,27 @@ class SOLDataImporter {
 
   async close() {
     await this.pool.end();
+  }
+
+  private convertToInteger(value: any): number | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    
+    // If it's already an integer, return it
+    if (Number.isInteger(value)) {
+      return value;
+    }
+    
+    // If it's a string or decimal, parse and round
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+      return null;
+    }
+    
+    // Round to nearest integer (0.25 becomes 0, 0.5 becomes 1, etc.)
+    // For SOL purposes, we'll use ceiling to be conservative
+    return Math.ceil(num);
   }
 }
 
