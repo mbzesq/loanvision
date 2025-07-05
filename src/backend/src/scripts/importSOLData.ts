@@ -17,7 +17,10 @@ class SOLDataImporter {
 
   constructor() {
     this.pool = new Pool({
-      connectionString: process.env.DATABASE_URL || 'postgresql://localhost/nplvision'
+      connectionString: process.env.DATABASE_URL || 'postgresql://localhost/nplvision',
+      ssl: process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.includes('render.com') 
+        ? { rejectUnauthorized: false }
+        : false
     });
   }
 

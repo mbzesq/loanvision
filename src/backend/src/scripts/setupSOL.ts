@@ -5,7 +5,10 @@ import SOLDataImporter from './importSOLData';
 
 async function setupSOL() {
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.includes('render.com') 
+      ? { rejectUnauthorized: false }
+      : false
   });
 
   console.log('🚀 Starting SOL setup process...\n');
