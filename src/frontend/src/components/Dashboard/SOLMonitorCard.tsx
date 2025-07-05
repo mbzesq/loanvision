@@ -65,15 +65,6 @@ const SOLMonitorCard: React.FC = () => {
     fetchSOLData();
   }, []);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('en-US').format(num);
   };
