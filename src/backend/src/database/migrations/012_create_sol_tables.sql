@@ -166,6 +166,30 @@ CREATE TRIGGER update_loan_sol_calculations_updated_at
     EXECUTE FUNCTION update_sol_updated_at();
 
 -- Create view for SOL summary by state
+-- SOL audit log for tracking significant changes
+CREATE TABLE IF NOT EXISTS sol_audit_log (
+    id SERIAL PRIMARY KEY,
+    loan_id INTEGER REFERENCES loans(id) ON DELETE CASCADE,
+    event_type VARCHAR(100) NOT NULL,
+    event_date DATE NOT NULL,
+    sol_data JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- SOL batch update log for tracking daily updates
+CREATE TABLE IF NOT EXISTS sol_batch_log (
+    id SERIAL PRIMARY KEY,
+    update_date DATE UNIQUE NOT NULL,
+    loans_updated INTEGER NOT NULL DEFAULT 0,
+    errors INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Additional indexes for performance
+CREATE INDEX idx_sol_audit_log_loan_id ON sol_audit_log(loan_id);
+CREATE INDEX idx_sol_audit_log_event_date ON sol_audit_log(event_date);
+CREATE INDEX idx_sol_batch_log_update_date ON sol_batch_log(update_date);
+
 CREATE VIEW sol_state_summary AS
 SELECT 
     sj.state_code,

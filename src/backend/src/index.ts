@@ -12,9 +12,13 @@ import { createSOLRoutes } from './routes/solRoutes';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
+import { SOLScheduler } from './services/SOLScheduler';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize SOL scheduler
+const solScheduler = new SOLScheduler(pool);
 
 // This entire block should be added right after const app = express();
 const allowedOrigins = [
@@ -111,6 +115,9 @@ const startServer = async () => {
   // Run the one-time seeding logic before starting the server
   await runInitialSeed();
   await runDiagnostics();
+
+  // Start SOL scheduler for dynamic updates
+  solScheduler.start();
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

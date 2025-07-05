@@ -1,11 +1,15 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
 import { SOLCalculationService } from '../services/SOLCalculationService';
+import { SOLEventService } from '../services/SOLEventService';
+import { SOLScheduler } from '../services/SOLScheduler';
 import { authenticateToken } from '../middleware/authMiddleware';
 
 export function createSOLRoutes(pool: Pool): Router {
   const router = Router();
   const solService = new SOLCalculationService(pool);
+  const solEventService = new SOLEventService(pool);
+  const solScheduler = new SOLScheduler(pool);
 
   // All routes require authentication
   router.use(authenticateToken);
@@ -370,6 +374,156 @@ export function createSOLRoutes(pool: Pool): Router {
       res.status(500).json({
         success: false,
         error: 'Failed to fetch loans with SOL data'
+      });
+    }
+  });
+
+  /**
+   * POST /api/sol/events/:loanId
+   * Trigger SOL recalculation for a specific loan event
+   */
+  router.post('/events/:loanId', async (req: Request, res: Response) => {
+    try {
+      const { loanId } = req.params;
+      const { event_type, metadata } = req.body;
+
+      if (!event_type) {
+        return res.status(400).json({
+          success: false,
+          error: 'Event type is required'
+        });
+      }
+
+      const validEventTypes = ['payment_received', 'missed_payment', 'foreclosure_filed', 'acceleration', 'maturity_reached', 'status_change'];
+      if (!validEventTypes.includes(event_type)) {
+        return res.status(400).json({
+          success: false,
+          error: `Invalid event type. Must be one of: ${validEventTypes.join(', ')}`
+        });
+      }
+
+      await solEventService.handleLoanEvent({
+        loan_id: parseInt(loanId),
+        event_type,
+        event_date: new Date(),
+        metadata
+      });
+
+      res.json({
+        success: true,
+        message: `SOL recalculation triggered for loan ${loanId} (${event_type})`
+      });
+    } catch (error) {
+      console.error('Error processing SOL event:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to process SOL event'
+      });
+    }
+  });
+
+  /**
+   * POST /api/sol/daily-update
+   * Manually trigger daily SOL update
+   */
+  router.post('/daily-update', async (req: Request, res: Response) => {
+    try {
+      const result = await solScheduler.triggerUpdate();
+      
+      res.json({
+        success: true,
+        data: {
+          updated: result.updated,
+          errors: result.errors
+        },
+        message: 'Daily SOL update completed'
+      });
+    } catch (error) {
+      console.error('Error running daily SOL update:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to run daily SOL update'
+      });
+    }
+  });
+
+  /**
+   * GET /api/sol/scheduler/status
+   * Get SOL scheduler status
+   */
+  router.get('/scheduler/status', async (req: Request, res: Response) => {
+    try {
+      const status = solScheduler.getStatus();
+      
+      res.json({
+        success: true,
+        data: status
+      });
+    } catch (error) {
+      console.error('Error getting scheduler status:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get scheduler status'
+      });
+    }
+  });
+
+  /**
+   * GET /api/sol/alerts
+   * Get SOL expiration alerts
+   */
+  router.get('/alerts', async (req: Request, res: Response) => {
+    try {
+      const alerts = await solEventService.checkExpirationAlerts();
+      
+      res.json({
+        success: true,
+        data: alerts,
+        count: alerts.length
+      });
+    } catch (error) {
+      console.error('Error getting SOL alerts:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get SOL alerts'
+      });
+    }
+  });
+
+  /**
+   * GET /api/sol/audit-log/:loanId
+   * Get SOL audit log for a specific loan
+   */
+  router.get('/audit-log/:loanId', async (req: Request, res: Response) => {
+    try {
+      const { loanId } = req.params;
+      
+      const query = `
+        SELECT 
+          sal.id,
+          sal.event_type,
+          sal.event_date,
+          sal.sol_data,
+          sal.created_at,
+          l.loan_number
+        FROM sol_audit_log sal
+        JOIN loans l ON l.id = sal.loan_id
+        WHERE sal.loan_id = $1
+        ORDER BY sal.event_date DESC, sal.created_at DESC
+        LIMIT 50
+      `;
+      
+      const result = await pool.query(query, [loanId]);
+      
+      res.json({
+        success: true,
+        data: result.rows
+      });
+    } catch (error) {
+      console.error('Error getting SOL audit log:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get SOL audit log'
       });
     }
   });
