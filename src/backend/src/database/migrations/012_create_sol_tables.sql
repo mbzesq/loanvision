@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS sol_notes (
 -- Loan SOL calculations table (links loans to SOL analysis)
 CREATE TABLE IF NOT EXISTS loan_sol_calculations (
     id SERIAL PRIMARY KEY,
-    loan_id INTEGER REFERENCES loans(id) ON DELETE CASCADE,
+    loan_id VARCHAR(20) NOT NULL,
     jurisdiction_id INTEGER REFERENCES sol_jurisdictions(id),
     property_state VARCHAR(2) NOT NULL,
     
@@ -139,6 +139,9 @@ CREATE TABLE IF NOT EXISTS loan_sol_calculations (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Add unique constraint for loan_id
+ALTER TABLE loan_sol_calculations ADD CONSTRAINT unique_loan_sol UNIQUE (loan_id);
+
 -- Indexes for performance
 CREATE INDEX idx_sol_jurisdictions_state_code ON sol_jurisdictions(state_code);
 CREATE INDEX idx_sol_jurisdictions_risk_level ON sol_jurisdictions(risk_level);
@@ -169,7 +172,7 @@ CREATE TRIGGER update_loan_sol_calculations_updated_at
 -- SOL audit log for tracking significant changes
 CREATE TABLE IF NOT EXISTS sol_audit_log (
     id SERIAL PRIMARY KEY,
-    loan_id INTEGER REFERENCES loans(id) ON DELETE CASCADE,
+    loan_id VARCHAR(20) NOT NULL,
     event_type VARCHAR(100) NOT NULL,
     event_date DATE NOT NULL,
     sol_data JSONB NOT NULL,

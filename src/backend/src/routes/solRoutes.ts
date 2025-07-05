@@ -143,20 +143,23 @@ export function createSOLRoutes(pool: Pool): Router {
       // Get loan data
       const loanQuery = `
         SELECT 
-          l.id as loan_id,
-          l.property_state,
-          l.origination_date,
-          l.maturity_date,
-          ld.first_default_date as default_date,
-          ld.last_payment_date,
-          ld.acceleration_date,
-          ld.charge_off_date,
-          fs.status as foreclosure_status,
-          fs.complaint_filed_date
-        FROM loans l
-        LEFT JOIN loan_details ld ON ld.loan_id = l.id
-        LEFT JOIN foreclosure_status fs ON fs.loan_id = l.id
-        WHERE l.id = $1
+          dmc.loan_id,
+          dmc.state as property_state,
+          dmc.origination_date,
+          dmc.maturity_date,
+          dmc.first_payment_default_date as default_date,
+          dmc.last_payment_date,
+          dmc.charge_off_date,
+          fe.fc_status as foreclosure_status,
+          fe.complaint_filed_date,
+          -- Use complaint_filed_date as acceleration_date when loan is in foreclosure
+          CASE 
+            WHEN fe.complaint_filed_date IS NOT NULL THEN fe.complaint_filed_date
+            ELSE NULL
+          END as acceleration_date
+        FROM daily_metrics_current dmc
+        LEFT JOIN foreclosure_events fe ON fe.loan_id = dmc.loan_id
+        WHERE dmc.loan_id = $1
       `;
 
       const loanResult = await pool.query(loanQuery, [loanId]);
@@ -243,23 +246,23 @@ export function createSOLRoutes(pool: Pool): Router {
             SUM(CASE WHEN lsc.sol_risk_level = 'LOW' THEN 1 ELSE 0 END) as low_risk_loans,
             0 as expired_upb,
             0 as expiring_soon_upb
-          FROM loans l
-          LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = l.id
-          WHERE l.property_state IS NOT NULL
+          FROM daily_metrics_current dmc
+          LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = dmc.loan_id
+          WHERE dmc.state IS NOT NULL
         ),
         state_breakdown AS (
           SELECT 
-            l.property_state,
+            dmc.state as property_state,
             sj.risk_level as jurisdiction_risk,
-            COUNT(DISTINCT l.id) as loan_count,
+            COUNT(DISTINCT dmc.loan_id) as loan_count,
             0 as total_upb,
             AVG(lsc.days_until_expiration) as avg_days_until_expiration,
             SUM(CASE WHEN lsc.is_expired THEN 1 ELSE 0 END) as expired_count
-          FROM loans l
-          LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = l.id
-          LEFT JOIN sol_jurisdictions sj ON sj.state_code = l.property_state
-          WHERE l.property_state IS NOT NULL
-          GROUP BY l.property_state, sj.risk_level
+          FROM daily_metrics_current dmc
+          LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = dmc.loan_id
+          LEFT JOIN sol_jurisdictions sj ON sj.state_code = dmc.state
+          WHERE dmc.state IS NOT NULL
+          GROUP BY dmc.state, sj.risk_level
           ORDER BY expired_count DESC, loan_count DESC
           LIMIT 10
         )
@@ -313,7 +316,7 @@ export function createSOLRoutes(pool: Pool): Router {
         offset = 0
       } = req.query;
 
-      let whereConditions = ['l.property_state IS NOT NULL'];
+      let whereConditions = ['dmc.state IS NOT NULL'];
       const params: any[] = [];
       let paramCount = 0;
 
@@ -323,7 +326,7 @@ export function createSOLRoutes(pool: Pool): Router {
       }
 
       if (state) {
-        whereConditions.push(`l.property_state = $${++paramCount}`);
+        whereConditions.push(`dmc.state = $${++paramCount}`);
         params.push(state);
       }
 
@@ -333,12 +336,12 @@ export function createSOLRoutes(pool: Pool): Router {
 
       const query = `
         SELECT 
-          l.id,
-          l.loan_number,
-          l.borrower_name,
-          l.property_state,
+          dmc.loan_id as id,
+          dmc.loan_id as loan_number,
+          dmc.borrower_name_1 as borrower_name,
+          dmc.state as property_state,
           0 as current_upb,
-          l.loan_status,
+          dmc.foreclosure_status as loan_status,
           lsc.sol_trigger_date,
           lsc.sol_trigger_event,
           lsc.adjusted_expiration_date,
@@ -348,8 +351,8 @@ export function createSOLRoutes(pool: Pool): Router {
           lsc.sol_risk_score,
           lsc.risk_factors,
           sj.risk_level as jurisdiction_risk_level
-        FROM loans l
-        JOIN loan_sol_calculations lsc ON lsc.loan_id = l.id
+        FROM daily_metrics_current dmc
+        JOIN loan_sol_calculations lsc ON lsc.loan_id = dmc.loan_id
         JOIN sol_jurisdictions sj ON sj.id = lsc.jurisdiction_id
         ${whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : ''}
         ORDER BY lsc.sol_risk_score DESC, lsc.days_until_expiration ASC
@@ -403,7 +406,7 @@ export function createSOLRoutes(pool: Pool): Router {
       }
 
       await solEventService.handleLoanEvent({
-        loan_id: parseInt(loanId),
+        loan_id: loanId,
         event_type,
         event_date: new Date(),
         metadata
@@ -505,9 +508,9 @@ export function createSOLRoutes(pool: Pool): Router {
           sal.event_date,
           sal.sol_data,
           sal.created_at,
-          l.loan_number
+          dmc.loan_id as loan_number
         FROM sol_audit_log sal
-        JOIN loans l ON l.id = sal.loan_id
+        JOIN daily_metrics_current dmc ON dmc.loan_id = sal.loan_id
         WHERE sal.loan_id = $1
         ORDER BY sal.event_date DESC, sal.created_at DESC
         LIMIT 50

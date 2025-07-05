@@ -1,3 +1,0 @@
-[submodule "src/backend/src/vendor/homeharvest"]
-	path = src/backend/src/vendor/homeharvest
-	url = https://github.com/mbzesq/PropertyData.git

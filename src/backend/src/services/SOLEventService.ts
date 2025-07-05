@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { SOLCalculationService } from './SOLCalculationService';
 
 interface LoanEvent {
-  loan_id: number;
+  loan_id: string;
   event_type: 'payment_received' | 'missed_payment' | 'foreclosure_filed' | 'acceleration' | 'maturity_reached' | 'status_change';
   event_date: Date;
   metadata?: any;
@@ -61,12 +61,14 @@ export class SOLEventService {
       // 2. Loans with SOL calculations older than 24 hours
       // 3. Loans approaching expiration (within 1 year)
       const loansToUpdate = await this.pool.query(`
-        SELECT DISTINCT l.id, l.property_state,
+        SELECT DISTINCT 
+               dmc.loan_id,
+               dmc.state as property_state,
                lsc.days_until_expiration,
                lsc.updated_at as last_sol_update
-        FROM loans l
-        LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = l.id
-        WHERE l.property_state IS NOT NULL
+        FROM daily_metrics_current dmc
+        LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = dmc.loan_id
+        WHERE dmc.state IS NOT NULL
         AND (
           lsc.id IS NULL  -- No SOL calculation
           OR lsc.updated_at < NOW() - INTERVAL '24 hours'  -- Stale calculation
@@ -87,7 +89,7 @@ export class SOLEventService {
 
       for (const loan of loansToUpdate.rows) {
         try {
-          const loanData = await this.getLoanData(loan.id);
+          const loanData = await this.getLoanData(loan.loan_id);
           if (loanData) {
             const solResult = await this.solService.calculateLoanSOL(loanData);
             if (solResult) {
@@ -96,7 +98,7 @@ export class SOLEventService {
             }
           }
         } catch (error) {
-          console.error(`Failed to update loan ${loan.id}:`, error);
+          console.error(`Failed to update loan ${loan.loan_id}:`, error);
           errors++;
         }
       }
@@ -117,23 +119,27 @@ export class SOLEventService {
   /**
    * Get current loan data for SOL calculation
    */
-  private async getLoanData(loanId: number): Promise<any> {
+  private async getLoanData(loanId: string): Promise<any> {
     const query = `
       SELECT 
-        l.id as loan_id,
-        l.property_state,
-        l.origination_date,
-        l.maturity_date,
-        ld.first_default_date as default_date,
-        ld.last_payment_date,
-        ld.acceleration_date,
-        ld.charge_off_date,
-        fs.status as foreclosure_status,
-        fs.complaint_filed_date
-      FROM loans l
-      LEFT JOIN loan_details ld ON ld.loan_id = l.id
-      LEFT JOIN foreclosure_status fs ON fs.loan_id = l.id
-      WHERE l.id = $1
+        dmc.loan_id,
+        dmc.state as property_state,
+        dmc.origination_date,
+        dmc.maturity_date,
+        dmc.next_due_date,
+        dmc.first_payment_default_date as default_date,
+        dmc.last_payment_date,
+        dmc.charge_off_date,
+        fe.fc_status as foreclosure_status,
+        fe.complaint_filed_date,
+        -- Use complaint_filed_date as acceleration_date when loan is in foreclosure
+        CASE 
+          WHEN fe.complaint_filed_date IS NOT NULL THEN fe.complaint_filed_date
+          ELSE NULL
+        END as acceleration_date
+      FROM daily_metrics_current dmc
+      LEFT JOIN foreclosure_events fe ON fe.loan_id = dmc.loan_id
+      WHERE dmc.loan_id = $1
     `;
 
     const result = await this.pool.query(query, [loanId]);

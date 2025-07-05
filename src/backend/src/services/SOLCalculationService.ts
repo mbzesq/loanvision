@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { addDays, differenceInDays, max, isAfter, isBefore } from 'date-fns';
 
 interface LoanSOLData {
-  loan_id: number;
+  loan_id: string;
   property_state: string;
   origination_date: Date;
   maturity_date?: Date;
@@ -36,7 +36,7 @@ interface SOLJurisdiction {
 }
 
 interface SOLCalculationResult {
-  loan_id: number;
+  loan_id: string;
   jurisdiction_id: number;
   sol_trigger_date: Date;
   sol_trigger_event: string;
