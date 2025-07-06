@@ -14,7 +14,9 @@
     "calculate:sol": "tsx src/scripts/calculatePortfolioSOL.ts",
     "fix:sol": "tsx src/scripts/fixSOLTables.ts",
     "update:sol-categories": "tsx src/scripts/updateSOLCategories.ts",
-    "calculate:all-sol": "tsx src/scripts/calculateAllSOL.ts"
+    "calculate:all-sol": "tsx src/scripts/calculateAllSOL.ts",
+    "test:sol-services": "tsx src/scripts/testSOLServices.ts",
+    "test:sol-api": "tsx src/scripts/testSOLAPI.ts"
   },
   "dependencies": {
     "@aws-sdk/client-textract": "^3.478.0",

@@ -61,11 +61,17 @@ export class SOLEventService {
       // 2. Loans with SOL calculations older than 24 hours
       // 3. Loans approaching expiration (within 1 year)
       const loansToUpdate = await this.pool.query(`
-        SELECT DISTINCT 
+        SELECT 
                dmc.loan_id,
                dmc.state as property_state,
                lsc.days_until_expiration,
-               lsc.updated_at as last_sol_update
+               lsc.updated_at as last_sol_update,
+               CASE 
+                 WHEN lsc.days_until_expiration < 90 THEN 1  -- Critical (< 3 months)
+                 WHEN lsc.days_until_expiration < 365 THEN 2 -- Important (< 1 year)
+                 WHEN lsc.id IS NULL THEN 3  -- No calculation
+                 ELSE 4  -- Stale calculations
+               END as priority_order
         FROM daily_metrics_current dmc
         LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = dmc.loan_id
         WHERE dmc.state IS NOT NULL
@@ -75,12 +81,7 @@ export class SOLEventService {
           OR (lsc.days_until_expiration < 365 AND lsc.days_until_expiration > 0)  -- Approaching expiration
         )
         ORDER BY 
-          CASE 
-            WHEN lsc.days_until_expiration < 90 THEN 1  -- Critical (< 3 months)
-            WHEN lsc.days_until_expiration < 365 THEN 2 -- Important (< 1 year)
-            WHEN lsc.id IS NULL THEN 3  -- No calculation
-            ELSE 4  -- Stale calculations
-          END,
+          priority_order,
           lsc.days_until_expiration ASC NULLS LAST
         LIMIT 1000  -- Process in batches
       `);
