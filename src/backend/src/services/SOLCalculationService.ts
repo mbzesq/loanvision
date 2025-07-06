@@ -351,4 +351,57 @@ export class SOLCalculationService {
       result.calculation_date
     ]);
   }
+
+  /**
+   * Calculate SOL for entire portfolio
+   */
+  async calculatePortfolioSOL(): Promise<{ processed: number; errors: number }> {
+    let processed = 0;
+    let errors = 0;
+
+    try {
+      // Get all loans with property state
+      const loansQuery = `
+        SELECT 
+          dmc.loan_id,
+          dmc.state as property_state,
+          dmc.origination_date,
+          dmc.maturity_date,
+          dmc.next_pymt_due as default_date,
+          dmc.last_pymt_received as last_payment_date,
+          NULL as charge_off_date,
+          fe.fc_status as foreclosure_status,
+          fe.complaint_filed_date,
+          CASE 
+            WHEN fe.complaint_filed_date IS NOT NULL THEN fe.complaint_filed_date
+            ELSE NULL
+          END as acceleration_date
+        FROM daily_metrics_current dmc
+        LEFT JOIN foreclosure_events fe ON fe.loan_id = dmc.loan_id
+        WHERE dmc.state IS NOT NULL
+        ORDER BY dmc.loan_id
+      `;
+
+      const loansResult = await this.pool.query(loansQuery);
+      
+      for (const loan of loansResult.rows) {
+        try {
+          const result = await this.calculateLoanSOL(loan);
+          
+          if (result) {
+            await this.storeCalculationResult(result);
+            processed++;
+          }
+        } catch (error) {
+          console.error(`Error processing loan ${loan.loan_id}:`, error);
+          errors++;
+        }
+      }
+    } catch (error) {
+      console.error('Fatal error in calculatePortfolioSOL:', error);
+      throw error;
+    }
+
+    return { processed, errors };
+  }
 }

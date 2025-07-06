@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-textract": "^3.478.0",
+    "axios": "^1.6.2",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

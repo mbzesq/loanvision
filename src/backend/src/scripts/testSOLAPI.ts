@@ -65,7 +65,7 @@ async function testSOLAPI() {
 
     console.log('\n🎉 All API tests completed successfully!');
 
-  } catch (error) {
+  } catch (error: any) {
     if (axios.isAxiosError(error)) {
       console.error('❌ API Test failed:', {
         status: error.response?.status,

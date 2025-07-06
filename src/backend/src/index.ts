@@ -45,22 +45,7 @@ app.use(cors(corsOptions)); // This must be the first middleware
 app.use(express.json());
 
 app.get('/api/health', async (req, res) => {
-  try {
-    console.log('[Debug] Testing foreclosure timeline for loan 0000359811...');
-    const timeline = await getForeclosureTimeline('0000359811');
-    res.json({
-      message: "This is a temporary test endpoint.",
-      loanId: "0000359811",
-      timelineData: timeline
-    });
-  } catch (error) {
-    console.error("Error in test endpoint:", error);
-    let errorMessage = 'An unknown error occurred';
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    res.status(500).json({ error: "Test endpoint failed", details: errorMessage });
-  }
+  res.json({ status: 'ok', message: 'Backend is running' });
 });
 
 app.use('/api/auth', authRouter);

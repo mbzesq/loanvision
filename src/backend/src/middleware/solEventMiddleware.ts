@@ -5,7 +5,7 @@ import pool from '../db';
 export interface SOLEventRequest extends Request {
   triggerSOLUpdate?: boolean;
   solEvent?: {
-    loan_id: number;
+    loan_id: string;
     event_type: 'payment_received' | 'missed_payment' | 'foreclosure_filed' | 'acceleration' | 'maturity_reached' | 'status_change';
     metadata?: any;
   };
