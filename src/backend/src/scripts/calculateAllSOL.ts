@@ -17,10 +17,9 @@ async function calculateAllSOL() {
         dmc.state as property_state,
         dmc.origination_date,
         dmc.maturity_date,
-        dmc.next_due_date,
-        dmc.first_payment_default_date as default_date,
-        dmc.last_payment_date,
-        dmc.charge_off_date,
+        dmc.next_pymt_due as default_date,  -- Using next payment due as proxy for default
+        dmc.last_pymt_received as last_payment_date,
+        NULL as charge_off_date,  -- Not available in this table
         fe.fc_status as foreclosure_status,
         fe.complaint_filed_date,
         -- Use complaint_filed_date as acceleration_date when loan is in foreclosure
