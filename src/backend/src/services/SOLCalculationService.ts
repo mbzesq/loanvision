@@ -25,8 +25,8 @@ interface JurisdictionData {
 }
 
 interface TriggerEvent {
-  trigger_name: string;
-  priority: number;
+  event_type: string;
+  description: string;
 }
 
 interface TollingProvision {
@@ -177,10 +177,10 @@ export class SOLCalculationService {
    */
   private async getTriggerEvents(jurisdictionId: number): Promise<TriggerEvent[]> {
     const query = `
-      SELECT trigger_name, priority
+      SELECT event_type, description
       FROM sol_trigger_events
       WHERE jurisdiction_id = $1
-      ORDER BY priority ASC
+      ORDER BY id ASC
     `;
 
     const result = await this.pool.query(query, [jurisdictionId]);
@@ -191,7 +191,7 @@ export class SOLCalculationService {
    * Determine which trigger event applies and the trigger date
    */
   private determineTriggerDate(loanData: LoanSOLData, triggerEvents: TriggerEvent[]): { triggerEvent: string | null; triggerDate: Date | null } {
-    // Map trigger names to loan data dates
+    // Map trigger event types to loan data dates
     const dateMap: { [key: string]: Date | null | undefined } = {
       'acceleration_date': loanData.acceleration_date || loanData.complaint_filed_date,
       'maturity_date': loanData.maturity_date,
@@ -201,11 +201,11 @@ export class SOLCalculationService {
       'complaint_filed': loanData.complaint_filed_date
     };
 
-    // Check trigger events in priority order
+    // Check trigger events in order
     for (const trigger of triggerEvents) {
-      const date = dateMap[trigger.trigger_name];
+      const date = dateMap[trigger.event_type];
       if (date) {
-        return { triggerEvent: trigger.trigger_name, triggerDate: date };
+        return { triggerEvent: trigger.event_type, triggerDate: date };
       }
     }
 

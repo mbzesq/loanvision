@@ -130,7 +130,7 @@ async function addConstraint() {
     `);
     console.log('✅ Added unique constraint on loan_id\n');
   } catch (error: any) {
-    if (error.code === '42710') { // Constraint already exists
+    if (error.code === '42710' || error.code === '42P07') { // Constraint already exists
       console.log('ℹ️  Unique constraint already exists\n');
     } else {
       throw error;
