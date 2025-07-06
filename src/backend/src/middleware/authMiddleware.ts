@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { JWTPayload, UserRole } from '@loanvision/shared/src/types';
+import { JWTPayload, UserRole } from '../types/auth';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-me-in-production';
 

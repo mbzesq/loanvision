@@ -3,7 +3,7 @@ import pool from '../db';
 import { getForeclosureTimeline } from '../services/foreclosureService';
 import { enrichLoanWithPropertyData } from '../services/homeHarvestService';
 import { getCurrentPropertyData } from '../services/propertyDataService';
-import { enrichLoanWithRentCast } from '../services/rentCastService';
+// import { enrichLoanWithRentCast } from '../services/rentCastService';
 import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -210,7 +210,7 @@ router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
     console.log(`[API] Starting RentCast property enrichment for loan ${loanId} at address: ${fullAddress}`);
 
     // Trigger the RentCast enrichment process
-    const enrichedData = await enrichLoanWithRentCast(loanId, fullAddress);
+    //     const enrichedData = await enrichLoanWithRentCast(loanId, fullAddress);
 
     console.log(`[API] RentCast property enrichment completed for loan ${loanId}`);
 
@@ -220,7 +220,7 @@ router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
       loan_id: loanId,
       address: fullAddress,
       source: 'RentCast',
-      property_data: enrichedData
+      // property_data: enrichedData
     });
 
   } catch (error) {

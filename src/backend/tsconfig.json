@@ -1,28 +1,23 @@
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "commonjs",
-    "lib": ["ES2022"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "baseUrl": "./src",
-    "paths": {
-      "@loanvision/shared": ["../../shared/src"]
-    }
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "../shared" }
-  ]
-}
+  {
+    "compilerOptions": {
+      "target": "ES2022",
+      "module": "commonjs",
+      "lib": ["ES2022"],
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "resolveJsonModule": true,
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true,
+      "declaration": true,
+      "declarationMap": true,
+      "sourceMap": true,
+      "baseUrl": "./src"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "src/services/rentCastService.ts", "src/services/propertyDataPyService.ts"]
+  }
+
