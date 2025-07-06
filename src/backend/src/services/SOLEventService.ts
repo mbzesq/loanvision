@@ -126,10 +126,9 @@ export class SOLEventService {
         dmc.state as property_state,
         dmc.origination_date,
         dmc.maturity_date,
-        dmc.next_due_date,
-        dmc.first_payment_default_date as default_date,
-        dmc.last_payment_date,
-        dmc.charge_off_date,
+        dmc.next_pymt_due as default_date,
+        dmc.last_pymt_received as last_payment_date,
+        NULL as charge_off_date,
         fe.fc_status as foreclosure_status,
         fe.complaint_filed_date,
         -- Use complaint_filed_date as acceleration_date when loan is in foreclosure
@@ -149,7 +148,7 @@ export class SOLEventService {
   /**
    * Log significant SOL changes for audit trail
    */
-  private async logSOLChange(loanId: number, event: LoanEvent, solResult: any): Promise<void> {
+  private async logSOLChange(loanId: string, event: LoanEvent, solResult: any): Promise<void> {
     // Only log significant changes
     if (solResult.is_expired || solResult.days_until_expiration < 365) {
       await this.pool.query(`
@@ -187,7 +186,7 @@ export class SOLEventService {
   }
 
   /**
-   * Check for loans approaching SOL expiration and send alerts
+   * Check for loans approaching SOL expiration and return alerts
    */
   async checkExpirationAlerts(): Promise<string[]> {
     const alerts: string[] = [];
@@ -195,13 +194,12 @@ export class SOLEventService {
     // Get loans expiring in the next 30, 60, and 90 days
     const alertQuery = `
       SELECT 
-        l.loan_number,
-        l.property_state,
+        lsc.loan_id,
+        lsc.property_state,
         lsc.days_until_expiration,
         lsc.adjusted_expiration_date,
         lsc.sol_risk_level
-      FROM loans l
-      JOIN loan_sol_calculations lsc ON lsc.loan_id = l.id
+      FROM loan_sol_calculations lsc
       WHERE lsc.days_until_expiration BETWEEN 0 AND 90
       AND lsc.is_expired = false
       ORDER BY lsc.days_until_expiration ASC
@@ -217,9 +215,63 @@ export class SOLEventService {
       else if (days <= 60) alertLevel = 'HIGH';
       else alertLevel = 'MEDIUM';
       
-      alerts.push(`${alertLevel}: Loan ${loan.loan_number} (${loan.property_state}) expires in ${days} days`);
+      alerts.push(`${alertLevel}: Loan ${loan.loan_id} (${loan.property_state}) expires in ${days} days`);
     }
 
     return alerts;
+  }
+
+  /**
+   * Update SOL calculation when specific loan events occur
+   */
+  async triggerSOLUpdateForLoan(loanId: string, eventType: string = 'status_change'): Promise<boolean> {
+    try {
+      await this.handleLoanEvent({
+        loan_id: loanId,
+        event_type: eventType as any,
+        event_date: new Date()
+      });
+      return true;
+    } catch (error) {
+      console.error(`Failed to trigger SOL update for loan ${loanId}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Get SOL summary statistics
+   */
+  async getSOLSummary(): Promise<{
+    total_loans: number;
+    expired_count: number;
+    high_risk_count: number;
+    medium_risk_count: number;
+    low_risk_count: number;
+    alerts: string[];
+  }> {
+    const summaryQuery = `
+      SELECT 
+        COUNT(*) as total_loans,
+        SUM(CASE WHEN is_expired THEN 1 ELSE 0 END) as expired_count,
+        SUM(CASE WHEN sol_risk_level = 'HIGH' THEN 1 ELSE 0 END) as high_risk_count,
+        SUM(CASE WHEN sol_risk_level = 'MEDIUM' THEN 1 ELSE 0 END) as medium_risk_count,
+        SUM(CASE WHEN sol_risk_level = 'LOW' THEN 1 ELSE 0 END) as low_risk_count
+      FROM loan_sol_calculations
+    `;
+
+    const result = await this.pool.query(summaryQuery);
+    const summary = result.rows[0];
+
+    // Get current alerts
+    const alerts = await this.checkExpirationAlerts();
+
+    return {
+      total_loans: parseInt(summary.total_loans),
+      expired_count: parseInt(summary.expired_count),
+      high_risk_count: parseInt(summary.high_risk_count),
+      medium_risk_count: parseInt(summary.medium_risk_count),
+      low_risk_count: parseInt(summary.low_risk_count),
+      alerts
+    };
   }
 }

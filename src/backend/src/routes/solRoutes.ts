@@ -531,5 +531,26 @@ export function createSOLRoutes(pool: Pool): Router {
     }
   });
 
+  /**
+   * GET /api/sol/dashboard-data
+   * Get comprehensive SOL data for dashboard display
+   */
+  router.get('/dashboard-data', async (req: Request, res: Response) => {
+    try {
+      const summary = await solEventService.getSOLSummary();
+      
+      res.json({
+        success: true,
+        data: summary
+      });
+    } catch (error) {
+      console.error('Error fetching SOL dashboard data:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch SOL dashboard data'
+      });
+    }
+  });
+
   return router;
 }

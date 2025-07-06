@@ -1,12 +1,14 @@
-import { SOLEventService } from './SOLEventService';
 import { Pool } from 'pg';
+import { SOLEventService } from './SOLEventService';
 
 export class SOLScheduler {
+  private pool: Pool;
   private solEventService: SOLEventService;
-  private intervalId: NodeJS.Timeout | null = null;
+  private dailyUpdateInterval: NodeJS.Timeout | null = null;
   private isRunning = false;
 
   constructor(pool: Pool) {
+    this.pool = pool;
     this.solEventService = new SOLEventService(pool);
   }
 
@@ -22,41 +24,86 @@ export class SOLScheduler {
     console.log('🚀 Starting SOL scheduler...');
     this.isRunning = true;
 
-    // Run immediately on startup
-    this.runDailyUpdate();
+    // Run initial update check
+    this.runInitialUpdate();
 
-    // Calculate milliseconds until next midnight
+    // Calculate milliseconds until next 2 AM
     const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(2, 0, 0, 0); // Run at 2 AM to avoid peak hours
+    const next2AM = new Date(now);
+    next2AM.setHours(2, 0, 0, 0);
     
-    const msUntilTomorrow = tomorrow.getTime() - now.getTime();
+    // If it's already past 2 AM today, schedule for 2 AM tomorrow
+    if (now >= next2AM) {
+      next2AM.setDate(next2AM.getDate() + 1);
+    }
+    
+    const msUntilNext2AM = next2AM.getTime() - now.getTime();
 
     // Set timeout for first scheduled run
     setTimeout(() => {
       this.runDailyUpdate();
       
       // Then run every 24 hours
-      this.intervalId = setInterval(() => {
+      this.dailyUpdateInterval = setInterval(() => {
         this.runDailyUpdate();
       }, 24 * 60 * 60 * 1000); // 24 hours
       
-    }, msUntilTomorrow);
+    }, msUntilNext2AM);
 
-    console.log(`📅 Next SOL update scheduled for ${tomorrow.toISOString()}`);
+    console.log(`📅 Next SOL update scheduled for ${next2AM.toISOString()}`);
   }
 
   /**
    * Stop the SOL scheduler
    */
   stop(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
+    if (this.dailyUpdateInterval) {
+      clearInterval(this.dailyUpdateInterval);
+      this.dailyUpdateInterval = null;
     }
     this.isRunning = false;
     console.log('🛑 SOL scheduler stopped');
+  }
+
+  /**
+   * Run initial update check on startup
+   */
+  private async runInitialUpdate(): Promise<void> {
+    try {
+      console.log('🔄 Running initial SOL update check...');
+      
+      // Check if we need to run today's update
+      const lastUpdateQuery = `
+        SELECT update_date, loans_updated
+        FROM sol_batch_log
+        ORDER BY update_date DESC
+        LIMIT 1
+      `;
+
+      const lastUpdate = await this.pool.query(lastUpdateQuery);
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (lastUpdate.rows.length === 0 || lastUpdate.rows[0].update_date !== today) {
+        console.log('📊 Running SOL update for today...');
+        const result = await this.solEventService.runDailySOLUpdate();
+        console.log(`🎉 Initial update completed: ${result.updated} loans updated, ${result.errors} errors`);
+      } else {
+        console.log(`ℹ️  SOL update already completed today (${lastUpdate.rows[0].loans_updated} loans)`);
+      }
+
+      // Show current alerts
+      const alerts = await this.solEventService.checkExpirationAlerts();
+      if (alerts.length > 0) {
+        console.log('\n⚠️  Current SOL Alerts:');
+        alerts.slice(0, 5).forEach(alert => console.log(`   ${alert}`));
+        if (alerts.length > 5) {
+          console.log(`   ... and ${alerts.length - 5} more alerts`);
+        }
+      }
+
+    } catch (error) {
+      console.error('❌ Initial SOL update failed:', error);
+    }
   }
 
   /**
