@@ -11,7 +11,9 @@
     "diagnose:cashflow": "tsx diagnostics/diagnose_cashflow.ts",
     "setup:sol": "tsx src/scripts/setupSOL.ts",
     "migrate:sol": "tsx src/scripts/runSOLMigration.ts",
-    "calculate:sol": "tsx src/scripts/calculatePortfolioSOL.ts"
+    "calculate:sol": "tsx src/scripts/calculatePortfolioSOL.ts",
+    "fix:sol": "tsx src/scripts/fixSOLTables.ts",
+    "update:sol-categories": "tsx src/scripts/updateSOLCategories.ts"
   },
   "dependencies": {
     "@aws-sdk/client-textract": "^3.478.0",
