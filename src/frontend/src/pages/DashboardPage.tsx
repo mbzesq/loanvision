@@ -5,7 +5,7 @@ import LoanStatusChart from '../components/Dashboard/LoanStatusChart';
 import GeographicalDistributionChart from '../components/Dashboard/GeographicalDistributionChart';
 import MonthlyCashflowChart from '../components/Dashboard/MonthlyCashflowChart';
 import ForeclosureTrackingChart from '../components/Dashboard/ForeclosureTrackingChart';
-import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
+import SOLRiskOverviewCard from '../components/SOL/SOLRiskOverviewCard';
 import axios from '../utils/axios';
 import '../styles/design-system.css';
 
@@ -251,8 +251,13 @@ function DashboardPage() {
 
       {/* Charts Grid */}
       <div className="chart-grid">
-        {/* Chart 1: SOL Monitor */}
-        <SOLMonitorCard />
+        {/* Chart 1: SOL Risk Overview */}
+        <SOLRiskOverviewCard 
+          onRiskLevelClick={(riskLevel) => {
+            console.log(`Clicked on ${riskLevel} risk loans`);
+            // TODO: Navigate to filtered loan list or show modal
+          }}
+        />
 
         {/* Chart 2: Loan Status */}
         <ModernChartContainer
