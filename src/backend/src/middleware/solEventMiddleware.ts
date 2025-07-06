@@ -43,7 +43,7 @@ export const solEventMiddleware = async (req: SOLEventRequest, res: Response, ne
  */
 export const markForSOLUpdate = (
   req: SOLEventRequest, 
-  loanId: number, 
+  loanId: string, 
   eventType: 'payment_received' | 'missed_payment' | 'foreclosure_filed' | 'acceleration' | 'maturity_reached' | 'status_change',
   metadata?: any
 ) => {
