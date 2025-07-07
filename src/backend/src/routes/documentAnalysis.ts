@@ -6,6 +6,7 @@ import { TextractService } from '../ocr/textractClient';
 import { DocumentClassifier } from '../ml/documentClassifier';
 import { FieldExtractor } from '../extraction/fieldExtractor';
 import { s3Service } from '../services/s3Service';
+import { ocrEnhancementService } from '../services/ocrEnhancementService';
 
 const router = Router();
 
@@ -66,32 +67,49 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
   try {
     console.log(`Starting document analysis for ${file.originalname} (loan: ${loanId})`);
 
-    // Step 1: Upload to S3 for archival
-    console.log('Step 1: Uploading document to S3...');
+    // Step 1: Upload original to S3 for archival
+    console.log('Step 1: Uploading original document to S3...');
     const s3Result = await s3Service.uploadDocument(
       loanId,
       file.originalname,
       file.buffer,
       'pending' // Will update with actual type after classification
     );
-    console.log(`Document uploaded to S3: ${s3Result.key}`);
+    console.log(`Original document uploaded to S3: ${s3Result.key}`);
 
-    // Step 2: OCR with Textract
-    console.log('Step 2: Running OCR...');
-    const textractResult = await textractService.analyzeDocument(file.buffer);
+    // Step 2: Enhance PDF for better OCR (if available)
+    console.log('Step 2: Enhancing PDF for OCR...');
+    let processBuffer = file.buffer;
+    try {
+      const isEnhancementAvailable = await ocrEnhancementService.isEnhancementAvailable();
+      if (isEnhancementAvailable) {
+        const enhancedBuffer = await ocrEnhancementService.enhancePDF(file.buffer, file.originalname);
+        processBuffer = enhancedBuffer;
+        console.log('PDF enhancement completed successfully');
+      } else {
+        console.log('OCR enhancement not available, using original PDF');
+      }
+    } catch (enhancementError) {
+      console.warn('OCR enhancement failed, using original PDF:', enhancementError);
+      // Continue with original buffer
+    }
+
+    // Step 3: OCR with Textract
+    console.log('Step 3: Running OCR with Textract...');
+    const textractResult = await textractService.analyzeDocument(processBuffer);
     console.log(`OCR completed. Extracted ${textractResult.text.length} characters with ${textractResult.keyValuePairs.size} key-value pairs`);
 
-    // Step 3: Classify document type
-    console.log('Step 3: Classifying document...');
+    // Step 4: Classify document type
+    console.log('Step 4: Classifying document...');
     const classification = await documentClassifier.classify(textractResult);
     console.log(`Document classified as ${classification.documentType} with confidence ${classification.confidence.toFixed(4)}`);
 
-    // Step 4: Extract fields based on document type
-    console.log('Step 4: Extracting fields...');
+    // Step 5: Extract fields based on document type
+    console.log('Step 5: Extracting fields...');
     const extractedFields = await fieldExtractor.extractFields(textractResult, classification.documentType);
     console.log(`Extracted ${extractedFields.fieldConfidence.size} fields`);
 
-    // Step 5: Save to database
+    // Step 6: Save to database
     const processingTime = Date.now() - startTime;
     
     const insertQuery = `
@@ -165,7 +183,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
 
     const savedDocument = result.rows[0];
 
-    // Step 5: Flag low-confidence fields for QA
+    // Step 7: Flag low-confidence fields for QA
     await flagLowConfidenceFields(savedDocument.id, extractedFields);
 
     // Clear the buffer to free memory (security measure)
