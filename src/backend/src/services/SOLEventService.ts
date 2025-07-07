@@ -63,7 +63,7 @@ export class SOLEventService {
       const loansToUpdate = await this.pool.query(`
         SELECT 
                dmc.loan_id,
-               dmc.state as property_state,
+               dmc.property_state,
                lsc.days_until_expiration,
                lsc.updated_at as last_sol_update,
                CASE 
@@ -74,7 +74,7 @@ export class SOLEventService {
                END as priority_order
         FROM daily_metrics_current dmc
         LEFT JOIN loan_sol_calculations lsc ON lsc.loan_id = dmc.loan_id
-        WHERE dmc.state IS NOT NULL
+        WHERE dmc.property_state IS NOT NULL
         AND (
           lsc.id IS NULL  -- No SOL calculation
           OR lsc.updated_at < NOW() - INTERVAL '24 hours'  -- Stale calculation
@@ -124,10 +124,10 @@ export class SOLEventService {
     const query = `
       SELECT 
         dmc.loan_id,
-        dmc.state as property_state,
+        dmc.property_state,
         dmc.origination_date,
         dmc.maturity_date,
-        dmc.next_pymt_due as default_date,
+        dmc.first_pymt_due as default_date,
         dmc.last_pymt_received as last_payment_date,
         NULL as charge_off_date,
         fe.fc_status as foreclosure_status,

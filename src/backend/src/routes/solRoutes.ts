@@ -61,84 +61,39 @@ router.get('/dashboard-data', async (req, res) => {
 
 /**
  * GET /api/sol/loan/:loanId
- * Get SOL calculation for a specific loan (always calculated from current data)
+ * Get SOL calculation for a specific loan (from pre-calculated data)
  */
 router.get('/loan/:loanId', async (req, res) => {
   try {
     const { loanId } = req.params;
-    console.log(`🔍 Calculating SOL for loan: ${loanId} (using current data)`);
+    console.log(`🔍 Fetching SOL data for loan: ${loanId}`);
     
-    // Always get fresh loan data from daily_metrics_current and foreclosure_events
-    const loanDataQuery = `
+    // Get SOL calculation from loan_sol_calculations table
+    const solQuery = `
       SELECT 
-        dmc.loan_id,
-        dmc.property_state,
-        dmc.origination_date,
-        dmc.maturity_date,
-        dmc.last_pymt_received as last_payment_date,
-        dmc.first_pymt_due,
-        fe.complaint_filed_date as acceleration_date,
-        fe.fc_start_date,
-        fe.fc_status as foreclosure_status,
-        fe.judgment_date,
-        fe.sale_held_date,
-        fe.real_estate_owned_date
-      FROM daily_metrics_current dmc
-      LEFT JOIN foreclosure_events fe ON fe.loan_id = dmc.loan_id
-      WHERE dmc.loan_id = $1
+        lsc.*,
+        sj.state_name as jurisdiction_name,
+        sj.risk_level as jurisdiction_risk_level
+      FROM loan_sol_calculations lsc
+      LEFT JOIN sol_jurisdictions sj ON sj.id = lsc.jurisdiction_id
+      WHERE lsc.loan_id = $1
     `;
     
-    const loanDataResult = await pool.query(loanDataQuery, [loanId]);
+    const solResult = await pool.query(solQuery, [loanId]);
     
-    if (loanDataResult.rows.length === 0) {
+    if (solResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Loan not found in system'
+        error: 'SOL calculation not found for this loan',
+        message: 'This loan may not have been processed by the SOL system yet. SOL calculations are updated daily.'
       });
     }
     
-    const loanData = loanDataResult.rows[0];
-    console.log(`📋 Loan data retrieved:`, {
-      loan_id: loanData.loan_id,
-      property_state: loanData.property_state,
-      maturity_date: loanData.maturity_date,
-      last_payment_date: loanData.last_payment_date,
-      acceleration_date: loanData.acceleration_date,
-      foreclosure_status: loanData.foreclosure_status
-    });
-    
-    // Calculate SOL based on current data
-    const calculatedSOL = await solCalculationService.calculateLoanSOL(loanData);
-    
-    if (!calculatedSOL) {
-      return res.json({
-        success: false,
-        error: 'Unable to calculate SOL for this loan',
-        data: {
-          loan_id: loanData.loan_id,
-          property_state: loanData.property_state,
-          has_sol_calculation: false,
-          message: 'No valid SOL triggers found for this loan',
-          source_data: loanData
-        }
-      });
-    }
-    
-    // Store/update the calculated result in loan_sol_calculations for auditing
-    try {
-      await solCalculationService.storeCalculationResult(calculatedSOL);
-    } catch (storeError) {
-      console.warn(`⚠️ Failed to store SOL calculation for loan ${loanId}:`, storeError);
-      // Continue anyway - calculation is still valid
-    }
+    const solData = solResult.rows[0];
     
     res.json({
       success: true,
-      data: {
-        ...calculatedSOL,
-        source_data: loanData,
-        calculated_at: new Date().toISOString()
-      }
+      data: solData
     });
     
   } catch (error) {
@@ -153,31 +108,31 @@ router.get('/loan/:loanId', async (req, res) => {
 
 /**
  * POST /api/sol/calculate-portfolio
- * Manually trigger portfolio-wide SOL calculation
+ * Manually trigger daily SOL batch processing (detects changes and updates)
  */
 router.post('/calculate-portfolio', async (req, res) => {
   try {
-    console.log('🔄 Starting manual portfolio SOL calculation...');
+    console.log('🔄 Starting manual SOL daily batch processing...');
     
-    const result = await solCalculationService.calculatePortfolioSOL();
+    const result = await solEventService.runDailySOLUpdate();
     
-    console.log(`✅ Portfolio SOL calculation completed: ${result.processed} processed, ${result.errors} errors`);
+    console.log(`✅ SOL batch processing completed: ${result.updated} updated, ${result.errors} errors`);
     
     res.json({
       success: true,
       data: {
-        message: 'Portfolio SOL calculation completed',
-        processed: result.processed,
+        message: 'SOL daily batch processing completed',
+        updated: result.updated,
         errors: result.errors,
         timestamp: new Date().toISOString()
       }
     });
     
   } catch (error) {
-    console.error('❌ Error calculating portfolio SOL:', error);
+    console.error('❌ Error running SOL batch processing:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to calculate portfolio SOL',
+      error: 'Failed to run SOL batch processing',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
