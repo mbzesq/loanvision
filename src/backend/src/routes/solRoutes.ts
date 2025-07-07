@@ -61,127 +61,83 @@ router.get('/dashboard-data', async (req, res) => {
 
 /**
  * GET /api/sol/loan/:loanId
- * Get SOL calculation for a specific loan
+ * Get SOL calculation for a specific loan (always calculated from current data)
  */
 router.get('/loan/:loanId', async (req, res) => {
   try {
     const { loanId } = req.params;
-    console.log(`🔍 Fetching SOL data for loan: ${loanId}`);
+    console.log(`🔍 Calculating SOL for loan: ${loanId} (using current data)`);
     
-    // Get existing SOL calculation from database
-    const solQuery = `
+    // Always get fresh loan data from daily_metrics_current and foreclosure_events
+    const loanDataQuery = `
       SELECT 
-        loan_id,
-        jurisdiction_id,
-        property_state,
-        origination_date,
-        maturity_date,
-        default_date,
-        last_payment_date,
-        acceleration_date,
-        charge_off_date,
-        sol_trigger_event,
-        sol_trigger_date,
-        sol_expiration_date,
-        days_until_expiration,
-        is_expired,
-        tolling_events,
-        total_tolled_days,
-        adjusted_expiration_date,
-        sol_risk_score,
-        sol_risk_level,
-        risk_factors,
-        calculation_date,
-        created_at,
-        updated_at
-      FROM loan_sol_calculations 
-      WHERE loan_id = $1
+        dmc.loan_id,
+        dmc.property_state,
+        dmc.origination_date,
+        dmc.maturity_date,
+        dmc.last_pymt_received as last_payment_date,
+        dmc.first_pymt_due,
+        fe.complaint_filed_date as acceleration_date,
+        fe.fc_start_date,
+        fe.fc_status as foreclosure_status,
+        fe.judgment_date,
+        fe.sale_held_date,
+        fe.real_estate_owned_date
+      FROM daily_metrics_current dmc
+      LEFT JOIN foreclosure_events fe ON fe.loan_id = dmc.loan_id
+      WHERE dmc.loan_id = $1
     `;
     
-    const solResult = await pool.query(solQuery, [loanId]);
+    const loanDataResult = await pool.query(loanDataQuery, [loanId]);
     
-    if (solResult.rows.length === 0) {
-      // No pre-calculated SOL data exists, attempt dynamic calculation
-      console.log(`⚡ No pre-calculated SOL found for loan ${loanId}, attempting dynamic calculation...`);
-      
-      try {
-        // Get loan data from daily_metrics_current and foreclosure_events
-        const loanDataQuery = `
-          SELECT 
-            dmc.loan_id,
-            dmc.property_state,
-            dmc.origination_date,
-            dmc.maturity_date,
-            dmc.last_pymt_received as last_payment_date,
-            dmc.first_pymt_due,
-            fe.complaint_filed_date as acceleration_date,
-            fe.fc_start_date,
-            fe.fc_status as foreclosure_status,
-            fe.judgment_date,
-            fe.sale_held_date,
-            fe.real_estate_owned_date
-          FROM daily_metrics_current dmc
-          LEFT JOIN foreclosure_events fe ON fe.loan_id = dmc.loan_id
-          WHERE dmc.loan_id = $1
-        `;
-        
-        const loanDataResult = await pool.query(loanDataQuery, [loanId]);
-        
-        if (loanDataResult.rows.length === 0) {
-          return res.status(404).json({
-            success: false,
-            error: 'Loan not found in system'
-          });
-        }
-        
-        const loanData = loanDataResult.rows[0];
-        
-        // Calculate SOL dynamically
-        const calculatedSOL = await solCalculationService.calculateLoanSOL(loanData);
-        
-        if (!calculatedSOL) {
-          return res.json({
-            success: false,
-            error: 'Unable to calculate SOL for this loan',
-            data: {
-              loan_id: loanData.loan_id,
-              property_state: loanData.property_state,
-              has_sol_calculation: false,
-              message: 'No valid SOL triggers found for this loan'
-            }
-          });
-        }
-        
-        // Store the calculated result for future use
-        await solCalculationService.storeCalculationResult(calculatedSOL);
-        
-        return res.json({
-          success: true,
-          data: {
-            ...calculatedSOL,
-            loan_data: loanData,
-            calculated_at: new Date().toISOString(),
-            was_calculated_dynamically: true
-          }
-        });
-        
-      } catch (calcError) {
-        console.error(`❌ Error performing dynamic SOL calculation for loan ${loanId}:`, calcError);
-        return res.status(500).json({
-          success: false,
-          error: 'Unable to calculate SOL for this loan',
-          message: calcError instanceof Error ? calcError.message : 'Unknown error'
-        });
-      }
+    if (loanDataResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Loan not found in system'
+      });
     }
     
-    const solData = solResult.rows[0];
+    const loanData = loanDataResult.rows[0];
+    console.log(`📋 Loan data retrieved:`, {
+      loan_id: loanData.loan_id,
+      property_state: loanData.property_state,
+      maturity_date: loanData.maturity_date,
+      last_payment_date: loanData.last_payment_date,
+      acceleration_date: loanData.acceleration_date,
+      foreclosure_status: loanData.foreclosure_status
+    });
+    
+    // Calculate SOL based on current data
+    const calculatedSOL = await solCalculationService.calculateLoanSOL(loanData);
+    
+    if (!calculatedSOL) {
+      return res.json({
+        success: false,
+        error: 'Unable to calculate SOL for this loan',
+        data: {
+          loan_id: loanData.loan_id,
+          property_state: loanData.property_state,
+          has_sol_calculation: false,
+          message: 'No valid SOL triggers found for this loan',
+          source_data: loanData
+        }
+      });
+    }
+    
+    // Store/update the calculated result in loan_sol_calculations for auditing
+    try {
+      await solCalculationService.storeCalculationResult(calculatedSOL);
+    } catch (storeError) {
+      console.warn(`⚠️ Failed to store SOL calculation for loan ${loanId}:`, storeError);
+      // Continue anyway - calculation is still valid
+    }
     
     res.json({
       success: true,
       data: {
-        ...solData,
-        was_calculated_dynamically: false
+        ...calculatedSOL,
+        source_data: loanData,
+        calculated_at: new Date().toISOString()
       }
     });
     
