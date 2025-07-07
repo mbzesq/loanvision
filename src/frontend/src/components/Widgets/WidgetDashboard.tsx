@@ -321,6 +321,7 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
           isResizable={!readOnly}
           compactType="vertical"
           preventCollision={false}
+          draggableHandle=".drag-handle"
         >
           {widgets.map((widget) => (
             <div key={widget.layout.i}>
@@ -497,6 +498,25 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
         
         .react-grid-item.react-resizable-resizing .widget-content {
           pointer-events: none;
+        }
+        
+        /* Prevent dragging on widget content, only allow on drag handle */
+        .react-grid-item .widget-content {
+          pointer-events: auto;
+        }
+        
+        .react-grid-item .drag-handle {
+          pointer-events: auto;
+          user-select: none;
+        }
+        
+        /* Make only the drag handle draggable */
+        .react-grid-item {
+          cursor: default;
+        }
+        
+        .react-grid-item .drag-handle {
+          cursor: move;
         }
       `}</style>
     </div>

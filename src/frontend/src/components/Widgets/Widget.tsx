@@ -82,13 +82,16 @@ export const Widget: React.FC<WidgetProps> = ({
             </CardTitle>
             
             {/* Widget Controls */}
-            <div className={`flex items-center gap-1 transition-opacity duration-200 ${
-              showControls ? 'opacity-100' : 'opacity-0'
-            }`}>
-              {/* Drag Handle */}
-              <div className="drag-handle cursor-move p-1 hover:bg-slate-100 rounded">
+            <div className="flex items-center gap-1">
+              {/* Drag Handle - Always visible */}
+              <div className="drag-handle cursor-move p-1 hover:bg-slate-100 rounded opacity-60 hover:opacity-100">
                 <Move className="h-3 w-3 text-slate-400" />
               </div>
+              
+              {/* Other controls - Show on hover */}
+              <div className={`flex items-center gap-1 transition-opacity duration-200 ${
+                showControls ? 'opacity-100' : 'opacity-0'
+              }`}>
 
               {/* Refresh Button */}
               {onRefresh && (
@@ -150,6 +153,7 @@ export const Widget: React.FC<WidgetProps> = ({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </div>
             </div>
           </div>
 
