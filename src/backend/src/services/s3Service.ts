@@ -26,7 +26,8 @@ export class S3Service {
   }
 
   /**
-   * Upload a document to S3
+   * Upload a document to S3 for temporary processing
+   * NOTE: Files should be deleted after processing to minimize storage costs
    * @param loanId - The loan ID this document belongs to
    * @param fileName - Original filename
    * @param buffer - File buffer

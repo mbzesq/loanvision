@@ -63,19 +63,20 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
   }
 
   const startTime = Date.now();
+  let s3Result: { key: string; bucket: string; url: string } | undefined;
 
   try {
     console.log(`Starting document analysis for ${file.originalname} (loan: ${loanId})`);
 
-    // Step 1: Upload original to S3 for archival
-    console.log('Step 1: Uploading original document to S3...');
-    const s3Result = await s3Service.uploadDocument(
+    // Step 1: Upload original to S3 for temporary processing
+    console.log('Step 1: Uploading document to S3 for processing...');
+    s3Result = await s3Service.uploadDocument(
       loanId,
       file.originalname,
       file.buffer,
       'pending' // Will update with actual type after classification
     );
-    console.log(`Original document uploaded to S3: ${s3Result.key}`);
+    console.log(`Document uploaded to S3 for processing: ${s3Result.key}`);
 
     // Step 2: Enhance PDF for better OCR (if available)
     console.log('Step 2: Enhancing PDF for OCR...');
@@ -135,12 +136,9 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
         ocr_text_blob,
         extraction_metadata,
         processing_time_ms,
-        s3_bucket,
-        s3_key,
-        s3_url,
         file_size_bytes
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
       RETURNING *;
     `;
 
@@ -175,9 +173,6 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       textractResult.text, // Store full OCR text for debugging
       JSON.stringify(extractionMetadata),
       processingTime,
-      s3Result.bucket,
-      s3Result.key,
-      s3Result.url,
       file.size,
     ]);
 
@@ -185,6 +180,15 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
 
     // Step 7: Flag low-confidence fields for QA
     await flagLowConfidenceFields(savedDocument.id, extractedFields);
+
+    // Step 8: Clean up temporary S3 storage (data now extracted to database)
+    try {
+      await s3Service.deleteDocument(s3Result.key);
+      console.log(`Cleaned up temporary S3 file: ${s3Result.key}`);
+    } catch (cleanupError) {
+      console.warn('Failed to cleanup S3 file (non-critical):', cleanupError);
+      // Don't fail the request for cleanup issues
+    }
 
     // Clear the buffer to free memory (security measure)
     file.buffer = Buffer.alloc(0);
@@ -230,6 +234,16 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
 
   } catch (error: unknown) {
     console.error('Document analysis failed:', error);
+    
+    // Cleanup S3 file on error to prevent orphaned files
+    if (s3Result && s3Result.key) {
+      try {
+        await s3Service.deleteDocument(s3Result.key);
+        console.log(`Cleaned up S3 file after error: ${s3Result.key}`);
+      } catch (cleanupError) {
+        console.warn('Failed to cleanup S3 file after error:', cleanupError);
+      }
+    }
     
     // Clear the buffer even on error (security measure)
     if (file && file.buffer) {
@@ -378,50 +392,8 @@ router.get('/:loanId/collateral', authenticateToken, async (req, res) => {
   }
 });
 
-// GET /api/v2/loans/documents/:documentId/download
-// Download a document from S3
-router.get('/documents/:documentId/download', authenticateToken, async (req, res) => {
-  const { documentId } = req.params;
-
-  try {
-    // Get document metadata from database
-    const query = `
-      SELECT id, loan_id, file_name, s3_key, s3_bucket
-      FROM document_analysis
-      WHERE id = $1;
-    `;
-
-    const result = await pool.query(query, [documentId]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Document not found' });
-    }
-
-    const document = result.rows[0];
-
-    if (!document.s3_key) {
-      return res.status(404).json({ error: 'Document file not found in storage' });
-    }
-
-    // Download from S3
-    const buffer = await s3Service.downloadDocument(document.s3_key);
-
-    // Set appropriate headers
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${document.file_name}"`);
-    res.setHeader('Content-Length', buffer.length.toString());
-
-    // Send the file
-    res.send(buffer);
-
-  } catch (error: unknown) {
-    console.error('Failed to download document:', error);
-    res.status(500).json({
-      error: 'Failed to download document',
-      details: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
-});
+// Note: Document download removed - files are processed and cleaned up automatically
+// All extracted data is stored in the database, eliminating need for file storage
 
 // Helper function to flag low-confidence fields
 async function flagLowConfidenceFields(
