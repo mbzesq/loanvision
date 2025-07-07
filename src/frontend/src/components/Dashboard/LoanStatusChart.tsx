@@ -17,11 +17,14 @@ const LoanStatusChart: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching loan status distribution...');
         const response = await axios.get<LoanStatusData[]>('/api/reports/loan-status-distribution');
+        console.log('Loan status response:', response.data);
         setData(response.data);
       } catch (err) {
         setError('Failed to fetch loan status distribution');
         console.error('Error fetching loan status distribution:', err);
+        console.error('Error details:', err);
       } finally {
         setLoading(false);
       }
@@ -110,6 +113,30 @@ const LoanStatusChart: React.FC = () => {
           color: 'var(--warning-red)'
         }}>
           {error}
+        </p>
+      </div>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column',
+        alignItems: 'center', 
+        justifyContent: 'center',
+        color: 'var(--neutral-500)'
+      }}>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        <p style={{ 
+          marginTop: 'var(--space-md)', 
+          fontSize: 'var(--font-size-sm)'
+        }}>
+          No loan status data available
         </p>
       </div>
     );
