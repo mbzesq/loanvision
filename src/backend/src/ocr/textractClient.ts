@@ -13,16 +13,38 @@ export class TextractService {
   private client: TextractClient;
 
   constructor() {
-    this.client = new TextractClient({
-      region: config.aws.region,
-      credentials: {
+    // Use AWS SDK default credential chain for better security
+    // This will try in order:
+    // 1. Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+    // 2. IAM roles (for EC2/ECS/Lambda)
+    // 3. AWS credentials file
+    // 4. AWS config file
+    const clientConfig: any = {
+      region: config.aws.region || 'us-east-1',
+    };
+
+    // Only use explicit credentials if both are provided
+    if (config.aws.accessKeyId && config.aws.secretAccessKey) {
+      clientConfig.credentials = {
         accessKeyId: config.aws.accessKeyId,
         secretAccessKey: config.aws.secretAccessKey,
-      },
-    });
+      };
+      console.log('Using explicit AWS credentials from environment variables');
+    } else {
+      console.log('Using AWS SDK default credential chain');
+    }
+
+    this.client = new TextractClient(clientConfig);
   }
 
   async analyzeDocument(pdfBuffer: Buffer): Promise<TextractResult> {
+    // Check if we have AWS credentials
+    const hasCredentials = config.aws.accessKeyId && config.aws.secretAccessKey;
+    if (!hasCredentials && process.env.NODE_ENV === 'production') {
+      console.error('AWS credentials not configured for Textract');
+      throw new Error('OCR service not configured. Please contact administrator.');
+    }
+
     const params: AnalyzeDocumentCommandInput = {
       Document: {
         Bytes: pdfBuffer,
@@ -31,6 +53,7 @@ export class TextractService {
     };
 
     try {
+      console.log(`Starting Textract analysis for ${pdfBuffer.length} byte document`);
       const command = new AnalyzeDocumentCommand(params);
       const response = await this.client.send(command);
       
@@ -38,10 +61,22 @@ export class TextractService {
         throw new Error('No blocks returned from Textract');
       }
 
+      console.log(`Textract completed successfully. Found ${response.Blocks.length} blocks`);
       return this.processTextractResponse(response.Blocks);
     } catch (error: unknown) {
       console.error('Textract analysis failed:', error);
+      
+      // Provide specific error messages for common issues
       if (error instanceof Error) {
+        if (error.message.includes('security token') || error.message.includes('UnrecognizedClientException')) {
+          throw new Error('AWS credentials are invalid or expired. Please check your configuration.');
+        }
+        if (error.message.includes('AccessDenied')) {
+          throw new Error('AWS credentials do not have permission to use Textract service.');
+        }
+        if (error.message.includes('ValidationException')) {
+          throw new Error('Invalid document format. Please ensure you are uploading a valid PDF.');
+        }
         throw new Error(`OCR processing failed: ${error.message}`);
       }
       throw new Error('OCR processing failed: Unknown error');

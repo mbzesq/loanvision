@@ -28,6 +28,29 @@ const textractService = new TextractService();
 const documentClassifier = new DocumentClassifier();
 const fieldExtractor = new FieldExtractor();
 
+// Test endpoint to check AWS configuration
+router.get('/test-aws-config', authenticateToken, async (req, res) => {
+  try {
+    const config = {
+      hasAccessKeyId: !!process.env.AWS_ACCESS_KEY_ID,
+      hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY,
+      accessKeyIdLength: process.env.AWS_ACCESS_KEY_ID?.length || 0,
+      region: process.env.AWS_REGION || 'not set',
+      nodeEnv: process.env.NODE_ENV,
+    };
+    
+    res.json({
+      status: 'Configuration Check',
+      awsConfig: config,
+      message: config.hasAccessKeyId && config.hasSecretKey 
+        ? 'AWS credentials appear to be configured' 
+        : 'AWS credentials are missing'
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /api/v2/loans/:loanId/analyze-document
 router.post('/:loanId/analyze-document', authenticateToken, upload.single('document'), async (req, res) => {
   const { loanId } = req.params;

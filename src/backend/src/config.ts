@@ -2,8 +2,34 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Correctly resolve the path to the .env file in the backend root
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
+// Load .env file only in development
+// In production (Render), environment variables are set directly
+if (process.env.NODE_ENV !== 'production') {
+  // Try multiple paths to find .env file
+  const possiblePaths = [
+    path.resolve(__dirname, '..', '.env'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(__dirname, '.env'),
+  ];
+  
+  for (const envPath of possiblePaths) {
+    const result = dotenv.config({ path: envPath });
+    if (!result.error) {
+      console.log(`Loaded .env from: ${envPath}`);
+      break;
+    }
+  }
+} else {
+  console.log('Production environment - using Render environment variables');
+}
+
+// Debug: Log which AWS credentials are available (without exposing values)
+console.log('AWS Config Check:', {
+  hasAccessKeyId: !!process.env.AWS_ACCESS_KEY_ID,
+  hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION || 'not set',
+  nodeEnv: process.env.NODE_ENV
+});
 
 export const config = {
   // Database configuration
