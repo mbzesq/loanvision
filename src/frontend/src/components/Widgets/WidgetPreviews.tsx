@@ -201,16 +201,16 @@ export const ForeclosurePreview: React.FC = () => (
   </div>
 );
 
-// Widget preview mapping
+// Widget preview mapping - matching the widget IDs from WidgetRegistry
 export const widgetPreviews: Record<string, React.ComponentType> = {
-  'portfolio_upb': UPBPreview,
-  'portfolio_count': LoanCountPreview,
-  'portfolio_avg_balance': AverageBalancePreview,
-  'performance_kpi': PerformancePreview,
-  'universal_alerts': AlertsPreview,
-  'sol_monitor': SOLMonitorPreview,
-  'loan_status_chart': LoanStatusPreview,
-  'geographical_chart': GeographicalPreview,
-  'cashflow_chart': CashflowPreview,
-  'foreclosure_chart': ForeclosurePreview
+  'kpi-upb': UPBPreview,
+  'kpi-loans': LoanCountPreview,
+  'kpi-balance': AverageBalancePreview,
+  'kpi-performance': PerformancePreview,
+  'alerts': AlertsPreview,
+  'sol-monitor': SOLMonitorPreview,
+  'loan-status': LoanStatusPreview,
+  'geographical': GeographicalPreview,
+  'cashflow': CashflowPreview,
+  'foreclosure': ForeclosurePreview
 };

@@ -316,8 +316,8 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
         </ResponsiveGridLayout>
       </div>
 
-      {/* Widget Catalog Modal */}
-      {showCatalog && (
+      {/* Widget Catalog Modal - Temporarily Disabled */}
+      {false && showCatalog && (
         <WidgetCatalog
           onAddWidget={handleAddWidget}
           onClose={() => setShowCatalog(false)}
