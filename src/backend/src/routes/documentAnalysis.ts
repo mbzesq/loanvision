@@ -5,6 +5,7 @@ import { authenticateToken } from '../middleware/authMiddleware';
 import { TextractService } from '../ocr/textractClient';
 import { DocumentClassifier } from '../ml/documentClassifier';
 import { FieldExtractor } from '../extraction/fieldExtractor';
+import { s3Service } from '../services/s3Service';
 
 const router = Router();
 
@@ -65,22 +66,32 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
   try {
     console.log(`Starting document analysis for ${file.originalname} (loan: ${loanId})`);
 
-    // Step 1: OCR with Textract
-    console.log('Step 1: Running OCR...');
+    // Step 1: Upload to S3 for archival
+    console.log('Step 1: Uploading document to S3...');
+    const s3Result = await s3Service.uploadDocument(
+      loanId,
+      file.originalname,
+      file.buffer,
+      'pending' // Will update with actual type after classification
+    );
+    console.log(`Document uploaded to S3: ${s3Result.key}`);
+
+    // Step 2: OCR with Textract
+    console.log('Step 2: Running OCR...');
     const textractResult = await textractService.analyzeDocument(file.buffer);
     console.log(`OCR completed. Extracted ${textractResult.text.length} characters with ${textractResult.keyValuePairs.size} key-value pairs`);
 
-    // Step 2: Classify document type
-    console.log('Step 2: Classifying document...');
+    // Step 3: Classify document type
+    console.log('Step 3: Classifying document...');
     const classification = await documentClassifier.classify(textractResult);
     console.log(`Document classified as ${classification.documentType} with confidence ${classification.confidence.toFixed(4)}`);
 
-    // Step 3: Extract fields based on document type
-    console.log('Step 3: Extracting fields...');
+    // Step 4: Extract fields based on document type
+    console.log('Step 4: Extracting fields...');
     const extractedFields = await fieldExtractor.extractFields(textractResult, classification.documentType);
     console.log(`Extracted ${extractedFields.fieldConfidence.size} fields`);
 
-    // Step 4: Save to database
+    // Step 5: Save to database
     const processingTime = Date.now() - startTime;
     
     const insertQuery = `
@@ -105,9 +116,13 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
         instrument_number,
         ocr_text_blob,
         extraction_metadata,
-        processing_time_ms
+        processing_time_ms,
+        s3_bucket,
+        s3_key,
+        s3_url,
+        file_size_bytes
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
       RETURNING *;
     `;
 
@@ -142,6 +157,10 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       textractResult.text, // Store full OCR text for debugging
       JSON.stringify(extractionMetadata),
       processingTime,
+      s3Result.bucket,
+      s3Result.key,
+      s3Result.url,
+      file.size,
     ]);
 
     const savedDocument = result.rows[0];
@@ -336,6 +355,51 @@ router.get('/:loanId/collateral', authenticateToken, async (req, res) => {
     console.error('Failed to fetch collateral documents:', error);
     res.status(500).json({
       error: 'Failed to fetch collateral documents',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// GET /api/v2/loans/documents/:documentId/download
+// Download a document from S3
+router.get('/documents/:documentId/download', authenticateToken, async (req, res) => {
+  const { documentId } = req.params;
+
+  try {
+    // Get document metadata from database
+    const query = `
+      SELECT id, loan_id, file_name, s3_key, s3_bucket
+      FROM document_analysis
+      WHERE id = $1;
+    `;
+
+    const result = await pool.query(query, [documentId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    const document = result.rows[0];
+
+    if (!document.s3_key) {
+      return res.status(404).json({ error: 'Document file not found in storage' });
+    }
+
+    // Download from S3
+    const buffer = await s3Service.downloadDocument(document.s3_key);
+
+    // Set appropriate headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${document.file_name}"`);
+    res.setHeader('Content-Length', buffer.length.toString());
+
+    // Send the file
+    res.send(buffer);
+
+  } catch (error: unknown) {
+    console.error('Failed to download document:', error);
+    res.status(500).json({
+      error: 'Failed to download document',
       details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
