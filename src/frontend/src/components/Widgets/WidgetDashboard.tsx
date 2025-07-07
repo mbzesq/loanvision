@@ -376,40 +376,88 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
           container-type: size;
         }
         
-        /* Scale text based on container size */
-        @container (min-width: 200px) {
-          .widget-content {
-            font-size: 0.875rem;
+        /* Scale KPI card text based on container width using CSS classes */
+        @container (max-width: 200px) {
+          .react-grid-item .kpi-title {
+            font-size: 0.65rem !important;
           }
-          .widget-title {
-            font-size: 1rem;
+          .react-grid-item .kpi-value {
+            font-size: 1.25rem !important;
+            line-height: 1.2 !important;
           }
-          .widget-value {
-            font-size: 1.5rem;
+          .react-grid-item .kpi-trend {
+            font-size: 0.65rem !important;
           }
-        }
-        
-        @container (min-width: 300px) {
-          .widget-content {
-            font-size: 0.9rem;
+          .react-grid-item .kpi-icon-container {
+            width: 24px !important;
+            height: 24px !important;
           }
-          .widget-title {
-            font-size: 1.1rem;
-          }
-          .widget-value {
-            font-size: 1.875rem;
+          .react-grid-item .kpi-icon-container svg {
+            width: 12px !important;
+            height: 12px !important;
           }
         }
         
-        @container (min-width: 400px) {
-          .widget-content {
-            font-size: 1rem;
+        @container (min-width: 201px) and (max-width: 300px) {
+          .react-grid-item .kpi-title {
+            font-size: 0.75rem !important;
           }
-          .widget-title {
-            font-size: 1.25rem;
+          .react-grid-item .kpi-value {
+            font-size: 1.5rem !important;
+            line-height: 1.2 !important;
           }
-          .widget-value {
-            font-size: 2.25rem;
+          .react-grid-item .kpi-trend {
+            font-size: 0.75rem !important;
+          }
+          .react-grid-item .kpi-icon-container {
+            width: 32px !important;
+            height: 32px !important;
+          }
+          .react-grid-item .kpi-icon-container svg {
+            width: 16px !important;
+            height: 16px !important;
+          }
+        }
+        
+        @container (min-width: 301px) and (max-width: 400px) {
+          .react-grid-item .kpi-title {
+            font-size: 0.875rem !important;
+          }
+          .react-grid-item .kpi-value {
+            font-size: 2rem !important;
+            line-height: 1.1 !important;
+          }
+          .react-grid-item .kpi-trend {
+            font-size: 0.875rem !important;
+          }
+          .react-grid-item .kpi-icon-container {
+            width: 36px !important;
+            height: 36px !important;
+          }
+          .react-grid-item .kpi-icon-container svg {
+            width: 18px !important;
+            height: 18px !important;
+          }
+        }
+        
+        @container (min-width: 401px) {
+          .react-grid-item .kpi-title {
+            font-size: 1rem !important;
+          }
+          .react-grid-item .kpi-value {
+            font-size: 2.5rem !important;
+            line-height: 1 !important;
+          }
+          .react-grid-item .kpi-trend {
+            font-size: 1rem !important;
+          }
+          .react-grid-item .kpi-icon-container {
+            width: 40px !important;
+            height: 40px !important;
+          }
+          .react-grid-item .kpi-icon-container svg {
+            width: 20px !important;
+            height: 20px !important;
           }
         }
         

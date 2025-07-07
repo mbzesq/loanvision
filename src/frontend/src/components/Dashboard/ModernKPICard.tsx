@@ -139,8 +139,7 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
         justifyContent: 'space-between',
         marginBottom: 'var(--space-md)'
       }}>
-        <h3 style={{
-          fontSize: 'var(--font-size-sm)',
+        <h3 className="kpi-title" style={{
           fontWeight: 'var(--font-weight-medium)',
           color: 'var(--neutral-600)',
           margin: 0,
@@ -151,9 +150,7 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
         </h3>
         
         {icon && (
-          <div style={{
-            width: '40px',
-            height: '40px',
+          <div className="kpi-icon-container" style={{
             borderRadius: 'var(--radius-lg)',
             background: colors.bg,
             display: 'flex',
@@ -167,8 +164,7 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
       </div>
 
       {/* Main value */}
-      <div style={{
-        fontSize: 'var(--font-size-4xl)',
+      <div className="kpi-value" style={{
         fontWeight: 'var(--font-weight-bold)',
         color: 'var(--neutral-900)',
         lineHeight: 'var(--line-height-tight)',
@@ -179,11 +175,10 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
 
       {/* Trend indicator */}
       {trend && (
-        <div style={{
+        <div className="kpi-trend" style={{
           display: 'flex',
           alignItems: 'center',
           gap: 'var(--space-xs)',
-          fontSize: 'var(--font-size-sm)',
           fontWeight: 'var(--font-weight-medium)'
         }}>
           <div style={{
