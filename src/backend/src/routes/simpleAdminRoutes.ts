@@ -152,6 +152,38 @@ router.post('/sol-migrate', checkAdminKey, async (req, res) => {
 });
 
 /**
+ * GET /api/simple-admin/sol-sample-data
+ * Get sample SOL calculation data
+ */
+router.get('/sol-sample-data', checkAdminKey, async (req, res) => {
+  try {
+    // Get a few sample SOL calculations
+    const result = await pool.query(`
+      SELECT loan_id, property_state, sol_trigger_event, sol_trigger_date, 
+             sol_expiration_date, days_until_expiration, is_expired, 
+             sol_risk_level, sol_risk_score
+      FROM loan_sol_calculations 
+      ORDER BY days_until_expiration ASC NULLS LAST
+      LIMIT 10
+    `);
+
+    res.json({
+      success: true,
+      sample_data: result.rows,
+      count: result.rows.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get sample SOL data',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
  * GET /api/simple-admin/table-structure
  * Check table structure
  */
