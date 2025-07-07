@@ -20,6 +20,8 @@ export type FilterValues = {
   principalBalance: { min: number | ''; max: number | '' };
   timelineStatus: string[];
   maturityFilter: string;
+  solRiskLevel: string[];
+  solExpiration: string;
 };
 
 interface FilterPanelProps {
@@ -40,6 +42,8 @@ export const initialFilters: FilterValues = {
   principalBalance: { min: '', max: '' },
   timelineStatus: [],
   maturityFilter: 'any',
+  solRiskLevel: [],
+  solExpiration: 'any',
 };
 
 export function FilterPanel(props: FilterPanelProps) {
@@ -61,6 +65,7 @@ export function FilterPanel(props: FilterPanelProps) {
     investor: '',
     lienPos: '',
   });
+  const [solExpiration, setSolExpiration] = useState<string>('any');
 
   const handleSearchChange = (field: keyof typeof searchTerms, value: string) => {
     setSearchTerms(prev => ({ ...prev, [field]: value }));
@@ -69,7 +74,7 @@ export function FilterPanel(props: FilterPanelProps) {
 
   // Unified handler for all checkbox groups
   const handleCheckboxChange = (
-    field: 'propertyState' | 'assetStatus' | 'investor' | 'lienPos' | 'timelineStatus',
+    field: 'propertyState' | 'assetStatus' | 'investor' | 'lienPos' | 'timelineStatus' | 'solRiskLevel',
     value: string,
     checked: boolean
   ) => {
@@ -96,10 +101,11 @@ export function FilterPanel(props: FilterPanelProps) {
     }));
   };
 
-  const handleApply = () => onApplyFilters({ ...filters, maturityFilter });
+  const handleApply = () => onApplyFilters({ ...filters, maturityFilter, solExpiration });
   const handleClear = () => {
     setFilters(initialFilters);
     setMaturityFilter('any');
+    setSolExpiration('any');
     setSearchTerms({ propertyState: '', assetStatus: '', investor: '', lienPos: '' });
     onClearView();
   };
@@ -311,6 +317,77 @@ export function FilterPanel(props: FilterPanelProps) {
                       value={option.value}
                       checked={maturityFilter === option.value}
                       onChange={() => setMaturityFilter(option.value)}
+                      className="h-4 w-4"
+                    />
+                    <span className="font-normal">{option.label}</span>
+                  </Label>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* SOL Risk Level */}
+          <AccordionItem value="sol-risk">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+              <div className="flex justify-between w-full items-center">
+                <span>SOL Risk Level</span>
+                {filters.solRiskLevel.length > 0 && <Badge variant="secondary">{filters.solRiskLevel.length}</Badge>}
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="p-2 bg-slate-50/75 border-t">
+                <div className="flex flex-col gap-2">
+                  {['LOW', 'MEDIUM', 'HIGH'].map((risk) => (
+                    <div key={risk} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`sol-risk-${risk}`} 
+                        checked={filters.solRiskLevel.includes(risk)} 
+                        onCheckedChange={(checked) => handleCheckboxChange('solRiskLevel', risk, !!checked)} 
+                      />
+                      <Label htmlFor={`sol-risk-${risk}`} className="font-normal">
+                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                          risk === 'LOW' ? 'bg-green-500' : 
+                          risk === 'MEDIUM' ? 'bg-yellow-500' : 'bg-red-500'
+                        }`} />
+                        {risk}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* SOL Expiration Timeline */}
+          <AccordionItem value="sol-expiration">
+            <AccordionTrigger className="text-sm font-medium hover:no-underline px-4 py-3">
+              <div className="flex justify-between w-full items-center">
+                <span>SOL Expiration</span>
+                {solExpiration !== 'any' && <Badge variant="secondary">1</Badge>}
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="p-2 bg-slate-50/75 border-t">
+                {[
+                  { value: 'any', label: 'Any' },
+                  { value: 'expired', label: 'Already Expired' },
+                  { value: 'expiring_30', label: 'Expiring in 30 Days' },
+                  { value: 'expiring_90', label: 'Expiring in 90 Days' },
+                  { value: 'expiring_180', label: 'Expiring in 6 Months' },
+                  { value: 'expiring_365', label: 'Expiring in 1 Year' },
+                ].map((option) => (
+                  <Label
+                    key={option.value}
+                    className={`flex items-center space-x-2 p-2 rounded-md cursor-pointer hover:bg-slate-200 ${
+                      solExpiration === option.value ? 'bg-blue-100 text-blue-800' : ''
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="solExpiration"
+                      value={option.value}
+                      checked={solExpiration === option.value}
+                      onChange={() => setSolExpiration(option.value)}
                       className="h-4 w-4"
                     />
                     <span className="font-normal">{option.label}</span>

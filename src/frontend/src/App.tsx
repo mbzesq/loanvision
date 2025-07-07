@@ -5,6 +5,7 @@ import LoanExplorerPage from './pages/LoanExplorerPage';
 import UploadPage from './pages/UploadPage';
 import DashboardPage from './pages/DashboardPage';
 import LoanDetailPage from './pages/LoanDetailPage';
+import SOLMonitoringPage from './pages/SOLMonitoringPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import LandingPage from './pages/LandingPage';
@@ -42,6 +43,11 @@ function App() {
             <Route path="/upload" element={
               <ProtectedRoute>
                 <UploadPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/sol-monitoring" element={
+              <ProtectedRoute>
+                <SOLMonitoringPage />
               </ProtectedRoute>
             } />
             {/* Other pages will be added as new routes here */}

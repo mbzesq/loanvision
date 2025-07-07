@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { solService, SOLCalculation } from '../services/solService';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -72,6 +73,7 @@ const allLoanColumns = [ 'loan_id', 'investor_name', 'first_name', 'last_name', 
 function LoanExplorerPage() {
   const [searchParams] = useSearchParams();
   const [loans, setLoans] = useState<Loan[]>([]);
+  const [solData, setSOLData] = useState<Map<string, SOLCalculation>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
@@ -88,6 +90,7 @@ function LoanExplorerPage() {
     const status = searchParams.get('status');
     const milestone = searchParams.get('milestone');
     const month = searchParams.get('month');
+    const solFilter = searchParams.get('sol_filter');
     
     if (state) {
       urlFilters.propertyState = [state];
@@ -104,6 +107,24 @@ function LoanExplorerPage() {
     if (month) {
       // Could be used for date filtering in the future
       console.log('Month filter from URL:', month);
+    }
+    
+    // Handle SOL filter from dashboard navigation
+    if (solFilter) {
+      switch (solFilter) {
+        case 'expired':
+          urlFilters.solExpiration = 'expired';
+          break;
+        case 'at_risk':
+          urlFilters.solRiskLevel = ['MEDIUM', 'HIGH'];
+          break;
+        case 'high_risk':
+          urlFilters.solRiskLevel = ['HIGH'];
+          break;
+        case 'expiring_soon':
+          urlFilters.solExpiration = 'expiring_90';
+          break;
+      }
     }
     
     return urlFilters;
@@ -156,6 +177,27 @@ function LoanExplorerPage() {
         const response = await axios.get<Loan[]>(`${apiUrl}/api/v2/loans`);
         console.log('[Frontend] Received data from /api/v2/loans:', response.data); // MANDATORY LOG
         setLoans(response.data);
+        
+        // Fetch SOL data for all loans
+        try {
+          const solMap = new Map<string, SOLCalculation>();
+          const solPromises = response.data.map(async (loan) => {
+            try {
+              const solCalc = await solService.getLoanSOL(loan.loan_id);
+              if (solCalc) {
+                solMap.set(loan.loan_id, solCalc);
+              }
+            } catch (err) {
+              // Silently handle individual SOL fetch failures
+              console.debug(`SOL data not available for loan ${loan.loan_id}`);
+            }
+          });
+          
+          await Promise.allSettled(solPromises);
+          setSOLData(solMap);
+        } catch (err) {
+          console.warn('Failed to fetch SOL data:', err);
+        }
       } catch (err) {
         setError('Failed to fetch loans');
         console.error(err);
@@ -218,7 +260,7 @@ function LoanExplorerPage() {
     }
 
     return loans.filter(loan => {
-      const { propertyState, assetStatus, investor, lienPos, principalBalance, timelineStatus, maturityFilter } = activeFilters;
+      const { propertyState, assetStatus, investor, lienPos, principalBalance, timelineStatus, maturityFilter, solRiskLevel, solExpiration } = activeFilters;
 
       // State filter
       if (propertyState.length > 0 && !propertyState.includes(loan.state)) {
@@ -306,9 +348,47 @@ function LoanExplorerPage() {
         }
       }
 
+      // SOL Risk Level filter
+      if (solRiskLevel.length > 0) {
+        const solCalc = solData.get(loan.loan_id);
+        if (!solCalc || !solRiskLevel.includes(solCalc.sol_risk_level)) {
+          return false;
+        }
+      }
+
+      // SOL Expiration filter
+      if (solExpiration && solExpiration !== 'any') {
+        const solCalc = solData.get(loan.loan_id);
+        if (!solCalc) {
+          return false;
+        }
+
+        const today = new Date();
+        const expirationDate = new Date(solCalc.adjusted_expiration_date);
+        const daysUntilExpiration = Math.ceil((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        switch (solExpiration) {
+          case 'expired':
+            if (!solCalc.is_expired) return false;
+            break;
+          case 'expiring_30':
+            if (solCalc.is_expired || daysUntilExpiration < 0 || daysUntilExpiration > 30) return false;
+            break;
+          case 'expiring_90':
+            if (solCalc.is_expired || daysUntilExpiration < 0 || daysUntilExpiration > 90) return false;
+            break;
+          case 'expiring_180':
+            if (solCalc.is_expired || daysUntilExpiration < 0 || daysUntilExpiration > 180) return false;
+            break;
+          case 'expiring_365':
+            if (solCalc.is_expired || daysUntilExpiration < 0 || daysUntilExpiration > 365) return false;
+            break;
+        }
+      }
+
       return true; // If all checks pass, include the loan
     });
-  }, [loans, activeFilters, hasAppliedFilter, globalFilter, getLatestForeclosureMilestone]);
+  }, [loans, activeFilters, hasAppliedFilter, globalFilter, getLatestForeclosureMilestone, solData]);
 
   // Helper function for proper date formatting
   const formatDate = (value: string | null | undefined) => {

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Clock, AlertTriangle, XCircle } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Clock, AlertTriangle, XCircle, ExternalLink } from 'lucide-react';
 import { solService, SOLSummary } from '../../services/solService';
 import { Pie, PieChart, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
@@ -9,6 +11,7 @@ const SOLMonitorCard: React.FC = () => {
   const [solSummary, setSOLSummary] = useState<SOLSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadSOLSummary();
@@ -77,6 +80,10 @@ const SOLMonitorCard: React.FC = () => {
     ? Math.round((totalAtRisk / solSummary.total_loans) * 100) 
     : 0;
 
+  const handleNavigateToLoans = (filter: string) => {
+    navigate(`/loans?sol_filter=${filter}`);
+  };
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
@@ -93,7 +100,10 @@ const SOLMonitorCard: React.FC = () => {
       <CardContent className="space-y-4">
         {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-red-50 rounded-lg p-3">
+          <div 
+            className="bg-red-50 rounded-lg p-3 cursor-pointer hover:bg-red-100 transition-colors"
+            onClick={() => handleNavigateToLoans('expired')}
+          >
             <div className="flex items-center justify-between">
               <XCircle className="h-4 w-4 text-red-600" />
               <span className="text-2xl font-bold text-red-600">
@@ -103,7 +113,10 @@ const SOLMonitorCard: React.FC = () => {
             <p className="text-xs text-red-600 mt-1">Expired</p>
           </div>
           
-          <div className="bg-yellow-50 rounded-lg p-3">
+          <div 
+            className="bg-yellow-50 rounded-lg p-3 cursor-pointer hover:bg-yellow-100 transition-colors"
+            onClick={() => handleNavigateToLoans('at_risk')}
+          >
             <div className="flex items-center justify-between">
               <AlertTriangle className="h-4 w-4 text-yellow-600" />
               <span className="text-2xl font-bold text-yellow-600">
@@ -177,6 +190,28 @@ const SOLMonitorCard: React.FC = () => {
               style={{ width: `${Math.min(riskPercentage, 100)}%` }}
             />
           </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => handleNavigateToLoans('high_risk')}
+            className="text-xs"
+          >
+            <ExternalLink className="h-3 w-3 mr-1" />
+            High Risk
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => handleNavigateToLoans('expiring_soon')}
+            className="text-xs"
+          >
+            <Clock className="h-3 w-3 mr-1" />
+            Expiring Soon
+          </Button>
         </div>
 
         {/* Alerts */}

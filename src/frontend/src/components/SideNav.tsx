@@ -1,11 +1,12 @@
 // src/frontend/src/components/SideNav.tsx
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Table, Upload } from 'lucide-react';
+import { LayoutDashboard, Table, Upload, Scale } from 'lucide-react';
 import { Logo } from './Logo';
 
 const navLinks = [
   { to: '/dashboard', text: 'Dashboard', icon: LayoutDashboard },
   { to: '/loans', text: 'Loan Explorer', icon: Table },
+  { to: '/sol-monitoring', text: 'SOL Monitoring', icon: Scale },
   { to: '/upload', text: 'Import Data', icon: Upload },
 ];
 
