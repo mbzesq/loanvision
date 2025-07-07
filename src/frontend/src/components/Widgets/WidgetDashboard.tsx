@@ -334,7 +334,9 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
               >
                 {/* Render the actual widget component */}
                 {widget.component ? (
-                  <widget.component {...widget.config} />
+                  <div className="h-full w-full widget-content" style={{ containerType: 'size' }}>
+                    <widget.component {...widget.config} />
+                  </div>
                 ) : (
                   <div className="h-full flex items-center justify-center text-gray-500">
                     Widget component not found
@@ -363,6 +365,52 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
         
         .react-grid-item.cssTransforms {
           transition-property: transform, width, height;
+        }
+        
+        /* Responsive widget content scaling */
+        .react-grid-item {
+          font-size: clamp(0.75rem, 1vw + 0.5rem, 1rem);
+        }
+        
+        .react-grid-item[data-grid] {
+          container-type: size;
+        }
+        
+        /* Scale text based on container size */
+        @container (min-width: 200px) {
+          .widget-content {
+            font-size: 0.875rem;
+          }
+          .widget-title {
+            font-size: 1rem;
+          }
+          .widget-value {
+            font-size: 1.5rem;
+          }
+        }
+        
+        @container (min-width: 300px) {
+          .widget-content {
+            font-size: 0.9rem;
+          }
+          .widget-title {
+            font-size: 1.1rem;
+          }
+          .widget-value {
+            font-size: 1.875rem;
+          }
+        }
+        
+        @container (min-width: 400px) {
+          .widget-content {
+            font-size: 1rem;
+          }
+          .widget-title {
+            font-size: 1.25rem;
+          }
+          .widget-value {
+            font-size: 2.25rem;
+          }
         }
         
         .react-grid-item > .react-resizable-handle {
@@ -397,6 +445,10 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
         .react-grid-item.react-resizable-resizing {
           transition: none;
           z-index: 3;
+        }
+        
+        .react-grid-item.react-resizable-resizing .widget-content {
+          pointer-events: none;
         }
       `}</style>
     </div>

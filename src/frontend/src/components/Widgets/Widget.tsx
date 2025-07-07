@@ -77,7 +77,7 @@ export const Widget: React.FC<WidgetProps> = ({
         {/* Widget Header */}
         <CardHeader className={`pb-2 relative ${isExpanded ? 'border-b' : ''}`}>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium text-slate-700 truncate pr-2">
+            <CardTitle className="widget-title text-sm font-medium text-slate-700 truncate pr-2">
               {widget.title}
             </CardTitle>
             
@@ -163,8 +163,8 @@ export const Widget: React.FC<WidgetProps> = ({
         <CardContent className={`flex-1 p-3 overflow-hidden ${
           isExpanded ? 'p-4' : ''
         }`}>
-          <div className="h-full w-full flex flex-col">
-            <div className="flex-1 min-h-0">
+          <div className="h-full w-full flex flex-col widget-content-container">
+            <div className="flex-1 min-h-0 relative">
               {children}
             </div>
           </div>

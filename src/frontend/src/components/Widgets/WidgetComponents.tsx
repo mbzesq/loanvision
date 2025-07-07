@@ -55,7 +55,7 @@ export const UPBWidget: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => 
         title="Total UPB"
         value={formatCurrency(summary.totalUPB)}
         trend={{ value: 5.2, direction: 'up', period: 'last month' }}
-        icon={<DollarSign className="h-6 w-6" />}
+        icon={<DollarSign className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
         color="blue"
         clickable={true}
         drillDownData={{
@@ -103,7 +103,7 @@ export const LoanCountWidget: React.FC<{ refreshKey?: number }> = ({ refreshKey 
         title="Loan Count"
         value={summary.loanCount.toLocaleString()}
         trend={{ value: 12, direction: 'up', period: 'last month' }}
-        icon={<BarChart3 className="h-6 w-6" />}
+        icon={<BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
         color="green"
         clickable={true}
         drillDownData={{
@@ -156,7 +156,7 @@ export const AverageBalanceWidget: React.FC<{ refreshKey?: number }> = ({ refres
         title="Average Balance"
         value={formatCurrency(summary.averageBalance)}
         trend={{ value: 2.1, direction: 'down', period: 'last month' }}
-        icon={<Calculator className="h-6 w-6" />}
+        icon={<Calculator className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
         color="orange"
         clickable={true}
         drillDownData={{
@@ -179,7 +179,7 @@ export const PerformanceWidget: React.FC = () => {
         title="Performance"
         value="94.2%"
         trend={{ value: 1.8, direction: 'up', period: 'last quarter' }}
-        icon={<TrendingUp className="h-6 w-6" />}
+        icon={<TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />}
         color="green"
         format="percentage"
         clickable={true}
