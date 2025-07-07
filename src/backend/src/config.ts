@@ -24,12 +24,27 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Debug: Log which AWS credentials are available (without exposing values)
-console.log('AWS Config Check:', {
+console.log('[CONFIG] AWS Environment Variables:', {
   hasAccessKeyId: !!process.env.AWS_ACCESS_KEY_ID,
+  accessKeyIdLength: process.env.AWS_ACCESS_KEY_ID?.length || 0,
   hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY,
+  secretKeyLength: process.env.AWS_SECRET_ACCESS_KEY?.length || 0,
   region: process.env.AWS_REGION || 'not set',
-  nodeEnv: process.env.NODE_ENV
+  nodeEnv: process.env.NODE_ENV,
+  // Check if the values are being trimmed properly
+  accessKeyIdFirstChar: process.env.AWS_ACCESS_KEY_ID?.[0] || 'none',
+  accessKeyIdLastChar: process.env.AWS_ACCESS_KEY_ID?.slice(-1) || 'none',
+  // Check for whitespace issues
+  accessKeyIdTrimmed: process.env.AWS_ACCESS_KEY_ID?.trim().length !== process.env.AWS_ACCESS_KEY_ID?.length,
+  secretKeyTrimmed: process.env.AWS_SECRET_ACCESS_KEY?.trim().length !== process.env.AWS_SECRET_ACCESS_KEY?.length,
 });
+
+// Additional debug: Check all environment variables starting with AWS
+console.log('[CONFIG] All AWS-related environment variables:');
+Object.keys(process.env).filter(key => key.startsWith('AWS')).forEach(key => {
+  console.log(`  ${key}: ${process.env[key] ? 'SET' : 'NOT_SET'} (length: ${process.env[key]?.length || 0})`);
+});
+
 
 export const config = {
   // Database configuration
@@ -46,9 +61,9 @@ export const config = {
   
   // AWS Configuration
   aws: {
-    region: process.env.AWS_REGION || 'us-east-1',
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    region: (process.env.AWS_REGION || 'us-east-1').trim(),
+    accessKeyId: (process.env.AWS_ACCESS_KEY_ID || '').trim(),
+    secretAccessKey: (process.env.AWS_SECRET_ACCESS_KEY || '').trim(),
   },
   
   // Security
@@ -70,3 +85,14 @@ export const config = {
   // Environment
   nodeEnv: process.env.NODE_ENV || 'development',
 };
+
+// Debug: Log the final config values being used (without exposing secrets)
+console.log('[CONFIG] Final AWS config being used:', {
+  region: config.aws.region,
+  hasAccessKeyId: !!config.aws.accessKeyId,
+  accessKeyIdLength: config.aws.accessKeyId.length,
+  hasSecretAccessKey: !!config.aws.secretAccessKey,
+  secretAccessKeyLength: config.aws.secretAccessKey.length,
+  accessKeyIdStart: config.aws.accessKeyId.substring(0, 4) || 'NONE',
+  accessKeyIdEnd: config.aws.accessKeyId.substring(config.aws.accessKeyId.length - 4) || 'NONE',
+});

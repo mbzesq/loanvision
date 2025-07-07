@@ -76,6 +76,10 @@ app.use('/api/simple-admin', simpleAdminRouter);
 import documentAnalysisRouter from './routes/documentAnalysis';
 app.use('/api/v2/loans', documentAnalysisRouter);
 
+// AWS Test Routes
+import awsTestRouter from './routes/awsTest';
+app.use('/api/aws', awsTestRouter);
+
 // Add this entire async block right before app.listen
 
 const runInitialSeed = async () => {
