@@ -13,7 +13,7 @@ BEGIN
         -- Drop the index first
         DROP INDEX IF EXISTS idx_document_analysis_s3_key;
         
-        -- Remove S3-related columns
+        -- Remove S3-related columns (keep file_size_bytes as it's still useful)
         ALTER TABLE document_analysis 
         DROP COLUMN IF EXISTS s3_bucket,
         DROP COLUMN IF EXISTS s3_key,
