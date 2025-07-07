@@ -23,6 +23,7 @@ import {
   Activity
 } from 'lucide-react';
 import { widgetService, WidgetCategory } from '../../services/widgetService';
+import { widgetPreviews } from './WidgetPreviews';
 
 interface WidgetCatalogProps {
   onAddWidget: (widgetId: string) => void;
@@ -118,10 +119,10 @@ export const WidgetCatalog: React.FC<WidgetCatalogProps> = ({
                   variant={isSelected ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category.key)}
-                  className="h-8"
+                  className="h-9 px-3 whitespace-nowrap text-sm font-medium"
                 >
-                  <IconComponent className="h-3 w-3 mr-1" />
-                  {category.label}
+                  <IconComponent className="h-3 w-3 mr-2 flex-shrink-0" />
+                  <span className="truncate">{category.label}</span>
                 </Button>
               );
             })}
@@ -143,47 +144,60 @@ export const WidgetCatalog: React.FC<WidgetCatalogProps> = ({
                   return (
                     <Card 
                       key={widget.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow duration-200 group"
+                      className="cursor-pointer hover:shadow-md transition-all duration-200 group h-auto"
                       onClick={() => onAddWidget(widget.id)}
                     >
                       <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="p-2 bg-blue-100 rounded-md group-hover:bg-blue-200 transition-colors">
+                        <div className="flex items-start justify-between min-h-0">
+                          <div className="flex items-start gap-3 min-w-0 flex-1">
+                            <div className="p-2 bg-blue-100 rounded-md group-hover:bg-blue-200 transition-colors flex-shrink-0">
                               <IconComponent className="h-4 w-4 text-blue-600" />
                             </div>
-                            <div>
-                              <CardTitle className="text-sm font-medium">{widget.title}</CardTitle>
+                            <div className="min-w-0 flex-1">
+                              <CardTitle className="text-sm font-medium text-gray-900 truncate">
+                                {widget.title}
+                              </CardTitle>
                               <Badge 
                                 variant="secondary" 
-                                className={`text-xs mt-1 ${getCategoryColor(widget.category)}`}
+                                className={`text-xs mt-1 capitalize ${getCategoryColor(widget.category)}`}
                               >
                                 {widget.category}
                               </Badge>
                             </div>
                           </div>
-                          <Plus className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <Plus className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2" />
                         </div>
                       </CardHeader>
                       
                       <CardContent className="pt-0">
-                        <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-                          {widget.description}
+                        {/* Widget Preview */}
+                        <div className="mb-3">
+                          {widgetPreviews[widget.id] ? (
+                            React.createElement(widgetPreviews[widget.id])
+                          ) : (
+                            <div className="h-20 bg-gray-100 rounded-md p-3 flex items-center justify-center">
+                              <IconComponent className="h-8 w-8 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        <p className="text-xs text-gray-600 mb-3 leading-relaxed overflow-hidden">
+                          <span className="line-clamp-2">{widget.description}</span>
                         </p>
                         
                         <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>
+                          <span className="flex-shrink-0">
                             Size: {widget.defaultSize.w}×{widget.defaultSize.h}
                           </span>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 ml-2">
                             {widget.configurable && (
-                              <Badge variant="outline" className="text-xs">
-                                Configurable
+                              <Badge variant="outline" className="text-xs px-1 py-0">
+                                Config
                               </Badge>
                             )}
                             {widget.resizable && (
-                              <Badge variant="outline" className="text-xs">
-                                Resizable
+                              <Badge variant="outline" className="text-xs px-1 py-0">
+                                Resize
                               </Badge>
                             )}
                           </div>

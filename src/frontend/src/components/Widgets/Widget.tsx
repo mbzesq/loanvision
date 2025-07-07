@@ -138,8 +138,12 @@ export const Widget: React.FC<WidgetProps> = ({
                     </>
                   )}
                   <DropdownMenuItem 
-                    onClick={handleRemove}
-                    className="text-red-600 focus:text-red-600"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleRemove();
+                    }}
+                    className="text-red-600 focus:text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <X className="h-3 w-3 mr-2" />
                     Remove
@@ -159,8 +163,10 @@ export const Widget: React.FC<WidgetProps> = ({
         <CardContent className={`flex-1 p-3 overflow-hidden ${
           isExpanded ? 'p-4' : ''
         }`}>
-          <div className="h-full">
-            {children}
+          <div className="h-full w-full flex flex-col">
+            <div className="flex-1 min-h-0">
+              {children}
+            </div>
           </div>
         </CardContent>
 

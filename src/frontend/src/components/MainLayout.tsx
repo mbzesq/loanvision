@@ -51,14 +51,17 @@ export function MainLayout() {
         <main className="flex-1 overflow-y-auto flex flex-col">
           {/* Header */}
           <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDesktopNavToggle}
-              className="lg:hidden"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDesktopNavToggle}
+                className="flex items-center gap-2"
+              >
+                <Menu className="h-4 w-4" />
+                <span className="text-sm font-medium">Menu</span>
+              </Button>
+            </div>
             <UserProfile />
           </header>
           

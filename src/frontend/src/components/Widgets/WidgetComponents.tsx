@@ -50,7 +50,7 @@ export const UPBWidget: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => 
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <ModernKPICard
         title="Total UPB"
         value={formatCurrency(summary.totalUPB)}
@@ -98,7 +98,7 @@ export const LoanCountWidget: React.FC<{ refreshKey?: number }> = ({ refreshKey 
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <ModernKPICard
         title="Loan Count"
         value={summary.loanCount.toLocaleString()}
@@ -151,7 +151,7 @@ export const AverageBalanceWidget: React.FC<{ refreshKey?: number }> = ({ refres
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <ModernKPICard
         title="Average Balance"
         value={formatCurrency(summary.averageBalance)}
@@ -174,7 +174,7 @@ export const AverageBalanceWidget: React.FC<{ refreshKey?: number }> = ({ refres
 
 export const PerformanceWidget: React.FC = () => {
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <ModernKPICard
         title="Performance"
         value="94.2%"
@@ -204,9 +204,9 @@ export const PerformanceWidget: React.FC = () => {
 // Chart Widget Components
 export const AlertsWidget: React.FC = () => {
   return (
-    <div className="h-full">
+    <div className="h-full w-full overflow-hidden">
       <UniversalAlertsPanel 
-        className="h-full"
+        className="h-full w-full"
         maxAlerts={6}
         showSettings={false}
         autoRefresh={true}
@@ -217,7 +217,7 @@ export const AlertsWidget: React.FC = () => {
 
 export const SOLMonitorWidget: React.FC = () => {
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <SOLMonitorCard />
     </div>
   );
@@ -225,12 +225,14 @@ export const SOLMonitorWidget: React.FC = () => {
 
 export const LoanStatusWidget: React.FC = () => {
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <ModernChartContainer
         title="Loan Status Distribution"
         subtitle="Current portfolio breakdown by loan status"
       >
-        <LoanStatusChart />
+        <div className="h-full w-full">
+          <LoanStatusChart />
+        </div>
       </ModernChartContainer>
     </div>
   );
@@ -238,12 +240,14 @@ export const LoanStatusWidget: React.FC = () => {
 
 export const GeographicalWidget: React.FC = () => {
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <ModernChartContainer
         title="Geographic Distribution"
         subtitle="Loan distribution across states"
       >
-        <GeographicalDistributionChart />
+        <div className="h-full w-full">
+          <GeographicalDistributionChart />
+        </div>
       </ModernChartContainer>
     </div>
   );
@@ -251,12 +255,14 @@ export const GeographicalWidget: React.FC = () => {
 
 export const CashflowWidget: React.FC = () => {
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <ModernChartContainer
         title="Cashflow Analysis"
         subtitle="Monthly payment trends and investor breakdown"
       >
-        <MonthlyCashflowChart />
+        <div className="h-full w-full">
+          <MonthlyCashflowChart />
+        </div>
       </ModernChartContainer>
     </div>
   );
@@ -264,12 +270,14 @@ export const CashflowWidget: React.FC = () => {
 
 export const ForeclosureWidget: React.FC = () => {
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       <ModernChartContainer
         title="Foreclosure Pipeline"
         subtitle="Active foreclosure status and milestone tracking"
       >
-        <ForeclosureTrackingChart />
+        <div className="h-full w-full">
+          <ForeclosureTrackingChart />
+        </div>
       </ModernChartContainer>
     </div>
   );
