@@ -270,12 +270,11 @@ router.get('/jurisdictions', async (req, res) => {
       SELECT 
         state_code,
         state_name,
-        lien_years,
-        note_years,
-        foreclosure_years,
-        lien_extinguished,
-        foreclosure_barred,
-        risk_level
+        foreclosure_types,
+        risk_level,
+        sol_category,
+        created_at,
+        updated_at
       FROM sol_jurisdictions
       ORDER BY state_name
     `);
