@@ -172,13 +172,17 @@ export const WidgetCatalog: React.FC<WidgetCatalogProps> = ({
                       <CardContent className="pt-0">
                         {/* Widget Preview */}
                         <div className="mb-3">
-                          {widgetPreviews[widget.id] ? (
-                            React.createElement(widgetPreviews[widget.id])
-                          ) : (
-                            <div className="h-20 bg-gray-100 rounded-md p-3 flex items-center justify-center">
-                              <IconComponent className="h-8 w-8 text-gray-400" />
-                            </div>
-                          )}
+                          {(() => {
+                            const PreviewComponent = widgetPreviews[widget.id];
+                            return PreviewComponent ? (
+                              <PreviewComponent />
+                            ) : (
+                              <div className="h-20 bg-gray-100 rounded-md p-3 flex items-center justify-center">
+                                <IconComponent className="h-8 w-8 text-gray-400" />
+                              </div>
+                            );
+                          })()
+                        }
                         </div>
                         
                         <p className="text-xs text-gray-600 mb-3 leading-relaxed overflow-hidden">
