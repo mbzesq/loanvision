@@ -309,7 +309,13 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
                 isResizing={isResizing}
               >
                 {/* Render the actual widget component */}
-                <widget.component {...widget.config} />
+                {widget.component ? (
+                  <widget.component {...widget.config} />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-500">
+                    Widget component not found
+                  </div>
+                )}
               </Widget>
             </div>
           ))}
