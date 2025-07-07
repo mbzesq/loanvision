@@ -13,6 +13,15 @@ export class TextractService {
   private client: TextractClient;
 
   constructor() {
+    // Debug log to see what credentials we have
+    console.log('[TextractService] Constructor - checking credentials:', {
+      hasAccessKeyId: !!config.aws.accessKeyId,
+      accessKeyIdLength: config.aws.accessKeyId.length,
+      hasSecretAccessKey: !!config.aws.secretAccessKey,
+      secretAccessKeyLength: config.aws.secretAccessKey.length,
+      region: config.aws.region,
+    });
+
     // Use AWS SDK default credential chain for better security
     // This will try in order:
     // 1. Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
@@ -23,27 +32,33 @@ export class TextractService {
       region: config.aws.region || 'us-east-1',
     };
 
-    // Only use explicit credentials if both are provided
-    if (config.aws.accessKeyId && config.aws.secretAccessKey) {
+    // Only use explicit credentials if both are provided AND non-empty
+    if (config.aws.accessKeyId && config.aws.secretAccessKey && 
+        config.aws.accessKeyId.length > 0 && config.aws.secretAccessKey.length > 0) {
       clientConfig.credentials = {
         accessKeyId: config.aws.accessKeyId,
         secretAccessKey: config.aws.secretAccessKey,
       };
-      console.log('Using explicit AWS credentials from environment variables');
+      console.log('[TextractService] Using explicit AWS credentials from config');
     } else {
-      console.log('Using AWS SDK default credential chain');
+      console.log('[TextractService] Using AWS SDK default credential chain');
     }
+
+    console.log('[TextractService] Client config:', {
+      region: clientConfig.region,
+      hasExplicitCredentials: !!clientConfig.credentials,
+    });
 
     this.client = new TextractClient(clientConfig);
   }
 
   async analyzeDocument(pdfBuffer: Buffer): Promise<TextractResult> {
-    // Check if we have AWS credentials
-    const hasCredentials = config.aws.accessKeyId && config.aws.secretAccessKey;
-    if (!hasCredentials && process.env.NODE_ENV === 'production') {
-      console.error('AWS credentials not configured for Textract');
-      throw new Error('OCR service not configured. Please contact administrator.');
-    }
+    // Debug log for analyze document call
+    console.log('[TextractService] analyzeDocument called with buffer size:', pdfBuffer.length);
+    
+    // In production, we'll rely on the AWS SDK credential chain
+    // Remove the explicit credential check as AWS SDK will handle this
+    console.log('[TextractService] Proceeding with Textract analysis...');
 
     const params: AnalyzeDocumentCommandInput = {
       Document: {
