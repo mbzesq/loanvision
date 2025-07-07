@@ -1,5 +1,4 @@
 import { TextractClient, AnalyzeDocumentCommand, Block, AnalyzeDocumentCommandInput } from '@aws-sdk/client-textract';
-import { config } from '../config';
 
 export interface TextractResult {
   text: string;
@@ -13,40 +12,32 @@ export class TextractService {
   private client: TextractClient;
 
   constructor() {
-    // Debug log to see what credentials we have
-    console.log('[TextractService] Constructor - checking credentials:', {
-      hasAccessKeyId: !!config.aws.accessKeyId,
-      accessKeyIdLength: config.aws.accessKeyId.length,
-      hasSecretAccessKey: !!config.aws.secretAccessKey,
-      secretAccessKeyLength: config.aws.secretAccessKey.length,
-      region: config.aws.region,
+    // Bypass config system completely - read directly from environment variables
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID?.trim();
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.trim();
+    const region = process.env.AWS_REGION?.trim() || 'us-east-1';
+
+    // Debug log to see what we have directly from environment
+    console.log('[TextractService] Direct environment variable check:', {
+      hasAccessKeyId: !!accessKeyId,
+      accessKeyIdLength: accessKeyId?.length || 0,
+      hasSecretAccessKey: !!secretAccessKey,
+      secretAccessKeyLength: secretAccessKey?.length || 0,
+      region: region,
+      nodeEnv: process.env.NODE_ENV,
     });
 
-    // Use AWS SDK default credential chain for better security
-    // This will try in order:
-    // 1. Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-    // 2. IAM roles (for EC2/ECS/Lambda)
-    // 3. AWS credentials file
-    // 4. AWS config file
+    // Always use AWS SDK default credential chain
+    // This will automatically pick up environment variables
     const clientConfig: any = {
-      region: config.aws.region || 'us-east-1',
+      region: region,
     };
 
-    // Only use explicit credentials if both are provided AND non-empty
-    if (config.aws.accessKeyId && config.aws.secretAccessKey && 
-        config.aws.accessKeyId.length > 0 && config.aws.secretAccessKey.length > 0) {
-      clientConfig.credentials = {
-        accessKeyId: config.aws.accessKeyId,
-        secretAccessKey: config.aws.secretAccessKey,
-      };
-      console.log('[TextractService] Using explicit AWS credentials from config');
-    } else {
-      console.log('[TextractService] Using AWS SDK default credential chain');
-    }
-
+    // DO NOT set explicit credentials - let AWS SDK handle it
+    console.log('[TextractService] Using AWS SDK default credential chain');
     console.log('[TextractService] Client config:', {
       region: clientConfig.region,
-      hasExplicitCredentials: !!clientConfig.credentials,
+      credentialSource: 'default_chain',
     });
 
     this.client = new TextractClient(clientConfig);
