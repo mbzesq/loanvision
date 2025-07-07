@@ -5,6 +5,7 @@ import LoanStatusChart from '../components/Dashboard/LoanStatusChart';
 import GeographicalDistributionChart from '../components/Dashboard/GeographicalDistributionChart';
 import MonthlyCashflowChart from '../components/Dashboard/MonthlyCashflowChart';
 import ForeclosureTrackingChart from '../components/Dashboard/ForeclosureTrackingChart';
+import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
 import axios from '../utils/axios';
 import '../styles/design-system.css';
 
@@ -280,6 +281,14 @@ function DashboardPage() {
           subtitle="Active foreclosure status and milestone tracking"
         >
           <ForeclosureTrackingChart />
+        </ModernChartContainer>
+
+        {/* Chart 5: SOL Monitor */}
+        <ModernChartContainer
+          title="Statute of Limitations Monitor"
+          subtitle="SOL expiration risk and timeline tracking"
+        >
+          <SOLMonitorCard />
         </ModernChartContainer>
       </div>
     </div>

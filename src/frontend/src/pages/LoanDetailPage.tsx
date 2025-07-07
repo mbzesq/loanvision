@@ -11,6 +11,7 @@ import { useToast } from '../hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
 import { DocumentAnalysisCard } from '../components/DocumentAnalysisCard';
+import SOLInfoCard from '../components/SOL/SOLInfoCard';
 
 // Enhanced interface for detailed loan data including origination and payment history
 interface LoanDetail extends Loan {
@@ -456,6 +457,14 @@ const LoanDetailPage = () => {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Full width SOL Card */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SOLInfoCard loanId={loanId!} />
+        
+        {/* Empty space for second column - can add another card here later */}
+        <div></div>
       </div>
 
       {/* Full width Collateral Documents Card */}

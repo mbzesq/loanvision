@@ -6,6 +6,7 @@ import { Loan } from '../pages/LoanExplorerPage';
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
 import { X } from 'lucide-react';
 import axios from 'axios';
+import SOLInfoCard from './SOL/SOLInfoCard';
 import {
   DetailItem,
   Milestone,
@@ -159,7 +160,12 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
                 </section>
               )}
 
-              {/* === Section 4: Property Enrichment Data (Validation) === */}
+              {/* === Section 4: Statute of Limitations === */}
+              <section>
+                <SOLInfoCard loanId={loanId} className="w-full" />
+              </section>
+
+              {/* === Section 5: Property Enrichment Data (Validation) === */}
               {propertyData && (
                 <section className="mt-4 p-4 bg-gray-100 rounded">
                   <h3 className="text-base font-semibold text-slate-600 border-b pb-2 mb-3">Enrichment Data (Validation)</h3>
