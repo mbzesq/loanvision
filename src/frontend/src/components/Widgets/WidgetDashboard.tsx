@@ -56,7 +56,19 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
       const layout = widgetService.getLayout(id) || widgetService.getDefaultLayout();
       setCurrentLayout(layout);
       setLayouts(layout.layouts);
-      setWidgets(layout.widgets);
+      
+      // Reattach components from registry for widgets that lost them during serialization
+      const widgetsWithComponents = layout.widgets.map(widget => {
+        if (!widget.component) {
+          const metadata = widgetService.getWidget(widget.id);
+          if (metadata) {
+            return { ...widget, component: metadata.component };
+          }
+        }
+        return widget;
+      }).filter(w => w.component); // Only include widgets with valid components
+      
+      setWidgets(widgetsWithComponents);
       setHasUnsavedChanges(false);
     } catch (error) {
       console.error('Error loading layout:', error);
@@ -70,7 +82,19 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
       const defaultLayout = widgetService.getDefaultLayout();
       setCurrentLayout(defaultLayout);
       setLayouts(defaultLayout.layouts);
-      setWidgets(defaultLayout.widgets);
+      
+      // Reattach components for default layout too
+      const widgetsWithComponents = defaultLayout.widgets.map(widget => {
+        if (!widget.component) {
+          const metadata = widgetService.getWidget(widget.id);
+          if (metadata) {
+            return { ...widget, component: metadata.component };
+          }
+        }
+        return widget;
+      }).filter(w => w.component);
+      
+      setWidgets(widgetsWithComponents);
     }
   }, [toast]);
 
@@ -322,8 +346,8 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
         </ResponsiveGridLayout>
       </div>
 
-      {/* Widget Catalog Modal - Temporarily Disabled */}
-      {false && showCatalog && (
+      {/* Widget Catalog Modal */}
+      {showCatalog && (
         <WidgetCatalog
           onAddWidget={handleAddWidget}
           onClose={() => setShowCatalog(false)}
