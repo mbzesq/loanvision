@@ -257,6 +257,90 @@ router.get('/:loanId/analyzed-documents', authenticateToken, async (req, res) =>
   }
 });
 
+// GET /api/v2/loans/:loanId/collateral
+// This endpoint is expected by the frontend for viewing collateral documents
+router.get('/:loanId/collateral', authenticateToken, async (req, res) => {
+  const { loanId } = req.params;
+
+  try {
+    // For now, we'll return the analyzed documents grouped by type
+    // This provides compatibility with the frontend expectation
+    const query = `
+      SELECT 
+        id,
+        file_name,
+        document_type,
+        confidence_score,
+        property_street,
+        property_city,
+        property_state,
+        property_zip,
+        borrower_name,
+        co_borrower_name,
+        loan_amount,
+        origination_date,
+        lender_name,
+        assignor,
+        assignee,
+        assignment_date,
+        recording_date,
+        instrument_number,
+        extraction_metadata,
+        processing_time_ms,
+        created_at
+      FROM document_analysis
+      WHERE loan_id = $1
+      ORDER BY document_type, created_at DESC;
+    `;
+
+    const result = await pool.query(query, [loanId]);
+
+    // Group documents by type for easier frontend consumption
+    const documentsByType = result.rows.reduce((acc: any, doc: any) => {
+      const type = doc.document_type.toLowerCase().replace(' ', '_');
+      if (!acc[type]) {
+        acc[type] = [];
+      }
+      acc[type].push(doc);
+      return acc;
+    }, {});
+
+    // Calculate collateral completeness
+    const hasNote = documentsByType.note && documentsByType.note.length > 0;
+    const hasMortgage = (documentsByType.security_instrument || documentsByType.mortgage || 
+                        documentsByType.deed_of_trust) ? true : false;
+    const hasAssignments = documentsByType.assignment && documentsByType.assignment.length > 0;
+    
+    const completeness = {
+      hasNote,
+      hasMortgage,
+      hasAssignments,
+      percentComplete: Math.round(((hasNote ? 33 : 0) + (hasMortgage ? 33 : 0) + (hasAssignments ? 34 : 0))),
+      missingDocuments: [
+        !hasNote && 'Note',
+        !hasMortgage && 'Mortgage/Deed of Trust',
+        !hasAssignments && 'Assignment(s)'
+      ].filter(Boolean)
+    };
+
+    res.json({
+      success: true,
+      loanId,
+      documents: result.rows,
+      documentsByType,
+      completeness,
+      totalDocuments: result.rows.length,
+    });
+
+  } catch (error: unknown) {
+    console.error('Failed to fetch collateral documents:', error);
+    res.status(500).json({
+      error: 'Failed to fetch collateral documents',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 // Helper function to flag low-confidence fields
 async function flagLowConfidenceFields(
   documentAnalysisId: number, 
