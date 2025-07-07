@@ -151,4 +151,35 @@ router.post('/sol-migrate', checkAdminKey, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/simple-admin/table-structure
+ * Check table structure
+ */
+router.get('/table-structure', checkAdminKey, async (req, res) => {
+  try {
+    const tableName = req.query.table || 'sol_jurisdictions';
+    
+    const result = await pool.query(`
+      SELECT column_name, data_type, is_nullable
+      FROM information_schema.columns 
+      WHERE table_name = $1 
+      ORDER BY ordinal_position
+    `, [tableName]);
+
+    res.json({
+      success: true,
+      table: tableName,
+      columns: result.rows,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get table structure',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;
