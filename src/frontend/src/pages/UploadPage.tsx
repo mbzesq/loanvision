@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
 import { UploadCloud, X, FileText, Loader2, Server } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
-import { Button } from '@loanvision/shared/components/ui/button';
-import { useToast } from '@loanvision/shared/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { useToast } from '../hooks/use-toast';
 import CollateralUploader from '../components/CollateralUploader';
 
 interface UploadResponse {

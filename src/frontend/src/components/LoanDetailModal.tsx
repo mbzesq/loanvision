@@ -1,7 +1,7 @@
 // src/frontend/src/components/LoanDetailModal.tsx
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@loanvision/shared/components/ui/button';
+import { Button } from '../components/ui/button';
 import { Loan } from '../pages/LoanExplorerPage';
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
 import { X } from 'lucide-react';

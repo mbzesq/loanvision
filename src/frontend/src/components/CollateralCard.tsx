@@ -2,10 +2,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Upload, File, Trash2, AlertCircle, CheckCircle, FileText } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
-import { Button } from '@loanvision/shared/components/ui/button';
-import { useToast } from '@loanvision/shared/hooks/use-toast';
-import { Badge } from '@loanvision/shared/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { useToast } from '../hooks/use-toast';
+import { Badge } from '../components/ui/badge';
 
 interface CollateralDocument {
   id: number;

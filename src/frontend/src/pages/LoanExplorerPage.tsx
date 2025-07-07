@@ -9,8 +9,8 @@ import { LoanDetailModal } from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
-import { states } from '@loanvision/shared/lib/states';
-import { Card, CardContent, CardHeader } from '@loanvision/shared/components/ui/card';
+import { states } from '../lib/states';
+import { Card, CardContent, CardHeader } from '../components/ui/card';
 import {
   createColumnHelper,
   flexRender,
@@ -170,7 +170,7 @@ function LoanExplorerPage() {
 
   const uniqueStates = useMemo(() => {
     const loanStateAbbrs = new Set(loans?.map(loan => loan.state).filter(Boolean) ?? []);
-    return states.filter(state => loanStateAbbrs.has(state.abbr)).sort((a, b) => a.name.localeCompare(b.name));
+    return states.filter((state: any) => loanStateAbbrs.has(state.code)).map((state: any) => ({ name: state.name, abbr: state.code })).sort((a: any, b: any) => a.name.localeCompare(b.name));
   }, [loans]);
 
   const uniqueLegalStatuses = useMemo(() => {

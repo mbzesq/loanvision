@@ -8,9 +8,11 @@ import portfolioRouter from './routes/portfolio';
 import reportsRouter from './routes/reports';
 import authRouter from './routes/auth';
 import betaAccessRouter from './routes/betaAccess';
+import solRouter from './routes/solRoutes';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
+import { initializeSOLScheduler } from './services/SOLScheduler';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,6 +66,7 @@ app.use('/api', uploadRouter);
 app.use('/api', loansRouter);
 app.use('/api', portfolioRouter);
 app.use('/api', reportsRouter);
+app.use('/api/sol', solRouter);
 
 // Document Analysis Routes (New OCR-based system)
 import documentAnalysisRouter from './routes/documentAnalysis';
@@ -109,6 +112,15 @@ const startServer = async () => {
   // Run the one-time seeding logic before starting the server
   await runInitialSeed();
   await runDiagnostics();
+
+  // Initialize SOL Scheduler
+  console.log('[SOL] Initializing Statute of Limitations scheduler...');
+  try {
+    initializeSOLScheduler(pool);
+    console.log('[SOL] Scheduler initialized successfully');
+  } catch (error) {
+    console.error('[SOL] Failed to initialize scheduler:', error);
+  }
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

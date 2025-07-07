@@ -1,16 +1,16 @@
 // src/frontend/src/components/FilterPanel.tsx
 import { useMemo, useState } from 'react';
-import { Button } from '@loanvision/shared/components/ui/button';
-import { Checkbox } from '@loanvision/shared/components/ui/checkbox';
-import { Input } from '@loanvision/shared/components/ui/input';
-import { Label } from '@loanvision/shared/components/ui/label';
+import { Button } from '../components/ui/button';
+import { Checkbox } from '../components/ui/checkbox';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@loanvision/shared/components/ui/accordion';
-import { Badge } from '@loanvision/shared/components/ui/badge';
+} from '../components/ui/accordion';
+import { Badge } from '../components/ui/badge';
 
 export type FilterValues = {
   propertyState: string[];

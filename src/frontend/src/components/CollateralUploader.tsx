@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
 import { FileText, X, Loader2, Upload } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@loanvision/shared/components/ui/card';
-import { Button } from '@loanvision/shared/components/ui/button';
-import { Input } from '@loanvision/shared/components/ui/input';
-import { Label } from '@loanvision/shared/components/ui/label';
-import { useToast } from '@loanvision/shared/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { useToast } from '../hooks/use-toast';
 
 interface CollateralUploadResult {
   success: boolean;

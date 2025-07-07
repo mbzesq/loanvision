@@ -1,5 +1,5 @@
 // src/frontend/src/components/MobileHeader.tsx
-import { Button } from '@loanvision/shared/components/ui/button';
+import { Button } from './ui/button';
 import { Menu } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 import { Logo } from './Logo';

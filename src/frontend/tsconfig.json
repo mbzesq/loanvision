@@ -15,14 +15,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@loanvision/shared/*": ["../shared/src/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src"],
   "references": [
-    { "path": "./tsconfig.node.json" },
-    { "path": "../shared" }
+    { "path": "./tsconfig.node.json" }
   ]
 }

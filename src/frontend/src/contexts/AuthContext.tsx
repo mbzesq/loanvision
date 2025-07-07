@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
-import { User, AuthResponse, LoginRequest, RegisterRequest } from '@loanvision/shared/src/types';
+import { User, AuthResponse, LoginRequest, RegisterRequest } from '../types/auth';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -62,15 +62,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { token: newToken, user: newUser } = response.data;
       
       // Store in localStorage
-      localStorage.setItem('authToken', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      if (newToken) {
+        localStorage.setItem('authToken', newToken);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        setToken(newToken);
+      }
       
-      // Set axios default header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-      
-      // Update state
-      setToken(newToken);
-      setUser(newUser);
+      if (newUser) {
+        localStorage.setItem('user', JSON.stringify(newUser));
+        setUser(newUser);
+      }
     } catch (error) {
       console.error('Login failed:', error);
       throw new Error('Invalid credentials or server error.');

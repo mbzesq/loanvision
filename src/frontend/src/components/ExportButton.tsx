@@ -1,6 +1,6 @@
 // src/frontend/src/components/ExportButton.tsx
 import { useState, useRef } from 'react';
-import { Button } from '@loanvision/shared/components/ui/button';
+import { Button } from '../components/ui/button';
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
 
 interface ExportButtonProps {

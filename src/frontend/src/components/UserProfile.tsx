@@ -5,7 +5,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@loanvision/shared/components/ui/dropdown-menu";
+} from "./ui/dropdown-menu";
 import { useAuth } from "../contexts/AuthContext";
 import { UserCircle, LogOut } from "lucide-react"; // Import necessary icons
 

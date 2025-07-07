@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { SideNav } from './SideNav';
 import { MobileHeader } from './MobileHeader';
 import { UserProfile } from './UserProfile';
-import { Sheet, SheetContent } from '@loanvision/shared/components/ui/sheet';
+import { Sheet, SheetContent } from './ui/sheet';
 
 export function MainLayout() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
