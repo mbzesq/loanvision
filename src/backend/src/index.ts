@@ -10,6 +10,7 @@ import authRouter from './routes/auth';
 import betaAccessRouter from './routes/betaAccess';
 import solRouter from './routes/solRoutes';
 import adminRouter from './routes/adminRoutes';
+import simpleAdminRouter from './routes/simpleAdminRoutes';
 import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
@@ -69,6 +70,7 @@ app.use('/api', portfolioRouter);
 app.use('/api', reportsRouter);
 app.use('/api/sol', solRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/simple-admin', simpleAdminRouter);
 
 // Document Analysis Routes (New OCR-based system)
 import documentAnalysisRouter from './routes/documentAnalysis';
