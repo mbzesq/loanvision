@@ -4,7 +4,7 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Clock, TrendingUp, TrendingDown, Calendar, AlertTriangle, Scale, RefreshCw } from 'lucide-react';
 import { solService, SOLSummary } from '../services/solService';
-import SOLAlertsPanel from '../components/SOL/SOLAlertsPanel';
+import UniversalAlertsPanel from '../components/Alerts/UniversalAlertsPanel';
 import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
@@ -206,7 +206,7 @@ const SOLMonitoringPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Alerts and Overview */}
         <div className="space-y-6">
-          <SOLAlertsPanel className="h-full" maxAlerts={6} />
+          <UniversalAlertsPanel className="h-full" maxAlerts={6} showSettings={true} />
           <SOLMonitorCard />
         </div>
 

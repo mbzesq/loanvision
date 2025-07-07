@@ -6,7 +6,7 @@ import GeographicalDistributionChart from '../components/Dashboard/GeographicalD
 import MonthlyCashflowChart from '../components/Dashboard/MonthlyCashflowChart';
 import ForeclosureTrackingChart from '../components/Dashboard/ForeclosureTrackingChart';
 import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
-import SOLAlertsPanel from '../components/SOL/SOLAlertsPanel';
+import UniversalAlertsPanel from '../components/Alerts/UniversalAlertsPanel';
 import axios from '../utils/axios';
 import '../styles/design-system.css';
 
@@ -292,8 +292,8 @@ function DashboardPage() {
           <SOLMonitorCard />
         </ModernChartContainer>
 
-        {/* Chart 6: SOL Alerts */}
-        <SOLAlertsPanel className="h-full" maxAlerts={8} />
+        {/* Chart 6: Universal Alerts */}
+        <UniversalAlertsPanel className="h-full" maxAlerts={8} showSettings={true} />
       </div>
     </div>
   );
