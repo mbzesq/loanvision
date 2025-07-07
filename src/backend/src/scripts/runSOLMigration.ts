@@ -4,13 +4,9 @@ import { Pool } from 'pg';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-// Database configuration
+// Database configuration - use same as main app
 const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'password',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'nplvision'
+  connectionString: process.env.DATABASE_URL,
 });
 
 async function runSOLMigration() {
