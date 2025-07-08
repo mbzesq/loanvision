@@ -552,3 +552,32 @@ label,
   color: var(--color-primary-dark) !important;
   text-decoration: underline;
 }
+
+/* ===============================================
+   FINANCIAL DETAIL ITEM COMPONENT
+   =============================================== */
+
+/* Financial Detail Item Component */
+.financial-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.financial-detail-item .label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.financial-detail-item .value {
+  font-size: 12px;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
