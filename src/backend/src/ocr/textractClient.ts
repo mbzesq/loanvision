@@ -83,6 +83,9 @@ export class TextractService {
         if (error.message.includes('ValidationException')) {
           throw new Error('Invalid document format. Please ensure you are uploading a valid PDF.');
         }
+        if (error.message.includes('UnsupportedDocumentException')) {
+          throw new Error('This document format is not supported by Textract even after enhancement. The PDF may be corrupted, password-protected, or use a highly unusual format.');
+        }
         throw new Error(`OCR processing failed: ${error.message}`);
       }
       throw new Error('OCR processing failed: Unknown error');
