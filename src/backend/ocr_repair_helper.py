@@ -12,6 +12,7 @@ from pdf2image import convert_from_path
 from PIL import Image
 import img2pdf
 import tempfile
+import gc
 
 def enhance_pdf(input_path: str, output_path: str) -> bool:
     """
@@ -29,22 +30,35 @@ def enhance_pdf(input_path: str, output_path: str) -> bool:
         
         # Create temporary directory for images
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Convert PDF to grayscale images at 300 DPI
-            images = convert_from_path(input_path, dpi=300)
+            # Convert PDF to grayscale images at lower DPI to reduce memory usage
+            images = convert_from_path(input_path, dpi=150)  # Reduced from 300 to 150
             image_paths = []
             
             for idx, img in enumerate(images):
-                # Convert to grayscale for better OCR
+                # Convert to grayscale and reduce size for memory efficiency
                 grayscale = img.convert("L")
+                
+                # Resize if image is very large (width > 1500 pixels)
+                if grayscale.width > 1500:
+                    ratio = 1500 / grayscale.width
+                    new_height = int(grayscale.height * ratio)
+                    grayscale = grayscale.resize((1500, new_height), Image.Resampling.LANCZOS)
                 
                 # Save temporary image
                 temp_image_path = Path(temp_dir) / f"page_{idx + 1}.png"
-                grayscale.save(temp_image_path)
+                grayscale.save(temp_image_path, optimize=True)
                 image_paths.append(str(temp_image_path))
+                
+                # Clear from memory immediately
+                grayscale.close()
+                img.close()
             
             # Reassemble optimized PDF
             with open(output_path, "wb") as f:
                 f.write(img2pdf.convert(image_paths))
+            
+            # Force garbage collection to free memory
+            gc.collect()
             
             print(f"[OCR Enhancement] Successfully created: {Path(output_path).name}")
             return True
