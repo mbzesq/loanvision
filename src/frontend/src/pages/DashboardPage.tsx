@@ -18,6 +18,7 @@ interface Loan {
   loan_id: string;
   legal_status: string;
   prin_bal: string;
+  pi_pmt: string | number;
   next_pymt_due: string;
   last_pymt_received: string;
   fc_status?: string;
@@ -62,6 +63,31 @@ function DashboardPage() {
         });
         console.log('Unique FC statuses found:', Array.from(fcStatuses));
         console.log('Unique Legal statuses found:', Array.from(legalStatuses));
+        
+        // EMERGENCY DIAGNOSTIC: Force some loans into other categories for testing
+        console.log('EMERGENCY TEST: Forcing some loans into different categories...');
+        const testCategories = {
+          securitizable: 0,
+          steadyPerforming: 0,
+          recentPerforming: 0,
+          paying: 0,
+          nonPerforming: 0,
+          foreclosure: 0
+        };
+        
+        loans.slice(0, 100).forEach((loan, index) => {
+          console.log(`Loan ${index + 1}: ${loan.loan_id} - Legal Status: "${loan.legal_status}" - FC Status: "${loan.fc_status}"`);
+          
+          // Test categorization based on index to force distribution
+          if (index < 10) testCategories.securitizable++;
+          else if (index < 20) testCategories.steadyPerforming++;
+          else if (index < 30) testCategories.recentPerforming++;
+          else if (index < 60) testCategories.paying++;
+          else if (index < 80) testCategories.nonPerforming++;
+          else testCategories.foreclosure++;
+        });
+        
+        console.log('Test category distribution:', testCategories);
         
         for (let i = 0; i < Math.min(3, loans.length); i++) {
           const loan = loans[i];
@@ -113,25 +139,18 @@ function DashboardPage() {
           steadyPerforming: { count: 0, totalUpb: 0 },
           recentPerforming: { count: 0, totalUpb: 0 },
           paying: { count: 0, totalUpb: 0 },
+          partialPayments: { count: 0, totalUpb: 0 },
           nonPerforming: { count: 0, totalUpb: 0 },
           foreclosure: { count: 0, totalUpb: 0 }
         };
         
-        // Helper function to count consecutive payments
+        // Helper function to count consecutive qualifying payments (payment >= pi_pmt)
         const countConsecutivePayments = (loan: Loan): number => {
-          // Get current date and determine which months to check
-          const currentDate = new Date();
-          const currentMonth = currentDate.getMonth(); // 0-11 (0=January, 6=July)
-          const currentYear = currentDate.getFullYear();
+          const requiredPayment = parseFloat(String(loan.pi_pmt || '0'));
           
-          // All available months in the data (ordered from most recent to oldest)
-          const allMonths = [
-            { month: 'december_2025', value: loan.december_2025, monthIndex: 11 },
-            { month: 'november_2025', value: loan.november_2025, monthIndex: 10 },
-            { month: 'october_2025', value: loan.october_2025, monthIndex: 9 },
-            { month: 'september_2025', value: loan.september_2025, monthIndex: 8 },
-            { month: 'august_2025', value: loan.august_2025, monthIndex: 7 },
-            { month: 'july_2025', value: loan.july_2025, monthIndex: 6 },
+          // Data is from June 3, 2025 - so we have Jan through June 2025 data
+          // Order from most recent (June) backwards to January
+          const monthsInOrder = [
             { month: 'june_2025', value: loan.june_2025, monthIndex: 5 },
             { month: 'may_2025', value: loan.may_2025, monthIndex: 4 },
             { month: 'april_2025', value: loan.april_2025, monthIndex: 3 },
@@ -140,77 +159,59 @@ function DashboardPage() {
             { month: 'january_2025', value: loan.january_2025, monthIndex: 0 }
           ];
           
-          // Filter to only include months up to current month (don't include future months)
-          const relevantMonths = allMonths.filter(m => {
-            if (currentYear === 2025) {
-              return m.monthIndex <= currentMonth;
-            } else if (currentYear > 2025) {
-              return true; // Include all 2025 months if we're past 2025
-            } else {
-              return false; // Don't include any 2025 months if we're before 2025
-            }
-          });
-          
           let consecutiveCount = 0;
-          // Start from most recent relevant month backwards
-          for (const monthData of relevantMonths) {
+          // Start from most recent month (June) and go backwards
+          for (const monthData of monthsInOrder) {
             const payment = parseFloat(String(monthData.value || '0'));
-            if (payment > 0) {
+            // Payment must be >= required payment amount AND positive
+            if (payment >= requiredPayment && payment > 0) {
               consecutiveCount++;
             } else {
-              break; // Stop at first missed payment
+              break; // Stop at first missed or insufficient payment
             }
-          }
-          
-          // Debug logging for first few loans
-          if (consecutiveCount > 0 && (consecutiveCount >= 6 || Math.random() < 0.1)) {
-            console.log(`[CONSECUTIVE PAYMENTS] Loan ${loan.loan_id}: ${consecutiveCount} consecutive payments from relevant months:`, 
-              relevantMonths.map(m => `${m.month}:${m.value}`).join(', '));
           }
           
           return consecutiveCount;
         };
         
-        // Helper function to count payments in last N months
+        // Helper function to count payments in last N months (any amount > 0)
         const countRecentPayments = (loan: Loan, monthsBack: number): number => {
-          // Get current date and determine which months to check
-          const currentDate = new Date();
-          const currentMonth = currentDate.getMonth(); // 0-11
-          const currentYear = currentDate.getFullYear();
-          
-          // All available months with their values
-          const allMonths = [
-            { value: loan.december_2025, monthIndex: 11 },
-            { value: loan.november_2025, monthIndex: 10 },
-            { value: loan.october_2025, monthIndex: 9 },
-            { value: loan.september_2025, monthIndex: 8 },
-            { value: loan.august_2025, monthIndex: 7 },
-            { value: loan.july_2025, monthIndex: 6 },
-            { value: loan.june_2025, monthIndex: 5 },
-            { value: loan.may_2025, monthIndex: 4 },
-            { value: loan.april_2025, monthIndex: 3 },
-            { value: loan.march_2025, monthIndex: 2 },
-            { value: loan.february_2025, monthIndex: 1 },
-            { value: loan.january_2025, monthIndex: 0 }
+          // Data is from June 3, 2025 - order from most recent (June) backwards
+          const monthsInOrder = [
+            { month: 'june_2025', value: loan.june_2025, monthIndex: 5 },
+            { month: 'may_2025', value: loan.may_2025, monthIndex: 4 },
+            { month: 'april_2025', value: loan.april_2025, monthIndex: 3 },
+            { month: 'march_2025', value: loan.march_2025, monthIndex: 2 },
+            { month: 'february_2025', value: loan.february_2025, monthIndex: 1 },
+            { month: 'january_2025', value: loan.january_2025, monthIndex: 0 }
           ];
           
-          // Filter to only include months up to current month
-          const relevantMonths = allMonths.filter(m => {
-            if (currentYear === 2025) {
-              return m.monthIndex <= currentMonth;
-            } else if (currentYear > 2025) {
-              return true; // Include all 2025 months if we're past 2025
-            } else {
-              return false; // Don't include any 2025 months if we're before 2025
-            }
-          });
-          
           let paymentCount = 0;
-          for (let i = 0; i < Math.min(monthsBack, relevantMonths.length); i++) {
-            const payment = parseFloat(String(relevantMonths[i].value || '0'));
+          for (let i = 0; i < Math.min(monthsBack, monthsInOrder.length); i++) {
+            const payment = parseFloat(String(monthsInOrder[i].value || '0'));
             if (payment > 0) paymentCount++;
           }
           return paymentCount;
+        };
+        
+        // Helper function to count partial payments (> 0 but < pi_pmt) in last N months
+        const countPartialPayments = (loan: Loan, monthsBack: number): number => {
+          const requiredPayment = parseFloat(String(loan.pi_pmt || '0'));
+          const monthsInOrder = [
+            { month: 'june_2025', value: loan.june_2025, monthIndex: 5 },
+            { month: 'may_2025', value: loan.may_2025, monthIndex: 4 },
+            { month: 'april_2025', value: loan.april_2025, monthIndex: 3 },
+            { month: 'march_2025', value: loan.march_2025, monthIndex: 2 },
+            { month: 'february_2025', value: loan.february_2025, monthIndex: 1 },
+            { month: 'january_2025', value: loan.january_2025, monthIndex: 0 }
+          ];
+          
+          let partialPaymentCount = 0;
+          for (let i = 0; i < Math.min(monthsBack, monthsInOrder.length); i++) {
+            const payment = parseFloat(String(monthsInOrder[i].value || '0'));
+            if (payment > 0 && payment < requiredPayment) partialPaymentCount++;
+          }
+          return partialPaymentCount;
         };
         
         // Helper function to check if loan is past due
@@ -244,7 +245,7 @@ function DashboardPage() {
           }
           
           // Check for foreclosure status first - based on actual schema values
-          if (loan.fc_status && ['Active', 'Hold'].includes(loan.fc_status)) {
+          if (loan.fc_status && ['ACTIVE', 'HOLD'].includes(loan.fc_status)) {
             // Log foreclosure status for debugging
             if (categories.foreclosure.count < 5) {
               console.log(`Found foreclosure loan ${loan.loan_id} with status: "${loan.fc_status}"`);
@@ -256,6 +257,7 @@ function DashboardPage() {
           
           const consecutivePayments = countConsecutivePayments(loan);
           const recentPayments = countRecentPayments(loan, 4);
+          const partialPayments = countPartialPayments(loan, 4);
           const monthsSinceLastPayment = loan.last_pymt_received ? 
             Math.floor((new Date().getTime() - new Date(loan.last_pymt_received).getTime()) / (1000 * 60 * 60 * 24 * 30)) : 
             999;
@@ -282,7 +284,7 @@ function DashboardPage() {
             const legalStatus = loan.legal_status?.toLowerCase() || '';
             console.log(`  Legal Status: "${loan.legal_status}"`);
             
-            if (loan.fc_status && ['Active', 'Hold'].includes(loan.fc_status)) {
+            if (loan.fc_status && ['ACTIVE', 'HOLD'].includes(loan.fc_status)) {
               console.log(`  → FORECLOSURE (FC Status: ${loan.fc_status})`);
             } else if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 12) {
               console.log(`  → SECURITIZABLE (Current/performing + ${consecutivePayments} consecutive payments)`);
@@ -317,10 +319,15 @@ function DashboardPage() {
             categories.recentPerforming.count++;
             categories.recentPerforming.totalUpb += upb;
           }
-          // PAYING: Past due but making payments
+          // PAYING: Past due but making full payments
           else if ((legalStatus.includes('30') || legalStatus.includes('60') || legalStatus.includes('delinq')) && recentPayments >= 2) {
             categories.paying.count++;
             categories.paying.totalUpb += upb;
+          }
+          // PARTIAL PAYMENTS: Making payments but less than required amount
+          else if (partialPayments >= 2) {
+            categories.partialPayments.count++;
+            categories.partialPayments.totalUpb += upb;
           }
           // NON-PERFORMING: Seriously delinquent or default
           else if (legalStatus.includes('90') || legalStatus.includes('default') || legalStatus.includes('charge') || monthsSinceLastPayment >= 6) {
@@ -371,6 +378,14 @@ function DashboardPage() {
         });
         
         statusData.push({
+          status: 'PARTIAL PAYMENTS',
+          count: categories.partialPayments.count,
+          upb: categories.partialPayments.totalUpb,
+          avgBalance: categories.partialPayments.count > 0 ? categories.partialPayments.totalUpb / categories.partialPayments.count : 0,
+          change: -3.2
+        });
+        
+        statusData.push({
           status: 'NON-PERFORMING',
           count: categories.nonPerforming.count,
           upb: categories.nonPerforming.totalUpb,
@@ -397,6 +412,7 @@ function DashboardPage() {
         console.log(`  STEADY PERFORMING: ${categories.steadyPerforming.count} (${(categories.steadyPerforming.count/loans.length*100).toFixed(1)}%)`);
         console.log(`  RECENT PERFORMING: ${categories.recentPerforming.count} (${(categories.recentPerforming.count/loans.length*100).toFixed(1)}%)`);
         console.log(`  PAYING: ${categories.paying.count} (${(categories.paying.count/loans.length*100).toFixed(1)}%)`);
+        console.log(`  PARTIAL PAYMENTS: ${categories.partialPayments.count} (${(categories.partialPayments.count/loans.length*100).toFixed(1)}%)`);
         console.log(`  NON-PERFORMING: ${categories.nonPerforming.count} (${(categories.nonPerforming.count/loans.length*100).toFixed(1)}%)`);
         console.log(`  FORECLOSURE: ${categories.foreclosure.count} (${(categories.foreclosure.count/loans.length*100).toFixed(1)}%)`);
         console.log(`\nTotal Loans: ${loans.length}`);
@@ -460,7 +476,8 @@ function DashboardPage() {
     const statusLower = status.toLowerCase();
     if (statusLower.includes('securitizable')) return 'success';
     if (statusLower.includes('steady') || statusLower.includes('recent')) return 'success';
-    if (statusLower.includes('paying')) return 'warning';
+    if (statusLower.includes('paying') && !statusLower.includes('partial')) return 'warning';
+    if (statusLower.includes('partial')) return 'warning';
     if (statusLower.includes('non-performing')) return 'critical';
     if (statusLower.includes('foreclosure')) return 'critical';
     return 'info';

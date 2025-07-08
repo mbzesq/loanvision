@@ -13,6 +13,7 @@ router.get('/sample-loans', authenticateToken, async (req, res) => {
       SELECT
         dmc.loan_id,
         dmc.prin_bal,
+        dmc.pi_pmt,
         dmc.next_pymt_due,
         dmc.last_pymt_received,
         dmc.legal_status,
@@ -64,14 +65,16 @@ router.get('/sample-loans', authenticateToken, async (req, res) => {
         return false;
       });
       
-      // Count consecutive payments from most recent month backwards
+      // Count consecutive qualifying payments (payment >= pi_pmt)
+      const requiredPayment = parseFloat(String(loan.pi_pmt || '0'));
       let consecutivePayments = 0;
       for (const monthData of paymentHistory) {
         const payment = parseFloat(String(monthData.value || '0'));
-        if (payment > 0) {
+        // Payment must be >= required payment amount AND positive
+        if (payment >= requiredPayment && payment > 0) {
           consecutivePayments++;
         } else {
-          break;
+          break; // Stop at first missed or insufficient payment
         }
       }
       
