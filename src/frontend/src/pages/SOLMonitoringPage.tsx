@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
 import { Clock, TrendingUp, TrendingDown, Calendar, AlertTriangle, Scale, RefreshCw } from 'lucide-react';
 import { solService, SOLSummary } from '../services/solService';
 import UniversalAlertsPanel from '../components/Alerts/UniversalAlertsPanel';
 import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import '../styles/financial-design-system.css';
 
 interface SOLTrendData {
   month: string;
@@ -82,17 +80,47 @@ const SOLMonitoringPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div style={{ 
+        padding: '12px', 
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)' 
+      }}>
         <div className="animate-pulse">
-          <div className="h-8 bg-slate-200 rounded w-1/3 mb-6"></div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="space-y-6">
-              <div className="h-48 bg-slate-200 rounded"></div>
-              <div className="h-48 bg-slate-200 rounded"></div>
+          <div style={{ 
+            height: '32px', 
+            backgroundColor: 'var(--color-surface)', 
+            borderRadius: 'var(--radius-md)',
+            width: '33%',
+            marginBottom: '24px'
+          }}></div>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ 
+                height: '192px', 
+                backgroundColor: 'var(--color-surface)', 
+                borderRadius: 'var(--radius-md)'
+              }}></div>
+              <div style={{ 
+                height: '192px', 
+                backgroundColor: 'var(--color-surface)', 
+                borderRadius: 'var(--radius-md)'
+              }}></div>
             </div>
-            <div className="lg:col-span-2 space-y-6">
-              <div className="h-64 bg-slate-200 rounded"></div>
-              <div className="h-32 bg-slate-200 rounded"></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ 
+                height: '256px', 
+                backgroundColor: 'var(--color-surface)', 
+                borderRadius: 'var(--radius-md)'
+              }}></div>
+              <div style={{ 
+                height: '128px', 
+                backgroundColor: 'var(--color-surface)', 
+                borderRadius: 'var(--radius-md)'
+              }}></div>
             </div>
           </div>
         </div>
@@ -102,10 +130,24 @@ const SOLMonitoringPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">SOL Monitoring Dashboard</h1>
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-600">{error}</p>
+      <div style={{ 
+        padding: '12px', 
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)' 
+      }}>
+        <h1 style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: '600', 
+          color: 'var(--color-text-primary)',
+          marginBottom: '16px'
+        }}>SOL Monitoring Dashboard</h1>
+        <div style={{ 
+          backgroundColor: 'rgba(197, 48, 48, 0.1)', 
+          border: '1px solid rgba(197, 48, 48, 0.3)',
+          borderRadius: 'var(--radius-md)',
+          padding: '16px'
+        }}>
+          <p style={{ color: 'var(--color-danger)' }}>{error}</p>
         </div>
       </div>
     );
@@ -116,225 +158,249 @@ const SOLMonitoringPage: React.FC = () => {
     (trendData[trendData.length - 2].expired + trendData[trendData.length - 2].highRisk) : 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div style={{ 
+      padding: '12px', 
+      minHeight: '100vh',
+      backgroundColor: 'var(--color-background)' 
+    }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Scale className="h-6 w-6 text-blue-600" />
-            SOL Monitoring Dashboard
-          </h1>
-          <p className="text-slate-600 mt-1">
-            Comprehensive monitoring of Statute of Limitations across your portfolio
-          </p>
+      <div className="quick-stats" style={{ marginBottom: '16px' }}>
+        <div className="quick-stat">
+          <span className="label">SOL MONITORING</span>
+          <span className="value">DASHBOARD</span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">
-            Last updated: {lastRefresh.toLocaleTimeString()}
-          </span>
-          <Button variant="outline" size="sm" onClick={handleRefresh}>
-            <RefreshCw className="h-4 w-4 mr-1" />
-            Refresh
-          </Button>
+        <div className="quick-stat">
+          <span className="label">LAST UPDATE</span>
+          <span className="value data-fresh">{lastRefresh.toLocaleTimeString()}</span>
+        </div>
+        <div className="quick-stat">
+          <span className="label">PORTFOLIO</span>
+          <span className="value">NPL-MAIN</span>
+        </div>
+        <div style={{ marginLeft: 'auto' }}>
+          <button 
+            className="btn-compact btn-secondary" 
+            onClick={handleRefresh}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+          >
+            <RefreshCw style={{ width: '14px', height: '14px' }} />
+            REFRESH
+          </button>
         </div>
       </div>
 
       {/* Key Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-red-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-red-600 font-medium">Expired SOL</p>
-                <p className="text-2xl font-bold text-red-700">
-                  {solSummary?.expired_count || 0}
-                </p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-red-500" />
+      <div className="dashboard-grid-dense" style={{ marginBottom: '16px' }}>
+        <div className="kpi-card-dense">
+          <div>
+            <div className="kpi-label">EXPIRED SOL</div>
+            <div className="kpi-value" style={{ color: 'var(--color-danger)' }}>
+              {solSummary?.expired_count || 0}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <AlertTriangle style={{ width: '24px', height: '24px', color: 'var(--color-danger)' }} />
+        </div>
 
-        <Card className="border-yellow-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-yellow-600 font-medium">High Risk</p>
-                <p className="text-2xl font-bold text-yellow-700">
-                  {solSummary?.high_risk_count || 0}
-                </p>
-              </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
+        <div className="kpi-card-dense">
+          <div>
+            <div className="kpi-label">HIGH RISK</div>
+            <div className="kpi-value" style={{ color: 'var(--color-warning)' }}>
+              {solSummary?.high_risk_count || 0}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <Clock style={{ width: '24px', height: '24px', color: 'var(--color-warning)' }} />
+        </div>
 
-        <Card className="border-blue-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-blue-600 font-medium">Total Monitored</p>
-                <p className="text-2xl font-bold text-blue-700">
-                  {solSummary?.total_loans || 0}
-                </p>
-              </div>
-              <Scale className="h-8 w-8 text-blue-500" />
+        <div className="kpi-card-dense">
+          <div>
+            <div className="kpi-label">TOTAL MONITORED</div>
+            <div className="kpi-value" style={{ color: 'var(--color-primary)' }}>
+              {solSummary?.total_loans || 0}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <Scale style={{ width: '24px', height: '24px', color: 'var(--color-primary)' }} />
+        </div>
 
-        <Card className={riskTrend > 0 ? 'border-red-200' : 'border-green-200'}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 font-medium">Risk Trend</p>
-                <p className={`text-2xl font-bold ${riskTrend > 0 ? 'text-red-700' : 'text-green-700'}`}>
-                  {riskTrend > 0 ? '+' : ''}{riskTrend}
-                </p>
-              </div>
-              {riskTrend > 0 ? (
-                <TrendingUp className="h-8 w-8 text-red-500" />
-              ) : (
-                <TrendingDown className="h-8 w-8 text-green-500" />
-              )}
+        <div className="kpi-card-dense">
+          <div>
+            <div className="kpi-label">RISK TREND</div>
+            <div className="kpi-value" style={{ 
+              color: riskTrend > 0 ? 'var(--color-danger)' : 'var(--color-success)' 
+            }}>
+              {riskTrend > 0 ? '+' : ''}{riskTrend}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          {riskTrend > 0 ? (
+            <TrendingUp style={{ width: '24px', height: '24px', color: 'var(--color-danger)' }} />
+          ) : (
+            <TrendingDown style={{ width: '24px', height: '24px', color: 'var(--color-success)' }} />
+          )}
+        </div>
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px' }}>
         {/* Left Column - Alerts and Overview */}
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <UniversalAlertsPanel className="h-full" maxAlerts={6} showSettings={true} />
           <SOLMonitorCard />
         </div>
 
         {/* Right Column - Charts and Analytics */}
-        <div className="lg:col-span-2 space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Trend Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
-                SOL Risk Trends
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trendData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '6px'
-                      }}
-                    />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="expired" 
-                      stroke="#ef4444" 
-                      strokeWidth={2}
-                      name="Expired"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="highRisk" 
-                      stroke="#f59e0b" 
-                      strokeWidth={2}
-                      name="High Risk"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="mediumRisk" 
-                      stroke="#eab308" 
-                      strokeWidth={2}
-                      name="Medium Risk"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <TrendingUp style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                SOL RISK TRENDS
+              </h3>
+            </div>
+            <div style={{ height: '256px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                    axisLine={{ stroke: 'var(--color-border)' }}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                    axisLine={{ stroke: 'var(--color-border)' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'var(--color-surface)',
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-sm)',
+                      color: 'var(--color-text-primary)'
+                    }}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="expired" 
+                    stroke="var(--color-danger)" 
+                    strokeWidth={2}
+                    name="Expired"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="highRisk" 
+                    stroke="var(--color-warning)" 
+                    strokeWidth={2}
+                    name="High Risk"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="mediumRisk" 
+                    stroke="var(--color-info)" 
+                    strokeWidth={2}
+                    name="Medium Risk"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
           {/* Jurisdiction Analysis */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-600" />
-                SOL Risk by Jurisdiction
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={jurisdictionData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="state" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '6px'
-                      }}
-                    />
-                    <Legend />
-                    <Bar dataKey="expiredCount" fill="#ef4444" name="Expired" />
-                    <Bar dataKey="highRiskCount" fill="#f59e0b" name="High Risk" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <Calendar style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                SOL RISK BY JURISDICTION
+              </h3>
+            </div>
+            <div style={{ height: '256px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={jurisdictionData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis 
+                    dataKey="state" 
+                    tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                    axisLine={{ stroke: 'var(--color-border)' }}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                    axisLine={{ stroke: 'var(--color-border)' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'var(--color-surface)',
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-sm)',
+                      color: 'var(--color-text-primary)'
+                    }}
+                  />
+                  <Legend />
+                  <Bar dataKey="expiredCount" fill="var(--color-danger)" name="Expired" />
+                  <Bar dataKey="highRiskCount" fill="var(--color-warning)" name="High Risk" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
           {/* Jurisdiction Details Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Jurisdiction Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="text-left p-2 font-medium">State</th>
-                      <th className="text-right p-2 font-medium">Total Loans</th>
-                      <th className="text-right p-2 font-medium">Expired</th>
-                      <th className="text-right p-2 font-medium">High Risk</th>
-                      <th className="text-right p-2 font-medium">Avg Days to Expiration</th>
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                JURISDICTION DETAILS
+              </h3>
+            </div>
+            <div className="scroll-container">
+              <table className="financial-table">
+                <thead>
+                  <tr>
+                    <th>STATE</th>
+                    <th>TOTAL LOANS</th>
+                    <th>EXPIRED</th>
+                    <th>HIGH RISK</th>
+                    <th>AVG DAYS TO EXP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jurisdictionData.map((jurisdiction) => (
+                    <tr key={jurisdiction.state}>
+                      <td style={{ fontWeight: '600' }}>{jurisdiction.state}</td>
+                      <td className="data-value">{jurisdiction.totalLoans}</td>
+                      <td>
+                        <span className={`status-indicator ${jurisdiction.expiredCount > 0 ? 'critical' : 'success'}`}>
+                          {jurisdiction.expiredCount}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`status-indicator ${jurisdiction.highRiskCount > 5 ? 'critical' : jurisdiction.highRiskCount > 0 ? 'warning' : 'success'}`}>
+                          {jurisdiction.highRiskCount}
+                        </span>
+                      </td>
+                      <td className="data-value">
+                        {jurisdiction.avgDaysToExpiration}d
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {jurisdictionData.map((jurisdiction) => (
-                      <tr key={jurisdiction.state} className="border-b hover:bg-gray-50">
-                        <td className="p-2 font-medium">{jurisdiction.state}</td>
-                        <td className="p-2 text-right">{jurisdiction.totalLoans}</td>
-                        <td className="p-2 text-right">
-                          <Badge variant={jurisdiction.expiredCount > 0 ? "destructive" : "secondary"}>
-                            {jurisdiction.expiredCount}
-                          </Badge>
-                        </td>
-                        <td className="p-2 text-right">
-                          <Badge variant={jurisdiction.highRiskCount > 5 ? "destructive" : "secondary"}>
-                            {jurisdiction.highRiskCount}
-                          </Badge>
-                        </td>
-                        <td className="p-2 text-right text-gray-600">
-                          {jurisdiction.avgDaysToExpiration} days
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
