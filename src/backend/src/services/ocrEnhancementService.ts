@@ -130,21 +130,75 @@ export class OCREnhancementService {
   async isEnhancementAvailable(): Promise<boolean> {
     try {
       const scriptPath = path.resolve(__dirname, '../../../ocr_repair_helper.py');
-      await fs.access(scriptPath);
+      
+      // Check if script exists
+      try {
+        await fs.access(scriptPath);
+        console.log('[OCREnhancementService] Python script found at:', scriptPath);
+      } catch {
+        console.log('[OCREnhancementService] Python script not found at:', scriptPath);
+        return false;
+      }
       
       // Test if python3 is available
       return new Promise((resolve) => {
+        console.log('[OCREnhancementService] Testing Python availability...');
         const testProcess = spawn('python3', ['--version'], { stdio: 'pipe' });
-        testProcess.on('close', (code) => {
-          resolve(code === 0);
+        
+        let output = '';
+        testProcess.stdout.on('data', (data) => {
+          output += data.toString();
         });
-        testProcess.on('error', () => {
+        
+        testProcess.stderr.on('data', (data) => {
+          output += data.toString();
+        });
+        
+        testProcess.on('close', (code) => {
+          console.log('[OCREnhancementService] Python test result:', { code, output });
+          if (code === 0) {
+            // Test if required packages are available
+            this.testPythonPackages().then(packagesAvailable => {
+              console.log('[OCREnhancementService] Python packages available:', packagesAvailable);
+              resolve(packagesAvailable);
+            }).catch(() => {
+              console.log('[OCREnhancementService] Failed to test Python packages');
+              resolve(false);
+            });
+          } else {
+            resolve(false);
+          }
+        });
+        
+        testProcess.on('error', (error) => {
+          console.log('[OCREnhancementService] Python test error:', error.message);
           resolve(false);
         });
       });
-    } catch {
+    } catch (error) {
+      console.log('[OCREnhancementService] Enhancement check failed:', error);
       return false;
     }
+  }
+
+  private async testPythonPackages(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const testProcess = spawn('python3', ['-c', 'import pdf2image, PIL, img2pdf; print("OK")'], { stdio: 'pipe' });
+      
+      let output = '';
+      testProcess.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+      
+      testProcess.on('close', (code) => {
+        console.log('[OCREnhancementService] Package test result:', { code, output });
+        resolve(code === 0 && output.includes('OK'));
+      });
+      
+      testProcess.on('error', () => {
+        resolve(false);
+      });
+    });
   }
 }
 
