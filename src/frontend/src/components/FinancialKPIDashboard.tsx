@@ -181,8 +181,10 @@ export const FinancialKPIDashboard: React.FC = () => {
         
         const fcOnTrackPercentage = fcLoans.length > 0 ? (fcOnTrackCount / fcLoans.length) * 100 : 0;
         
-        // Calculate recovery rate (simplified - performing loans that were previously non-performing)
-        const recoveryRate = 34.2; // This would need historical data to calculate properly
+        // Calculate recovery rate - requires historical status transition data
+        // Would measure: loans that moved from Non-Performing back to Performing
+        // Currently using placeholder until historical data is available
+        const recoveryRate = 0; // Placeholder - needs historical loan status data
         
         // Format currency
         const formatCurrency = (amount: number): string => {
@@ -251,18 +253,18 @@ export const FinancialKPIDashboard: React.FC = () => {
           },
           {
             label: 'Recovery Rate',
-            value: `${recoveryRate.toFixed(1)}%`,
-            change: 1.8, // Would need historical data
-            changeLabel: 'vs target',
+            value: recoveryRate > 0 ? `${recoveryRate.toFixed(1)}%` : 'N/A',
+            change: 0, // Would need historical data for calculation
+            changeLabel: 'vs last month',
             icon: <TrendingUp className="h-4 w-4" />,
-            trend: 'up',
+            trend: 'neutral',
             clickAction: handleRecoveryRateClick
           },
           {
             label: 'FC On Track',
             value: `${fcOnTrackPercentage.toFixed(1)}%`,
-            change: -12.5, // Would need historical data
-            changeLabel: 'of foreclosures',
+            change: 0, // Would need historical data for MoM calculation
+            changeLabel: 'vs last month',
             icon: <BarChart3 className="h-4 w-4" />,
             trend: fcOnTrackPercentage >= 70 ? 'up' : 'down',
             clickAction: handleTimeToResolutionClick

@@ -364,19 +364,14 @@ function DashboardPage() {
               <div className="change positive">+0.02</div>
             </div>
             <div className="market-ticker">
-              <div className="symbol">NPL INDEX</div>
-              <div className="value">89.4</div>
-              <div className="change negative">-1.2</div>
+              <div className="symbol">30Y FIXED MORTGAGE</div>
+              <div className="value">6.81%</div>
+              <div className="change positive">+0.05</div>
             </div>
             <div className="market-ticker">
-              <div className="symbol">CREDIT SPREAD</div>
-              <div className="value">185bp</div>
-              <div className="change positive">+3bp</div>
-            </div>
-            <div className="market-ticker">
-              <div className="symbol">VIX</div>
-              <div className="value">16.8</div>
-              <div className="change positive">+0.5</div>
+              <div className="symbol">30Y UMBS TBA 5.5%</div>
+              <div className="value">98.125</div>
+              <div className="change negative">-0.05</div>
             </div>
           </div>
         </div>

@@ -218,12 +218,22 @@ export const PerformanceTrendChart: React.FC = () => {
         }}>
           RECENT TRANSITIONS (7D)
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {transitions.slice(-4).map((transition, index) => (
             <div key={index} style={{ 
               fontSize: '10px',
-              color: 'var(--color-text-muted)'
+              color: 'var(--color-text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}>
+              <span style={{ 
+                width: '4px', 
+                height: '4px', 
+                backgroundColor: 'var(--color-text-muted)', 
+                borderRadius: '50%',
+                flexShrink: 0
+              }}></span>
               <span style={{ fontWeight: '500' }}>{transition.count}</span> loans:
               <span style={{ marginLeft: '4px' }}>{transition.from} → {transition.to}</span>
             </div>
