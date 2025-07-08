@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { WidgetDashboard } from '../components/Widgets/WidgetDashboard';
 import registerAllWidgets, { initializeDefaultLayout } from '../components/Widgets/WidgetRegistry';
+import { AlertSummary } from '../components/AlertSummary';
 import '../styles/design-system.css';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -24,6 +25,9 @@ function DashboardPage() {
           Customizable real-time insights into your loan portfolio performance
         </p>
       </div>
+
+      {/* Alert Summary Strip */}
+      <AlertSummary compact />
 
       {/* Widget-based Dashboard */}
       <WidgetDashboard 
