@@ -177,10 +177,13 @@ export function registerAllWidgets(): void {
 export function initializeDefaultLayout(): void {
   // Check if we already have a populated default layout
   const existingLayout = widgetService.getLayout('default');
+  console.log('Checking existing layout:', existingLayout ? existingLayout.widgets.length : 'no layout');
   if (existingLayout && existingLayout.widgets && existingLayout.widgets.length > 0) {
+    console.log('Layout already has widgets, skipping initialization');
     return;
   }
 
+  console.log('Initializing default layout...');
   const defaultLayout = widgetService.getDefaultLayout();
   
   // Create widgets from metadata for default layout
@@ -200,8 +203,11 @@ export function initializeDefaultLayout(): void {
       console.warn(`Widget ${widgetId} not found during layout initialization`);
       return null;
     }
+    console.log(`Creating widget: ${widgetId} -> ${metadata.title}`);
     return widgetService.createWidgetFromMetadata(metadata);
   }).filter(Boolean);
+
+  console.log(`Created ${widgets.length} widgets for default layout`);
 
   // Update default layout with widgets
   const updatedLayout = {
@@ -210,6 +216,7 @@ export function initializeDefaultLayout(): void {
   };
 
   widgetService.saveLayout(updatedLayout);
+  console.log('Default layout saved with widgets');
 }
 
 // Export for easy usage

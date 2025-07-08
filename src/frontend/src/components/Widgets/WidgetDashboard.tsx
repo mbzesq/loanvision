@@ -54,6 +54,7 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
   const loadLayout = useCallback(async (id: string) => {
     try {
       const layout = widgetService.getLayout(id) || widgetService.getDefaultLayout();
+      console.log('Loading layout:', layout.name, 'widgets:', layout.widgets.length);
       setCurrentLayout(layout);
       setLayouts(layout.layouts);
       
@@ -68,6 +69,7 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
         return widget;
       }).filter(w => w.component); // Only include widgets with valid components
       
+      console.log('Widgets with components:', widgetsWithComponents.length);
       setWidgets(widgetsWithComponents);
       setHasUnsavedChanges(false);
     } catch (error) {

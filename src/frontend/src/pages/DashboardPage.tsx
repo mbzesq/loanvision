@@ -7,6 +7,10 @@ import 'react-resizable/css/styles.css';
 
 function DashboardPage() {
   useEffect(() => {
+    // Clear localStorage to start fresh for debugging
+    localStorage.removeItem('dashboardLayouts');
+    localStorage.removeItem('widgetSettings');
+    
     // Register all widgets on component mount
     registerAllWidgets();
     initializeDefaultLayout();
