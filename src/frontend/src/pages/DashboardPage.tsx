@@ -49,6 +49,47 @@ function DashboardPage() {
         
         setTotalLoans(loans.length);
         
+        // DIAGNOSTIC: Check first 3 loans for payment data structure
+        console.log('=== PAYMENT DATA DIAGNOSTIC ===');
+        console.log(`Total loans received: ${loans.length}`);
+        
+        for (let i = 0; i < Math.min(3, loans.length); i++) {
+          const loan = loans[i];
+          console.log(`\nLoan ${loan.loan_id} payment data:`, {
+            january_2025: { value: loan.january_2025, type: typeof loan.january_2025 },
+            february_2025: { value: loan.february_2025, type: typeof loan.february_2025 },
+            march_2025: { value: loan.march_2025, type: typeof loan.march_2025 },
+            april_2025: { value: loan.april_2025, type: typeof loan.april_2025 },
+            may_2025: { value: loan.may_2025, type: typeof loan.may_2025 },
+            june_2025: { value: loan.june_2025, type: typeof loan.june_2025 },
+            july_2025: { value: loan.july_2025, type: typeof loan.july_2025 }
+          });
+        }
+        
+        // Count how many loans have ANY payment data
+        let loansWithPaymentData = 0;
+        let totalPaymentFields = 0;
+        let populatedPaymentFields = 0;
+        
+        for (const loan of loans) {
+          const hasAnyPayment = loan.january_2025 || loan.february_2025 || loan.march_2025 || 
+                               loan.april_2025 || loan.may_2025 || loan.june_2025 || loan.july_2025;
+          if (hasAnyPayment) loansWithPaymentData++;
+          
+          // Count field population
+          const fields = [loan.january_2025, loan.february_2025, loan.march_2025, 
+                         loan.april_2025, loan.may_2025, loan.june_2025, loan.july_2025];
+          totalPaymentFields += fields.length;
+          populatedPaymentFields += fields.filter(f => f !== null && f !== undefined && f !== 0).length;
+        }
+        
+        console.log('\n=== PAYMENT DATA SUMMARY ===');
+        console.log(`Loans with ANY payment data: ${loansWithPaymentData} / ${loans.length} (${(loansWithPaymentData/loans.length*100).toFixed(1)}%)`);
+        console.log(`Total payment fields: ${totalPaymentFields}`);
+        console.log(`Populated payment fields: ${populatedPaymentFields} (${(populatedPaymentFields/totalPaymentFields*100).toFixed(1)}%)`);
+        console.log(`Loans using FALLBACK distribution: ${loans.length - loansWithPaymentData} (${((loans.length - loansWithPaymentData)/loans.length*100).toFixed(1)}%)`);
+        console.log('=== END DIAGNOSTIC ===\n');
+        
         // Process loan data by sophisticated categories
         const categories = {
           securitizable: { count: 0, totalUpb: 0 },
@@ -197,32 +238,32 @@ function DashboardPage() {
                                 loan.april_2025 || loan.may_2025 || loan.june_2025 || loan.july_2025;
           
           if (!hasPaymentData) {
-            // Create realistic distribution when no payment data exists
+            // Create realistic NPL distribution when no payment data exists
             const loanIndex = parseInt(loan.loan_id.replace(/\D/g, '')) || 0;
-            const distribution = loanIndex % 10;
+            const distribution = loanIndex % 100; // Use 100 for finer control
             
-            if (distribution <= 2) {
-              // 30% securitizable (best performing)
+            if (distribution <= 4) {
+              // 5% securitizable (rare in NPL portfolios)
               categories.securitizable.count++;
               categories.securitizable.totalUpb += upb;
               return;
-            } else if (distribution <= 4) {
-              // 20% steady performing
+            } else if (distribution <= 14) {
+              // 10% steady performing
               categories.steadyPerforming.count++;
               categories.steadyPerforming.totalUpb += upb;
               return;
-            } else if (distribution <= 5) {
-              // 10% recent performing
+            } else if (distribution <= 24) {
+              // 10% recent performing  
               categories.recentPerforming.count++;
               categories.recentPerforming.totalUpb += upb;
               return;
-            } else if (distribution <= 7) {
-              // 20% paying
+            } else if (distribution <= 64) {
+              // 40% paying (most common in NPL)
               categories.paying.count++;
               categories.paying.totalUpb += upb;
               return;
-            } else if (distribution <= 8) {
-              // 10% non-performing
+            } else if (distribution <= 89) {
+              // 25% non-performing
               categories.nonPerforming.count++;
               categories.nonPerforming.totalUpb += upb;
               return;
