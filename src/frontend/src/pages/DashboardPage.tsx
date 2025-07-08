@@ -279,21 +279,24 @@ function DashboardPage() {
             console.log(`  Months Since Last Payment: ${monthsSinceLastPayment}`);
             console.log(`  Past Due: ${pastDue}`);
             
-            // Show categorization decision process
-            if (loan.fc_status && ['Active', 'Hold', 'FC', 'Foreclosure'].includes(loan.fc_status)) {
+            // Show categorization decision process based on new logic
+            const legalStatus = loan.legal_status?.toLowerCase() || '';
+            console.log(`  Legal Status: "${loan.legal_status}"`);
+            
+            if (loan.fc_status && ['Active', 'Hold'].includes(loan.fc_status)) {
               console.log(`  → FORECLOSURE (FC Status: ${loan.fc_status})`);
-            } else if (consecutivePayments >= 12) {
-              console.log(`  → SECURITIZABLE (12+ consecutive payments)`);
-            } else if (consecutivePayments >= 6 && !pastDue) {
-              console.log(`  → STEADY PERFORMING (6+ consecutive, not past due)`);
-            } else if (consecutivePayments >= 1 && consecutivePayments <= 3 && !pastDue) {
-              console.log(`  → RECENT PERFORMING (1-3 consecutive, not past due)`);
-            } else if (pastDue && recentPayments >= 2) {
-              console.log(`  → PAYING (past due but ${recentPayments} recent payments)`);
-            } else if (monthsSinceLastPayment >= 6) {
-              console.log(`  → NON-PERFORMING (${monthsSinceLastPayment} months since last payment)`);
+            } else if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 12) {
+              console.log(`  → SECURITIZABLE (Current/performing + ${consecutivePayments} consecutive payments)`);
+            } else if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 6) {
+              console.log(`  → STEADY PERFORMING (Current/performing + ${consecutivePayments} consecutive payments)`);
+            } else if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 1) {
+              console.log(`  → RECENT PERFORMING (Current/performing + ${consecutivePayments} consecutive payments)`);
+            } else if ((legalStatus.includes('30') || legalStatus.includes('60') || legalStatus.includes('delinq')) && recentPayments >= 2) {
+              console.log(`  → PAYING (30-60 days past due + ${recentPayments} recent payments)`);
+            } else if (legalStatus.includes('90') || legalStatus.includes('default') || legalStatus.includes('charge') || monthsSinceLastPayment >= 6) {
+              console.log(`  → NON-PERFORMING (90+ days/default/charge-off or ${monthsSinceLastPayment} months since payment)`);
             } else {
-              console.log(`  → PAYING (default catch-all)`);
+              console.log(`  → PAYING (default - legal status: "${legalStatus}")`);
             }
           }
           
