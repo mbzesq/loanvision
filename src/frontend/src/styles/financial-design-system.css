@@ -21,6 +21,12 @@
   --color-danger: #c53030;         /* Professional Red - Critical alerts */
   --color-info: #3182ce;           /* Muted Blue - Information */
   
+  /* Status Background Colors */
+  --color-success-bg: rgba(47, 133, 90, 0.1);   /* Success background */
+  --color-warning-bg: rgba(214, 158, 46, 0.1);  /* Warning background */
+  --color-danger-bg: rgba(197, 48, 48, 0.1);    /* Danger background */
+  --color-info-bg: rgba(49, 130, 206, 0.1);     /* Info background */
+  
   /* Data Visualization Colors */
   --color-chart-1: #4299e1;        /* Blue */
   --color-chart-2: #48bb78;        /* Green */
@@ -472,4 +478,77 @@ body.financial-theme {
 
 .market-ticker .change.negative {
   color: var(--color-danger);
+}
+
+/* ===============================================
+   TAILWIND OVERRIDES FOR DARK THEME TEXT VISIBILITY
+   =============================================== */
+
+/* Text Color Overrides */
+.text-slate-700,
+.text-slate-600,
+.text-slate-500,
+.text-slate-400,
+.text-slate-300 {
+  color: var(--color-text) !important;
+}
+
+.text-slate-900,
+.text-slate-800 {
+  color: var(--color-text-primary) !important;
+}
+
+.text-gray-700,
+.text-gray-600,
+.text-gray-500 {
+  color: var(--color-text-muted) !important;
+}
+
+/* Background Color Overrides */
+.bg-slate-50,
+.bg-slate-50\/75 {
+  background-color: var(--color-surface-light) !important;
+}
+
+/* Input and Form Element Overrides */
+input[type="text"],
+input[type="number"],
+input[type="search"],
+.input-class {
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+input::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+/* Label Overrides */
+label,
+.font-normal {
+  color: var(--color-text-primary) !important;
+}
+
+/* Checkbox and Form Element Labels */
+.checkbox-label,
+.form-label {
+  color: var(--color-text-primary) !important;
+}
+
+/* Accordion and Collapsible Content */
+.accordion-trigger,
+.accordion-content {
+  color: var(--color-text-primary) !important;
+}
+
+/* Link Overrides */
+.financial-link {
+  color: var(--color-primary) !important;
+  text-decoration: none;
+}
+
+.financial-link:hover {
+  color: var(--color-primary-dark) !important;
+  text-decoration: underline;
 }

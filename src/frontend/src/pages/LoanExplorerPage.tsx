@@ -411,7 +411,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('loan_id', {
         header: 'Loan Number',
         cell: info => (
-          <span className="font-medium text-blue-600 hover:underline">
+          <span className="financial-link" style={{ fontWeight: '500' }}>
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -420,7 +420,7 @@ function LoanExplorerPage() {
         id: 'borrower_name',
         header: 'Borrower Name',
         cell: info => (
-          <span className="text-slate-900">
+          <span style={{ color: 'var(--color-text)', fontWeight: '500' }}>
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -428,7 +428,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('address', {
         header: 'Property Address',
         cell: info => (
-          <span className="text-slate-700">
+          <span style={{ color: 'var(--color-text)' }}>
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -436,7 +436,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('city', {
         header: 'City',
         cell: info => (
-          <span className="text-slate-700">
+          <span style={{ color: 'var(--color-text)' }}>
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -444,7 +444,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('state', {
         header: 'State',
         cell: info => (
-          <span className="text-slate-700">
+          <span style={{ color: 'var(--color-text)' }}>
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -454,7 +454,11 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span className="font-semibold text-slate-800 tabular-nums">
+            <span style={{ 
+              fontWeight: '600', 
+              color: 'var(--color-text)', 
+              fontFamily: 'var(--font-mono)' 
+            }}>
               {value 
                 ? parseFloat(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                 : 'N/A'}
@@ -472,7 +476,10 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span className="text-slate-700 tabular-nums">
+            <span style={{ 
+              color: 'var(--color-text)', 
+              fontFamily: 'var(--font-mono)' 
+            }}>
               {formatDate(value)}
             </span>
           );
@@ -488,7 +495,10 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span className="text-slate-700 tabular-nums">
+            <span style={{ 
+              color: 'var(--color-text)', 
+              fontFamily: 'var(--font-mono)' 
+            }}>
               {formatDate(value)}
             </span>
           );
@@ -503,7 +513,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('legal_status', {
         header: 'Legal Status',
         cell: info => (
-          <span className="font-medium text-slate-700">
+          <span style={{ fontWeight: '500', color: 'var(--color-text)' }}>
             {info.getValue() || 'N/A'}
           </span>
         ),

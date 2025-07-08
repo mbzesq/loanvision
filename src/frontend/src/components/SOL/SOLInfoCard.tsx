@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
 import { Clock, Calendar, AlertTriangle, Info, MapPin, Scale, Shield } from 'lucide-react';
 import { solService, SOLCalculation } from '../../services/solService';
+import '../../styles/financial-design-system.css';
 
 interface SOLInfoCardProps {
   loanId: string;
@@ -39,38 +38,58 @@ const SOLInfoCard: React.FC<SOLInfoCardProps> = ({ loanId, className = '' }) => 
 
   if (loading) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Scale className="h-5 w-5" />
-            Statute of Limitations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-32">
-            <div className="text-gray-500">Loading SOL data...</div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className={`financial-card ${className}`}>
+        <div style={{ 
+          borderBottom: '1px solid var(--color-border)',
+          paddingBottom: '8px',
+          marginBottom: '12px'
+        }}>
+          <h3 style={{ 
+            fontSize: '12px', 
+            fontWeight: '600', 
+            color: 'var(--color-text-secondary)',
+            textTransform: 'uppercase',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <Scale style={{ width: '16px', height: '16px' }} />
+            STATUTE OF LIMITATIONS
+          </h3>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '128px' }}>
+          <div style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>Loading SOL data...</div>
+        </div>
+      </div>
     );
   }
 
   if (error || !solData) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Scale className="h-5 w-5" />
-            Statute of Limitations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-500">{error || 'No SOL data available'}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className={`financial-card ${className}`}>
+        <div style={{ 
+          borderBottom: '1px solid var(--color-border)',
+          paddingBottom: '8px',
+          marginBottom: '12px'
+        }}>
+          <h3 style={{ 
+            fontSize: '12px', 
+            fontWeight: '600', 
+            color: 'var(--color-text-secondary)',
+            textTransform: 'uppercase',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <Scale style={{ width: '16px', height: '16px' }} />
+            STATUTE OF LIMITATIONS
+          </h3>
+        </div>
+        <div style={{ textAlign: 'center', padding: '32px 0' }}>
+          <AlertTriangle style={{ width: '48px', height: '48px', color: 'var(--color-text-muted)', margin: '0 auto 12px' }} />
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>{error || 'No SOL data available'}</p>
+        </div>
+      </div>
     );
   }
 
@@ -78,119 +97,176 @@ const SOLInfoCard: React.FC<SOLInfoCardProps> = ({ loanId, className = '' }) => 
   const isMediumRisk = solData.sol_risk_level === 'MEDIUM';
 
   return (
-    <Card className={`${className} ${isHighRisk ? 'border-red-200' : isMediumRisk ? 'border-yellow-200' : ''}`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Scale className="h-5 w-5 text-blue-600" />
-            Statute of Limitations
-          </CardTitle>
-          <Badge 
-            variant="outline" 
-            className={solService.getRiskLevelBadgeColor(solData.sol_risk_level)}
-          >
-            {solData.sol_risk_level} RISK
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className={`financial-card ${className}`} style={{
+      borderColor: isHighRisk ? 'var(--color-danger)' : isMediumRisk ? 'var(--color-warning)' : 'var(--color-border)'
+    }}>
+      <div style={{ 
+        borderBottom: '1px solid var(--color-border)',
+        paddingBottom: '8px',
+        marginBottom: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <h3 style={{ 
+          fontSize: '12px', 
+          fontWeight: '600', 
+          color: 'var(--color-text-secondary)',
+          textTransform: 'uppercase',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <Scale style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+          STATUTE OF LIMITATIONS
+        </h3>
+        <span className={`status-indicator ${solData.sol_risk_level === 'HIGH' ? 'critical' : solData.sol_risk_level === 'MEDIUM' ? 'warning' : 'success'}`}>
+          {solData.sol_risk_level} RISK
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {/* Expiration Status */}
-        <div className={`rounded-lg p-4 ${
-          solData.is_expired ? 'bg-red-50 border border-red-200' :
-          solData.days_until_expiration < 365 ? 'bg-yellow-50 border border-yellow-200' :
-          'bg-green-50 border border-green-200'
-        }`}>
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Clock className={`h-5 w-5 ${
-                solData.is_expired ? 'text-red-600' :
-                solData.days_until_expiration < 365 ? 'text-yellow-600' :
-                'text-green-600'
-              }`} />
-              <span className="font-medium">
+        <div style={{
+          borderRadius: 'var(--radius-sm)',
+          padding: '12px',
+          backgroundColor: solData.is_expired ? 'var(--color-danger-bg)' :
+                          solData.days_until_expiration < 365 ? 'var(--color-warning-bg)' :
+                          'var(--color-success-bg)',
+          border: `1px solid ${
+            solData.is_expired ? 'var(--color-danger)' :
+            solData.days_until_expiration < 365 ? 'var(--color-warning)' :
+            'var(--color-success)'
+          }`
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Clock style={{
+                width: '16px',
+                height: '16px',
+                color: solData.is_expired ? 'var(--color-danger)' :
+                       solData.days_until_expiration < 365 ? 'var(--color-warning)' :
+                       'var(--color-success)'
+              }} />
+              <span style={{ fontWeight: '500', fontSize: '12px', color: 'var(--color-text)' }}>
                 {solService.formatDaysUntilExpiration(solData.days_until_expiration)}
               </span>
             </div>
             {solData.is_expired && (
-              <Badge variant="destructive" className="text-xs">EXPIRED</Badge>
+              <span className="status-indicator critical" style={{ fontSize: '10px' }}>EXPIRED</span>
             )}
           </div>
-          <div className="text-sm text-gray-600">
+          <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
             <p>Expiration: {solService.formatDate(solData.adjusted_expiration_date)}</p>
           </div>
         </div>
 
         {/* Trigger Information */}
-        <div className="border rounded-lg p-3 space-y-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <Calendar className="h-4 w-4" />
-            SOL Trigger Event
+        <div style={{
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '12px',
+          backgroundColor: 'var(--color-surface)'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            fontSize: '11px', 
+            fontWeight: '500',
+            color: 'var(--color-text-secondary)',
+            marginBottom: '8px'
+          }}>
+            <Calendar style={{ width: '14px', height: '14px' }} />
+            SOL TRIGGER EVENT
           </div>
-          <div className="pl-6 space-y-1">
-            <p className="text-sm">
-              <span className="text-gray-500">Event:</span>{' '}
-              <span className="font-medium">{solService.formatTriggerEvent(solData.sol_trigger_event)}</span>
-            </p>
-            <p className="text-sm">
-              <span className="text-gray-500">Date:</span>{' '}
-              <span className="font-medium">{solService.formatDate(solData.sol_trigger_date)}</span>
-            </p>
+          <div style={{ paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div className="financial-detail-item">
+              <span className="label">EVENT</span>
+              <span className="value">{solService.formatTriggerEvent(solData.sol_trigger_event)}</span>
+            </div>
+            <div className="financial-detail-item">
+              <span className="label">DATE</span>
+              <span className="value">{solService.formatDate(solData.sol_trigger_date)}</span>
+            </div>
           </div>
         </div>
 
         {/* Jurisdiction Information */}
-        <div className="border rounded-lg p-3 space-y-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <MapPin className="h-4 w-4" />
-            Jurisdiction Details
+        <div style={{
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '12px',
+          backgroundColor: 'var(--color-surface)'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            fontSize: '11px', 
+            fontWeight: '500',
+            color: 'var(--color-text-secondary)',
+            marginBottom: '8px'
+          }}>
+            <MapPin style={{ width: '14px', height: '14px' }} />
+            JURISDICTION DETAILS
           </div>
-          <div className="pl-6 space-y-1">
-            <p className="text-sm">
-              <span className="text-gray-500">State:</span>{' '}
-              <span className="font-medium">{solData.property_state}</span>
-              {solData.jurisdiction_name && (
-                <span className="text-gray-400"> ({solData.jurisdiction_name})</span>
-              )}
-            </p>
+          <div style={{ paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div className="financial-detail-item">
+              <span className="label">STATE</span>
+              <span className="value">
+                {solData.property_state}
+                {solData.jurisdiction_name && (
+                  <span style={{ color: 'var(--color-text-muted)' }}> ({solData.jurisdiction_name})</span>
+                )}
+              </span>
+            </div>
             {solData.jurisdiction_risk_level && (
-              <p className="text-sm">
-                <span className="text-gray-500">Jurisdiction Risk:</span>{' '}
-                <Badge 
-                  variant="outline" 
-                  className={`text-xs ml-1 ${solService.getRiskLevelBadgeColor(solData.jurisdiction_risk_level)}`}
-                >
+              <div className="financial-detail-item">
+                <span className="label">JURISDICTION RISK</span>
+                <span className={`status-indicator ${solData.jurisdiction_risk_level === 'HIGH' ? 'critical' : solData.jurisdiction_risk_level === 'MEDIUM' ? 'warning' : 'success'}`}>
                   {solData.jurisdiction_risk_level}
-                </Badge>
-              </p>
+                </span>
+              </div>
             )}
           </div>
         </div>
 
         {/* Risk Factors */}
         {solData.risk_factors && (
-          <div className="border rounded-lg p-3 space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Shield className="h-4 w-4" />
-              Risk Assessment
+          <div style={{
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '12px',
+            backgroundColor: 'var(--color-surface)'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              fontSize: '11px', 
+              fontWeight: '500',
+              color: 'var(--color-text-secondary)',
+              marginBottom: '8px'
+            }}>
+              <Shield style={{ width: '14px', height: '14px' }} />
+              RISK ASSESSMENT
             </div>
-            <div className="pl-6 space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Risk Score:</span>
-                <Badge variant="outline" className="text-xs">
-                  {solData.sol_risk_score}/100
-                </Badge>
+            <div style={{ paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div className="financial-detail-item">
+                <span className="label">RISK SCORE</span>
+                <span className="value">{solData.sol_risk_score}/100</span>
               </div>
               
               {solData.risk_factors.lien_extinguishment_risk && (
-                <div className="flex items-center gap-1 text-sm text-red-600">
-                  <AlertTriangle className="h-3 w-3" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--color-danger)' }}>
+                  <AlertTriangle style={{ width: '12px', height: '12px' }} />
                   <span>Lien may be extinguished upon expiration</span>
                 </div>
               )}
               
               {solData.risk_factors.in_active_foreclosure && (
-                <div className="flex items-center gap-1 text-sm text-green-600">
-                  <Info className="h-3 w-3" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--color-success)' }}>
+                  <Info style={{ width: '12px', height: '12px' }} />
                   <span>Active foreclosure reduces SOL risk</span>
                 </div>
               )}
@@ -200,31 +276,51 @@ const SOLInfoCard: React.FC<SOLInfoCardProps> = ({ loanId, className = '' }) => 
 
         {/* Tolling Events */}
         {solData.tolling_events && solData.tolling_events.length > 0 && (
-          <div className="border rounded-lg p-3 space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Clock className="h-4 w-4" />
-              Tolling Events
+          <div style={{
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '12px',
+            backgroundColor: 'var(--color-surface)'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              fontSize: '11px', 
+              fontWeight: '500',
+              color: 'var(--color-text-secondary)',
+              marginBottom: '8px'
+            }}>
+              <Clock style={{ width: '14px', height: '14px' }} />
+              TOLLING EVENTS
             </div>
-            <div className="pl-6 space-y-1">
+            <div style={{ paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {solData.tolling_events.map((event, index) => (
-                <p key={index} className="text-sm">
-                  <span className="text-gray-500">{event.type}:</span>{' '}
-                  <span className="font-medium">{event.days_tolled} days</span>
-                </p>
+                <div key={index} className="financial-detail-item">
+                  <span className="label">{event.type}</span>
+                  <span className="value">{event.days_tolled} days</span>
+                </div>
               ))}
-              <p className="text-sm font-medium text-gray-700 pt-1">
-                Total Tolled: {solData.total_tolled_days} days
-              </p>
+              <div className="financial-detail-item" style={{ paddingTop: '4px' }}>
+                <span className="label">TOTAL TOLLED</span>
+                <span className="value">{solData.total_tolled_days} days</span>
+              </div>
             </div>
           </div>
         )}
 
         {/* Last Updated */}
-        <div className="text-xs text-gray-500 text-center pt-2 border-t">
+        <div style={{ 
+          fontSize: '10px', 
+          color: 'var(--color-text-muted)', 
+          textAlign: 'center', 
+          paddingTop: '8px', 
+          borderTop: '1px solid var(--color-border)' 
+        }}>
           Last calculated: {solService.formatDate(solData.calculation_date)}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
