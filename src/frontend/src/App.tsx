@@ -1,10 +1,9 @@
 // src/frontend/src/App.tsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/MainLayout';
 import LoanExplorerPage from './pages/LoanExplorerPage';
 import UploadPage from './pages/UploadPage';
 import DashboardPage from './pages/DashboardPage';
-import TodayPage from './pages/TodayPage';
 import InboxPage from './pages/InboxPage';
 import LoanDetailPage from './pages/LoanDetailPage';
 import SOLMonitoringPage from './pages/SOLMonitoringPage';
@@ -33,11 +32,7 @@ function App() {
                 <InboxPage />
               </ProtectedRoute>
             } />
-            <Route path="/today" element={
-              <ProtectedRoute>
-                <TodayPage />
-              </ProtectedRoute>
-            } />
+            <Route path="/today" element={<Navigate to="/inbox" replace />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardPage />

@@ -508,6 +508,65 @@ function DashboardPage() {
       minHeight: '100vh',
       backgroundColor: 'var(--color-background)'
     }}>
+      {/* Market Ticker Tape */}
+      <div style={{ 
+        backgroundColor: 'var(--color-surface-dark)',
+        borderBottom: '1px solid var(--color-border)',
+        padding: '8px 12px',
+        marginBottom: '12px',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap'
+      }}>
+        <div style={{ 
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '24px',
+          animation: 'scroll 30s linear infinite',
+          paddingRight: '100px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>10Y TREASURY</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>4.23%</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-success)' }}>+0.02</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>30Y FIXED</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>6.81%</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-success)' }}>+0.05</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>SOFR</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>5.31%</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-danger)' }}>-0.01</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>UMBS 5.5</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>98.125</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-danger)' }}>-0.0625</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>VIX</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>16.82</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-success)' }}>+0.45</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>DXY</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>104.35</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-success)' }}>+0.12</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>HPI YOY</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>5.2%</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-danger)' }}>-0.3</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>NPL INDEX</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>89.4</span>
+            <span style={{ fontSize: '11px', color: 'var(--color-danger)' }}>-1.2</span>
+          </div>
+        </div>
+      </div>
+
       {/* Quick Stats Header */}
       <div className="quick-stats" style={{ marginBottom: '16px' }}>
         <div className="quick-stat">
