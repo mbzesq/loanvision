@@ -5,6 +5,7 @@ import LoanExplorerPage from './pages/LoanExplorerPage';
 import UploadPage from './pages/UploadPage';
 import DashboardPage from './pages/DashboardPage';
 import TodayPage from './pages/TodayPage';
+import InboxPage from './pages/InboxPage';
 import LoanDetailPage from './pages/LoanDetailPage';
 import SOLMonitoringPage from './pages/SOLMonitoringPage';
 import AlertSettingsPage from './pages/AlertSettingsPage';
@@ -27,6 +28,11 @@ function App() {
           
           {/* Protected routes */}
           <Route element={<MainLayout />}>
+            <Route path="/inbox" element={
+              <ProtectedRoute>
+                <InboxPage />
+              </ProtectedRoute>
+            } />
             <Route path="/today" element={
               <ProtectedRoute>
                 <TodayPage />

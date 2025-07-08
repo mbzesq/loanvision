@@ -60,7 +60,7 @@ export const AlertSummary: React.FC<AlertSummaryProps> = ({ compact = false }) =
               )}
             </div>
           </div>
-          <Link to="/today">
+          <Link to="/inbox">
             <Button variant="ghost" size="sm" className="text-sm">
               View All
               <ChevronRight className="h-4 w-4 ml-1" />
@@ -96,7 +96,7 @@ export const AlertSummary: React.FC<AlertSummaryProps> = ({ compact = false }) =
               </div>
             </div>
           </div>
-          <Link to="/today">
+          <Link to="/inbox">
             <Button variant="default" size="sm">
               Manage Alerts
               <ChevronRight className="h-4 w-4 ml-1" />
