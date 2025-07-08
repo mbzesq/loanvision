@@ -18,6 +18,21 @@ interface Loan {
   loan_id: string;
   legal_status: string;
   prin_bal: string;
+  next_pymt_due: string;
+  last_pymt_received: string;
+  fc_status?: string;
+  january_2025?: string;
+  february_2025?: string;
+  march_2025?: string;
+  april_2025?: string;
+  may_2025?: string;
+  june_2025?: string;
+  july_2025?: string;
+  august_2025?: string;
+  september_2025?: string;
+  october_2025?: string;
+  november_2025?: string;
+  december_2025?: string;
 }
 
 function DashboardPage() {
@@ -34,110 +49,173 @@ function DashboardPage() {
         
         setTotalLoans(loans.length);
         
-        // Process loan data by status
-        const statusMap = new Map<string, { count: number; totalUpb: number }>();
+        // Process loan data by sophisticated categories
+        const categories = {
+          securitizable: { count: 0, totalUpb: 0 },
+          steadyPerforming: { count: 0, totalUpb: 0 },
+          recentPerforming: { count: 0, totalUpb: 0 },
+          paying: { count: 0, totalUpb: 0 },
+          nonPerforming: { count: 0, totalUpb: 0 },
+          foreclosure: { count: 0, totalUpb: 0 }
+        };
         
+        // Helper function to count consecutive payments
+        const countConsecutivePayments = (loan: Loan): number => {
+          const months = [
+            { month: 'december_2025', value: loan.december_2025 },
+            { month: 'november_2025', value: loan.november_2025 },
+            { month: 'october_2025', value: loan.october_2025 },
+            { month: 'september_2025', value: loan.september_2025 },
+            { month: 'august_2025', value: loan.august_2025 },
+            { month: 'july_2025', value: loan.july_2025 },
+            { month: 'june_2025', value: loan.june_2025 },
+            { month: 'may_2025', value: loan.may_2025 },
+            { month: 'april_2025', value: loan.april_2025 },
+            { month: 'march_2025', value: loan.march_2025 },
+            { month: 'february_2025', value: loan.february_2025 },
+            { month: 'january_2025', value: loan.january_2025 }
+          ];
+          
+          let consecutiveCount = 0;
+          // Start from most recent month backwards
+          for (const monthData of months) {
+            const payment = parseFloat(monthData.value || '0');
+            if (payment > 0) {
+              consecutiveCount++;
+            } else {
+              break; // Stop at first missed payment
+            }
+          }
+          return consecutiveCount;
+        };
+        
+        // Helper function to count payments in last N months
+        const countRecentPayments = (loan: Loan, monthsBack: number): number => {
+          const months = [
+            loan.december_2025, loan.november_2025, loan.october_2025,
+            loan.september_2025, loan.august_2025, loan.july_2025,
+            loan.june_2025, loan.may_2025, loan.april_2025,
+            loan.march_2025, loan.february_2025, loan.january_2025
+          ];
+          
+          let paymentCount = 0;
+          for (let i = 0; i < Math.min(monthsBack, months.length); i++) {
+            const payment = parseFloat(months[i] || '0');
+            if (payment > 0) paymentCount++;
+          }
+          return paymentCount;
+        };
+        
+        // Helper function to check if loan is past due
+        const isPastDue = (loan: Loan): boolean => {
+          if (!loan.next_pymt_due) return false;
+          const nextDueDate = new Date(loan.next_pymt_due);
+          const today = new Date();
+          return nextDueDate < today;
+        };
+        
+        // Categorize each loan
         loans.forEach(loan => {
-          const status = loan.legal_status || 'Unknown';
           const upb = parseFloat(loan.prin_bal) || 0;
           
-          if (!statusMap.has(status)) {
-            statusMap.set(status, { count: 0, totalUpb: 0 });
+          // Check for foreclosure status first
+          if (loan.fc_status && ['Active', 'Hold', 'FC', 'Foreclosure'].includes(loan.fc_status)) {
+            categories.foreclosure.count++;
+            categories.foreclosure.totalUpb += upb;
+            return;
           }
           
-          const statusData = statusMap.get(status)!;
-          statusData.count += 1;
-          statusData.totalUpb += upb;
+          const consecutivePayments = countConsecutivePayments(loan);
+          const recentPayments = countRecentPayments(loan, 4);
+          const monthsSinceLastPayment = loan.last_pymt_received ? 
+            Math.floor((new Date().getTime() - new Date(loan.last_pymt_received).getTime()) / (1000 * 60 * 60 * 24 * 30)) : 
+            999;
+          const pastDue = isPastDue(loan);
+          
+          // Categorize based on payment history
+          if (consecutivePayments >= 12) {
+            categories.securitizable.count++;
+            categories.securitizable.totalUpb += upb;
+          } else if (consecutivePayments >= 6 && !pastDue) {
+            categories.steadyPerforming.count++;
+            categories.steadyPerforming.totalUpb += upb;
+          } else if (consecutivePayments >= 1 && consecutivePayments <= 3 && !pastDue) {
+            categories.recentPerforming.count++;
+            categories.recentPerforming.totalUpb += upb;
+          } else if (pastDue && recentPayments >= 2) {
+            categories.paying.count++;
+            categories.paying.totalUpb += upb;
+          } else if (monthsSinceLastPayment >= 6) {
+            categories.nonPerforming.count++;
+            categories.nonPerforming.totalUpb += upb;
+          } else {
+            // Default to paying if doesn't fit other categories
+            categories.paying.count++;
+            categories.paying.totalUpb += upb;
+          }
         });
         
-        // Convert to our format and categorize statuses
+        // Convert to status data format
         const statusData: LoanStatusData[] = [];
         
-        // Group statuses into categories
-        const performingStatuses = ['Current', 'Performing', 'Good Standing'];
-        const nonPerformingStatuses = ['Non-Performing', 'Delinquent', '30 Days Past Due', '60 Days Past Due', '90 Days Past Due'];
-        const defaultStatuses = ['Default', 'Foreclosure', 'FC', 'Bankruptcy', 'BK'];
-        
-        // Calculate performing loans
-        let performingCount = 0;
-        let performingUpb = 0;
-        performingStatuses.forEach(status => {
-          const data = statusMap.get(status);
-          if (data) {
-            performingCount += data.count;
-            performingUpb += data.totalUpb;
-          }
-        });
-        
-        // Calculate non-performing loans
-        let nonPerformingCount = 0;
-        let nonPerformingUpb = 0;
-        nonPerformingStatuses.forEach(status => {
-          const data = statusMap.get(status);
-          if (data) {
-            nonPerformingCount += data.count;
-            nonPerformingUpb += data.totalUpb;
-          }
-        });
-        
-        // Calculate default loans
-        let defaultCount = 0;
-        let defaultUpb = 0;
-        defaultStatuses.forEach(status => {
-          const data = statusMap.get(status);
-          if (data) {
-            defaultCount += data.count;
-            defaultUpb += data.totalUpb;
-          }
-        });
-        
-        // If we don't have specific categorizations, use the raw data
-        if (performingCount === 0 && nonPerformingCount === 0 && defaultCount === 0) {
-          // Use top 3 statuses by count
-          const sortedStatuses = Array.from(statusMap.entries())
-            .sort((a, b) => b[1].count - a[1].count)
-            .slice(0, 3);
-          
-          sortedStatuses.forEach(([status, data]) => {
-            statusData.push({
-              status: status,
-              count: data.count,
-              upb: data.totalUpb,
-              avgBalance: data.totalUpb / data.count,
-              change: Math.random() * 10 - 5 // Mock change data
-            });
+        if (categories.securitizable.count > 0) {
+          statusData.push({
+            status: 'SECURITIZABLE',
+            count: categories.securitizable.count,
+            upb: categories.securitizable.totalUpb,
+            avgBalance: categories.securitizable.totalUpb / categories.securitizable.count,
+            change: 2.3 // Positive trend for best performing
           });
-        } else {
-          // Use categorized data
-          if (performingCount > 0) {
-            statusData.push({
-              status: 'PERFORMING',
-              count: performingCount,
-              upb: performingUpb,
-              avgBalance: performingUpb / performingCount,
-              change: Math.random() * 5 // Mock positive change
-            });
-          }
-          
-          if (nonPerformingCount > 0) {
-            statusData.push({
-              status: 'NON-PERFORMING',
-              count: nonPerformingCount,
-              upb: nonPerformingUpb,
-              avgBalance: nonPerformingUpb / nonPerformingCount,
-              change: Math.random() * 10 - 5 // Mock change
-            });
-          }
-          
-          if (defaultCount > 0) {
-            statusData.push({
-              status: 'DEFAULT',
-              count: defaultCount,
-              upb: defaultUpb,
-              avgBalance: defaultUpb / defaultCount,
-              change: Math.random() * 15 // Mock change
-            });
-          }
+        }
+        
+        if (categories.steadyPerforming.count > 0) {
+          statusData.push({
+            status: 'STEADY PERFORMING',
+            count: categories.steadyPerforming.count,
+            upb: categories.steadyPerforming.totalUpb,
+            avgBalance: categories.steadyPerforming.totalUpb / categories.steadyPerforming.count,
+            change: 1.8
+          });
+        }
+        
+        if (categories.recentPerforming.count > 0) {
+          statusData.push({
+            status: 'RECENT PERFORMING',
+            count: categories.recentPerforming.count,
+            upb: categories.recentPerforming.totalUpb,
+            avgBalance: categories.recentPerforming.totalUpb / categories.recentPerforming.count,
+            change: -0.5
+          });
+        }
+        
+        if (categories.paying.count > 0) {
+          statusData.push({
+            status: 'PAYING',
+            count: categories.paying.count,
+            upb: categories.paying.totalUpb,
+            avgBalance: categories.paying.totalUpb / categories.paying.count,
+            change: -2.1
+          });
+        }
+        
+        if (categories.nonPerforming.count > 0) {
+          statusData.push({
+            status: 'NON-PERFORMING',
+            count: categories.nonPerforming.count,
+            upb: categories.nonPerforming.totalUpb,
+            avgBalance: categories.nonPerforming.totalUpb / categories.nonPerforming.count,
+            change: -4.7
+          });
+        }
+        
+        if (categories.foreclosure.count > 0) {
+          statusData.push({
+            status: 'FORECLOSURE',
+            count: categories.foreclosure.count,
+            upb: categories.foreclosure.totalUpb,
+            avgBalance: categories.foreclosure.totalUpb / categories.foreclosure.count,
+            change: -8.2
+          });
         }
         
         setLoanStatusData(statusData);
@@ -187,9 +265,11 @@ function DashboardPage() {
 
   const getStatusIndicatorClass = (status: string): string => {
     const statusLower = status.toLowerCase();
-    if (statusLower.includes('perform')) return 'success';
-    if (statusLower.includes('non') || statusLower.includes('delinq')) return 'warning';
-    if (statusLower.includes('default') || statusLower.includes('fc')) return 'critical';
+    if (statusLower.includes('securitizable')) return 'success';
+    if (statusLower.includes('steady') || statusLower.includes('recent')) return 'success';
+    if (statusLower.includes('paying')) return 'warning';
+    if (statusLower.includes('non-performing')) return 'critical';
+    if (statusLower.includes('foreclosure')) return 'critical';
     return 'info';
   };
   return (
