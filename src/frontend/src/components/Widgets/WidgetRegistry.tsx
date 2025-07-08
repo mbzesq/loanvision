@@ -22,9 +22,9 @@ const widgetDefinitions: WidgetMetadata[] = [
     description: 'Total Unpaid Principal Balance across the portfolio',
     category: 'performance',
     component: UPBWidget,
-    defaultSize: { w: 4, h: 4 },
+    defaultSize: { w: 3, h: 3 },
     minSize: { w: 2, h: 2 },
-    maxSize: { w: 6, h: 3 },
+    maxSize: { w: 6, h: 4 },
     configurable: false,
     resizable: true,
     icon: 'dollar-sign'
@@ -36,9 +36,9 @@ const widgetDefinitions: WidgetMetadata[] = [
     description: 'Total number of loans in the portfolio',
     category: 'performance',
     component: LoanCountWidget,
-    defaultSize: { w: 4, h: 4 },
+    defaultSize: { w: 3, h: 3 },
     minSize: { w: 2, h: 2 },
-    maxSize: { w: 6, h: 3 },
+    maxSize: { w: 6, h: 4 },
     configurable: false,
     resizable: true,
     icon: 'hash'
@@ -50,9 +50,9 @@ const widgetDefinitions: WidgetMetadata[] = [
     description: 'Average principal balance per loan',
     category: 'performance',
     component: AverageBalanceWidget,
-    defaultSize: { w: 4, h: 4 },
+    defaultSize: { w: 3, h: 3 },
     minSize: { w: 2, h: 2 },
-    maxSize: { w: 6, h: 3 },
+    maxSize: { w: 6, h: 4 },
     configurable: false,
     resizable: true,
     icon: 'calculator'
@@ -64,9 +64,9 @@ const widgetDefinitions: WidgetMetadata[] = [
     description: 'Overall portfolio performance percentage',
     category: 'performance',
     component: PerformanceWidget,
-    defaultSize: { w: 4, h: 4 },
+    defaultSize: { w: 3, h: 3 },
     minSize: { w: 2, h: 2 },
-    maxSize: { w: 6, h: 3 },
+    maxSize: { w: 6, h: 4 },
     configurable: false,
     resizable: true,
     icon: 'trending-up'
@@ -175,6 +175,16 @@ export function registerAllWidgets(): void {
 
 // Initialize default layout with registered widgets
 export function initializeDefaultLayout(): void {
+  // Force refresh the layout to pick up new density improvements
+  // Remove this check to always regenerate the layout with latest settings
+  /*
+  const existingLayout = widgetService.getLayout('default');
+  if (existingLayout && existingLayout.widgets && existingLayout.widgets.length > 0) {
+    console.log('Default layout already populated with', existingLayout.widgets.length, 'widgets');
+    return;
+  }
+  */
+
   const defaultLayout = widgetService.getDefaultLayout();
   
   // Create widgets from metadata for default layout
@@ -191,11 +201,14 @@ export function initializeDefaultLayout(): void {
   ].map(widgetId => {
     const metadata = widgetService.getWidget(widgetId);
     if (!metadata) {
-      console.warn(`Widget ${widgetId} not found`);
+      console.warn(`Widget ${widgetId} not found during layout initialization`);
       return null;
     }
+    console.log(`Creating widget from metadata: ${metadata.title} (${metadata.id})`);
     return widgetService.createWidgetFromMetadata(metadata);
   }).filter(Boolean);
+
+  console.log(`Created ${widgets.length} widgets for default layout`);
 
   // Update default layout with widgets
   const updatedLayout = {
@@ -204,6 +217,7 @@ export function initializeDefaultLayout(): void {
   };
 
   widgetService.saveLayout(updatedLayout);
+  console.log('Default layout initialized with widgets:', widgets.map((w: any) => w.title).join(', '));
 }
 
 // Export for easy usage

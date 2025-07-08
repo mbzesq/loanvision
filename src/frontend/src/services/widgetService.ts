@@ -86,8 +86,8 @@ export const gridCols = {
   xxs: 2
 };
 
-export const gridRowHeight = 60;
-export const gridMargin: [number, number] = [16, 16];
+export const gridRowHeight = 45; // Reduced from 60 to 45 for better density
+export const gridMargin: [number, number] = [12, 12]; // Reduced from 16 to 12 for tighter spacing
 
 class WidgetService {
   private widgets: Map<string, WidgetMetadata> = new Map();
@@ -213,37 +213,37 @@ class WidgetService {
       isDefault: true,
       layouts: {
         lg: [
-          { i: 'kpi-upb', x: 0, y: 0, w: 3, h: 2 },
-          { i: 'kpi-loans', x: 3, y: 0, w: 3, h: 2 },
-          { i: 'kpi-balance', x: 6, y: 0, w: 3, h: 2 },
-          { i: 'kpi-performance', x: 9, y: 0, w: 3, h: 2 },
-          { i: 'alerts', x: 0, y: 2, w: 4, h: 6 },
-          { i: 'loan-status', x: 4, y: 2, w: 4, h: 6 },
-          { i: 'sol-monitor', x: 8, y: 2, w: 4, h: 6 },
-          { i: 'geographical', x: 0, y: 8, w: 6, h: 6 },
-          { i: 'foreclosure', x: 6, y: 8, w: 6, h: 6 }
+          { i: 'kpi-upb', x: 0, y: 0, w: 3, h: 3 },
+          { i: 'kpi-loans', x: 3, y: 0, w: 3, h: 3 },
+          { i: 'kpi-balance', x: 6, y: 0, w: 3, h: 3 },
+          { i: 'kpi-performance', x: 9, y: 0, w: 3, h: 3 },
+          { i: 'alerts', x: 0, y: 3, w: 3, h: 8 },
+          { i: 'loan-status', x: 3, y: 3, w: 3, h: 8 },
+          { i: 'sol-monitor', x: 6, y: 3, w: 3, h: 8 },
+          { i: 'geographical', x: 9, y: 3, w: 3, h: 8 },
+          { i: 'foreclosure', x: 0, y: 11, w: 6, h: 6 }
         ],
         md: [
-          { i: 'kpi-upb', x: 0, y: 0, w: 5, h: 2 },
-          { i: 'kpi-loans', x: 5, y: 0, w: 5, h: 2 },
-          { i: 'kpi-balance', x: 0, y: 2, w: 5, h: 2 },
-          { i: 'kpi-performance', x: 5, y: 2, w: 5, h: 2 },
-          { i: 'alerts', x: 0, y: 4, w: 10, h: 6 },
-          { i: 'loan-status', x: 0, y: 10, w: 5, h: 6 },
-          { i: 'sol-monitor', x: 5, y: 10, w: 5, h: 6 },
-          { i: 'geographical', x: 0, y: 16, w: 10, h: 6 },
-          { i: 'foreclosure', x: 0, y: 22, w: 10, h: 6 }
+          { i: 'kpi-upb', x: 0, y: 0, w: 5, h: 3 },
+          { i: 'kpi-loans', x: 5, y: 0, w: 5, h: 3 },
+          { i: 'kpi-balance', x: 0, y: 3, w: 5, h: 3 },
+          { i: 'kpi-performance', x: 5, y: 3, w: 5, h: 3 },
+          { i: 'alerts', x: 0, y: 6, w: 5, h: 8 },
+          { i: 'loan-status', x: 5, y: 6, w: 5, h: 8 },
+          { i: 'sol-monitor', x: 0, y: 14, w: 5, h: 6 },
+          { i: 'geographical', x: 5, y: 14, w: 5, h: 6 },
+          { i: 'foreclosure', x: 0, y: 20, w: 10, h: 6 }
         ],
         sm: [
-          { i: 'kpi-upb', x: 0, y: 0, w: 6, h: 2 },
-          { i: 'kpi-loans', x: 0, y: 2, w: 6, h: 2 },
-          { i: 'kpi-balance', x: 0, y: 4, w: 6, h: 2 },
-          { i: 'kpi-performance', x: 0, y: 6, w: 6, h: 2 },
-          { i: 'alerts', x: 0, y: 8, w: 6, h: 8 },
-          { i: 'loan-status', x: 0, y: 16, w: 6, h: 6 },
-          { i: 'sol-monitor', x: 0, y: 22, w: 6, h: 6 },
-          { i: 'geographical', x: 0, y: 28, w: 6, h: 6 },
-          { i: 'foreclosure', x: 0, y: 34, w: 6, h: 6 }
+          { i: 'kpi-upb', x: 0, y: 0, w: 3, h: 3 },
+          { i: 'kpi-loans', x: 3, y: 0, w: 3, h: 3 },
+          { i: 'kpi-balance', x: 0, y: 3, w: 3, h: 3 },
+          { i: 'kpi-performance', x: 3, y: 3, w: 3, h: 3 },
+          { i: 'alerts', x: 0, y: 6, w: 6, h: 8 },
+          { i: 'loan-status', x: 0, y: 14, w: 6, h: 6 },
+          { i: 'sol-monitor', x: 0, y: 20, w: 6, h: 6 },
+          { i: 'geographical', x: 0, y: 26, w: 6, h: 6 },
+          { i: 'foreclosure', x: 0, y: 32, w: 6, h: 6 }
         ]
       },
       widgets: [] // Will be populated when components register
@@ -255,7 +255,7 @@ class WidgetService {
     return {
       ...metadata,
       layout: {
-        i: this.generateWidgetId(metadata.type),
+        i: metadata.id, // Use metadata.id instead of generating new ID to match layout definitions
         x: position?.x || 0,
         y: position?.y || 0,
         w: metadata.defaultSize.w,

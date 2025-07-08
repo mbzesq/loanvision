@@ -103,10 +103,21 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
     setLayouts(allLayouts);
     setHasUnsavedChanges(true);
     
+    // Auto-save layout changes to localStorage to persist positions
+    if (currentLayout) {
+      const updatedLayout = {
+        ...currentLayout,
+        layouts: allLayouts
+      };
+      widgetService.saveLayout(updatedLayout);
+      setCurrentLayout(updatedLayout);
+      setHasUnsavedChanges(false); // Mark as saved
+    }
+    
     if (onLayoutChange) {
       onLayoutChange(allLayouts);
     }
-  }, [onLayoutChange]);
+  }, [onLayoutChange, currentLayout]);
 
   // Widget management
   const handleAddWidget = useCallback((widgetType: string) => {
@@ -255,7 +266,7 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
     <div className={`widget-dashboard ${className}`}>
       {/* Dashboard Toolbar */}
       {!readOnly && (
-        <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-lg shadow-sm border">
+        <div className="flex items-center justify-between mb-3 p-2 bg-white rounded-lg shadow-sm border">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-slate-900">{currentLayout.name}</h2>
             {hasUnsavedChanges && (

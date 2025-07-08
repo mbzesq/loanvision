@@ -12,13 +12,13 @@ function DashboardPage() {
 
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
+    <div className="p-4 bg-slate-50 min-h-screen">
       {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-slate-900 mb-1">
           Portfolio Dashboard
         </h1>
-        <p className="text-lg text-slate-600">
+        <p className="text-sm text-slate-600">
           Customizable real-time insights into your loan portfolio performance
         </p>
       </div>
