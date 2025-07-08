@@ -1,5 +1,6 @@
 import { FinancialKPIDashboard } from '../components/FinancialKPIDashboard';
 import { AlertSummary } from '../components/AlertSummary';
+import { PerformanceTrendChart } from '../components/PerformanceTrendChart';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -260,12 +261,7 @@ function DashboardPage() {
               PERFORMANCE TRENDS (30D)
             </h3>
           </div>
-          <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase' }}>CHART COMPONENT</div>
-              <div style={{ fontSize: '10px' }}>Performance over time visualization</div>
-            </div>
-          </div>
+          <PerformanceTrendChart />
         </div>
 
         {/* Risk Distribution */}
