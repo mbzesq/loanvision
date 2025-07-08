@@ -78,6 +78,10 @@ app.use('/api/diagnostics', diagnosticsRouter);
 import documentAnalysisRouter from './routes/documentAnalysis';
 app.use('/api/v2/loans', documentAnalysisRouter);
 
+// Inbox Routes
+import inboxRouter from './routes/inbox';
+app.use('/api/inbox', inboxRouter);
+
 // AWS Test Routes
 import awsTestRouter from './routes/awsTest';
 app.use('/api/aws', awsTestRouter);
