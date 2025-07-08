@@ -61,20 +61,41 @@ function DashboardPage() {
         
         // Helper function to count consecutive payments
         const countConsecutivePayments = (loan: Loan): number => {
-          // Start from current month (July 2025) and go backwards
-          const months = [
-            { month: 'july_2025', value: loan.july_2025 },
-            { month: 'june_2025', value: loan.june_2025 },
-            { month: 'may_2025', value: loan.may_2025 },
-            { month: 'april_2025', value: loan.april_2025 },
-            { month: 'march_2025', value: loan.march_2025 },
-            { month: 'february_2025', value: loan.february_2025 },
-            { month: 'january_2025', value: loan.january_2025 }
+          // Get current date and determine which months to check
+          const currentDate = new Date();
+          const currentMonth = currentDate.getMonth(); // 0-11 (0=January, 6=July)
+          const currentYear = currentDate.getFullYear();
+          
+          // All available months in the data (ordered from most recent to oldest)
+          const allMonths = [
+            { month: 'december_2025', value: loan.december_2025, monthIndex: 11 },
+            { month: 'november_2025', value: loan.november_2025, monthIndex: 10 },
+            { month: 'october_2025', value: loan.october_2025, monthIndex: 9 },
+            { month: 'september_2025', value: loan.september_2025, monthIndex: 8 },
+            { month: 'august_2025', value: loan.august_2025, monthIndex: 7 },
+            { month: 'july_2025', value: loan.july_2025, monthIndex: 6 },
+            { month: 'june_2025', value: loan.june_2025, monthIndex: 5 },
+            { month: 'may_2025', value: loan.may_2025, monthIndex: 4 },
+            { month: 'april_2025', value: loan.april_2025, monthIndex: 3 },
+            { month: 'march_2025', value: loan.march_2025, monthIndex: 2 },
+            { month: 'february_2025', value: loan.february_2025, monthIndex: 1 },
+            { month: 'january_2025', value: loan.january_2025, monthIndex: 0 }
           ];
           
+          // Filter to only include months up to current month (don't include future months)
+          const relevantMonths = allMonths.filter(m => {
+            if (currentYear === 2025) {
+              return m.monthIndex <= currentMonth;
+            } else if (currentYear > 2025) {
+              return true; // Include all 2025 months if we're past 2025
+            } else {
+              return false; // Don't include any 2025 months if we're before 2025
+            }
+          });
+          
           let consecutiveCount = 0;
-          // Start from most recent month backwards
-          for (const monthData of months) {
+          // Start from most recent relevant month backwards
+          for (const monthData of relevantMonths) {
             const payment = parseFloat(String(monthData.value || '0'));
             if (payment > 0) {
               consecutiveCount++;
@@ -87,15 +108,41 @@ function DashboardPage() {
         
         // Helper function to count payments in last N months
         const countRecentPayments = (loan: Loan, monthsBack: number): number => {
-          const months = [
-            loan.july_2025, loan.june_2025, loan.may_2025,
-            loan.april_2025, loan.march_2025, loan.february_2025,
-            loan.january_2025
+          // Get current date and determine which months to check
+          const currentDate = new Date();
+          const currentMonth = currentDate.getMonth(); // 0-11
+          const currentYear = currentDate.getFullYear();
+          
+          // All available months with their values
+          const allMonths = [
+            { value: loan.december_2025, monthIndex: 11 },
+            { value: loan.november_2025, monthIndex: 10 },
+            { value: loan.october_2025, monthIndex: 9 },
+            { value: loan.september_2025, monthIndex: 8 },
+            { value: loan.august_2025, monthIndex: 7 },
+            { value: loan.july_2025, monthIndex: 6 },
+            { value: loan.june_2025, monthIndex: 5 },
+            { value: loan.may_2025, monthIndex: 4 },
+            { value: loan.april_2025, monthIndex: 3 },
+            { value: loan.march_2025, monthIndex: 2 },
+            { value: loan.february_2025, monthIndex: 1 },
+            { value: loan.january_2025, monthIndex: 0 }
           ];
           
+          // Filter to only include months up to current month
+          const relevantMonths = allMonths.filter(m => {
+            if (currentYear === 2025) {
+              return m.monthIndex <= currentMonth;
+            } else if (currentYear > 2025) {
+              return true; // Include all 2025 months if we're past 2025
+            } else {
+              return false; // Don't include any 2025 months if we're before 2025
+            }
+          });
+          
           let paymentCount = 0;
-          for (let i = 0; i < Math.min(monthsBack, months.length); i++) {
-            const payment = parseFloat(String(months[i] || '0'));
+          for (let i = 0; i < Math.min(monthsBack, relevantMonths.length); i++) {
+            const payment = parseFloat(String(relevantMonths[i].value || '0'));
             if (payment > 0) paymentCount++;
           }
           return paymentCount;
@@ -275,13 +322,19 @@ function DashboardPage() {
         });
         
         // Debug logging for category totals
-        console.log('[DEBUG] Final category counts:', {
-          securitizable: categories.securitizable.count,
-          steadyPerforming: categories.steadyPerforming.count,
-          recentPerforming: categories.recentPerforming.count,
-          paying: categories.paying.count,
-          nonPerforming: categories.nonPerforming.count,
-          foreclosure: categories.foreclosure.count,
+        const currentDate = new Date();
+        console.log('[DEBUG] Dynamic loan categorization results:', {
+          analysisDate: currentDate.toISOString(),
+          currentMonth: currentDate.getMonth() + 1, // 1-12 for readability
+          currentYear: currentDate.getFullYear(),
+          categoryCounts: {
+            securitizable: categories.securitizable.count,
+            steadyPerforming: categories.steadyPerforming.count,
+            recentPerforming: categories.recentPerforming.count,
+            paying: categories.paying.count,
+            nonPerforming: categories.nonPerforming.count,
+            foreclosure: categories.foreclosure.count
+          },
           totalLoans: loans.length
         });
         
