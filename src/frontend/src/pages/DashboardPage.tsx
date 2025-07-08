@@ -50,20 +50,30 @@ function DashboardPage() {
         
         setTotalLoans(loans.length);
         
-        // DIAGNOSTIC: Check first 3 loans for payment data structure
+        // DIAGNOSTIC: Check first 3 loans for payment data structure AND foreclosure statuses
         console.log('=== PAYMENT DATA DIAGNOSTIC ===');
         console.log(`Total loans received: ${loans.length}`);
         
+        // Check what foreclosure statuses actually exist
+        const fcStatuses = new Set();
+        loans.forEach(loan => {
+          if (loan.fc_status) fcStatuses.add(loan.fc_status);
+        });
+        console.log('Unique FC statuses found:', Array.from(fcStatuses));
+        
         for (let i = 0; i < Math.min(3, loans.length); i++) {
           const loan = loans[i];
-          console.log(`\nLoan ${loan.loan_id} payment data:`, {
-            january_2025: { value: loan.january_2025, type: typeof loan.january_2025 },
-            february_2025: { value: loan.february_2025, type: typeof loan.february_2025 },
-            march_2025: { value: loan.march_2025, type: typeof loan.march_2025 },
-            april_2025: { value: loan.april_2025, type: typeof loan.april_2025 },
-            may_2025: { value: loan.may_2025, type: typeof loan.may_2025 },
-            june_2025: { value: loan.june_2025, type: typeof loan.june_2025 },
-            july_2025: { value: loan.july_2025, type: typeof loan.july_2025 }
+          console.log(`\nLoan ${loan.loan_id}:`, {
+            fc_status: loan.fc_status,
+            payment_data: {
+              january_2025: { value: loan.january_2025, type: typeof loan.january_2025 },
+              february_2025: { value: loan.february_2025, type: typeof loan.february_2025 },
+              march_2025: { value: loan.march_2025, type: typeof loan.march_2025 },
+              april_2025: { value: loan.april_2025, type: typeof loan.april_2025 },
+              may_2025: { value: loan.may_2025, type: typeof loan.may_2025 },
+              june_2025: { value: loan.june_2025, type: typeof loan.june_2025 },
+              july_2025: { value: loan.july_2025, type: typeof loan.july_2025 }
+            }
           });
         }
         
@@ -149,6 +159,13 @@ function DashboardPage() {
               break; // Stop at first missed payment
             }
           }
+          
+          // Debug logging for first few loans
+          if (consecutiveCount > 0 && (consecutiveCount >= 6 || Math.random() < 0.1)) {
+            console.log(`[CONSECUTIVE PAYMENTS] Loan ${loan.loan_id}: ${consecutiveCount} consecutive payments from relevant months:`, 
+              relevantMonths.map(m => `${m.month}:${m.value}`).join(', '));
+          }
+          
           return consecutiveCount;
         };
         
@@ -224,8 +241,12 @@ function DashboardPage() {
             });
           }
           
-          // Check for foreclosure status first
-          if (loan.fc_status && ['Active', 'Hold', 'FC', 'Foreclosure'].includes(loan.fc_status)) {
+          // Check for foreclosure status first - be more inclusive
+          if (loan.fc_status && loan.fc_status.trim() !== '' && loan.fc_status !== null) {
+            // Log foreclosure status for debugging
+            if (categories.foreclosure.count < 5) {
+              console.log(`Found foreclosure loan ${loan.loan_id} with status: "${loan.fc_status}"`);
+            }
             categories.foreclosure.count++;
             categories.foreclosure.totalUpb += upb;
             return;
