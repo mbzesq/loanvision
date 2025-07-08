@@ -6,16 +6,18 @@ import {
   Users, Calendar, Tag
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType } from '../types/inbox';
+import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType, InboxFilter } from '../types/inbox';
+import { inboxApi } from '../services/inboxApi';
 import '../styles/design-system.css';
 
 function InboxPage() {
   const [inboxItems, setInboxItems] = useState<InboxItem[]>([]);
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedItem, setSelectedItem] = useState<InboxItem | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('UNREAD');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
   const [groupByThread, setGroupByThread] = useState(true);
@@ -29,13 +31,17 @@ function InboxPage() {
     byPriority: {}
   });
 
-  // Mock current user (in production, get from auth context)
-  const currentUser: UserType = {
-    id: 'current_user',
-    name: 'John Analyst',
-    email: 'john@nplvision.com',
-    role: 'analyst'
+  // Get current user from localStorage or context (simplified for demo)
+  const getCurrentUser = (): UserType | null => {
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
   };
+
+  const currentUser = getCurrentUser();
 
   useEffect(() => {
     fetchInboxData();
@@ -43,161 +49,65 @@ function InboxPage() {
 
   const fetchInboxData = async () => {
     setLoading(true);
+    setError(null);
     try {
-      // Mock data generation - replace with actual API calls
-      const mockItems: InboxItem[] = [
-        {
-          id: '1',
-          type: 'system_alert',
-          subject: 'SOL Expiring Within 30 Days',
-          body: '12 loans approaching statute of limitations deadline. Immediate action required to prevent loss of collection rights.',
-          priority: 'urgent',
-          status: 'unread',
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          loanIds: ['L001', 'L002', 'L003', 'L004', 'L005', 'L006', 'L007', 'L008', 'L009', 'L010', 'L011', 'L012'],
-          category: 'sol',
-          source: 'system',
-          dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
-        },
-        {
-          id: '2',
-          type: 'user_message',
-          subject: 'Review needed: Foreclosure timeline for Loan #L001',
-          body: '@john can you review the foreclosure timeline for loan L001? The title seems to have some issues that might delay the process.',
-          priority: 'high',
-          status: 'unread',
-          createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-          updatedAt: new Date(Date.now() - 30 * 60 * 1000),
-          from: { id: '2', name: 'Sarah Manager', email: 'sarah@nplvision.com', role: 'manager' },
-          to: [currentUser],
-          loanIds: ['L001'],
-          category: 'legal',
-          source: 'user',
-          threadId: 'thread_1'
-        },
-        {
-          id: '6',
-          type: 'user_message',
-          subject: 'Re: Review needed: Foreclosure timeline for Loan #L001',
-          body: '@sarah I reviewed the title. There are indeed some issues with the chain of ownership. The deed from 2019 has a missing notarization. Should we request a corrected deed or proceed with title insurance?',
-          priority: 'high',
-          status: 'read',
-          createdAt: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-          updatedAt: new Date(Date.now() - 15 * 60 * 1000),
-          from: currentUser,
-          to: [{ id: '2', name: 'Sarah Manager', email: 'sarah@nplvision.com', role: 'manager' }],
-          loanIds: ['L001'],
-          category: 'legal',
-          source: 'user',
-          threadId: 'thread_1',
-          replyToId: '2'
-        },
-        {
-          id: '7',
-          type: 'user_message',
-          subject: 'Re: Review needed: Foreclosure timeline for Loan #L001',
-          body: '@john Let\'s proceed with title insurance for now to avoid delays. Can you contact our title company and get a quote? We need to move on this quickly.',
-          priority: 'high',
-          status: 'unread',
-          createdAt: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          updatedAt: new Date(Date.now() - 5 * 60 * 1000),
-          from: { id: '2', name: 'Sarah Manager', email: 'sarah@nplvision.com', role: 'manager' },
-          to: [currentUser],
-          loanIds: ['L001'],
-          category: 'legal',
-          source: 'user',
-          threadId: 'thread_1',
-          replyToId: '6'
-        },
-        {
-          id: '3',
-          type: 'task_assignment',
-          subject: 'Upload missing mortgage documentation',
-          body: 'Please obtain and upload missing mortgage documentation for 5 loans. Required for SOL compliance review.',
-          priority: 'high',
-          status: 'in_progress',
-          createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-          updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // Updated 1 hour ago
-          assignedTo: currentUser,
-          loanIds: ['L013', 'L014', 'L015', 'L016', 'L017'],
-          category: 'document',
-          source: 'user',
-          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
-          estimatedDuration: 120 // 2 hours
-        },
-        {
-          id: '4',
-          type: 'loan_update',
-          subject: 'Payment received: Loan #L008',
-          body: 'Unexpected payment of $2,450.00 received for loan L008. Please review payment allocation and update loan status.',
-          priority: 'normal',
-          status: 'read',
-          createdAt: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
-          updatedAt: new Date(Date.now() - 20 * 60 * 1000), // Read 20 minutes ago
-          loanIds: ['L008'],
-          category: 'payment',
-          source: 'api'
-        },
-        {
-          id: '5',
-          type: 'system_notification',
-          subject: 'Daily Portfolio Summary Available',
-          body: 'Your daily portfolio summary for June 8, 2025 is now available. Review performance metrics and new alerts.',
-          priority: 'low',
-          status: 'read',
-          createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
-          updatedAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
-          source: 'system'
-        }
-      ];
-
-      // Calculate stats
-      const stats: InboxStats = {
-        total: mockItems.length,
-        unread: mockItems.filter(item => item.status === 'unread').length,
-        urgent: mockItems.filter(item => item.priority === 'urgent').length,
-        overdue: mockItems.filter(item => 
-          item.dueDate && item.dueDate < new Date() && item.status !== 'completed'
-        ).length,
-        myTasks: mockItems.filter(item => 
-          item.type === 'task_assignment' && item.assignedTo?.id === currentUser.id
-        ).length,
-        byCategory: mockItems.reduce((acc, item) => {
-          if (item.category) {
-            acc[item.category] = (acc[item.category] || 0) + 1;
-          }
-          return acc;
-        }, {} as Record<string, number>),
-        byPriority: mockItems.reduce((acc, item) => {
-          acc[item.priority] = (acc[item.priority] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>)
+      // Build filters based on active filter and search
+      const filters: InboxFilter = {
+        search: searchQuery || undefined,
+        limit: 50,
+        offset: 0
       };
 
-      setInboxItems(mockItems);
-      setInboxStats(stats);
+      // Apply active filter
+      const filterKey = activeFilter as keyof typeof INBOX_QUICK_FILTERS;
+      if (filterKey in INBOX_QUICK_FILTERS) {
+        const filterObj = INBOX_QUICK_FILTERS[filterKey];
+        Object.assign(filters, filterObj);
+      }
+
+      const response = await inboxApi.getInboxItems(filters);
+      
+      setInboxItems(response.items);
+      setInboxStats(response.stats);
       
       // Auto-select first item if none selected
-      if (!selectedItem && mockItems.length > 0) {
-        setSelectedItem(mockItems[0]);
+      if (!selectedItem && response.items.length > 0) {
+        setSelectedItem(response.items[0]);
       }
     } catch (error) {
       console.error('Error fetching inbox data:', error);
+      setError((error as Error).message || 'Failed to fetch inbox data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleItemSelect = (item: InboxItem) => {
+  const handleItemSelect = async (item: InboxItem) => {
     setSelectedItem(item);
     // Mark as read when selected
     if (item.status === 'unread') {
-      updateItemStatus(item.id, 'read');
+      try {
+        await inboxApi.markAsRead(item.id);
+        // Update local state
+        setInboxItems(items => 
+          items.map(i => 
+            i.id === item.id 
+              ? { ...i, status: 'read' as const, updated_at: new Date() }
+              : i
+          )
+        );
+        // Update stats
+        setInboxStats(stats => ({
+          ...stats,
+          unread: Math.max(0, stats.unread - 1)
+        }));
+      } catch (error) {
+        console.error('Error marking item as read:', error);
+      }
     }
   };
 
-  const handleBulkSelect = (itemId: string) => {
+  const handleBulkSelect = (itemId: number) => {
     const newSelection = new Set(selectedItems);
     if (newSelection.has(itemId)) {
       newSelection.delete(itemId);
@@ -207,20 +117,27 @@ function InboxPage() {
     setSelectedItems(newSelection);
   };
 
-  const updateItemStatus = (itemId: string, newStatus: InboxItem['status']) => {
-    setInboxItems(items => 
-      items.map(item => 
-        item.id === itemId 
-          ? { ...item, status: newStatus, updatedAt: new Date() }
-          : item
-      )
-    );
-  };
-
-  const handleBulkAction = (action: InboxBulkAction) => {
-    console.log(`Performing ${action} on ${selectedItems.size} items`);
-    // Implement bulk action logic
-    setSelectedItems(new Set());
+  const handleBulkAction = async (action: InboxBulkAction) => {
+    if (selectedItems.size === 0) return;
+    
+    try {
+      const result = await inboxApi.performBulkAction({
+        action,
+        item_ids: Array.from(selectedItems)
+      });
+      
+      console.log(`${action} completed on ${result.affected_count} items`);
+      if (result.errors && result.errors.length > 0) {
+        console.warn('Some items failed:', result.errors);
+      }
+      
+      // Refresh data after bulk action
+      await fetchInboxData();
+      setSelectedItems(new Set());
+    } catch (error) {
+      console.error('Error performing bulk action:', error);
+      setError(`Failed to ${action} items: ${(error as Error).message}`);
+    }
   };
 
   const toggleThread = (threadId: string) => {
@@ -344,6 +261,38 @@ function InboxPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        height: '100vh',
+        backgroundColor: 'var(--color-background)',
+        color: 'var(--color-danger)',
+        fontSize: '12px',
+        flexDirection: 'column',
+        gap: '8px'
+      }}>
+        <div>Error loading inbox: {error}</div>
+        <button 
+          onClick={fetchInboxData}
+          style={{
+            padding: '8px 16px',
+            fontSize: '11px',
+            backgroundColor: 'var(--color-primary)',
+            color: 'white',
+            border: 'none',
+            borderRadius: 'var(--radius-sm)',
+            cursor: 'pointer'
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{ 
       display: 'flex',
@@ -396,7 +345,7 @@ function InboxPage() {
         {Object.entries(INBOX_QUICK_FILTERS).map(([key]) => {
           const count = key === 'UNREAD' ? inboxStats.unread :
                        key === 'URGENT' ? inboxStats.urgent :
-                       key === 'MY_TASKS' ? inboxStats.myTasks :
+                       key === 'MY_TASKS' ? (inboxStats.my_tasks || inboxStats.myTasks || 0) :
                        filteredItems.length;
           
           return (
@@ -437,7 +386,7 @@ function InboxPage() {
           CATEGORIES
         </div>
         
-        {Object.entries(inboxStats.byCategory).map(([category, count]) => (
+        {Object.entries(inboxStats.by_category || inboxStats.byCategory || {}).map(([category, count]) => (
           <button
             key={category}
             onClick={() => setActiveFilter(category.toUpperCase())}
@@ -615,7 +564,7 @@ function InboxPage() {
                             </span>
                           )}
                           <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', flexShrink: 0 }}>
-                            {format(threadMain.createdAt, 'HH:mm')}
+                            {format(threadMain.created_at || threadMain.createdAt, 'HH:mm')}
                           </span>
                         </div>
                         
@@ -636,9 +585,9 @@ function InboxPage() {
                               From: {threadMain.from.name}
                             </span>
                           )}
-                          {threadMain.loanIds && threadMain.loanIds.length > 0 && (
+                          {(threadMain.loan_ids || threadMain.loanIds) && (threadMain.loan_ids || threadMain.loanIds).length > 0 && (
                             <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
-                              {threadMain.loanIds.length} loan{threadMain.loanIds.length > 1 ? 's' : ''}
+                              {(threadMain.loan_ids || threadMain.loanIds).length} loan{(threadMain.loan_ids || threadMain.loanIds).length > 1 ? 's' : ''}
                             </span>
                           )}
                         </div>
