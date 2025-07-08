@@ -11,7 +11,7 @@ import { FilterPanel, FilterValues, initialFilters } from '../components/FilterP
 import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '../lib/states';
-import { Card, CardContent, CardHeader } from '../components/ui/card';
+import '../styles/financial-design-system.css';
 import {
   createColumnHelper,
   flexRender,
@@ -599,44 +599,72 @@ function LoanExplorerPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-slate-600">Loading loans...</div>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)' 
+      }}>
+        <div style={{ 
+          fontSize: '14px', 
+          color: 'var(--color-text-secondary)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em'
+        }}>LOADING LOANS...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-600">{error}</div>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)' 
+      }}>
+        <div style={{ 
+          fontSize: '14px', 
+          color: 'var(--color-danger)' 
+        }}>{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-2">
+    <div style={{ 
+      padding: '12px', 
+      minHeight: '100vh',
+      backgroundColor: 'var(--color-background)' 
+    }}>
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Loan Explorer</h1>
-        <p className="text-slate-600 mt-1">
-          Analyze and filter your loan portfolio
-        </p>
+      <div className="quick-stats" style={{ marginBottom: '16px' }}>
+        <div className="quick-stat">
+          <span className="label">LOAN EXPLORER</span>
+          <span className="value">PORTFOLIO ANALYSIS</span>
+        </div>
+        <div className="quick-stat">
+          <span className="label">TOTAL LOANS</span>
+          <span className="value">{loans.length}</span>
+        </div>
+        <div className="quick-stat">
+          <span className="label">FILTERED</span>
+          <span className="value">{filteredData.length}</span>
+        </div>
         {searchParams.toString() && (
-          <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-sm text-blue-700 font-medium">
-              📊 Dashboard filter applied: 
-              {searchParams.get('state') && <span className="ml-1">State: {searchParams.get('state')}</span>}
-              {searchParams.get('status') && <span className="ml-1">Status: {searchParams.get('status')}</span>}
-              {searchParams.get('milestone') && <span className="ml-1">Foreclosure Milestone: {searchParams.get('milestone')} (Legal Status: FC)</span>}
-            </p>
+          <div className="quick-stat">
+            <span className="label">DASHBOARD FILTER</span>
+            <span className="value" style={{ color: 'var(--color-info)' }}>ACTIVE</span>
           </div>
         )}
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start min-h-[600px]">
+      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '12px', alignItems: 'start' }}>
         {/* Filter Panel (Left) */}
-        <div className="lg:col-span-1 h-full">
+        <div>
           <FilterPanel
             onApplyFilters={handleApplyFilters}
             onShowAll={handleShowAll}
@@ -648,76 +676,90 @@ function LoanExplorerPage() {
           />
         </div>
         {/* Main Content (Right) */}
-        <div className="lg:col-span-3 relative z-0">
-          <Card className="py-0 gap-0">
-            <CardHeader className="pb-2 flex flex-col gap-0 grid-rows-none">
-              <DataToolbar
-                globalFilter={globalFilter}
-                setGlobalFilter={setGlobalFilter}
-                filteredLoanCount={filteredData.length}
-                totalLoanCount={loans.length}
-                onExport={handleExport}
-                onCustomize={() => setExportModalOpen(true)}
-                exporting={exporting}
-              />
-            </CardHeader>
-            <CardContent className="p-0 pt-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  {/* ... thead and tbody ... */}
-                   <thead>
-                      {table.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id} className="border-b-2 border-slate-200 bg-slate-50">
-                          {headerGroup.headers.map(header => (
-                            <th key={header.id} className="text-left p-2 text-xs font-semibold text-blue-700 uppercase tracking-wider select-none">
-                              {header.isPlaceholder ? null : (
-                                <div
-                                  className={`flex items-center gap-2 ${header.column.getCanSort() ? 'cursor-pointer hover:text-blue-900' : ''}`}
-                                  onClick={header.column.getToggleSortingHandler()}
-                                >
-                                  {flexRender(header.column.columnDef.header, header.getContext())}
-                                  {getSortIcon(header.column.getIsSorted())}
-                                </div>
-                              )}
-                            </th>
-                          ))}
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {table.getRowModel().rows.map((row, index) => (
-                        <tr
-                          key={row.id}
-                          onClick={() => setSelectedLoanId(row.original.loan_id)}
-                          className={`border-b border-slate-100 transition-colors duration-150 cursor-pointer 
-                            ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} 
-                            hover:bg-blue-50
-                          `}
-                        >
-                          {row.getVisibleCells().map(cell => (
-                            <td key={cell.id} className="p-2 text-sm">
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                </table>
-              </div>
-               {table.getRowModel().rows.length === 0 && (
-                  <div className="text-center py-12 px-6">
-                      <h3 className="text-lg font-semibold text-slate-800">
-                        {hasAppliedFilter ? "No Loans Found" : "Begin Your Search"}
-                      </h3>
-                      <p className="text-slate-500 mt-2">
-                        {hasAppliedFilter
-                          ? "No loans match your current filter criteria."
-                          : "Use the filters on the left to find specific loans in your portfolio."}
-                      </p>
-                  </div>
-               )}
-            </CardContent>
-          </Card>
+        <div className="financial-card scroll-container">
+          <div style={{ 
+            borderBottom: '1px solid var(--color-border)',
+            paddingBottom: '8px',
+            marginBottom: '12px'
+          }}>
+            <DataToolbar
+              globalFilter={globalFilter}
+              setGlobalFilter={setGlobalFilter}
+              filteredLoanCount={filteredData.length}
+              totalLoanCount={loans.length}
+              onExport={handleExport}
+              onCustomize={() => setExportModalOpen(true)}
+              exporting={exporting}
+            />
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="financial-table">
+              <thead>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map(header => (
+                      <th key={header.id}>
+                        {header.isPlaceholder ? null : (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              cursor: header.column.getCanSort() ? 'pointer' : 'default'
+                            }}
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {getSortIcon(header.column.getIsSorted())}
+                          </div>
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    onClick={() => setSelectedLoanId(row.original.loan_id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id} className="data-value">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {table.getRowModel().rows.length === 0 && (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '48px 24px',
+              color: 'var(--color-text-muted)' 
+            }}>
+              <h3 style={{ 
+                fontSize: '14px', 
+                fontWeight: '600', 
+                color: 'var(--color-text-primary)',
+                textTransform: 'uppercase',
+                marginBottom: '8px'
+              }}>
+                {hasAppliedFilter ? "NO LOANS FOUND" : "BEGIN YOUR SEARCH"}
+              </h3>
+              <p style={{ 
+                fontSize: '12px',
+                color: 'var(--color-text-muted)'
+              }}>
+                {hasAppliedFilter
+                  ? "No loans match your current filter criteria."
+                  : "Use the filters on the left to find specific loans in your portfolio."}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
