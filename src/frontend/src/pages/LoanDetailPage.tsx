@@ -4,9 +4,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { differenceInDays } from 'date-fns';
 import { CheckCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
+import '../styles/financial-design-system.css';
 import { useToast } from '../hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
@@ -40,7 +38,6 @@ interface PropertyDataResponse {
 }
 
 import { 
-  DetailItem, 
   Milestone, 
   formatCurrency, 
   formatDate, 
@@ -143,18 +140,28 @@ const LoanDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-slate-200 rounded w-1/3 mb-6"></div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <div className="h-48 bg-slate-200 rounded"></div>
-              <div className="h-48 bg-slate-200 rounded"></div>
-              <div className="h-32 bg-slate-200 rounded"></div>
+      <div style={{ 
+        padding: '12px', 
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)'
+      }}>
+        <div className="loading-skeleton">
+          <div style={{ 
+            height: '32px', 
+            backgroundColor: 'var(--color-surface)', 
+            borderRadius: '4px',
+            width: '33%',
+            marginBottom: '24px'
+          }}></div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{ height: '192px', backgroundColor: 'var(--color-surface)', borderRadius: '4px' }}></div>
+              <div style={{ height: '192px', backgroundColor: 'var(--color-surface)', borderRadius: '4px' }}></div>
+              <div style={{ height: '128px', backgroundColor: 'var(--color-surface)', borderRadius: '4px' }}></div>
             </div>
-            <div className="space-y-6">
-              <div className="h-64 bg-slate-200 rounded"></div>
-              <div className="h-32 bg-slate-200 rounded"></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{ height: '256px', backgroundColor: 'var(--color-surface)', borderRadius: '4px' }}></div>
+              <div style={{ height: '128px', backgroundColor: 'var(--color-surface)', borderRadius: '4px' }}></div>
             </div>
           </div>
         </div>
@@ -164,10 +171,24 @@ const LoanDetailPage = () => {
 
   if (error) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">Loan Details</h1>
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-600">{error}</p>
+      <div style={{ 
+        padding: '12px', 
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)'
+      }}>
+        <h1 style={{ 
+          fontSize: '18px', 
+          fontWeight: '600', 
+          color: 'var(--color-text)',
+          marginBottom: '16px',
+          textTransform: 'uppercase'
+        }}>Loan Details</h1>
+        <div className="financial-card" style={{ 
+          backgroundColor: 'var(--color-danger-bg)',
+          border: '1px solid var(--color-danger)',
+          padding: '12px'
+        }}>
+          <p style={{ color: 'var(--color-danger)', fontSize: '12px' }}>{error}</p>
         </div>
       </div>
     );
@@ -175,10 +196,24 @@ const LoanDetailPage = () => {
 
   if (!loan) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">Loan Details</h1>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-          <p className="text-yellow-600">Loan not found.</p>
+      <div style={{ 
+        padding: '12px', 
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)'
+      }}>
+        <h1 style={{ 
+          fontSize: '18px', 
+          fontWeight: '600', 
+          color: 'var(--color-text)',
+          marginBottom: '16px',
+          textTransform: 'uppercase'
+        }}>Loan Details</h1>
+        <div className="financial-card" style={{ 
+          backgroundColor: 'var(--color-warning-bg)',
+          border: '1px solid var(--color-warning)',
+          padding: '12px'
+        }}>
+          <p style={{ color: 'var(--color-warning)', fontSize: '12px' }}>Loan not found.</p>
         </div>
       </div>
     );
@@ -203,109 +238,181 @@ const LoanDetailPage = () => {
   const equity = propertyData?.property_data?.price ? propertyData.property_data.price - legalBalance : 0;
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Loan Details: {loanId}</h1>
-        <p className="text-slate-600 mt-1">
-          Comprehensive view of loan {loanId} for {loan.first_name} {loan.last_name}
-        </p>
+    <div style={{ 
+      padding: '12px', 
+      minHeight: '100vh',
+      backgroundColor: 'var(--color-background)'
+    }}>
+      {/* Quick Stats Header */}
+      <div className="quick-stats" style={{ marginBottom: '16px' }}>
+        <div className="quick-stat">
+          <span className="label">LOAN ID</span>
+          <span className="value">{loanId}</span>
+        </div>
+        <div className="quick-stat">
+          <span className="label">BORROWER</span>
+          <span className="value">{loan.first_name} {loan.last_name}</span>
+        </div>
+        <div className="quick-stat">
+          <span className="label">STATUS</span>
+          <span className="value status-indicator">{loan.legal_status || 'UNKNOWN'}</span>
+        </div>
+        <div className="quick-stat">
+          <span className="label">BALANCE</span>
+          <span className="value">{formatCurrency(loan.prin_bal)}</span>
+        </div>
       </div>
 
       {/* Three-column grid layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '12px' }}>
         {/* Left Column - Takes 2 columns on large screens */}
-        <div className="lg:col-span-2 space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Loan Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Loan</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <DetailItem label="Borrower Name">
-                  {`${loan.first_name} ${loan.last_name}`}
-                </DetailItem>
-                <DetailItem label="Co-Borrower Name">
-                  N/A
-                </DetailItem>
-                <DetailItem label="Loan Number">
-                  {loan.loan_id}
-                </DetailItem>
-                <DetailItem label="Origination Date">
-                  {formatDate(loan.origination_date)}
-                </DetailItem>
-                <DetailItem label="Origination Balance">
-                  {formatCurrency(loan.org_amount || '0')}
-                </DetailItem>
-                <DetailItem label="Maturity Date">
-                  {formatDate(loan.maturity_date)}
-                </DetailItem>
-                <DetailItem label="Last Paid Date">
-                  {formatDate(loan.last_pymt_received)}
-                </DetailItem>
-                <DetailItem label="Next Due Date">
-                  {formatDate(loan.next_pymt_due)}
-                </DetailItem>
-                <DetailItem label="Legal Status">
-                  {formatValue(loan.legal_status)}
-                </DetailItem>
-                <DetailItem label="Lien Position">
-                  {formatValue(loan.lien_pos)}
-                </DetailItem>
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                LOAN DETAILS
+              </h3>
+            </div>
+            <div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="financial-detail-item">
+                  <span className="label">BORROWER NAME</span>
+                  <span className="value">{`${loan.first_name} ${loan.last_name}`}</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">CO-BORROWER NAME</span>
+                  <span className="value">N/A</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">LOAN NUMBER</span>
+                  <span className="value">{loan.loan_id}</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">ORIGINATION DATE</span>
+                  <span className="value">{formatDate(loan.origination_date)}</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">ORIGINATION BALANCE</span>
+                  <span className="value">{formatCurrency(loan.org_amount || '0')}</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">MATURITY DATE</span>
+                  <span className="value">{formatDate(loan.maturity_date)}</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">LAST PAID DATE</span>
+                  <span className="value">{formatDate(loan.last_pymt_received)}</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">NEXT DUE DATE</span>
+                  <span className="value">{formatDate(loan.next_pymt_due)}</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">LEGAL STATUS</span>
+                  <span className="value">{formatValue(loan.legal_status)}</span>
+                </div>
+                <div className="financial-detail-item">
+                  <span className="label">LIEN POSITION</span>
+                  <span className="value">{formatValue(loan.lien_pos)}</span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Financials Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Financials</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <DetailItem label="Current Unpaid Principal Balance">
-                  <span className="text-xl font-bold text-green-600">
-                    {formatCurrency(loan.prin_bal)}
-                  </span>
-                </DetailItem>
-                <DetailItem label="Interest Rate">
-                  <span className="text-lg font-semibold">
-                    {loan.int_rate ? `${(parseFloat(loan.int_rate) * 100).toFixed(2)}%` : 'N/A'}
-                  </span>
-                </DetailItem>
-                <DetailItem label="Current Legal Balance">
-                  <span className="text-xl font-bold text-blue-600">
-                    {formatCurrency(legalBalance.toFixed(2))}
-                  </span>
-                </DetailItem>
-                <DetailItem label="NPV">
-                  <span className="text-slate-500 italic">Calculation coming soon</span>
-                </DetailItem>
-                <DetailItem label="IRR">
-                  <span className="text-slate-500 italic">Calculation coming soon</span>
-                </DetailItem>
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                FINANCIALS
+              </h3>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="financial-detail-item">
+                <span className="label">CURRENT UNPAID PRINCIPAL BALANCE</span>
+                <span className="value" style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '600', 
+                  color: 'var(--color-success)' 
+                }}>
+                  {formatCurrency(loan.prin_bal)}
+                </span>
               </div>
-            </CardContent>
-          </Card>
+              <div className="financial-detail-item">
+                <span className="label">INTEREST RATE</span>
+                <span className="value" style={{ fontSize: '14px', fontWeight: '500' }}>
+                  {loan.int_rate ? `${(parseFloat(loan.int_rate) * 100).toFixed(2)}%` : 'N/A'}
+                </span>
+              </div>
+              <div className="financial-detail-item">
+                <span className="label">CURRENT LEGAL BALANCE</span>
+                <span className="value" style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '600', 
+                  color: 'var(--color-primary)' 
+                }}>
+                  {formatCurrency(legalBalance.toFixed(2))}
+                </span>
+              </div>
+              <div className="financial-detail-item">
+                <span className="label">NPV</span>
+                <span className="value" style={{ color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Calculation coming soon</span>
+              </div>
+              <div className="financial-detail-item">
+                <span className="label">IRR</span>
+                <span className="value" style={{ color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Calculation coming soon</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Right Column - Takes 1 column on large screens */}
-        <div className="lg:col-span-1 space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Conditionally render Foreclosure Timeline Card */}
           {timeline && timeline.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Foreclosure Timeline</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+            <div className="financial-card">
+              <div style={{ 
+                borderBottom: '1px solid var(--color-border)',
+                paddingBottom: '8px',
+                marginBottom: '12px'
+              }}>
+                <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                  FORECLOSURE TIMELINE
+                </h3>
+              </div>
+              <div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {timeline.map((milestone, index) => (
-                    <div key={index} className="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 border border-slate-100">
+                    <div key={index} style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '12px', 
+                      padding: '8px',
+                      borderRadius: '4px',
+                      border: '1px solid var(--color-border)',
+                      backgroundColor: 'var(--color-surface)'
+                    }}>
                       <div>{getStatusIcon(milestone)}</div>
-                      <div className="flex-1">
-                        <p className="font-medium text-slate-800">{milestone.milestone_name}</p>
-                        <div className="flex items-center gap-4 text-xs text-slate-500 mt-1">
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontWeight: '500', fontSize: '11px', color: 'var(--color-text)' }}>
+                          {milestone.milestone_name}
+                        </p>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '12px', 
+                          fontSize: '10px', 
+                          color: 'var(--color-text-muted)', 
+                          marginTop: '2px' 
+                        }}>
                           <span>Actual: {formatDate(milestone.actual_completion_date)}</span>
                           <span>Expected: {formatDate(milestone.expected_completion_date)}</span>
                         </div>
@@ -313,154 +420,203 @@ const LoanDetailPage = () => {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Property Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Property</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                PROPERTY
+              </h3>
+            </div>
+            <div>
               {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-slate-200 rounded w-3/4 mx-auto mb-2"></div>
-                    <div className="h-4 bg-slate-200 rounded w-1/2 mx-auto"></div>
+                <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                  <div className="loading-skeleton">
+                    <div style={{ height: '12px', backgroundColor: 'var(--color-surface)', borderRadius: '4px', width: '75%', margin: '0 auto 8px' }}></div>
+                    <div style={{ height: '12px', backgroundColor: 'var(--color-surface)', borderRadius: '4px', width: '50%', margin: '0 auto' }}></div>
                   </div>
                 </div>
               ) : propertyData ? (
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {/* Dynamic Street View Panorama */}
                   {propertyData?.property_data?.latitude && propertyData?.property_data?.longitude ? (
-                    <div className="mb-4">
+                    <div style={{ marginBottom: '12px' }}>
                       <StreetViewPanorama 
                         lat={propertyData.property_data.latitude} 
                         lng={propertyData.property_data.longitude} 
                       />
                     </div>
                   ) : (
-                    <div className="mb-4 p-4 text-center bg-slate-50 rounded-md">
-                      <p className="text-sm text-slate-500">Street View not available.</p>
+                    <div style={{ 
+                      marginBottom: '12px', 
+                      padding: '12px', 
+                      textAlign: 'center', 
+                      backgroundColor: 'var(--color-surface)', 
+                      borderRadius: '4px' 
+                    }}>
+                      <p style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>Street View not available.</p>
                     </div>
                   )}
 
-                  <DetailItem label={`Value Estimate ${propertyData?.last_updated ? `(${formatDate(propertyData.last_updated)})` : ''}`}>
-                    <span className="text-xl font-bold text-green-600">
+                  <div className="financial-detail-item">
+                    <span className="label">VALUE ESTIMATE {propertyData?.last_updated ? `(${formatDate(propertyData.last_updated)})` : ''}</span>
+                    <span className="value" style={{ 
+                      fontSize: '16px', 
+                      fontWeight: '600', 
+                      color: 'var(--color-success)' 
+                    }}>
                       {formatCurrency(propertyData?.property_data?.price || 0)}
                     </span>
-                  </DetailItem>
+                  </div>
                   
-                  <DetailItem label="Property Address">
+                  <div className="financial-detail-item">
+                    <span className="label">PROPERTY ADDRESS</span>
                     <a 
                       href={generateZillowUrl(loan)} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="text-blue-600 hover:underline"
+                      className="financial-link"
                     >
                       {`${formatValue(loan.address)}, ${formatValue(loan.city)}, ${formatValue(loan.state)} ${formatValue(loan.zip)}`}
                     </a>
-                  </DetailItem>
+                  </div>
                   
-                  <DetailItem label="Value Range">
-                    <span className="text-lg font-semibold">
+                  <div className="financial-detail-item">
+                    <span className="label">VALUE RANGE</span>
+                    <span className="value" style={{ fontSize: '14px', fontWeight: '500' }}>
                       {propertyData?.property_data?.priceRangeLow && propertyData?.property_data?.priceRangeHigh 
                         ? `${formatCurrency(propertyData.property_data.priceRangeLow)} - ${formatCurrency(propertyData.property_data.priceRangeHigh)}`
                         : 'N/A'
                       }
                     </span>
-                  </DetailItem>
+                  </div>
                   
-                  <DetailItem label="Owner Occupied">
-                    {propertyData?.property_data?.ownerOccupied !== undefined 
-                      ? (propertyData.property_data.ownerOccupied ? 'Yes' : 'No')
-                      : 'N/A'
-                    }
-                  </DetailItem>
+                  <div className="financial-detail-item">
+                    <span className="label">OWNER OCCUPIED</span>
+                    <span className="value">
+                      {propertyData?.property_data?.ownerOccupied !== undefined 
+                        ? (propertyData.property_data.ownerOccupied ? 'Yes' : 'No')
+                        : 'N/A'
+                      }
+                    </span>
+                  </div>
                   
-                  <DetailItem label="External Link">
+                  <div className="financial-detail-item">
+                    <span className="label">EXTERNAL LINK</span>
                     <a 
                       href={`https://www.zillow.com/homes/${encodeURIComponent(propertyData?.property_data?.formattedAddress || `${loan.address} ${loan.city} ${loan.state} ${loan.zip}`)}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
+                      className="financial-link"
                     >
                       View on Zillow
                     </a>
-                  </DetailItem>
+                  </div>
                   
-                  <DetailItem label="Owner Name">
-                    <div className="flex items-center gap-2">
-                      <span>{propertyData?.property_data?.owner?.names?.[0] || 'N/A'}</span>
+                  <div className="financial-detail-item">
+                    <span className="label">OWNER NAME</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className="value">{propertyData?.property_data?.owner?.names?.[0] || 'N/A'}</span>
                       {propertyData?.property_data?.owner?.names?.[0] && 
                        areNamesSimilar(loan.first_name, loan.last_name, propertyData.property_data.owner.names[0]) && (
-                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <CheckCircle style={{ width: '12px', height: '12px', color: 'var(--color-success)' }} />
                       )}
                     </div>
-                  </DetailItem>
+                  </div>
                   
-                  <DetailItem label="Equity Value">
-                    <span className="text-lg font-bold text-indigo-600">
+                  <div className="financial-detail-item">
+                    <span className="label">EQUITY VALUE</span>
+                    <span className="value" style={{ 
+                      fontSize: '14px', 
+                      fontWeight: '600', 
+                      color: 'var(--color-primary)' 
+                    }}>
                       {formatCurrency(equity.toFixed(2))}
                     </span>
-                  </DetailItem>
+                  </div>
                   
                   {/* Refresh Button */}
-                  <div className="pt-4 border-t">
-                    <Button 
+                  <div style={{ 
+                    paddingTop: '12px', 
+                    borderTop: '1px solid var(--color-border)' 
+                  }}>
+                    <button 
                       onClick={handleEnrichData}
                       disabled={isEnriching}
-                      variant="outline"
-                      size="sm"
+                      className="btn-compact btn-secondary"
                     >
-                      {isEnriching ? 'Refreshing...' : 'Refresh Data'}
-                    </Button>
+                      {isEnriching ? 'REFRESHING...' : 'REFRESH DATA'}
+                    </button>
                   </div>
                   
                   {/* Raw Data Accordion */}
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="raw-data">
-                      <AccordionTrigger className="text-sm">
-                        View Raw API Data
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <pre className="text-xs whitespace-pre-wrap break-all p-3 bg-slate-50 rounded border max-h-64 overflow-y-auto">
-                          {JSON.stringify(propertyData?.property_data, null, 2)}
-                        </pre>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+                  <details style={{ marginTop: '12px' }}>
+                    <summary style={{ 
+                      fontSize: '11px', 
+                      fontWeight: '500', 
+                      color: 'var(--color-text-secondary)',
+                      cursor: 'pointer',
+                      padding: '4px 0',
+                      borderBottom: '1px solid var(--color-border)'
+                    }}>
+                      VIEW RAW API DATA
+                    </summary>
+                    <pre style={{ 
+                      fontSize: '10px', 
+                      whiteSpace: 'pre-wrap', 
+                      wordBreak: 'break-all', 
+                      padding: '8px', 
+                      backgroundColor: 'var(--color-surface)', 
+                      borderRadius: '4px', 
+                      border: '1px solid var(--color-border)', 
+                      maxHeight: '256px', 
+                      overflowY: 'auto',
+                      marginTop: '8px'
+                    }}>
+                      {JSON.stringify(propertyData?.property_data, null, 2)}
+                    </pre>
+                  </details>
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-slate-500 mb-4">No enrichment data found.</p>
-                  <p className="text-sm text-slate-400 mb-6">
+                <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                  <p style={{ color: 'var(--color-text-muted)', marginBottom: '12px', fontSize: '12px' }}>No enrichment data found.</p>
+                  <p style={{ 
+                    fontSize: '11px', 
+                    color: 'var(--color-text-secondary)', 
+                    marginBottom: '16px' 
+                  }}>
                     Enrich this property with real-time valuation and market data from RentCast.
                   </p>
-                  <Button 
+                  <button 
                     onClick={handleEnrichData}
                     disabled={isEnriching}
-                    className="bg-blue-600 text-white hover:bg-blue-700"
+                    className="btn-compact btn-primary"
                   >
                     {isEnriching ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Enriching...
+                        <div className="loading-spinner"></div>
+                        ENRICHING...
                       </>
                     ) : (
-                      'Enrich with RentCast'
+                      'ENRICH WITH RENTCAST'
                     )}
-                  </Button>
+                  </button>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Full width SOL Card */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
         <SOLInfoCard loanId={loanId!} />
         
         {/* Empty space for second column - can add another card here later */}
@@ -471,19 +627,27 @@ const LoanDetailPage = () => {
       <DocumentAnalysisCard loanId={loanId!} />
 
       {/* Full width Credit Data Card at bottom */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Credit Data</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <p className="text-slate-500">Credit report integration is coming soon.</p>
-            <p className="text-sm text-slate-400 mt-2">
-              This section will include credit scores, payment history, and bureau reports.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="financial-card">
+        <div style={{ 
+          borderBottom: '1px solid var(--color-border)',
+          paddingBottom: '8px',
+          marginBottom: '12px'
+        }}>
+          <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+            CREDIT DATA
+          </h3>
+        </div>
+        <div style={{ textAlign: 'center', padding: '32px 0' }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '12px' }}>Credit report integration is coming soon.</p>
+          <p style={{ 
+            fontSize: '11px', 
+            color: 'var(--color-text-secondary)', 
+            marginTop: '8px' 
+          }}>
+            This section will include credit scores, payment history, and bureau reports.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
