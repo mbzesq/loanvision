@@ -118,6 +118,20 @@ function DashboardPage() {
         loans.forEach(loan => {
           const upb = parseFloat(loan.prin_bal) || 0;
           
+          // Debug logging for first few loans
+          if (categories.securitizable.count + categories.steadyPerforming.count + 
+              categories.recentPerforming.count + categories.paying.count + 
+              categories.nonPerforming.count + categories.foreclosure.count < 5) {
+            console.log(`[DEBUG] Loan ${loan.loan_id}:`, {
+              fc_status: loan.fc_status,
+              january_2025: loan.january_2025,
+              february_2025: loan.february_2025,
+              march_2025: loan.march_2025,
+              next_pymt_due: loan.next_pymt_due,
+              last_pymt_received: loan.last_pymt_received
+            });
+          }
+          
           // Check for foreclosure status first
           if (loan.fc_status && ['Active', 'Hold', 'FC', 'Foreclosure'].includes(loan.fc_status)) {
             categories.foreclosure.count++;
@@ -131,6 +145,18 @@ function DashboardPage() {
             Math.floor((new Date().getTime() - new Date(loan.last_pymt_received).getTime()) / (1000 * 60 * 60 * 24 * 30)) : 
             999;
           const pastDue = isPastDue(loan);
+          
+          // Debug logging for categorization
+          if (categories.securitizable.count + categories.steadyPerforming.count + 
+              categories.recentPerforming.count + categories.paying.count + 
+              categories.nonPerforming.count + categories.foreclosure.count < 5) {
+            console.log(`[DEBUG] Loan ${loan.loan_id} categorization:`, {
+              consecutivePayments,
+              recentPayments,
+              monthsSinceLastPayment,
+              pastDue
+            });
+          }
           
           // Categorize based on payment history
           if (consecutivePayments >= 12) {
@@ -155,68 +181,68 @@ function DashboardPage() {
           }
         });
         
-        // Convert to status data format
+        // Convert to status data format - always show all categories
         const statusData: LoanStatusData[] = [];
         
-        if (categories.securitizable.count > 0) {
-          statusData.push({
-            status: 'SECURITIZABLE',
-            count: categories.securitizable.count,
-            upb: categories.securitizable.totalUpb,
-            avgBalance: categories.securitizable.totalUpb / categories.securitizable.count,
-            change: 2.3 // Positive trend for best performing
-          });
-        }
+        // Always show all categories, even if count is 0
+        statusData.push({
+          status: 'SECURITIZABLE',
+          count: categories.securitizable.count,
+          upb: categories.securitizable.totalUpb,
+          avgBalance: categories.securitizable.count > 0 ? categories.securitizable.totalUpb / categories.securitizable.count : 0,
+          change: 2.3 // Positive trend for best performing
+        });
         
-        if (categories.steadyPerforming.count > 0) {
-          statusData.push({
-            status: 'STEADY PERFORMING',
-            count: categories.steadyPerforming.count,
-            upb: categories.steadyPerforming.totalUpb,
-            avgBalance: categories.steadyPerforming.totalUpb / categories.steadyPerforming.count,
-            change: 1.8
-          });
-        }
+        statusData.push({
+          status: 'STEADY PERFORMING',
+          count: categories.steadyPerforming.count,
+          upb: categories.steadyPerforming.totalUpb,
+          avgBalance: categories.steadyPerforming.count > 0 ? categories.steadyPerforming.totalUpb / categories.steadyPerforming.count : 0,
+          change: 1.8
+        });
         
-        if (categories.recentPerforming.count > 0) {
-          statusData.push({
-            status: 'RECENT PERFORMING',
-            count: categories.recentPerforming.count,
-            upb: categories.recentPerforming.totalUpb,
-            avgBalance: categories.recentPerforming.totalUpb / categories.recentPerforming.count,
-            change: -0.5
-          });
-        }
+        statusData.push({
+          status: 'RECENT PERFORMING',
+          count: categories.recentPerforming.count,
+          upb: categories.recentPerforming.totalUpb,
+          avgBalance: categories.recentPerforming.count > 0 ? categories.recentPerforming.totalUpb / categories.recentPerforming.count : 0,
+          change: -0.5
+        });
         
-        if (categories.paying.count > 0) {
-          statusData.push({
-            status: 'PAYING',
-            count: categories.paying.count,
-            upb: categories.paying.totalUpb,
-            avgBalance: categories.paying.totalUpb / categories.paying.count,
-            change: -2.1
-          });
-        }
+        statusData.push({
+          status: 'PAYING',
+          count: categories.paying.count,
+          upb: categories.paying.totalUpb,
+          avgBalance: categories.paying.count > 0 ? categories.paying.totalUpb / categories.paying.count : 0,
+          change: -2.1
+        });
         
-        if (categories.nonPerforming.count > 0) {
-          statusData.push({
-            status: 'NON-PERFORMING',
-            count: categories.nonPerforming.count,
-            upb: categories.nonPerforming.totalUpb,
-            avgBalance: categories.nonPerforming.totalUpb / categories.nonPerforming.count,
-            change: -4.7
-          });
-        }
+        statusData.push({
+          status: 'NON-PERFORMING',
+          count: categories.nonPerforming.count,
+          upb: categories.nonPerforming.totalUpb,
+          avgBalance: categories.nonPerforming.count > 0 ? categories.nonPerforming.totalUpb / categories.nonPerforming.count : 0,
+          change: -4.7
+        });
         
-        if (categories.foreclosure.count > 0) {
-          statusData.push({
-            status: 'FORECLOSURE',
-            count: categories.foreclosure.count,
-            upb: categories.foreclosure.totalUpb,
-            avgBalance: categories.foreclosure.totalUpb / categories.foreclosure.count,
-            change: -8.2
-          });
-        }
+        statusData.push({
+          status: 'FORECLOSURE',
+          count: categories.foreclosure.count,
+          upb: categories.foreclosure.totalUpb,
+          avgBalance: categories.foreclosure.count > 0 ? categories.foreclosure.totalUpb / categories.foreclosure.count : 0,
+          change: -8.2
+        });
+        
+        // Debug logging for category totals
+        console.log('[DEBUG] Final category counts:', {
+          securitizable: categories.securitizable.count,
+          steadyPerforming: categories.steadyPerforming.count,
+          recentPerforming: categories.recentPerforming.count,
+          paying: categories.paying.count,
+          nonPerforming: categories.nonPerforming.count,
+          foreclosure: categories.foreclosure.count,
+          totalLoans: loans.length
+        });
         
         setLoanStatusData(statusData);
       } catch (error) {
