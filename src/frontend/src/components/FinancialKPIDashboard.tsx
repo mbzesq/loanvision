@@ -146,24 +146,40 @@ export const FinancialKPIDashboard: React.FC = () => {
         
         const performanceRate = totalLoans > 0 ? (performingLoans.length / totalLoans) * 100 : 0;
         
-        // Calculate SOL risk (simplified - loans older than 3 years)
-        const threeYearsAgo = new Date();
-        threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+        // Calculate SOL risk - loans approaching or past SOL expiration
+        // This would ideally use the SOL service to get actual expiration dates
+        // For now, using a simplified approach based on last payment date
         const solRiskLoans = loans.filter(loan => {
           const lastPayment = loan.last_pymt_received ? new Date(loan.last_pymt_received) : null;
-          return lastPayment && lastPayment < threeYearsAgo;
+          if (!lastPayment) return false;
+          
+          // Simplified SOL calculation - typically 3-6 years depending on jurisdiction
+          // In practice, would use actual SOL service calculations
+          const yearsOld = (Date.now() - lastPayment.getTime()) / (1000 * 60 * 60 * 24 * 365);
+          
+          // Flag loans that are 2.5+ years old (approaching 3-year SOL) or older
+          return yearsOld >= 2.5;
         });
         
-        // Calculate average time to resolution for FC loans
+        // Calculate foreclosure performance - % on track vs overdue
         const fcLoans = loans.filter(loan => 
           loan.fc_start_date && (loan.legal_status === 'FC' || loan.legal_status === 'Foreclosure')
         );
-        const avgTimeToResolution = fcLoans.length > 0 ? 
-          fcLoans.reduce((sum, loan) => {
-            const startDate = new Date(loan.fc_start_date!);
-            const daysDiff = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-            return sum + daysDiff;
-          }, 0) / fcLoans.length : 0;
+        
+        let fcOnTrackCount = 0;
+        fcLoans.forEach(loan => {
+          const startDate = new Date(loan.fc_start_date!);
+          const daysSinceStart = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          // Simplified timeline - typical foreclosure should complete in 6-12 months (180-365 days)
+          // This would ideally use actual foreclosure timeline data
+          const expectedDays = 270; // 9 months average
+          const isOnTrack = daysSinceStart <= expectedDays;
+          
+          if (isOnTrack) fcOnTrackCount++;
+        });
+        
+        const fcOnTrackPercentage = fcLoans.length > 0 ? (fcOnTrackCount / fcLoans.length) * 100 : 0;
         
         // Calculate recovery rate (simplified - performing loans that were previously non-performing)
         const recoveryRate = 34.2; // This would need historical data to calculate properly
@@ -219,9 +235,9 @@ export const FinancialKPIDashboard: React.FC = () => {
             label: 'SOL Risk',
             value: solRiskLoans.length.toString(),
             change: 5.0, // Would need historical data
-            changeLabel: 'loans at risk',
+            changeLabel: 'approaching/past SOL',
             icon: <Scale className="h-4 w-4" />,
-            trend: 'up',
+            trend: solRiskLoans.length > 0 ? 'up' : 'neutral',
             clickAction: handleSOLRiskClick
           },
           {
@@ -243,12 +259,12 @@ export const FinancialKPIDashboard: React.FC = () => {
             clickAction: handleRecoveryRateClick
           },
           {
-            label: 'Time to Resolution',
-            value: `${Math.round(avgTimeToResolution)}d`,
+            label: 'FC On Track',
+            value: `${fcOnTrackPercentage.toFixed(1)}%`,
             change: -12.5, // Would need historical data
-            changeLabel: 'avg days',
+            changeLabel: 'of foreclosures',
             icon: <BarChart3 className="h-4 w-4" />,
-            trend: 'up',
+            trend: fcOnTrackPercentage >= 70 ? 'up' : 'down',
             clickAction: handleTimeToResolutionClick
           }
         ];
