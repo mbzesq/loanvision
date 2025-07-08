@@ -81,18 +81,26 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
     // Step 2: Enhance PDF for better OCR (if available)
     console.log('Step 2: Enhancing PDF for OCR...');
     let processBuffer = file.buffer;
-    try {
-      const isEnhancementAvailable = await ocrEnhancementService.isEnhancementAvailable();
-      if (isEnhancementAvailable) {
-        const enhancedBuffer = await ocrEnhancementService.enhancePDF(file.buffer, file.originalname);
-        processBuffer = enhancedBuffer;
-        console.log('PDF enhancement completed successfully');
-      } else {
-        console.log('OCR enhancement not available, using original PDF');
+    
+    // Temporary: Disable OCR enhancement to test if original PDFs work with Textract
+    const DISABLE_OCR_ENHANCEMENT = process.env.DISABLE_OCR_ENHANCEMENT === 'true';
+    
+    if (DISABLE_OCR_ENHANCEMENT) {
+      console.log('OCR enhancement disabled via environment variable, using original PDF');
+    } else {
+      try {
+        const isEnhancementAvailable = await ocrEnhancementService.isEnhancementAvailable();
+        if (isEnhancementAvailable) {
+          const enhancedBuffer = await ocrEnhancementService.enhancePDF(file.buffer, file.originalname);
+          processBuffer = enhancedBuffer;
+          console.log('PDF enhancement completed successfully');
+        } else {
+          console.log('OCR enhancement not available, using original PDF');
+        }
+      } catch (enhancementError) {
+        console.warn('OCR enhancement failed, using original PDF:', enhancementError);
+        // Continue with original buffer
       }
-    } catch (enhancementError) {
-      console.warn('OCR enhancement failed, using original PDF:', enhancementError);
-      // Continue with original buffer
     }
 
     // Step 3: OCR with Textract

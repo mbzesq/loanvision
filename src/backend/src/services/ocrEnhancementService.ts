@@ -51,6 +51,22 @@ export class OCREnhancementService {
       const enhancedBuffer = await this.callPythonEnhancement(inputPath, outputPath, scriptPath);
 
       console.log(`[OCREnhancementService] PDF enhancement completed for: ${fileName}`);
+      console.log(`[OCREnhancementService] Original size: ${inputBuffer.length} bytes, Enhanced size: ${enhancedBuffer.length} bytes`);
+      
+      // Check if enhanced PDF is valid
+      if (enhancedBuffer.length < 100) {
+        console.warn('[OCREnhancementService] Enhanced PDF is suspiciously small, using original');
+        return inputBuffer;
+      }
+      
+      // Check for PDF header
+      const pdfHeader = enhancedBuffer.slice(0, 4).toString();
+      if (!pdfHeader.startsWith('%PDF')) {
+        console.warn('[OCREnhancementService] Enhanced file is not a valid PDF, using original');
+        return inputBuffer;
+      }
+      
+      console.log(`[OCREnhancementService] Enhanced PDF validated successfully`);
       return enhancedBuffer;
 
     } catch (error) {
