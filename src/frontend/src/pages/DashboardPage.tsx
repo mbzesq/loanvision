@@ -83,7 +83,7 @@ function DashboardPage() {
           const fields = [loan.january_2025, loan.february_2025, loan.march_2025, 
                          loan.april_2025, loan.may_2025, loan.june_2025, loan.july_2025];
           totalPaymentFields += fields.length;
-          populatedPaymentFields += fields.filter(f => f !== null && f !== undefined && f > 0).length;
+          populatedPaymentFields += fields.filter(f => f !== null && f !== undefined && parseFloat(String(f)) > 0).length;
         }
         
         console.log('\n=== PAYMENT DATA SUMMARY ===');
