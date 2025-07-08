@@ -175,15 +175,11 @@ export function registerAllWidgets(): void {
 
 // Initialize default layout with registered widgets
 export function initializeDefaultLayout(): void {
-  // Force refresh the layout to pick up new density improvements
-  // Remove this check to always regenerate the layout with latest settings
-  /*
+  // Check if we already have a populated default layout
   const existingLayout = widgetService.getLayout('default');
   if (existingLayout && existingLayout.widgets && existingLayout.widgets.length > 0) {
-    console.log('Default layout already populated with', existingLayout.widgets.length, 'widgets');
     return;
   }
-  */
 
   const defaultLayout = widgetService.getDefaultLayout();
   
@@ -204,11 +200,8 @@ export function initializeDefaultLayout(): void {
       console.warn(`Widget ${widgetId} not found during layout initialization`);
       return null;
     }
-    console.log(`Creating widget from metadata: ${metadata.title} (${metadata.id})`);
     return widgetService.createWidgetFromMetadata(metadata);
   }).filter(Boolean);
-
-  console.log(`Created ${widgets.length} widgets for default layout`);
 
   // Update default layout with widgets
   const updatedLayout = {
@@ -217,7 +210,6 @@ export function initializeDefaultLayout(): void {
   };
 
   widgetService.saveLayout(updatedLayout);
-  console.log('Default layout initialized with widgets:', widgets.map((w: any) => w.title).join(', '));
 }
 
 // Export for easy usage

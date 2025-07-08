@@ -314,7 +314,7 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
       )}
 
       {/* Widget Grid */}
-      <div className="min-h-screen">
+      <div className="min-h-screen w-full">
         <ResponsiveGridLayout
           className="layout"
           layouts={layouts}

@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { WidgetDashboard } from '../components/Widgets/WidgetDashboard';
 import registerAllWidgets, { initializeDefaultLayout } from '../components/Widgets/WidgetRegistry';
 import '../styles/design-system.css';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 
 function DashboardPage() {
   useEffect(() => {
