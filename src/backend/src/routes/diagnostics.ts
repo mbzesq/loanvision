@@ -136,9 +136,10 @@ router.get('/sample-loans', authenticateToken, async (req, res) => {
     });
     
     // Summary statistics
+    const currentDate = new Date();
     const summary = {
       total_loans_sampled: loans.length,
-      current_date: new Date().toISOString(),
+      current_date: currentDate.toISOString(),
       current_month: currentDate.getMonth() + 1,
       categories: {
         SECURITIZABLE: analyzedLoans.filter(l => l.analysis.category === 'SECURITIZABLE').length,
