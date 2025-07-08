@@ -39,7 +39,6 @@ function DashboardPage() {
   const [loanStatusData, setLoanStatusData] = useState<LoanStatusData[]>([]);
   const [totalLoans, setTotalLoans] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [diagnosticData, setDiagnosticData] = useState<any>(null);
 
   useEffect(() => {
     const fetchLoanData = async () => {
