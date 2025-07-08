@@ -15,6 +15,7 @@ interface KPIData {
 export const FinancialKPIDashboard: React.FC = () => {
   const [kpiData, setKpiData] = useState<KPIData[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [exporting, setExporting] = useState(false);
   const navigate = useNavigate();
 
   // Click handlers for each KPI
@@ -48,6 +49,64 @@ export const FinancialKPIDashboard: React.FC = () => {
 
   const handleTimeToResolutionClick = () => {
     navigate('/loans?status=FC&sortBy=fc_start_date&sortOrder=asc');
+  };
+
+  // Export functionality
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      // Create CSV content
+      const csvHeaders = ['Metric', 'Value', 'Change', 'Change Label', 'Trend'].join(',');
+      const csvRows = kpiData.map(kpi => [
+        kpi.label,
+        kpi.value,
+        `${kpi.change > 0 ? '+' : ''}${kpi.change.toFixed(1)}%`,
+        kpi.changeLabel || '',
+        kpi.trend || ''
+      ].join(','));
+      
+      const csvContent = [csvHeaders, ...csvRows].join('\n');
+      
+      // Add metadata
+      const metadata = [
+        '',
+        'Export Information:',
+        `Generated: ${new Date().toLocaleString()}`,
+        `Portfolio: NPL-MAIN`,
+        `Data Source: Primary`,
+        `Total KPIs: ${kpiData.length}`,
+        `Last Update: ${lastUpdate.toLocaleString()}`
+      ].join('\n');
+      
+      const fullContent = csvContent + '\n' + metadata;
+      
+      // Create and download file
+      const blob = new Blob([fullContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const filename = `NPL_Portfolio_Metrics_${new Date().toISOString().split('T')[0]}.csv`;
+      
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+      
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setLastUpdate(new Date());
+    // In a real app, this would trigger a data refresh
+    console.log('Refreshing KPI data...');
   };
 
   useEffect(() => {
@@ -222,8 +281,19 @@ export const FinancialKPIDashboard: React.FC = () => {
           </span>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn-compact btn-secondary">EXPORT</button>
-          <button className="btn-compact btn-primary">REFRESH</button>
+          <button 
+            className="btn-compact btn-secondary" 
+            onClick={handleExport}
+            disabled={exporting}
+          >
+            {exporting ? 'EXPORTING...' : 'EXPORT'}
+          </button>
+          <button 
+            className="btn-compact btn-primary" 
+            onClick={handleRefresh}
+          >
+            REFRESH
+          </button>
         </div>
       </div>
     </div>
