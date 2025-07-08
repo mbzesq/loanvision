@@ -31,7 +31,7 @@ export class OCREnhancementService {
     const sessionId = uuidv4();
     const inputPath = path.join(this.tempDir, `${sessionId}_input.pdf`);
     const outputPath = path.join(this.tempDir, `${sessionId}_enhanced.pdf`);
-    const scriptPath = path.resolve(__dirname, '../../../ocr_repair_helper.py');
+    const scriptPath = path.resolve(__dirname, '../../ocr_repair_helper.py');
 
     try {
       console.log(`[OCREnhancementService] Starting PDF enhancement for: ${fileName}`);
@@ -129,7 +129,7 @@ export class OCREnhancementService {
    */
   async isEnhancementAvailable(): Promise<boolean> {
     try {
-      const scriptPath = path.resolve(__dirname, '../../../ocr_repair_helper.py');
+      const scriptPath = path.resolve(__dirname, '../../ocr_repair_helper.py');
       
       // Check if script exists
       try {
