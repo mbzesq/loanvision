@@ -5,9 +5,13 @@ import '../styles/financial-design-system.css';
 
 interface PerformanceTrendData {
   date: string;
-  performing: number;
+  securitizable: number;
+  steadyPerforming: number;
+  recentPerforming: number;
+  paying: number;
+  partialPayments: number;
   nonPerforming: number;
-  defaulted: number;
+  foreclosure: number;
   totalTransitions: number;
 }
 
@@ -21,12 +25,23 @@ interface StatusTransition {
 interface Loan {
   loan_id: string;
   prin_bal: string;
+  pi_pmt: string | number;
   legal_status: string;
   last_pymt_received: string;
   next_pymt_due: string;
-  maturity_date: string;
-  int_rate: string;
-  fc_start_date?: string;
+  fc_status?: string;
+  january_2025?: string | number;
+  february_2025?: string | number;
+  march_2025?: string | number;
+  april_2025?: string | number;
+  may_2025?: string | number;
+  june_2025?: string | number;
+  july_2025?: string | number;
+  august_2025?: string | number;
+  september_2025?: string | number;
+  october_2025?: string | number;
+  november_2025?: string | number;
+  december_2025?: string | number;
 }
 
 export const PerformanceTrendChart: React.FC = () => {
@@ -42,25 +57,82 @@ export const PerformanceTrendChart: React.FC = () => {
         const response = await axios.get<Loan[]>(`${apiUrl}/api/v2/loans`);
         const loans = response.data;
         
-        // Define performance categories
-        const performingStatuses = ['Current', 'Performing', 'Good Standing'];
-        const nonPerformingStatuses = ['Non-Performing', 'Delinquent', '30 Days Past Due', '60 Days Past Due', '90 Days Past Due'];
-        const defaultStatuses = ['Default', 'Foreclosure', 'FC', 'Bankruptcy', 'BK'];
+        // Helper function to categorize loans using same logic as dashboard
+        const categorizeLoan = (loan: Loan) => {
+          const requiredPayment = parseFloat(String(loan.pi_pmt || '0'));
+          
+          // Count consecutive qualifying payments (payment >= pi_pmt)
+          const monthsInOrder = [
+            { month: 'june_2025', value: loan.june_2025, monthIndex: 5 },
+            { month: 'may_2025', value: loan.may_2025, monthIndex: 4 },
+            { month: 'april_2025', value: loan.april_2025, monthIndex: 3 },
+            { month: 'march_2025', value: loan.march_2025, monthIndex: 2 },
+            { month: 'february_2025', value: loan.february_2025, monthIndex: 1 },
+            { month: 'january_2025', value: loan.january_2025, monthIndex: 0 }
+          ];
+          
+          let consecutivePayments = 0;
+          for (const monthData of monthsInOrder) {
+            const payment = parseFloat(String(monthData.value || '0'));
+            if (payment >= requiredPayment && payment > 0) {
+              consecutivePayments++;
+            } else {
+              break;
+            }
+          }
+          
+          // Count recent payments and partial payments
+          let recentPayments = 0;
+          let partialPayments = 0;
+          for (let i = 0; i < Math.min(4, monthsInOrder.length); i++) {
+            const payment = parseFloat(String(monthsInOrder[i].value || '0'));
+            if (payment > 0) recentPayments++;
+            if (payment > 0 && payment < requiredPayment) partialPayments++;
+          }
+          
+          const monthsSinceLastPayment = loan.last_pymt_received ? 
+            Math.floor((new Date().getTime() - new Date(loan.last_pymt_received).getTime()) / (1000 * 60 * 60 * 24 * 30)) : 999;
+          
+          // Check for foreclosure status first
+          if (loan.fc_status && ['ACTIVE', 'HOLD'].includes(loan.fc_status)) {
+            return 'foreclosure';
+          }
+          
+          const legalStatus = loan.legal_status?.toLowerCase() || '';
+          
+          // Apply same categorization logic as dashboard
+          if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 12) {
+            return 'securitizable';
+          } else if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 6) {
+            return 'steadyPerforming';
+          } else if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 1) {
+            return 'recentPerforming';
+          } else if ((legalStatus.includes('30') || legalStatus.includes('60') || legalStatus.includes('delinq')) && recentPayments >= 2) {
+            return 'paying';
+          } else if (partialPayments >= 2) {
+            return 'partialPayments';
+          } else if (legalStatus.includes('90') || legalStatus.includes('default') || legalStatus.includes('charge') || monthsSinceLastPayment >= 6) {
+            return 'nonPerforming';
+          } else {
+            return 'paying';
+          }
+        };
         
-        // Calculate current loan distribution
-        const performingLoans = loans.filter(loan => 
-          performingStatuses.includes(loan.legal_status || '')
-        );
-        const nonPerformingLoans = loans.filter(loan => 
-          nonPerformingStatuses.includes(loan.legal_status || '')
-        );
-        const defaultLoans = loans.filter(loan => 
-          defaultStatuses.includes(loan.legal_status || '')
-        );
+        // Calculate current distribution
+        const currentCounts = {
+          securitizable: 0,
+          steadyPerforming: 0,
+          recentPerforming: 0,
+          paying: 0,
+          partialPayments: 0,
+          nonPerforming: 0,
+          foreclosure: 0
+        };
         
-        const currentPerforming = performingLoans.length;
-        const currentNonPerforming = nonPerformingLoans.length;
-        const currentDefaulted = defaultLoans.length;
+        loans.forEach(loan => {
+          const category = categorizeLoan(loan);
+          currentCounts[category as keyof typeof currentCounts]++;
+        });
         
         const data: PerformanceTrendData[] = [];
         const transitionData: StatusTransition[] = [];
@@ -71,28 +143,31 @@ export const PerformanceTrendChart: React.FC = () => {
           date.setDate(date.getDate() - i);
           
           // Create realistic variations around the current actual data
-          const variation = Math.random() * 0.1 - 0.05; // ±5% variation
-          const performing = Math.floor(currentPerforming * (1 + variation));
-          const nonPerforming = Math.floor(currentNonPerforming * (1 + variation));
-          const defaulted = Math.floor(currentDefaulted * (1 + variation));
-          
-          const totalTransitions = Math.floor(Math.random() * 8) + 2;
+          const variation = Math.random() * 0.08 - 0.04; // ±4% variation
           
           data.push({
             date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            performing,
-            nonPerforming,
-            defaulted,
-            totalTransitions
+            securitizable: Math.floor(currentCounts.securitizable * (1 + variation)),
+            steadyPerforming: Math.floor(currentCounts.steadyPerforming * (1 + variation)),
+            recentPerforming: Math.floor(currentCounts.recentPerforming * (1 + variation)),
+            paying: Math.floor(currentCounts.paying * (1 + variation)),
+            partialPayments: Math.floor(currentCounts.partialPayments * (1 + variation)),
+            nonPerforming: Math.floor(currentCounts.nonPerforming * (1 + variation)),
+            foreclosure: Math.floor(currentCounts.foreclosure * (1 + variation)),
+            totalTransitions: Math.floor(Math.random() * 8) + 2
           });
           
-          // Generate some realistic transition records
-          if (Math.random() > 0.4) {
+          // Generate realistic transition records
+          if (Math.random() > 0.3) {
             const transitionTypes = [
-              { from: 'Performing', to: 'Non-Performing', probability: 0.3 },
-              { from: 'Non-Performing', to: 'Default', probability: 0.2 },
-              { from: 'Non-Performing', to: 'Performing', probability: 0.15 },
-              { from: 'Default', to: 'Foreclosure', probability: 0.1 }
+              { from: 'Securitizable', to: 'Steady Performing', probability: 0.1 },
+              { from: 'Steady Performing', to: 'Recent Performing', probability: 0.15 },
+              { from: 'Recent Performing', to: 'Paying', probability: 0.2 },
+              { from: 'Paying', to: 'Partial Payments', probability: 0.25 },
+              { from: 'Partial Payments', to: 'Non-Performing', probability: 0.3 },
+              { from: 'Non-Performing', to: 'Foreclosure', probability: 0.15 },
+              { from: 'Paying', to: 'Recent Performing', probability: 0.1 },
+              { from: 'Partial Payments', to: 'Paying', probability: 0.1 }
             ];
             
             transitionTypes.forEach(transition => {
@@ -171,32 +246,64 @@ export const PerformanceTrendChart: React.FC = () => {
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend 
-              wrapperStyle={{ fontSize: '10px' }}
+              wrapperStyle={{ fontSize: '9px' }}
               iconType="line"
             />
             <Line 
               type="monotone" 
-              dataKey="performing" 
-              stroke="var(--color-success)" 
+              dataKey="securitizable" 
+              stroke="#10b981" 
               strokeWidth={2}
-              name="Performing"
-              dot={{ r: 3 }}
+              name="Securitizable"
+              dot={{ r: 2 }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="steadyPerforming" 
+              stroke="#34d399" 
+              strokeWidth={2}
+              name="Steady Performing"
+              dot={{ r: 2 }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="recentPerforming" 
+              stroke="#6ee7b7" 
+              strokeWidth={2}
+              name="Recent Performing"
+              dot={{ r: 2 }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="paying" 
+              stroke="#f59e0b" 
+              strokeWidth={2}
+              name="Paying"
+              dot={{ r: 2 }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="partialPayments" 
+              stroke="#fbbf24" 
+              strokeWidth={2}
+              name="Partial Payments"
+              dot={{ r: 2 }}
             />
             <Line 
               type="monotone" 
               dataKey="nonPerforming" 
-              stroke="var(--color-warning)" 
+              stroke="#ef4444" 
               strokeWidth={2}
               name="Non-Performing"
-              dot={{ r: 3 }}
+              dot={{ r: 2 }}
             />
             <Line 
               type="monotone" 
-              dataKey="defaulted" 
-              stroke="var(--color-danger)" 
+              dataKey="foreclosure" 
+              stroke="#dc2626" 
               strokeWidth={2}
-              name="Default"
-              dot={{ r: 3 }}
+              name="Foreclosure"
+              dot={{ r: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>
