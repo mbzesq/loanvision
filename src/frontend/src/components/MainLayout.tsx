@@ -7,6 +7,7 @@ import { UserProfile } from './UserProfile';
 import { Sheet, SheetContent } from './ui/sheet';
 import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
+import '../styles/financial-design-system.css';
 
 export function MainLayout() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,6 +20,14 @@ export function MainLayout() {
     if (saved !== null) {
       setDesktopNavCollapsed(JSON.parse(saved));
     }
+  }, []);
+
+  // Apply financial theme class to body
+  useEffect(() => {
+    document.body.classList.add('financial-theme');
+    return () => {
+      document.body.classList.remove('financial-theme');
+    };
   }, []);
 
   const handleDesktopNavToggle = () => {

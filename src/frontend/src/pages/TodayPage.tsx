@@ -189,239 +189,291 @@ function TodayPage() {
   };
 
   return (
-    <div className="p-4 bg-slate-50 min-h-screen">
+    <div style={{ 
+      padding: '12px', 
+      minHeight: '100vh',
+      backgroundColor: 'var(--color-background)'
+    }}>
       {/* Page Header with Date */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-3xl font-bold text-slate-900">Today</h1>
-          <div className="text-lg text-slate-600">
-            {format(new Date(), 'EEEE, MMMM d, yyyy')}
-          </div>
+      <div className="quick-stats" style={{ marginBottom: '16px' }}>
+        <div className="quick-stat">
+          <span className="label">SESSION</span>
+          <span className="value">{format(new Date(), 'MMM d, yyyy HH:mm')}</span>
         </div>
-        <p className="text-lg text-slate-600">
-          Your daily operations dashboard - alerts, tasks, and updates
-        </p>
+        <div className="quick-stat">
+          <span className="label">PORTFOLIO</span>
+          <span className="value">NPL-MAIN</span>
+        </div>
+        <div className="quick-stat">
+          <span className="label">LAST UPDATE</span>
+          <span className="value data-fresh">{format(new Date(), 'HH:mm:ss')}</span>
+        </div>
+        <div className="quick-stat">
+          <span className="label">ALERTS</span>
+          <span className="value" style={{ color: alertCounts.critical > 0 ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
+            {alertCounts.total} ACTIVE
+          </span>
+        </div>
       </div>
 
-      {/* Alert Summary Bar */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-600">Critical Alerts</p>
-                <p className="text-2xl font-bold text-red-800">{alertCounts.critical}</p>
-              </div>
-              <AlertCircle className="h-8 w-8 text-red-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-yellow-200 bg-yellow-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-yellow-600">Warnings</p>
-                <p className="text-2xl font-bold text-yellow-800">{alertCounts.warning}</p>
-              </div>
-              <AlertCircle className="h-8 w-8 text-yellow-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600">Information</p>
-                <p className="text-2xl font-bold text-blue-800">{alertCounts.info}</p>
-              </div>
-              <AlertCircle className="h-8 w-8 text-blue-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-slate-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-600">Total Alerts</p>
-                <p className="text-2xl font-bold text-slate-800">{alertCounts.total}</p>
-              </div>
-              <Bell className="h-8 w-8 text-slate-400" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Alert Summary Bar - Compact Financial Style */}
+      <div className="alert-strip">
+        <div className="alert-count">
+          <span style={{ color: 'var(--color-danger)' }}>●</span>
+          <span className="count">{alertCounts.critical}</span>
+          <span>CRITICAL</span>
+        </div>
+        <div className="alert-count">
+          <span style={{ color: 'var(--color-warning)' }}>●</span>
+          <span className="count">{alertCounts.warning}</span>
+          <span>WARNING</span>
+        </div>
+        <div className="alert-count">
+          <span style={{ color: 'var(--color-info)' }}>●</span>
+          <span className="count">{alertCounts.info}</span>
+          <span>INFO</span>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <span className="data-timestamp">Last: {format(new Date(), 'HH:mm:ss')}</span>
+          <button className="btn-compact btn-primary">MANAGE</button>
+        </div>
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-12 gap-6">
-        {/* Left Column - Alerts (8 cols) */}
-        <div className="col-span-12 lg:col-span-8">
-          <Card className="h-full">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Portfolio Alerts</CardTitle>
-                <div className="flex items-center gap-2">
-                  {/* Filter Buttons */}
-                  <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-                    <Button
-                      variant={filterSeverity === 'all' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setFilterSeverity('all')}
-                      className="h-7 px-3"
-                    >
-                      All
-                    </Button>
-                    <Button
-                      variant={filterSeverity === 'critical' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setFilterSeverity('critical')}
-                      className="h-7 px-3"
-                    >
-                      Critical
-                    </Button>
-                    <Button
-                      variant={filterSeverity === 'warning' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setFilterSeverity('warning')}
-                      className="h-7 px-3"
-                    >
-                      Warning
-                    </Button>
-                  </div>
-                  {/* Bulk Actions */}
-                  {selectedAlerts.size > 0 && (
-                    <div className="flex items-center gap-2 ml-4">
-                      <span className="text-sm text-slate-600">
-                        {selectedAlerts.size} selected
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '12px' }}>
+        {/* Left Column - Alerts Table */}
+        <div className="financial-card scroll-container">
+          <div className="filter-bar-advanced" style={{ marginBottom: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                className={`btn-compact ${filterSeverity === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setFilterSeverity('all')}
+              >
+                ALL
+              </button>
+              <button 
+                className={`btn-compact ${filterSeverity === 'critical' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setFilterSeverity('critical')}
+              >
+                CRITICAL
+              </button>
+              <button 
+                className={`btn-compact ${filterSeverity === 'warning' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setFilterSeverity('warning')}
+              >
+                WARNING
+              </button>
+            </div>
+            {selectedAlerts.size > 0 && (
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
+                  {selectedAlerts.size} SELECTED
+                </span>
+                <button className="btn-compact btn-secondary" onClick={() => handleBulkAction('acknowledge')}>
+                  ACK
+                </button>
+                <button className="btn-compact btn-primary" onClick={() => handleBulkAction('createTask')}>
+                  TASK
+                </button>
+              </div>
+            )}
+          </div>
+
+          <table className="financial-table">
+            <thead>
+              <tr>
+                <th style={{ width: '30px' }}></th>
+                <th style={{ width: '50px' }}>SEV</th>
+                <th style={{ width: '60px' }}>TYPE</th>
+                <th>DESCRIPTION</th>
+                <th style={{ width: '50px' }}>LOANS</th>
+                <th style={{ width: '60px' }}>AGE</th>
+                <th style={{ width: '80px' }}>CREATED</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAlerts.map((alert) => (
+                <tr 
+                  key={alert.id}
+                  style={{ 
+                    cursor: 'pointer',
+                    backgroundColor: selectedAlerts.has(alert.id) ? 'rgba(26, 54, 93, 0.3)' : 'transparent'
+                  }}
+                  onClick={() => handleAlertSelect(alert.id)}
+                >
+                  <td>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedAlerts.has(alert.id)}
+                      onChange={() => handleAlertSelect(alert.id)}
+                      style={{ margin: 0 }}
+                    />
+                  </td>
+                  <td>
+                    <span className={`status-indicator ${alert.severity}`}>
+                      {alert.severity === 'critical' ? 'CRIT' : 
+                       alert.severity === 'warning' ? 'WARN' : 'INFO'}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {getAlertIcon(alert.type)}
+                      <span style={{ fontSize: '10px', textTransform: 'uppercase' }}>
+                        {alert.type.replace('_', '')}
                       </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleBulkAction('acknowledge')}
-                      >
-                        Acknowledge
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleBulkAction('createTask')}
-                      >
-                        Create Task
-                      </Button>
                     </div>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {filteredAlerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className={`border rounded-lg p-4 transition-all cursor-pointer hover:shadow-md ${
-                      selectedAlerts.has(alert.id) ? 'ring-2 ring-blue-500' : ''
-                    } ${getSeverityColor(alert.severity)}`}
-                    onClick={() => handleAlertSelect(alert.id)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1">
-                          {getAlertIcon(alert.type)}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold">{alert.title}</h4>
-                            {alert.status === 'new' && (
-                              <Badge className="bg-green-100 text-green-800 text-xs">New</Badge>
-                            )}
-                            {alert.ageInDays > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                {alert.ageInDays} days old
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm opacity-90">{alert.description}</p>
-                          <div className="flex items-center gap-4 mt-2 text-xs opacity-75">
-                            <span>{alert.loanCount} loans affected</span>
-                            <span>Created {format(alert.createdAt, 'MMM d, h:mm a')}</span>
-                          </div>
-                        </div>
+                  </td>
+                  <td>
+                    <div>
+                      <div style={{ fontWeight: '600', marginBottom: '2px' }}>{alert.title}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
+                        {alert.description}
                       </div>
-                      <ChevronRight className="h-4 w-4 opacity-50" />
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  </td>
+                  <td className="data-value">{alert.loanCount}</td>
+                  <td className="data-value">
+                    {alert.ageInDays}d
+                  </td>
+                  <td className="data-timestamp">
+                    {format(alert.createdAt, 'MM/dd HH:mm')}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        {/* Right Column - Tasks and News (4 cols) */}
-        <div className="col-span-12 lg:col-span-4 space-y-6">
+        {/* Right Column - Tasks and Market Data */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Market Data Widget */}
+          <div className="market-data-widget">
+            <div className="market-ticker">
+              <div className="symbol">10Y TREAS</div>
+              <div className="value">4.23%</div>
+              <div className="change positive">+0.02</div>
+            </div>
+            <div className="market-ticker">
+              <div className="symbol">NPL IDX</div>
+              <div className="value">89.4</div>
+              <div className="change negative">-1.2</div>
+            </div>
+            <div className="market-ticker">
+              <div className="symbol">VIX</div>
+              <div className="value">16.8</div>
+              <div className="change positive">+0.5</div>
+            </div>
+          </div>
+
           {/* Tasks Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Today's Tasks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {tasks.map((task) => (
-                  <div key={task.id} className="border rounded-lg p-3">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-sm">{task.title}</h4>
-                      <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
-                        {task.priority}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-slate-600 mb-2">{task.description}</p>
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-3 w-3" />
-                        <span>Due {format(task.dueDate, 'MMM d')}</span>
-                      </div>
-                      {task.status === 'in_progress' && (
-                        <Badge variant="outline" className="text-xs">In Progress</Badge>
-                      )}
-                    </div>
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '8px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                TASKS ({tasks.length})
+              </h3>
+              <span className="data-timestamp">Updated: {format(new Date(), 'HH:mm')}</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {tasks.map((task) => (
+                <div key={task.id} style={{ 
+                  padding: '6px',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  backgroundColor: 'var(--color-surface-light)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '600' }}>{task.title}</span>
+                    <span className={`status-indicator ${task.priority === 'high' ? 'critical' : task.priority === 'medium' ? 'warning' : 'success'}`}>
+                      {task.priority.toUpperCase()}
+                    </span>
                   </div>
-                ))}
-                <Button className="w-full" variant="outline" size="sm">
-                  View All Tasks
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  <div style={{ fontSize: '10px', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+                    {task.description}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Calendar style={{ width: '10px', height: '10px' }} />
+                      <span className="data-timestamp">Due: {format(task.dueDate, 'MM/dd')}</span>
+                    </div>
+                    {task.status === 'in_progress' && (
+                      <span className="status-indicator warning">ACTIVE</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <button className="btn-compact btn-secondary" style={{ width: '100%', marginTop: '4px' }}>
+                VIEW ALL TASKS
+              </button>
+            </div>
+          </div>
 
           {/* News/Updates Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Updates & News</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="border-l-4 border-blue-500 pl-3 py-2">
-                  <h4 className="font-medium text-sm">System Update</h4>
-                  <p className="text-xs text-slate-600">
-                    Document analysis feature now supports batch uploads
-                  </p>
-                  <span className="text-xs text-slate-500">2 hours ago</span>
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '8px'
+            }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                MARKET UPDATES
+              </h3>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ 
+                borderLeft: '3px solid var(--color-info)',
+                paddingLeft: '8px',
+                paddingTop: '4px',
+                paddingBottom: '4px'
+              }}>
+                <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '2px' }}>
+                  SYSTEM UPDATE
                 </div>
-                <div className="border-l-4 border-green-500 pl-3 py-2">
-                  <h4 className="font-medium text-sm">Market Update</h4>
-                  <p className="text-xs text-slate-600">
-                    NPL market showing increased activity in Q1 2024
-                  </p>
-                  <span className="text-xs text-slate-500">5 hours ago</span>
+                <div style={{ fontSize: '10px', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
+                  Document analysis batch uploads now available
                 </div>
-                <div className="border-l-4 border-yellow-500 pl-3 py-2">
-                  <h4 className="font-medium text-sm">Regulatory Notice</h4>
-                  <p className="text-xs text-slate-600">
-                    New SOL guidelines effective March 1st
-                  </p>
-                  <span className="text-xs text-slate-500">1 day ago</span>
-                </div>
+                <span className="data-timestamp">14:30</span>
               </div>
-            </CardContent>
-          </Card>
+              
+              <div style={{ 
+                borderLeft: '3px solid var(--color-success)',
+                paddingLeft: '8px',
+                paddingTop: '4px',
+                paddingBottom: '4px'
+              }}>
+                <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '2px' }}>
+                  MARKET DATA
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
+                  NPL market activity +15% Q1 2024
+                </div>
+                <span className="data-timestamp">09:15</span>
+              </div>
+              
+              <div style={{ 
+                borderLeft: '3px solid var(--color-warning)',
+                paddingLeft: '8px',
+                paddingTop: '4px',
+                paddingBottom: '4px'
+              }}>
+                <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '2px' }}>
+                  REGULATORY
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
+                  SOL guidelines updated - effective Mar 1
+                </div>
+                <span className="data-timestamp">Yesterday</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
