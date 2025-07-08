@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { 
   Search, Archive, MessageCircle, 
   AlertTriangle, FileText, DollarSign, Scale, TrendingUp,
-  Reply, Forward, MoreVertical
+  Reply, Forward, MoreVertical, Filter, ChevronDown, ChevronRight,
+  Users, Calendar, Tag
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType } from '../types/inbox';
@@ -15,6 +16,9 @@ function InboxPage() {
   const [activeFilter, setActiveFilter] = useState<string>('UNREAD');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
+  const [groupByThread, setGroupByThread] = useState(true);
   const [inboxStats, setInboxStats] = useState<InboxStats>({
     total: 0,
     unread: 0,
@@ -71,6 +75,40 @@ function InboxPage() {
           category: 'legal',
           source: 'user',
           threadId: 'thread_1'
+        },
+        {
+          id: '6',
+          type: 'user_message',
+          subject: 'Re: Review needed: Foreclosure timeline for Loan #L001',
+          body: '@sarah I reviewed the title. There are indeed some issues with the chain of ownership. The deed from 2019 has a missing notarization. Should we request a corrected deed or proceed with title insurance?',
+          priority: 'high',
+          status: 'read',
+          createdAt: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
+          updatedAt: new Date(Date.now() - 15 * 60 * 1000),
+          from: currentUser,
+          to: [{ id: '2', name: 'Sarah Manager', email: 'sarah@nplvision.com', role: 'manager' }],
+          loanIds: ['L001'],
+          category: 'legal',
+          source: 'user',
+          threadId: 'thread_1',
+          replyToId: '2'
+        },
+        {
+          id: '7',
+          type: 'user_message',
+          subject: 'Re: Review needed: Foreclosure timeline for Loan #L001',
+          body: '@john Let\'s proceed with title insurance for now to avoid delays. Can you contact our title company and get a quote? We need to move on this quickly.',
+          priority: 'high',
+          status: 'unread',
+          createdAt: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+          updatedAt: new Date(Date.now() - 5 * 60 * 1000),
+          from: { id: '2', name: 'Sarah Manager', email: 'sarah@nplvision.com', role: 'manager' },
+          to: [currentUser],
+          loanIds: ['L001'],
+          category: 'legal',
+          source: 'user',
+          threadId: 'thread_1',
+          replyToId: '6'
         },
         {
           id: '3',
@@ -185,6 +223,50 @@ function InboxPage() {
     setSelectedItems(new Set());
   };
 
+  const toggleThread = (threadId: string) => {
+    const newExpanded = new Set(expandedThreads);
+    if (newExpanded.has(threadId)) {
+      newExpanded.delete(threadId);
+    } else {
+      newExpanded.add(threadId);
+    }
+    setExpandedThreads(newExpanded);
+  };
+
+  // Group items by thread
+  const groupItemsByThread = (items: InboxItem[]) => {
+    if (!groupByThread) return items.map(item => ({ thread: null, items: [item] }));
+    
+    const threads = new Map<string, InboxItem[]>();
+    const standaloneItems: InboxItem[] = [];
+    
+    items.forEach(item => {
+      if (item.threadId) {
+        if (!threads.has(item.threadId)) {
+          threads.set(item.threadId, []);
+        }
+        threads.get(item.threadId)!.push(item);
+      } else {
+        standaloneItems.push(item);
+      }
+    });
+    
+    const result = [];
+    
+    // Add threaded conversations
+    for (const [threadId, threadItems] of threads.entries()) {
+      threadItems.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      result.push({ thread: threadId, items: threadItems });
+    }
+    
+    // Add standalone items
+    standaloneItems.forEach(item => {
+      result.push({ thread: null, items: [item] });
+    });
+    
+    return result;
+  };
+
   const getItemIcon = (item: InboxItem) => {
     switch (item.type) {
       case 'system_alert':
@@ -243,6 +325,8 @@ function InboxPage() {
     
     return true;
   });
+
+  const groupedItems = groupItemsByThread(filteredItems);
 
   if (loading) {
     return (
@@ -404,115 +488,301 @@ function InboxPage() {
             </h2>
             <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
               {filteredItems.length} items • {inboxStats.unread} unread
+              {groupByThread && ` • ${groupedItems.length} threads`}
             </div>
           </div>
           
-          {selectedItems.size > 0 && (
-            <div style={{ display: 'flex', gap: '4px' }}>
-              <button 
-                className="btn-compact btn-secondary"
-                onClick={() => handleBulkAction('mark_read')}
-              >
-                READ
-              </button>
-              <button 
-                className="btn-compact btn-secondary"
-                onClick={() => handleBulkAction('archive')}
-              >
-                <Archive style={{ width: '12px', height: '12px' }} />
-              </button>
-            </div>
-          )}
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <button 
+              className={`btn-compact ${groupByThread ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setGroupByThread(!groupByThread)}
+              title="Toggle threading"
+            >
+              <Users style={{ width: '12px', height: '12px' }} />
+            </button>
+            
+            <button 
+              className={`btn-compact ${showAdvancedFilters ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              title="Advanced filters"
+            >
+              <Filter style={{ width: '12px', height: '12px' }} />
+            </button>
+
+            {selectedItems.size > 0 && (
+              <>
+                <button 
+                  className="btn-compact btn-secondary"
+                  onClick={() => handleBulkAction('mark_read')}
+                >
+                  READ
+                </button>
+                <button 
+                  className="btn-compact btn-secondary"
+                  onClick={() => handleBulkAction('archive')}
+                >
+                  <Archive style={{ width: '12px', height: '12px' }} />
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Message List */}
         <div style={{ flex: 1, overflow: 'auto' }}>
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => handleItemSelect(item)}
-              style={{
-                padding: '12px',
-                borderBottom: '1px solid var(--color-border)',
-                cursor: 'pointer',
-                backgroundColor: selectedItem?.id === item.id ? 'var(--color-surface-light)' : 'transparent',
-                fontWeight: item.status === 'unread' ? '600' : 'normal'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <input 
-                  type="checkbox"
-                  checked={selectedItems.has(item.id)}
-                  onChange={() => handleBulkSelect(item.id)}
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ marginTop: '2px' }}
-                />
-                
-                {getItemIcon(item)}
-                
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                    <div 
-                      style={{ 
-                        width: '6px', 
-                        height: '6px', 
-                        borderRadius: '50%', 
-                        backgroundColor: getPriorityColor(item.priority),
-                        flexShrink: 0
+          {groupedItems.map((group, groupIndex) => {
+            if (group.thread) {
+              // Threaded conversation
+              const isExpanded = expandedThreads.has(group.thread);
+              const threadMain = group.items[group.items.length - 1]; // Latest message as main
+              const hasUnread = group.items.some(item => item.status === 'unread');
+              
+              return (
+                <div key={group.thread}>
+                  {/* Thread Header */}
+                  <div
+                    onClick={() => {
+                      if (isExpanded && group.items.length > 1) {
+                        toggleThread(group.thread!);
+                      } else {
+                        handleItemSelect(threadMain);
+                        if (group.items.length > 1) {
+                          toggleThread(group.thread!);
+                        }
+                      }
+                    }}
+                    style={{
+                      padding: '12px',
+                      borderBottom: '1px solid var(--color-border)',
+                      cursor: 'pointer',
+                      backgroundColor: selectedItem?.threadId === group.thread ? 'var(--color-surface-light)' : 'transparent',
+                      fontWeight: hasUnread ? '600' : 'normal'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                      <input 
+                        type="checkbox"
+                        checked={group.items.every(item => selectedItems.has(item.id))}
+                        onChange={() => {
+                          group.items.forEach(item => handleBulkSelect(item.id));
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ marginTop: '2px' }}
+                      />
+                      
+                      {group.items.length > 1 && (
+                        <div style={{ marginTop: '2px' }}>
+                          {isExpanded ? 
+                            <ChevronDown style={{ width: '12px', height: '12px', color: 'var(--color-text-muted)' }} /> :
+                            <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--color-text-muted)' }} />
+                          }
+                        </div>
+                      )}
+                      
+                      {getItemIcon(threadMain)}
+                      
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                          <div 
+                            style={{ 
+                              width: '6px', 
+                              height: '6px', 
+                              borderRadius: '50%', 
+                              backgroundColor: getPriorityColor(threadMain.priority),
+                              flexShrink: 0
+                            }}
+                          />
+                          <span style={{ 
+                            fontSize: '11px', 
+                            color: 'var(--color-text)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            flex: 1
+                          }}>
+                            {threadMain.subject}
+                          </span>
+                          {group.items.length > 1 && (
+                            <span style={{ 
+                              fontSize: '9px', 
+                              color: 'var(--color-text-muted)',
+                              backgroundColor: 'var(--color-surface-light)',
+                              padding: '2px 4px',
+                              borderRadius: '8px',
+                              flexShrink: 0
+                            }}>
+                              {group.items.length}
+                            </span>
+                          )}
+                          <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+                            {format(threadMain.createdAt, 'HH:mm')}
+                          </span>
+                        </div>
+                        
+                        <div style={{ 
+                          fontSize: '10px', 
+                          color: 'var(--color-text-muted)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          marginBottom: '4px'
+                        }}>
+                          {threadMain.body}
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {threadMain.from && (
+                            <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
+                              From: {threadMain.from.name}
+                            </span>
+                          )}
+                          {threadMain.loanIds && threadMain.loanIds.length > 0 && (
+                            <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
+                              {threadMain.loanIds.length} loan{threadMain.loanIds.length > 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Thread Messages (when expanded) */}
+                  {isExpanded && group.items.slice(0, -1).map((item, itemIndex) => (
+                    <div
+                      key={item.id}
+                      onClick={() => handleItemSelect(item)}
+                      style={{
+                        padding: '8px 12px 8px 32px',
+                        borderBottom: itemIndex === group.items.length - 2 ? '1px solid var(--color-border)' : 'none',
+                        borderLeft: '2px solid var(--color-border)',
+                        marginLeft: '16px',
+                        cursor: 'pointer',
+                        backgroundColor: selectedItem?.id === item.id ? 'var(--color-surface-light)' : 'transparent',
+                        fontWeight: item.status === 'unread' ? '600' : 'normal'
                       }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <div style={{ 
+                          fontSize: '9px', 
+                          color: 'var(--color-text-muted)',
+                          minWidth: '40px'
+                        }}>
+                          {format(item.createdAt, 'HH:mm')}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ 
+                            fontSize: '10px', 
+                            color: 'var(--color-text)',
+                            marginBottom: '2px'
+                          }}>
+                            {item.from?.name || 'System'}
+                          </div>
+                          <div style={{ 
+                            fontSize: '10px', 
+                            color: 'var(--color-text-muted)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {item.body}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            } else {
+              // Standalone item
+              const item = group.items[0];
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => handleItemSelect(item)}
+                  style={{
+                    padding: '12px',
+                    borderBottom: '1px solid var(--color-border)',
+                    cursor: 'pointer',
+                    backgroundColor: selectedItem?.id === item.id ? 'var(--color-surface-light)' : 'transparent',
+                    fontWeight: item.status === 'unread' ? '600' : 'normal'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <input 
+                      type="checkbox"
+                      checked={selectedItems.has(item.id)}
+                      onChange={() => handleBulkSelect(item.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ marginTop: '2px' }}
                     />
-                    <span style={{ 
-                      fontSize: '11px', 
-                      color: 'var(--color-text)',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      flex: 1
-                    }}>
-                      {item.subject}
-                    </span>
-                    <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', flexShrink: 0 }}>
-                      {format(item.createdAt, 'HH:mm')}
-                    </span>
-                  </div>
-                  
-                  <div style={{ 
-                    fontSize: '10px', 
-                    color: 'var(--color-text-muted)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    marginBottom: '4px'
-                  }}>
-                    {item.body}
-                  </div>
-                  
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {item.from && (
-                      <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
-                        From: {item.from.name}
-                      </span>
-                    )}
-                    {item.loanIds && item.loanIds.length > 0 && (
-                      <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
-                        {item.loanIds.length} loan{item.loanIds.length > 1 ? 's' : ''}
-                      </span>
-                    )}
-                    {item.dueDate && (
-                      <span style={{ 
-                        fontSize: '9px', 
-                        color: item.dueDate < new Date() ? 'var(--color-danger)' : 'var(--color-text-muted)'
+                    
+                    {getItemIcon(item)}
+                    
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                        <div 
+                          style={{ 
+                            width: '6px', 
+                            height: '6px', 
+                            borderRadius: '50%', 
+                            backgroundColor: getPriorityColor(item.priority),
+                            flexShrink: 0
+                          }}
+                        />
+                        <span style={{ 
+                          fontSize: '11px', 
+                          color: 'var(--color-text)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          flex: 1
+                        }}>
+                          {item.subject}
+                        </span>
+                        <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+                          {format(item.createdAt, 'HH:mm')}
+                        </span>
+                      </div>
+                      
+                      <div style={{ 
+                        fontSize: '10px', 
+                        color: 'var(--color-text-muted)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        marginBottom: '4px'
                       }}>
-                        Due: {format(item.dueDate, 'MM/dd')}
-                      </span>
-                    )}
+                        {item.body}
+                      </div>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {item.from && (
+                          <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
+                            From: {item.from.name}
+                          </span>
+                        )}
+                        {item.loanIds && item.loanIds.length > 0 && (
+                          <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
+                            {item.loanIds.length} loan{item.loanIds.length > 1 ? 's' : ''}
+                          </span>
+                        )}
+                        {item.dueDate && (
+                          <span style={{ 
+                            fontSize: '9px', 
+                            color: item.dueDate < new Date() ? 'var(--color-danger)' : 'var(--color-text-muted)'
+                          }}>
+                            Due: {format(item.dueDate, 'MM/dd')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            }
+          })}
           
-          {filteredItems.length === 0 && (
+          {groupedItems.length === 0 && (
             <div style={{ 
               padding: '40px 20px',
               textAlign: 'center',
