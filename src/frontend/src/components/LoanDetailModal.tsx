@@ -1,11 +1,11 @@
 // src/frontend/src/components/LoanDetailModal.tsx
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
 import { Loan } from '../pages/LoanExplorerPage';
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
 import { X } from 'lucide-react';
 import axios from 'axios';
+import '../styles/financial-design-system.css';
 import SOLInfoCard from './SOL/SOLInfoCard';
 import {
   DetailItem,
@@ -93,45 +93,187 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div ref={modalRef} className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+    <div style={{ 
+      position: 'fixed', 
+      inset: '0', 
+      backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      zIndex: 50, 
+      padding: '16px' 
+    }}>
+      <div 
+        ref={modalRef} 
+        className="financial-card" 
+        style={{ 
+          maxWidth: '1024px', 
+          width: '100%', 
+          maxHeight: '90vh', 
+          display: 'flex', 
+          flexDirection: 'column',
+          backgroundColor: 'var(--color-surface)',
+          borderRadius: 'var(--radius-lg)'
+        }}
+      >
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-semibold text-slate-900">
-            {loading ? "Loading..." : `Details for Loan: ${loan?.loan_id}`}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          padding: '16px',
+          borderBottom: '1px solid var(--color-border)' 
+        }}>
+          <h2 style={{ 
+            fontSize: '14px', 
+            fontWeight: '600', 
+            color: 'var(--color-text-primary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
+          }}>
+            {loading ? "LOADING..." : `LOAN DETAILS: ${loan?.loan_id}`}
           </h2>
-          <Button variant="ghost" size="icon" onClick={onClose}><X className="h-5 w-5" /></Button>
+          <button 
+            onClick={onClose}
+            className="btn-compact btn-secondary"
+            style={{ 
+              padding: '4px',
+              minWidth: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <X style={{ width: '16px', height: '16px' }} />
+          </button>
         </div>
         
         {/* Body */}
-        <div className="flex-grow overflow-y-auto p-6">
-          {loading && <div className="text-center p-8">Loading details...</div>}
-          {!loading && !loan && <div className="text-center p-8 text-red-600">Failed to load loan details.</div>}
+        <div className="scroll-container" style={{ 
+          flexGrow: 1, 
+          padding: '16px',
+          overflowY: 'auto' 
+        }}>
+          {loading && (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '32px',
+              color: 'var(--color-text-secondary)',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              LOADING DETAILS...
+            </div>
+          )}
+          {!loading && !loan && (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '32px',
+              color: 'var(--color-danger)',
+              fontSize: '12px'
+            }}>
+              Failed to load loan details.
+            </div>
+          )}
           {!loading && loan && (
-            <div className="space-y-8">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* === Section 1: Borrower & Property === */}
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-                <div>
-                  <h3 className="text-base font-semibold text-slate-600 border-b pb-2 mb-3">Loan & Borrower</h3>
-                  <div className="space-y-4">
+              <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div className="financial-card">
+                  <div style={{ 
+                    borderBottom: '1px solid var(--color-border)',
+                    paddingBottom: '8px',
+                    marginBottom: '12px'
+                  }}>
+                    <h3 style={{ 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: 'var(--color-text-secondary)',
+                      textTransform: 'uppercase'
+                    }}>LOAN & BORROWER</h3>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <DetailItem label="Borrower Name">{`${loan.first_name} ${loan.last_name}`}</DetailItem>
-                    <DetailItem label="Investor"><button onClick={() => handleInvestorClick(loan.investor_name)} className="text-blue-600 hover:underline font-medium text-left">{formatValue(loan.investor_name)}</button></DetailItem>
+                    <DetailItem label="Investor">
+                      <button 
+                        onClick={() => handleInvestorClick(loan.investor_name)} 
+                        style={{ 
+                          color: 'var(--color-primary)', 
+                          textDecoration: 'none',
+                          fontWeight: '500',
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'none',
+                          padding: 0,
+                          textAlign: 'left'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                        onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+                      >
+                        {formatValue(loan.investor_name)}
+                      </button>
+                    </DetailItem>
                   </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-semibold text-slate-600 border-b pb-2 mb-3">Property & Collateral</h3>
-                   <div className="space-y-4">
-                    <DetailItem label="Property Address"><a href={generateZillowUrl(loan)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{`${formatValue(loan.address)}, ${formatValue(loan.city)}, ${formatValue(loan.state)}`}</a></DetailItem>
+                <div className="financial-card">
+                  <div style={{ 
+                    borderBottom: '1px solid var(--color-border)',
+                    paddingBottom: '8px',
+                    marginBottom: '12px'
+                  }}>
+                    <h3 style={{ 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: 'var(--color-text-secondary)',
+                      textTransform: 'uppercase'
+                    }}>PROPERTY & COLLATERAL</h3>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <DetailItem label="Property Address">
+                      <a 
+                        href={generateZillowUrl(loan)} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        style={{ 
+                          color: 'var(--color-primary)', 
+                          textDecoration: 'none' 
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                        onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+                      >
+                        {`${formatValue(loan.address)}, ${formatValue(loan.city)}, ${formatValue(loan.state)}`}
+                      </a>
+                    </DetailItem>
                     <DetailItem label="Lien Position">{formatValue(loan.lien_pos)}</DetailItem>
                   </div>
                 </div>
               </section>
               
               {/* === Section 2: Financials & Status === */}
-              <section>
-                <h3 className="text-base font-semibold text-slate-600 border-b pb-2 mb-3">Financials & Status</h3>
-                <div className="grid grid-cols-3 gap-x-8 gap-y-4">
-                  <DetailItem label="UPB"><span className="text-xl font-bold">{formatCurrency(loan.prin_bal)}</span></DetailItem>
+              <section className="financial-card">
+                <div style={{ 
+                  borderBottom: '1px solid var(--color-border)',
+                  paddingBottom: '8px',
+                  marginBottom: '12px'
+                }}>
+                  <h3 style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: 'var(--color-text-secondary)',
+                    textTransform: 'uppercase'
+                  }}>FINANCIALS & STATUS</h3>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                  <DetailItem label="UPB">
+                    <span className="data-value" style={{ 
+                      fontSize: '18px', 
+                      fontWeight: '600', 
+                      color: 'var(--color-text-primary)' 
+                    }}>
+                      {formatCurrency(loan.prin_bal)}
+                    </span>
+                  </DetailItem>
                   <DetailItem label="Interest Rate">{formatPercent(loan.int_rate)}</DetailItem>
                   <DetailItem label="Legal Status">{formatValue(loan.legal_status)}</DetailItem>
                   <DetailItem label="Last Paid">{formatDate(loan.last_pymt_received)}</DetailItem>
@@ -141,15 +283,51 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
 
               {/* === Section 3: Foreclosure Timeline === */}
               {timeline && timeline.length > 0 && (
-                <section>
-                  <h3 className="text-base font-semibold text-slate-600 border-b pb-2 mb-3">Foreclosure Timeline</h3>
-                  <div className="space-y-3">
+                <section className="financial-card">
+                  <div style={{ 
+                    borderBottom: '1px solid var(--color-border)',
+                    paddingBottom: '8px',
+                    marginBottom: '12px'
+                  }}>
+                    <h3 style={{ 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: 'var(--color-text-secondary)',
+                      textTransform: 'uppercase'
+                    }}>FORECLOSURE TIMELINE</h3>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {timeline.map((milestone, index) => (
-                      <div key={index} className="flex items-center gap-4 p-2 rounded-md hover:bg-slate-50">
+                      <div 
+                        key={index} 
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '12px', 
+                          padding: '8px',
+                          borderRadius: 'var(--radius-sm)',
+                          transition: 'background-color 0.15s ease'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-surface-light)'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
                         <div>{getStatusIcon(milestone)}</div>
-                        <div className="flex-1">
-                          <p className="font-medium text-slate-800">{milestone.milestone_name}</p>
-                          <div className="flex items-center gap-4 text-xs text-slate-500 mt-1">
+                        <div style={{ flex: 1 }}>
+                          <p style={{ 
+                            fontWeight: '500', 
+                            color: 'var(--color-text-primary)',
+                            fontSize: '12px',
+                            marginBottom: '4px'
+                          }}>
+                            {milestone.milestone_name}
+                          </p>
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '12px', 
+                            fontSize: '10px', 
+                            color: 'var(--color-text-muted)'
+                          }}>
                             <span>Actual: {formatDate(milestone.actual_completion_date)}</span>
                             <span>Expected: {formatDate(milestone.expected_completion_date)}</span>
                           </div>
@@ -167,9 +345,30 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
 
               {/* === Section 5: Property Enrichment Data (Validation) === */}
               {propertyData && (
-                <section className="mt-4 p-4 bg-gray-100 rounded">
-                  <h3 className="text-base font-semibold text-slate-600 border-b pb-2 mb-3">Enrichment Data (Validation)</h3>
-                  <pre className="text-xs whitespace-pre-wrap break-all">
+                <section className="financial-card">
+                  <div style={{ 
+                    borderBottom: '1px solid var(--color-border)',
+                    paddingBottom: '8px',
+                    marginBottom: '12px'
+                  }}>
+                    <h3 style={{ 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: 'var(--color-text-secondary)',
+                      textTransform: 'uppercase'
+                    }}>ENRICHMENT DATA (VALIDATION)</h3>
+                  </div>
+                  <pre style={{ 
+                    fontSize: '10px', 
+                    whiteSpace: 'pre-wrap', 
+                    wordBreak: 'break-all',
+                    color: 'var(--color-text-muted)',
+                    fontFamily: 'var(--font-mono)',
+                    backgroundColor: 'var(--color-background)',
+                    padding: '8px',
+                    borderRadius: 'var(--radius-sm)',
+                    overflow: 'auto'
+                  }}>
                     {JSON.stringify(propertyData, null, 2)}
                   </pre>
                 </section>
@@ -179,11 +378,21 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end items-center p-4 border-t gap-2 bg-slate-50">
-          <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button onClick={handleViewFullPage} className="bg-blue-600 text-white hover:bg-blue-700">
-            View Full Page
-          </Button>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          alignItems: 'center', 
+          padding: '16px',
+          borderTop: '1px solid var(--color-border)',
+          backgroundColor: 'var(--color-surface-light)',
+          gap: '8px'
+        }}>
+          <button className="btn-compact btn-secondary" onClick={onClose}>
+            CLOSE
+          </button>
+          <button className="btn-compact btn-primary" onClick={handleViewFullPage}>
+            VIEW FULL PAGE
+          </button>
         </div>
       </div>
     </div>
