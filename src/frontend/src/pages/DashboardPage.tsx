@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { FinancialKPIDashboard } from '../components/FinancialKPIDashboard';
 import { AlertSummary } from '../components/AlertSummary';
 import { format } from 'date-fns';
