@@ -13,8 +13,9 @@ export function Logo({ className }: { className?: string }) {
         fontSize="32"
         fontWeight="bold"
         letterSpacing="-1"
+        fill="currentColor"
       >
-        NPL<tspan fill="#3b82f6">Vision</tspan>
+        NPL<tspan fill="var(--color-primary, #3182ce)">Vision</tspan>
       </text>
     </svg>
   );

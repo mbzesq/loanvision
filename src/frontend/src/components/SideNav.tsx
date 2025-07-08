@@ -84,7 +84,7 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
             <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>N</span>
           </div>
         ) : (
-          <Logo className="h-8 w-auto" style={{ color: 'var(--color-text-primary)' }} />
+          <Logo className="h-8 w-auto text-slate-200" />
         )}
       </div>
 
