@@ -175,15 +175,10 @@ export function registerAllWidgets(): void {
 
 // Initialize default layout with registered widgets
 export function initializeDefaultLayout(): void {
-  // Check if we already have a populated default layout
-  const existingLayout = widgetService.getLayout('default');
-  console.log('Checking existing layout:', existingLayout ? existingLayout.widgets.length : 'no layout');
-  if (existingLayout && existingLayout.widgets && existingLayout.widgets.length > 0) {
-    console.log('Layout already has widgets, skipping initialization');
-    return;
-  }
-
   console.log('Initializing default layout...');
+  
+  // Force recreation by deleting existing layout first
+  widgetService.deleteLayout('default');
   const defaultLayout = widgetService.getDefaultLayout();
   
   // Create widgets from metadata for default layout
