@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, DollarSign, FileText, Scale, AlertTriangle, BarChart3, Target } from 'lucide-react';
 
 interface KPIData {
@@ -8,11 +9,46 @@ interface KPIData {
   changeLabel?: string;
   icon: React.ReactNode;
   trend?: 'up' | 'down' | 'neutral';
+  clickAction?: () => void;
 }
 
 export const FinancialKPIDashboard: React.FC = () => {
   const [kpiData, setKpiData] = useState<KPIData[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const navigate = useNavigate();
+
+  // Click handlers for each KPI
+  const handleTotalUPBClick = () => {
+    navigate('/loans?sortBy=prin_bal&sortOrder=desc');
+  };
+
+  const handleLoanCountClick = () => {
+    navigate('/loans?showAll=true');
+  };
+
+  const handleAvgBalanceClick = () => {
+    navigate('/loans?sortBy=prin_bal&sortOrder=desc');
+  };
+
+  const handlePerformanceClick = () => {
+    navigate('/loans?status=performing');
+  };
+
+  const handleSOLRiskClick = () => {
+    navigate('/sol-monitoring');
+  };
+
+  const handleActiveAlertsClick = () => {
+    navigate('/today');
+  };
+
+  const handleRecoveryRateClick = () => {
+    navigate('/loans?status=recovery');
+  };
+
+  const handleTimeToResolutionClick = () => {
+    navigate('/loans?status=FC&sortBy=fc_start_date&sortOrder=asc');
+  };
 
   useEffect(() => {
     // Mock data - replace with actual API calls
@@ -23,7 +59,8 @@ export const FinancialKPIDashboard: React.FC = () => {
         change: 2.4,
         changeLabel: 'vs last month',
         icon: <DollarSign className="h-4 w-4" />,
-        trend: 'up'
+        trend: 'up',
+        clickAction: handleTotalUPBClick
       },
       {
         label: 'Loan Count',
@@ -31,7 +68,8 @@ export const FinancialKPIDashboard: React.FC = () => {
         change: -0.8,
         changeLabel: 'vs last month',
         icon: <FileText className="h-4 w-4" />,
-        trend: 'down'
+        trend: 'down',
+        clickAction: handleLoanCountClick
       },
       {
         label: 'Avg Balance',
@@ -39,7 +77,8 @@ export const FinancialKPIDashboard: React.FC = () => {
         change: 3.2,
         changeLabel: 'vs last month',
         icon: <BarChart3 className="h-4 w-4" />,
-        trend: 'up'
+        trend: 'up',
+        clickAction: handleAvgBalanceClick
       },
       {
         label: 'Performance',
@@ -47,7 +86,8 @@ export const FinancialKPIDashboard: React.FC = () => {
         change: -1.1,
         changeLabel: 'vs last month',
         icon: <Target className="h-4 w-4" />,
-        trend: 'down'
+        trend: 'down',
+        clickAction: handlePerformanceClick
       },
       {
         label: 'SOL Risk',
@@ -55,7 +95,8 @@ export const FinancialKPIDashboard: React.FC = () => {
         change: 5.0,
         changeLabel: 'loans at risk',
         icon: <Scale className="h-4 w-4" />,
-        trend: 'up'
+        trend: 'up',
+        clickAction: handleSOLRiskClick
       },
       {
         label: 'Active Alerts',
@@ -63,7 +104,8 @@ export const FinancialKPIDashboard: React.FC = () => {
         change: 0,
         changeLabel: 'critical',
         icon: <AlertTriangle className="h-4 w-4" />,
-        trend: 'neutral'
+        trend: 'neutral',
+        clickAction: handleActiveAlertsClick
       },
       {
         label: 'Recovery Rate',
@@ -71,7 +113,8 @@ export const FinancialKPIDashboard: React.FC = () => {
         change: 1.8,
         changeLabel: 'vs target',
         icon: <TrendingUp className="h-4 w-4" />,
-        trend: 'up'
+        trend: 'up',
+        clickAction: handleRecoveryRateClick
       },
       {
         label: 'Time to Resolution',
@@ -79,7 +122,8 @@ export const FinancialKPIDashboard: React.FC = () => {
         change: -12.5,
         changeLabel: 'avg days',
         icon: <BarChart3 className="h-4 w-4" />,
-        trend: 'up'
+        trend: 'up',
+        clickAction: handleTimeToResolutionClick
       }
     ];
 
@@ -113,7 +157,27 @@ export const FinancialKPIDashboard: React.FC = () => {
         marginBottom: '16px'
       }}>
         {kpiData.map((kpi, index) => (
-          <div key={index} className="kpi-card-dense">
+          <div 
+            key={index} 
+            className="kpi-card-dense" 
+            onClick={kpi.clickAction}
+            style={{ 
+              cursor: kpi.clickAction ? 'pointer' : 'default',
+              transition: 'all 0.15s ease'
+            }}
+            onMouseOver={(e) => {
+              if (kpi.clickAction) {
+                e.currentTarget.style.backgroundColor = 'var(--color-surface-light)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (kpi.clickAction) {
+                e.currentTarget.style.backgroundColor = 'var(--color-surface)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }
+            }}
+          >
             <div style={{ flex: 1 }}>
               <div className="kpi-label">{kpi.label}</div>
               <div className="kpi-value">{kpi.value}</div>
