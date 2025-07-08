@@ -72,21 +72,25 @@ function DashboardPage() {
         let populatedPaymentFields = 0;
         
         for (const loan of loans) {
-          const hasAnyPayment = loan.january_2025 || loan.february_2025 || loan.march_2025 || 
-                               loan.april_2025 || loan.may_2025 || loan.june_2025 || loan.july_2025;
-          if (hasAnyPayment) loansWithPaymentData++;
+          // In NPL: Check if fields EXIST (not if they have payments - null/0 is valid!)
+          const hasPaymentFields = loan.january_2025 !== undefined || loan.february_2025 !== undefined || 
+                                  loan.march_2025 !== undefined || loan.april_2025 !== undefined || 
+                                  loan.may_2025 !== undefined || loan.june_2025 !== undefined || 
+                                  loan.july_2025 !== undefined;
+          if (hasPaymentFields) loansWithPaymentData++;
           
-          // Count field population
+          // Count how many loans actually made payments (> 0)
           const fields = [loan.january_2025, loan.february_2025, loan.march_2025, 
                          loan.april_2025, loan.may_2025, loan.june_2025, loan.july_2025];
           totalPaymentFields += fields.length;
-          populatedPaymentFields += fields.filter(f => f !== null && f !== undefined && f !== 0).length;
+          populatedPaymentFields += fields.filter(f => f !== null && f !== undefined && f > 0).length;
         }
         
         console.log('\n=== PAYMENT DATA SUMMARY ===');
-        console.log(`Loans with ANY payment data: ${loansWithPaymentData} / ${loans.length} (${(loansWithPaymentData/loans.length*100).toFixed(1)}%)`);
+        console.log(`Loans with payment FIELDS: ${loansWithPaymentData} / ${loans.length} (${(loansWithPaymentData/loans.length*100).toFixed(1)}%)`);
         console.log(`Total payment fields: ${totalPaymentFields}`);
-        console.log(`Populated payment fields: ${populatedPaymentFields} (${(populatedPaymentFields/totalPaymentFields*100).toFixed(1)}%)`);
+        console.log(`Fields with ACTUAL payments (>0): ${populatedPaymentFields} (${(populatedPaymentFields/totalPaymentFields*100).toFixed(1)}%)`);
+        console.log(`Expected in NPL: Most fields will be null/0 (non-payments)`);
         console.log(`Loans using FALLBACK distribution: ${loans.length - loansWithPaymentData} (${((loans.length - loansWithPaymentData)/loans.length*100).toFixed(1)}%)`);
         console.log('=== END DIAGNOSTIC ===\n');
         
@@ -233,47 +237,8 @@ function DashboardPage() {
             999;
           const pastDue = isPastDue(loan);
           
-          // If no payment history data exists, create realistic distribution for demo purposes
-          const hasPaymentData = loan.january_2025 || loan.february_2025 || loan.march_2025 || 
-                                loan.april_2025 || loan.may_2025 || loan.june_2025 || loan.july_2025;
-          
-          if (!hasPaymentData) {
-            // Create realistic NPL distribution when no payment data exists
-            const loanIndex = parseInt(loan.loan_id.replace(/\D/g, '')) || 0;
-            const distribution = loanIndex % 100; // Use 100 for finer control
-            
-            if (distribution <= 4) {
-              // 5% securitizable (rare in NPL portfolios)
-              categories.securitizable.count++;
-              categories.securitizable.totalUpb += upb;
-              return;
-            } else if (distribution <= 14) {
-              // 10% steady performing
-              categories.steadyPerforming.count++;
-              categories.steadyPerforming.totalUpb += upb;
-              return;
-            } else if (distribution <= 24) {
-              // 10% recent performing  
-              categories.recentPerforming.count++;
-              categories.recentPerforming.totalUpb += upb;
-              return;
-            } else if (distribution <= 64) {
-              // 40% paying (most common in NPL)
-              categories.paying.count++;
-              categories.paying.totalUpb += upb;
-              return;
-            } else if (distribution <= 89) {
-              // 25% non-performing
-              categories.nonPerforming.count++;
-              categories.nonPerforming.totalUpb += upb;
-              return;
-            } else {
-              // 10% foreclosure
-              categories.foreclosure.count++;
-              categories.foreclosure.totalUpb += upb;
-              return;
-            }
-          }
+          // In NPL management, null/zero payments are meaningful data, not missing data!
+          // Only use fallback if the payment fields literally don't exist in the database structure
           
           // Debug logging for categorization
           if (categories.securitizable.count + categories.steadyPerforming.count + 
