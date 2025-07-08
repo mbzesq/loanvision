@@ -54,12 +54,15 @@ function DashboardPage() {
         console.log('=== PAYMENT DATA DIAGNOSTIC ===');
         console.log(`Total loans received: ${loans.length}`);
         
-        // Check what foreclosure statuses actually exist
+        // Check what foreclosure statuses and legal statuses actually exist
         const fcStatuses = new Set();
+        const legalStatuses = new Set();
         loans.forEach(loan => {
           if (loan.fc_status) fcStatuses.add(loan.fc_status);
+          if (loan.legal_status) legalStatuses.add(loan.legal_status);
         });
         console.log('Unique FC statuses found:', Array.from(fcStatuses));
+        console.log('Unique Legal statuses found:', Array.from(legalStatuses));
         
         for (let i = 0; i < Math.min(3, loans.length); i++) {
           const loan = loans[i];
@@ -241,8 +244,8 @@ function DashboardPage() {
             });
           }
           
-          // Check for foreclosure status first - be more inclusive
-          if (loan.fc_status && loan.fc_status.trim() !== '' && loan.fc_status !== null) {
+          // Check for foreclosure status first - based on actual schema values
+          if (loan.fc_status && ['Active', 'Hold'].includes(loan.fc_status)) {
             // Log foreclosure status for debugging
             if (categories.foreclosure.count < 5) {
               console.log(`Found foreclosure loan ${loan.loan_id} with status: "${loan.fc_status}"`);
@@ -294,24 +297,36 @@ function DashboardPage() {
             }
           }
           
-          // Categorize based on payment history
-          if (consecutivePayments >= 12) {
+          // Categorize based on legal_status combined with payment history
+          const legalStatus = loan.legal_status?.toLowerCase() || '';
+          
+          // SECURITIZABLE: Current status + strong payment history
+          if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 12) {
             categories.securitizable.count++;
             categories.securitizable.totalUpb += upb;
-          } else if (consecutivePayments >= 6 && !pastDue) {
+          } 
+          // STEADY PERFORMING: Current status + moderate payment history
+          else if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 6) {
             categories.steadyPerforming.count++;
             categories.steadyPerforming.totalUpb += upb;
-          } else if (consecutivePayments >= 1 && consecutivePayments <= 3 && !pastDue) {
+          }
+          // RECENT PERFORMING: Current status + recent payments
+          else if ((legalStatus.includes('current') || legalStatus.includes('performing')) && consecutivePayments >= 1) {
             categories.recentPerforming.count++;
             categories.recentPerforming.totalUpb += upb;
-          } else if (pastDue && recentPayments >= 2) {
+          }
+          // PAYING: Past due but making payments
+          else if ((legalStatus.includes('30') || legalStatus.includes('60') || legalStatus.includes('delinq')) && recentPayments >= 2) {
             categories.paying.count++;
             categories.paying.totalUpb += upb;
-          } else if (monthsSinceLastPayment >= 6) {
+          }
+          // NON-PERFORMING: Seriously delinquent or default
+          else if (legalStatus.includes('90') || legalStatus.includes('default') || legalStatus.includes('charge') || monthsSinceLastPayment >= 6) {
             categories.nonPerforming.count++;
             categories.nonPerforming.totalUpb += upb;
-          } else {
-            // Default to paying if doesn't fit other categories
+          }
+          // Default to PAYING for other cases
+          else {
             categories.paying.count++;
             categories.paying.totalUpb += upb;
           }
