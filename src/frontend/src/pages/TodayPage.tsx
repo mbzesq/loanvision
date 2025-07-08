@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { AlertCircle, CheckCircle2, Clock, TrendingUp, Scale, FileAlert, DollarSign, Calendar, ChevronRight, Filter, Bell } from 'lucide-react';
+import { AlertCircle, TrendingUp, Scale, FileText, DollarSign, Calendar, ChevronRight, Bell } from 'lucide-react';
 import { format } from 'date-fns';
 import '../styles/design-system.css';
 
@@ -153,8 +152,8 @@ function TodayPage() {
     switch (type) {
       case 'sol': return <Scale className="h-4 w-4" />;
       case 'performance': return <TrendingUp className="h-4 w-4" />;
-      case 'legal': return <FileAlert className="h-4 w-4" />;
-      case 'document': return <FileAlert className="h-4 w-4" />;
+      case 'legal': return <FileText className="h-4 w-4" />;
+      case 'document': return <FileText className="h-4 w-4" />;
       case 'payment': return <DollarSign className="h-4 w-4" />;
       default: return <AlertCircle className="h-4 w-4" />;
     }
