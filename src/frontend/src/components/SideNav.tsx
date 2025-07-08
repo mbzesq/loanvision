@@ -29,12 +29,15 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
         className={({ isActive }) =>
           `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
             isActive
-              ? 'bg-blue-100 text-blue-700'
-              : 'text-slate-600 hover:bg-slate-100'
+              ? 'text-blue-300'
+              : 'text-slate-300 hover:text-white'
           } ${
             isCollapsed ? 'justify-center' : ''
           }`
         }
+        style={({ isActive }) => ({
+          backgroundColor: isActive ? 'rgba(49, 130, 206, 0.2)' : 'transparent'
+        }) as any}
       >
         <link.icon className="h-5 w-5 flex-shrink-0" />
         {!isCollapsed && <span>{link.text}</span>}
@@ -60,17 +63,28 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
   };
 
   return (
-    <aside className="h-full bg-white border-r border-slate-200 flex flex-col">
+    <aside className="h-full flex flex-col" style={{ 
+      backgroundColor: 'var(--color-sidebar)', 
+      borderRight: '1px solid var(--color-border)' 
+    }}>
       {/* Logo / App Name */}
-      <div className={`h-16 flex items-center border-b border-slate-200 ${
+      <div className={`h-16 flex items-center ${
         isCollapsed ? 'justify-center px-2' : 'px-6'
-      }`}>
+      }`} style={{ borderBottom: '1px solid var(--color-border)' }}>
         {isCollapsed ? (
-          <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
-            <span className="text-white font-bold text-sm">N</span>
+          <div style={{ 
+            width: '32px', 
+            height: '32px', 
+            backgroundColor: 'var(--color-primary)',
+            borderRadius: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>N</span>
           </div>
         ) : (
-          <Logo className="h-8 w-auto text-slate-800" />
+          <Logo className="h-8 w-auto" style={{ color: 'var(--color-text-primary)' }} />
         )}
       </div>
 
@@ -83,9 +97,9 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
 
       {/* Collapse Toggle Button (Desktop only) */}
       {onToggleCollapse && (
-        <div className={`p-4 border-t border-slate-200 ${
+        <div className={`p-4 ${
           isCollapsed ? 'flex justify-center' : ''
-        }`}>
+        }`} style={{ borderTop: '1px solid var(--color-border)' }}>
           <Button
             variant="ghost"
             size="sm"
@@ -93,6 +107,7 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
             className={`w-full ${
               isCollapsed ? 'w-8 h-8 p-0' : 'justify-start'
             }`}
+            style={{ color: 'var(--color-text-secondary)', backgroundColor: 'transparent' }}
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />
