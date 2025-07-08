@@ -240,16 +240,36 @@ function DashboardPage() {
           // In NPL management, null/zero payments are meaningful data, not missing data!
           // Only use fallback if the payment fields literally don't exist in the database structure
           
-          // Debug logging for categorization
+          // Debug logging for categorization - analyze first 10 loans in detail
           if (categories.securitizable.count + categories.steadyPerforming.count + 
               categories.recentPerforming.count + categories.paying.count + 
-              categories.nonPerforming.count + categories.foreclosure.count < 5) {
-            console.log(`[DEBUG] Loan ${loan.loan_id} categorization:`, {
-              consecutivePayments,
-              recentPayments,
-              monthsSinceLastPayment,
-              pastDue
-            });
+              categories.nonPerforming.count + categories.foreclosure.count < 10) {
+            console.log(`\n[DETAILED ANALYSIS] Loan ${loan.loan_id}:`);
+            console.log(`  Payment History: [Jan:${loan.january_2025}, Feb:${loan.february_2025}, Mar:${loan.march_2025}, Apr:${loan.april_2025}, May:${loan.may_2025}, Jun:${loan.june_2025}, Jul:${loan.july_2025}]`);
+            console.log(`  FC Status: ${loan.fc_status || 'None'}`);
+            console.log(`  Next Payment Due: ${loan.next_pymt_due}`);
+            console.log(`  Last Payment Received: ${loan.last_pymt_received}`);
+            console.log(`  Consecutive Payments: ${consecutivePayments}`);
+            console.log(`  Recent Payments (last 4 months): ${recentPayments}`);
+            console.log(`  Months Since Last Payment: ${monthsSinceLastPayment}`);
+            console.log(`  Past Due: ${pastDue}`);
+            
+            // Show categorization decision process
+            if (loan.fc_status && ['Active', 'Hold', 'FC', 'Foreclosure'].includes(loan.fc_status)) {
+              console.log(`  → FORECLOSURE (FC Status: ${loan.fc_status})`);
+            } else if (consecutivePayments >= 12) {
+              console.log(`  → SECURITIZABLE (12+ consecutive payments)`);
+            } else if (consecutivePayments >= 6 && !pastDue) {
+              console.log(`  → STEADY PERFORMING (6+ consecutive, not past due)`);
+            } else if (consecutivePayments >= 1 && consecutivePayments <= 3 && !pastDue) {
+              console.log(`  → RECENT PERFORMING (1-3 consecutive, not past due)`);
+            } else if (pastDue && recentPayments >= 2) {
+              console.log(`  → PAYING (past due but ${recentPayments} recent payments)`);
+            } else if (monthsSinceLastPayment >= 6) {
+              console.log(`  → NON-PERFORMING (${monthsSinceLastPayment} months since last payment)`);
+            } else {
+              console.log(`  → PAYING (default catch-all)`);
+            }
           }
           
           // Categorize based on payment history
@@ -329,20 +349,28 @@ function DashboardPage() {
         
         // Debug logging for category totals
         const currentDate = new Date();
-        console.log('[DEBUG] Dynamic loan categorization results:', {
-          analysisDate: currentDate.toISOString(),
-          currentMonth: currentDate.getMonth() + 1, // 1-12 for readability
-          currentYear: currentDate.getFullYear(),
-          categoryCounts: {
-            securitizable: categories.securitizable.count,
-            steadyPerforming: categories.steadyPerforming.count,
-            recentPerforming: categories.recentPerforming.count,
-            paying: categories.paying.count,
-            nonPerforming: categories.nonPerforming.count,
-            foreclosure: categories.foreclosure.count
-          },
-          totalLoans: loans.length
-        });
+        console.log('\n=== FINAL CATEGORIZATION ANALYSIS ===');
+        console.log('Analysis Date:', currentDate.toISOString());
+        console.log('Current Month:', currentDate.getMonth() + 1, '(1-12)');
+        console.log('Current Year:', currentDate.getFullYear());
+        console.log('\nCategory Distribution:');
+        console.log(`  SECURITIZABLE: ${categories.securitizable.count} (${(categories.securitizable.count/loans.length*100).toFixed(1)}%)`);
+        console.log(`  STEADY PERFORMING: ${categories.steadyPerforming.count} (${(categories.steadyPerforming.count/loans.length*100).toFixed(1)}%)`);
+        console.log(`  RECENT PERFORMING: ${categories.recentPerforming.count} (${(categories.recentPerforming.count/loans.length*100).toFixed(1)}%)`);
+        console.log(`  PAYING: ${categories.paying.count} (${(categories.paying.count/loans.length*100).toFixed(1)}%)`);
+        console.log(`  NON-PERFORMING: ${categories.nonPerforming.count} (${(categories.nonPerforming.count/loans.length*100).toFixed(1)}%)`);
+        console.log(`  FORECLOSURE: ${categories.foreclosure.count} (${(categories.foreclosure.count/loans.length*100).toFixed(1)}%)`);
+        console.log(`\nTotal Loans: ${loans.length}`);
+        
+        // Analysis of why certain categories might be empty
+        console.log('\n=== LOGIC ANALYSIS ===');
+        console.log('Possible reasons for 0 counts:');
+        console.log('- SECURITIZABLE (0): No loans have 12+ consecutive payments (expected in NPL)');
+        console.log('- STEADY PERFORMING (0): No loans have 6+ consecutive payments AND are current');
+        console.log('- RECENT PERFORMING (0): No loans have 1-3 consecutive payments AND are current');
+        console.log('- FORECLOSURE (0): No loans have Active/Hold/FC/Foreclosure status');
+        console.log('This suggests most loans are either past due with some payments (PAYING) or no recent payments (NON-PERFORMING)');
+        console.log('=== END ANALYSIS ===\n');
         
         setLoanStatusData(statusData);
       } catch (error) {
