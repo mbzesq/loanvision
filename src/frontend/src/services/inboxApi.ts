@@ -154,6 +154,23 @@ class InboxApiService {
     return this.transformInboxItem(item);
   }
 
+  // Create a standalone task
+  async createStandaloneTask(title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low', category?: string, loan_ids?: string[]): Promise<InboxItem> {
+    const item = await this.makeRequest<InboxItem>(`/create-task`, {
+      method: 'POST',
+      body: JSON.stringify({ 
+        title, 
+        description, 
+        assigned_to_user_id, 
+        due_date: due_date?.toISOString(), 
+        priority,
+        category,
+        loan_ids
+      }),
+    });
+    return this.transformInboxItem(item);
+  }
+
   // Update task status
   async updateTaskStatus(itemId: number, status: 'unread' | 'read' | 'in_progress' | 'completed'): Promise<InboxItem> {
     const item = await this.makeRequest<InboxItem>(`/${itemId}`, {

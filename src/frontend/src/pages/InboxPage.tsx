@@ -3,7 +3,7 @@ import {
   Search, Archive, MessageCircle, 
   AlertTriangle, FileText, DollarSign, Scale, TrendingUp,
   Reply, Forward, MoreVertical, Filter, ChevronDown, ChevronRight,
-  Users, Trash2
+  Users, Trash2, Plus
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType, InboxFilter } from '../types/inbox';
@@ -110,10 +110,14 @@ function InboxPage() {
   };
 
   const handleCreateTask = async (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low') => {
-    if (!selectedItem) return;
-    
     try {
-      await inboxApi.createTask(selectedItem.id, title, description, assigned_to_user_id, due_date, priority);
+      if (selectedItem) {
+        // Create task from selected item (context-aware)
+        await inboxApi.createTask(selectedItem.id, title, description, assigned_to_user_id, due_date, priority);
+      } else {
+        // Create standalone task
+        await inboxApi.createStandaloneTask(title, description, assigned_to_user_id, due_date, priority);
+      }
       showSuccess('Task created successfully');
       // Refresh data to show the new task
       await fetchInboxData();
@@ -660,6 +664,16 @@ function InboxPage() {
               title="Advanced filters"
             >
               <Filter style={{ width: '12px', height: '12px' }} />
+            </button>
+
+            {/* New Task Button */}
+            <button 
+              className="btn-compact btn-primary"
+              onClick={() => setShowCreateTaskModal(true)}
+              title="Create new task"
+            >
+              <Plus style={{ width: '12px', height: '12px' }} />
+              New Task
             </button>
 
             {selectedItems.size > 0 && (
@@ -1243,14 +1257,12 @@ function InboxPage() {
       )}
       
       {/* Create Task Modal */}
-      {selectedItem && (
-        <CreateTaskModal
-          isOpen={showCreateTaskModal}
-          onClose={() => setShowCreateTaskModal(false)}
-          originalItem={selectedItem}
-          onSend={handleCreateTask}
-        />
-      )}
+      <CreateTaskModal
+        isOpen={showCreateTaskModal}
+        onClose={() => setShowCreateTaskModal(false)}
+        originalItem={selectedItem || undefined}
+        onSend={handleCreateTask}
+      />
     </div>
   );
 }

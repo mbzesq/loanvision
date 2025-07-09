@@ -6,7 +6,7 @@ import { inboxApi } from '../services/inboxApi';
 interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  originalItem: InboxItem;
+  originalItem?: InboxItem; // Made optional for standalone task creation
   onSend: (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low') => Promise<void>;
 }
 
@@ -134,7 +134,7 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: Creat
             gap: '8px'
           }}>
             <Plus style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
-            Create Task from: {originalItem.subject}
+            {originalItem ? `Create Task from: ${originalItem.subject}` : 'Create New Task'}
           </h2>
           <button 
             onClick={onClose}
@@ -150,30 +150,32 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: Creat
           </button>
         </div>
 
-        {/* Original Item Context */}
-        <div style={{
-          padding: '16px',
-          borderBottom: '1px solid var(--color-border)',
-          backgroundColor: 'var(--color-background)',
-          fontSize: '11px'
-        }}>
-          <div style={{ 
-            color: 'var(--color-text-muted)', 
-            marginBottom: '8px' 
+        {/* Original Item Context - Only show if originalItem exists */}
+        {originalItem && (
+          <div style={{
+            padding: '16px',
+            borderBottom: '1px solid var(--color-border)',
+            backgroundColor: 'var(--color-background)',
+            fontSize: '11px'
           }}>
-            Creating task from alert by {originalItem.created_by?.name || 'Unknown'} on {originalItem.created_at.toLocaleString()}:
+            <div style={{ 
+              color: 'var(--color-text-muted)', 
+              marginBottom: '8px' 
+            }}>
+              Creating task from alert by {originalItem.created_by?.name || 'Unknown'} on {originalItem.created_at.toLocaleString()}:
+            </div>
+            <div style={{ 
+              color: 'var(--color-text)', 
+              fontStyle: 'italic',
+              borderLeft: '2px solid var(--color-border)',
+              paddingLeft: '8px',
+              maxHeight: '60px',
+              overflow: 'auto'
+            }}>
+              {originalItem.body}
+            </div>
           </div>
-          <div style={{ 
-            color: 'var(--color-text)', 
-            fontStyle: 'italic',
-            borderLeft: '2px solid var(--color-border)',
-            paddingLeft: '8px',
-            maxHeight: '60px',
-            overflow: 'auto'
-          }}>
-            {originalItem.body}
-          </div>
-        </div>
+        )}
 
         {/* Task Form */}
         <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

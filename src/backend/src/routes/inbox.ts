@@ -410,6 +410,37 @@ router.get('/threads/:threadId', async (req: AuthRequest, res) => {
   }
 });
 
+// POST /api/inbox/create-task - Create a standalone task
+router.post('/create-task', async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const { title, description, assigned_to_user_id, due_date, priority, category, loan_ids } = req.body;
+    
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: 'Task title is required' });
+    }
+    
+    // Create standalone task
+    const taskData: CreateInboxItemRequest = {
+      type: 'task_assignment',
+      subject: title.trim(),
+      body: description || 'Standalone task',
+      priority: priority || 'normal',
+      category: category || 'general',
+      loan_ids: loan_ids || [],
+      assigned_to_user_id: assigned_to_user_id || userId,
+      due_date: due_date ? due_date : undefined
+    };
+    
+    const task = await InboxService.createInboxItem(taskData, userId);
+    res.status(201).json(task);
+    
+  } catch (error) {
+    console.error('Error creating standalone task:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // POST /api/inbox/:id/create-task - Create a task from an inbox item
 router.post('/:id/create-task', async (req: AuthRequest, res) => {
   try {
