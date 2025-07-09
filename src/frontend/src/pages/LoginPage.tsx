@@ -38,6 +38,7 @@ export default function LoginPage() {
       toast({
         title: 'Success',
         description: 'Login successful! Redirecting...',
+        duration: 1500,
       });
       
       // Redirect to the page they were trying to access or dashboard
