@@ -181,6 +181,60 @@ router.post('/:id/mark-read', async (req: AuthRequest, res) => {
   }
 });
 
+// POST /api/inbox/:id/archive - Archive an item
+router.post('/:id/archive', async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const itemId = parseInt(req.params.id);
+    
+    if (isNaN(itemId)) {
+      return res.status(400).json({ error: 'Invalid item ID' });
+    }
+    
+    const item = await InboxService.updateInboxItem(itemId, { status: 'archived' }, userId);
+    res.json(item);
+    
+  } catch (error) {
+    if ((error as Error).message.includes('Access denied')) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    console.error('Error archiving item:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/inbox/:id - Delete an item
+router.delete('/:id', async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const itemId = parseInt(req.params.id);
+    
+    if (isNaN(itemId)) {
+      return res.status(400).json({ error: 'Invalid item ID' });
+    }
+    
+    // Use bulk action for delete to maintain consistency and logging
+    const result = await InboxService.performBulkAction({
+      action: 'delete',
+      item_ids: [itemId]
+    }, userId);
+    
+    if (result.affected_count === 0) {
+      return res.status(404).json({ error: 'Item not found or access denied' });
+    }
+    
+    if (result.errors && result.errors.length > 0) {
+      return res.status(400).json({ error: result.errors[0].error });
+    }
+    
+    res.json({ success: true, message: 'Item deleted successfully' });
+    
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/inbox/loans/:loanId - Get inbox items for a specific loan
 router.get('/loans/:loanId', async (req: AuthRequest, res) => {
   try {

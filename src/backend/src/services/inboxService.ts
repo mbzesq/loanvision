@@ -521,6 +521,21 @@ export class InboxService {
             case 'archive':
               await client.query('UPDATE inbox_items SET status = $1 WHERE id = $2', ['archived', itemId]);
               break;
+            case 'delete':
+              // Log deletion activity before deleting
+              await client.query(
+                'INSERT INTO inbox_activity_log (inbox_item_id, user_id, action) VALUES ($1, $2, $3)',
+                [itemId, userId, 'deleted']
+              );
+              
+              // Delete related records first (foreign key constraints)
+              await client.query('DELETE FROM inbox_recipients WHERE inbox_item_id = $1', [itemId]);
+              await client.query('DELETE FROM inbox_attachments WHERE inbox_item_id = $1', [itemId]);
+              await client.query('DELETE FROM inbox_activity_log WHERE inbox_item_id = $1', [itemId]);
+              
+              // Finally delete the main item
+              await client.query('DELETE FROM inbox_items WHERE id = $1', [itemId]);
+              break;
             case 'assign':
               if (!action.assigned_to_user_id) {
                 errors.push({ item_id: itemId, error: 'assigned_to_user_id required for assign action' });

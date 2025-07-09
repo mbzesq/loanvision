@@ -3,7 +3,7 @@ import {
   Search, Archive, MessageCircle, 
   AlertTriangle, FileText, DollarSign, Scale, TrendingUp,
   Reply, Forward, MoreVertical, Filter, ChevronDown, ChevronRight,
-  Users
+  Users, Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType, InboxFilter } from '../types/inbox';
@@ -21,6 +21,7 @@ function InboxPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
   const [groupByThread, setGroupByThread] = useState(true);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [inboxStats, setInboxStats] = useState<InboxStats>({
     total: 0,
     unread: 0,
@@ -51,6 +52,26 @@ function InboxPage() {
   useEffect(() => {
     fetchInboxData();
   }, [activeFilter, searchQuery]);
+
+  // Auto-clear success messages after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  const showSuccess = (message: string) => {
+    setSuccessMessage(message);
+    setError(null);
+  };
+
+  const showError = (message: string) => {
+    setError(message);
+    setSuccessMessage(null);
+  };
 
   const fetchInboxData = async () => {
     setLoading(true);
@@ -125,15 +146,25 @@ function InboxPage() {
   const handleBulkAction = async (action: InboxBulkAction) => {
     if (selectedItems.size === 0) return;
     
+    // Confirm delete operations
+    if (action === 'delete') {
+      const itemCount = selectedItems.size;
+      const confirmMessage = `Are you sure you want to delete ${itemCount} item${itemCount > 1 ? 's' : ''}? This action cannot be undone.`;
+      if (!window.confirm(confirmMessage)) {
+        return;
+      }
+    }
+    
     try {
       const result = await inboxApi.performBulkAction({
         action,
         item_ids: Array.from(selectedItems)
       });
       
-      console.log(`${action} completed on ${result.affected_count} items`);
       if (result.errors && result.errors.length > 0) {
-        console.warn('Some items failed:', result.errors);
+        showError(`${action} completed on ${result.affected_count} items, but ${result.errors.length} items failed`);
+      } else {
+        showSuccess(`${action} completed on ${result.affected_count} item${result.affected_count > 1 ? 's' : ''}`);
       }
       
       // Refresh data after bulk action
@@ -141,7 +172,59 @@ function InboxPage() {
       setSelectedItems(new Set());
     } catch (error) {
       console.error('Error performing bulk action:', error);
-      setError(`Failed to ${action} items: ${(error as Error).message}`);
+      showError(`Failed to ${action} items: ${(error as Error).message}`);
+    }
+  };
+
+  const handleArchiveItem = async (itemId: number) => {
+    try {
+      await inboxApi.archiveItem(itemId);
+      
+      // Update local state
+      setInboxItems(items => 
+        items.map(i => 
+          i.id === itemId 
+            ? { ...i, status: 'archived' as const, updated_at: new Date() }
+            : i
+        )
+      );
+      
+      // Clear selection if archived item was selected
+      if (selectedItem?.id === itemId) {
+        setSelectedItem(null);
+      }
+      
+      // Refresh data to update counts
+      await fetchInboxData();
+      showSuccess('Item archived successfully');
+    } catch (error) {
+      console.error('Error archiving item:', error);
+      showError(`Failed to archive item: ${(error as Error).message}`);
+    }
+  };
+
+  const handleDeleteItem = async (itemId: number) => {
+    if (!window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      await inboxApi.deleteItem(itemId);
+      
+      // Remove from local state
+      setInboxItems(items => items.filter(i => i.id !== itemId));
+      
+      // Clear selection if deleted item was selected
+      if (selectedItem?.id === itemId) {
+        setSelectedItem(null);
+      }
+      
+      // Refresh data to update counts
+      await fetchInboxData();
+      showSuccess('Item deleted successfully');
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      showError(`Failed to delete item: ${(error as Error).message}`);
     }
   };
 
@@ -267,7 +350,7 @@ function InboxPage() {
     );
   }
 
-  if (error) {
+  if (error && !inboxItems.length) {
     return (
       <div style={{ 
         display: 'flex', 
@@ -303,9 +386,47 @@ function InboxPage() {
     <div style={{ 
       display: 'flex',
       height: '100vh',
-      backgroundColor: 'var(--color-background)'
+      backgroundColor: 'var(--color-background)',
+      flexDirection: 'column'
     }}>
-      {/* Left Sidebar - Filters */}
+      {/* Success/Error Messages */}
+      {(successMessage || error) && (
+        <div style={{
+          padding: '8px 16px',
+          fontSize: '12px',
+          backgroundColor: successMessage ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+          color: successMessage ? 'var(--color-success)' : 'var(--color-danger)',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <span>{successMessage || error}</span>
+          <button 
+            onClick={() => {
+              setSuccessMessage(null);
+              setError(null);
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'inherit',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      
+      {/* Main Content */}
+      <div style={{ 
+        display: 'flex',
+        flex: 1,
+        overflow: 'hidden'
+      }}>
+        {/* Left Sidebar - Filters */}
       <div style={{ 
         width: '250px',
         backgroundColor: 'var(--color-surface)',
@@ -477,6 +598,12 @@ function InboxPage() {
                   onClick={() => handleBulkAction('archive')}
                 >
                   <Archive style={{ width: '12px', height: '12px' }} />
+                </button>
+                <button 
+                  className="btn-compact btn-danger"
+                  onClick={() => handleBulkAction('delete')}
+                >
+                  <Trash2 style={{ width: '12px', height: '12px' }} />
                 </button>
               </>
             )}
@@ -788,8 +915,17 @@ function InboxPage() {
                   <button className="btn-compact btn-secondary">
                     <Forward style={{ width: '12px', height: '12px' }} />
                   </button>
-                  <button className="btn-compact btn-secondary">
+                  <button 
+                    className="btn-compact btn-secondary"
+                    onClick={() => handleArchiveItem(selectedItem.id)}
+                  >
                     <Archive style={{ width: '12px', height: '12px' }} />
+                  </button>
+                  <button 
+                    className="btn-compact btn-danger"
+                    onClick={() => handleDeleteItem(selectedItem.id)}
+                  >
+                    <Trash2 style={{ width: '12px', height: '12px' }} />
                   </button>
                   <button className="btn-compact btn-secondary">
                     <MoreVertical style={{ width: '12px', height: '12px' }} />
@@ -922,6 +1058,7 @@ function InboxPage() {
             Select an item to view details
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -106,6 +106,21 @@ class InboxApiService {
     return this.transformInboxItem(item);
   }
 
+  // Archive an item
+  async archiveItem(itemId: number): Promise<InboxItem> {
+    const item = await this.makeRequest<InboxItem>(`/${itemId}/archive`, {
+      method: 'POST',
+    });
+    return this.transformInboxItem(item);
+  }
+
+  // Delete an item
+  async deleteItem(itemId: number): Promise<{ success: boolean; message: string }> {
+    return this.makeRequest<{ success: boolean; message: string }>(`/${itemId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Get inbox items for a specific loan
   async getLoanInboxItems(loanId: string): Promise<{
     items: InboxItem[];

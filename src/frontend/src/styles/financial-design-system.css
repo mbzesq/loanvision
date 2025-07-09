@@ -279,6 +279,16 @@ body.financial-theme {
   background-color: var(--color-surface-light);
 }
 
+.btn-danger {
+  background-color: var(--color-danger);
+  color: white;
+  border-color: var(--color-danger);
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
 /* Alert Styling */
 .alert-strip {
   background-color: var(--color-surface);
