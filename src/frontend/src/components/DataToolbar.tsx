@@ -34,43 +34,95 @@ export function DataToolbar({
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-6">
+    <div className="data-toolbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         {/* Results Summary */}
-        <span className="text-sm text-slate-600">
-          Viewing <span className="font-semibold text-slate-800">{filteredLoanCount.toLocaleString()}</span> of <span className="font-semibold text-slate-800">{totalLoanCount.toLocaleString()}</span> loans
+        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
+          Viewing <span style={{ fontWeight: '600', color: 'var(--color-text)' }}>{filteredLoanCount.toLocaleString()}</span> of <span style={{ fontWeight: '600', color: 'var(--color-text)' }}>{totalLoanCount.toLocaleString()}</span> loans
         </span>
 
         {/* Search Input */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
+        <div style={{ position: 'relative' }}>
+          <Search style={{ 
+            position: 'absolute', 
+            left: '8px', 
+            top: '50%', 
+            transform: 'translateY(-50%)', 
+            width: '12px', 
+            height: '12px', 
+            color: 'var(--color-text-muted)' 
+          }} />
+          <input
             placeholder="Search all loans..."
             value={globalFilter ?? ''}
             onChange={(event) => setGlobalFilter(event.target.value)}
-            className="h-9 w-[250px] pl-10 pr-8 mr-2"
+            style={{
+              height: '28px',
+              width: '200px',
+              paddingLeft: '28px',
+              paddingRight: globalFilter ? '28px' : '8px',
+              fontSize: '11px',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--color-background)',
+              color: 'var(--color-text)'
+            }}
           />
           {globalFilter && globalFilter.length > 0 && (
             <button
               onClick={handleClearSearch}
-              className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 hover:text-slate-600 cursor-pointer"
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--color-text-muted)',
+                padding: '2px'
+              }}
               type="button"
               aria-label="Clear search"
             >
-              <X className="h-4 w-4" />
+              <X style={{ width: '12px', height: '12px' }} />
             </button>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         {/* Future Feature Buttons */}
-        <Button variant="outline" size="sm" disabled>
+        <button 
+          disabled
+          style={{
+            padding: '4px 8px',
+            fontSize: '11px',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: 'var(--color-background)',
+            color: 'var(--color-text-muted)',
+            cursor: 'not-allowed',
+            opacity: 0.6
+          }}
+        >
           Save View
-        </Button>
-        <Button variant="outline" size="sm" disabled>
+        </button>
+        <button 
+          disabled
+          style={{
+            padding: '4px 8px',
+            fontSize: '11px',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: 'var(--color-background)',
+            color: 'var(--color-text-muted)',
+            cursor: 'not-allowed',
+            opacity: 0.6
+          }}
+        >
           Compare
-        </Button>
+        </button>
 
         {/* Export Button */}
         <ExportButton

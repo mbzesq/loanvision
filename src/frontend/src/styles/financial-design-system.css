@@ -643,3 +643,28 @@ label,
   background-color: var(--color-primary) !important;
   color: white !important;
 }
+
+/* Loan Explorer link styling */
+.loan-link,
+.financial-table a {
+  color: var(--color-accent) !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+.loan-link:hover,
+.financial-table a:hover {
+  color: var(--color-accent-light) !important;
+  text-decoration: underline !important;
+}
+
+/* Override all blue text to be more readable */
+.text-blue-600,
+.text-blue-500 {
+  color: var(--color-accent) !important;
+}
+
+/* Data toolbar search input placeholder */
+.data-toolbar input::placeholder {
+  color: var(--color-text-muted) !important;
+}

@@ -205,27 +205,56 @@ const UniversalAlertsPanel: React.FC<UniversalAlertsPanelProps> = ({
   }
 
   return (
-    <Card className={className}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Bell className="h-5 w-5 text-blue-600" />
+    <div className={`financial-card ${className}`}>
+      <div style={{ 
+        borderBottom: '1px solid var(--color-border)',
+        paddingBottom: '8px',
+        marginBottom: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 style={{ 
+            fontSize: '12px', 
+            fontWeight: '600', 
+            textTransform: 'uppercase',
+            color: 'var(--color-text)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            margin: 0
+          }}>
+            <Bell style={{ width: '12px', height: '12px', color: 'var(--color-accent)' }} />
             Portfolio Alerts
-          </CardTitle>
-          <div className="flex items-center gap-2">
+          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {showSettings && (
-              <Button variant="ghost" size="sm" onClick={() => navigate('/alert-settings')}>
-                <Settings className="h-4 w-4" />
-              </Button>
+              <button 
+                onClick={() => navigate('/alert-settings')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-text-muted)',
+                  padding: '2px'
+                }}
+              >
+                <Settings style={{ width: '12px', height: '12px' }} />
+              </button>
             )}
-            <Badge variant="outline" className="text-xs">
+            <span style={{
+              fontSize: '9px',
+              padding: '2px 6px',
+              backgroundColor: 'var(--color-surface-light)',
+              color: 'var(--color-text-muted)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--color-border)'
+            }}>
               {alerts.length} active
-            </Badge>
+            </span>
           </div>
         </div>
         
         {/* Category Filter */}
-        <div className="flex flex-wrap gap-1 mt-2">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
           {['all', 'performance_degradation', 'performance_improvement', 'legal_regulatory', 'portfolio_level', 'sol'].map((category) => (
             <Button
               key={category}
