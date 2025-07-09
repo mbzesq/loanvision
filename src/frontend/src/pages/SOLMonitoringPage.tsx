@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Clock, TrendingUp, TrendingDown, Calendar, AlertTriangle, Scale, RefreshCw } from 'lucide-react';
 import { solService, SOLSummary } from '../services/solService';
-import UniversalAlertsPanel from '../components/Alerts/UniversalAlertsPanel';
 import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import '../styles/financial-design-system.css';
@@ -239,10 +238,9 @@ const SOLMonitoringPage: React.FC = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px' }}>
-        {/* Left Column - Alerts and Overview */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '12px' }}>
+        {/* Left Column - SOL Overview */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <UniversalAlertsPanel className="h-full" maxAlerts={6} showSettings={true} />
           <SOLMonitorCard />
         </div>
 
