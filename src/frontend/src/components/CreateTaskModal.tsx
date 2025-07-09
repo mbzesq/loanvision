@@ -7,7 +7,7 @@ interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   originalItem?: InboxItem; // Made optional for standalone task creation
-  onSend: (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low') => Promise<void>;
+  onSend: (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low', loanId?: string) => Promise<void>;
 }
 
 export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: CreateTaskModalProps) {
@@ -19,6 +19,11 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: Creat
   const [creating, setCreating] = useState(false);
   const [users, setUsers] = useState<UserType[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [selectedLoan, setSelectedLoan] = useState<any>(null);
+  const [loanSearchQuery, setLoanSearchQuery] = useState('');
+  const [loanSearchResults, setLoanSearchResults] = useState<any[]>([]);
+  const [loadingLoans, setLoadingLoans] = useState(false);
+  const [showLoanDropdown, setShowLoanDropdown] = useState(false);
 
   // Load users for assignment
   useEffect(() => {
@@ -39,18 +44,57 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: Creat
     fetchUsers();
   }, [isOpen]);
 
+  // Handle loan search
+  const handleLoanSearch = async (query: string) => {
+    setLoanSearchQuery(query);
+    
+    if (query.length < 2) {
+      setLoanSearchResults([]);
+      setShowLoanDropdown(false);
+      return;
+    }
+
+    setLoadingLoans(true);
+    try {
+      const results = await inboxApi.searchLoans(query);
+      setLoanSearchResults(results);
+      setShowLoanDropdown(true);
+    } catch (error) {
+      console.error('Error searching loans:', error);
+      setLoanSearchResults([]);
+    } finally {
+      setLoadingLoans(false);
+    }
+  };
+
+  const selectLoan = (loan: any) => {
+    setSelectedLoan(loan);
+    setLoanSearchQuery(loan.display_name);
+    setShowLoanDropdown(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || creating) return;
 
     try {
       setCreating(true);
+      // Create enhanced description with loan link if loan is selected
+      let enhancedDescription = description.trim() || '';
+      if (selectedLoan) {
+        const loanLink = `View Loan: /loans/${selectedLoan.id}`;
+        enhancedDescription = enhancedDescription 
+          ? `${enhancedDescription}\n\n${loanLink}` 
+          : loanLink;
+      }
+
       await onSend(
         title.trim(),
-        description.trim() || undefined,
+        enhancedDescription || undefined,
         assignedToUserId,
         dueDate ? new Date(dueDate) : undefined,
-        priority
+        priority,
+        selectedLoan?.id // Pass selected loan ID
       );
       
       // Reset form
@@ -59,6 +103,8 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: Creat
       setAssignedToUserId(undefined);
       setDueDate('');
       setPriority('normal');
+      setSelectedLoan(null);
+      setLoanSearchQuery('');
       onClose();
     } catch (error) {
       console.error('Error creating task:', error);
@@ -281,6 +327,141 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: Creat
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Loan Selection */}
+            <div>
+              <label style={{ 
+                fontSize: '12px', 
+                fontWeight: '600', 
+                color: 'var(--color-text-primary)', 
+                marginBottom: '4px',
+                display: 'block'
+              }}>
+                Related Loan (Optional)
+              </label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  value={loanSearchQuery}
+                  onChange={(e) => handleLoanSearch(e.target.value)}
+                  placeholder="Search by loan ID, borrower name, or address..."
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    fontSize: '12px',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: 'var(--color-background)',
+                    color: 'var(--color-text-primary)'
+                  }}
+                  onFocus={() => {
+                    if (loanSearchResults.length > 0) {
+                      setShowLoanDropdown(true);
+                    }
+                  }}
+                />
+                
+                {/* Loan Search Dropdown */}
+                {showLoanDropdown && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    zIndex: 1000,
+                    backgroundColor: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-sm)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    maxHeight: '200px',
+                    overflowY: 'auto'
+                  }}>
+                    {loadingLoans && (
+                      <div style={{ 
+                        padding: '12px', 
+                        fontSize: '11px', 
+                        color: 'var(--color-text-muted)',
+                        textAlign: 'center'
+                      }}>
+                        Searching loans...
+                      </div>
+                    )}
+                    {!loadingLoans && loanSearchResults.length === 0 && loanSearchQuery.length >= 2 && (
+                      <div style={{ 
+                        padding: '12px', 
+                        fontSize: '11px', 
+                        color: 'var(--color-text-muted)',
+                        textAlign: 'center'
+                      }}>
+                        No loans found
+                      </div>
+                    )}
+                    {!loadingLoans && loanSearchResults.map((loan, index) => (
+                      <div
+                        key={loan.id}
+                        onClick={() => selectLoan(loan)}
+                        style={{
+                          padding: '8px 12px',
+                          cursor: 'pointer',
+                          borderBottom: index < loanSearchResults.length - 1 ? '1px solid var(--color-border)' : 'none',
+                          fontSize: '11px',
+                          transition: 'background-color 0.1s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--color-background)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <div style={{ fontWeight: '600', color: 'var(--color-text-primary)' }}>
+                          {loan.id} - {loan.borrower_name}
+                        </div>
+                        <div style={{ color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                          {loan.property_address}, {loan.property_city}, {loan.property_state}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Selected Loan Display */}
+                {selectedLoan && (
+                  <div style={{
+                    marginTop: '6px',
+                    padding: '6px 8px',
+                    backgroundColor: 'var(--color-primary)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '10px',
+                    color: 'white',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span>
+                      ✓ Selected: {selectedLoan.id} - {selectedLoan.borrower_name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedLoan(null);
+                        setLoanSearchQuery('');
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        padding: '0 4px'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Priority and Due Date Row */}

@@ -109,14 +109,15 @@ function InboxPage() {
     }
   };
 
-  const handleCreateTask = async (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low') => {
+  const handleCreateTask = async (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low', loanId?: string) => {
     try {
       if (selectedItem) {
         // Create task from selected item (context-aware)
         await inboxApi.createTask(selectedItem.id, title, description, assigned_to_user_id, due_date, priority);
       } else {
         // Create standalone task
-        await inboxApi.createStandaloneTask(title, description, assigned_to_user_id, due_date, priority);
+        const loan_ids = loanId ? [loanId] : [];
+        await inboxApi.createStandaloneTask(title, description, assigned_to_user_id, due_date, priority, 'general', loan_ids);
       }
       showSuccess('Task created successfully');
       // Refresh data to show the new task
@@ -160,7 +161,19 @@ function InboxPage() {
       // Apply active filter
       const filterKey = activeFilter as keyof typeof INBOX_QUICK_FILTERS;
       if (filterKey in INBOX_QUICK_FILTERS) {
-        const filterObj = INBOX_QUICK_FILTERS[filterKey];
+        const filterObj = { ...INBOX_QUICK_FILTERS[filterKey] };
+        
+        // Handle special 'current_user' values
+        if (filterObj.assignedTo?.includes('current_user')) {
+          filterObj.assigned_to_user_id = currentUser?.id;
+          delete filterObj.assignedTo;
+        }
+        
+        if (filterObj.createdBy?.includes('current_user')) {
+          filterObj.created_by_user_id = currentUser?.id;
+          delete filterObj.createdBy;
+        }
+        
         Object.assign(filters, filterObj);
       }
 
@@ -554,6 +567,7 @@ function InboxPage() {
           const count = key === 'UNREAD' ? inboxStats.unread :
                        key === 'URGENT' ? inboxStats.urgent :
                        key === 'MY_TASKS' ? (inboxStats.my_tasks || inboxStats.myTasks || 0) :
+                       key === 'SENT_TASKS' ? 0 : // TODO: Add sent tasks count to stats
                        filteredItems.length;
           
           return (

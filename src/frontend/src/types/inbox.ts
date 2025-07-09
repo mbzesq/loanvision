@@ -189,6 +189,7 @@ export const INBOX_QUICK_FILTERS = {
   UNREAD: { status: ['unread'] as InboxItem['status'][] },
   URGENT: { priority: ['urgent'] as InboxItem['priority'][] },
   MY_TASKS: { type: ['task_assignment'] as InboxItem['type'][], assignedTo: ['current_user'] },
+  SENT_TASKS: { type: ['task_assignment'] as InboxItem['type'][], createdBy: ['current_user'] },
   MESSAGES: { type: ['user_message'] as InboxItem['type'][] },
   SYSTEM_ALERTS: { type: ['system_alert', 'system_notification'] as InboxItem['type'][] },
   SOL_ITEMS: { category: ['sol'] },

@@ -196,6 +196,32 @@ class InboxApiService {
     return data.users;
   }
 
+  // Search loans for task assignment
+  async searchLoans(query: string): Promise<Array<{
+    id: string;
+    display_name: string;
+    borrower_name: string;
+    property_address: string;
+    property_city: string;
+    property_state: string;
+    property_zip: string;
+    current_balance: number;
+    loan_status: string;
+  }>> {
+    const response = await fetch(`${API_BASE_URL}/api/loans/search?q=${encodeURIComponent(query)}`, {
+      headers: {
+        'Authorization': `Bearer ${this.getAuthToken()}`,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to search loans');
+    }
+    
+    const data = await response.json();
+    return data.loans;
+  }
+
   // Get inbox items for a specific loan
   async getLoanInboxItems(loanId: string): Promise<{
     items: InboxItem[];

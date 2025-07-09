@@ -18,6 +18,64 @@ router.get('/loans', authenticateToken, async (req, res) => {
   }
 });
 
+// GET /loans/search - Search loans for task assignment
+router.get('/loans/search', authenticateToken, async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q || typeof q !== 'string') {
+      return res.status(400).json({ error: 'Search query (q) is required' });
+    }
+    
+    const searchTerm = `%${q.toLowerCase()}%`;
+    
+    // Search loans by servicer_loan_id, borrower_name, and property_address
+    const result = await pool.query(`
+      SELECT 
+        servicer_loan_id,
+        borrower_name,
+        property_address,
+        property_city,
+        property_state,
+        property_zip,
+        current_balance,
+        loan_status
+      FROM loans 
+      WHERE 
+        LOWER(servicer_loan_id) LIKE $1 OR
+        LOWER(borrower_name) LIKE $1 OR
+        LOWER(property_address) LIKE $1 OR
+        LOWER(property_city) LIKE $1
+      ORDER BY 
+        CASE 
+          WHEN LOWER(servicer_loan_id) = LOWER($2) THEN 1
+          WHEN LOWER(servicer_loan_id) LIKE $1 THEN 2
+          WHEN LOWER(borrower_name) LIKE $1 THEN 3
+          ELSE 4
+        END,
+        servicer_loan_id
+      LIMIT 20
+    `, [searchTerm, q.toLowerCase()]);
+    
+    const loans = result.rows.map(loan => ({
+      id: loan.servicer_loan_id,
+      display_name: `${loan.servicer_loan_id} - ${loan.borrower_name}`,
+      borrower_name: loan.borrower_name,
+      property_address: loan.property_address,
+      property_city: loan.property_city,
+      property_state: loan.property_state,
+      property_zip: loan.property_zip,
+      current_balance: loan.current_balance,
+      loan_status: loan.loan_status
+    }));
+    
+    res.json({ loans });
+  } catch (error) {
+    console.error('Error searching loans:', error);
+    res.status(500).json({ error: 'Failed to search loans' });
+  }
+});
+
 
 router.get('/loans/:loanId/enrichments', authenticateToken, async (req, res) => {
   try {
