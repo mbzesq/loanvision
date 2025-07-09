@@ -100,10 +100,10 @@ export function DataToolbar({
             fontSize: '11px',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'var(--color-background)',
-            color: 'var(--color-text-muted)',
+            backgroundColor: 'var(--color-surface)',
+            color: 'var(--color-text)',
             cursor: 'not-allowed',
-            opacity: 0.6
+            opacity: 0.5
           }}
         >
           Save View
@@ -115,10 +115,10 @@ export function DataToolbar({
             fontSize: '11px',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'var(--color-background)',
-            color: 'var(--color-text-muted)',
+            backgroundColor: 'var(--color-surface)',
+            color: 'var(--color-text)',
             cursor: 'not-allowed',
-            opacity: 0.6
+            opacity: 0.5
           }}
         >
           Compare

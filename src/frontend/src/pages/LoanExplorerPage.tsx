@@ -245,18 +245,27 @@ function LoanExplorerPage() {
   }, [loans]);
 
   const filteredData = useMemo(() => {
-    if (!hasAppliedFilter) return []; // RESTORE THIS LINE
     if (!loans) return [];
     
     // If global search is active, search across all loans regardless of filters
     if (globalFilter && globalFilter.length > 0) {
       const searchTerm = globalFilter.toLowerCase();
-      return loans.filter(loan => 
+      const searchResults = loans.filter(loan => 
         loan.loan_id?.toLowerCase().includes(searchTerm) ||
         `${loan.first_name} ${loan.last_name}`.toLowerCase().includes(searchTerm) ||
         loan.address?.toLowerCase().includes(searchTerm) ||
         loan.investor_name?.toLowerCase().includes(searchTerm)
       );
+      
+      // If search has results, return them regardless of hasAppliedFilter
+      if (searchResults.length > 0) {
+        return searchResults;
+      }
+    }
+    
+    // If no search term and no filters applied, return empty array
+    if (!hasAppliedFilter && (!globalFilter || globalFilter.length === 0)) {
+      return [];
     }
 
     return loans.filter(loan => {

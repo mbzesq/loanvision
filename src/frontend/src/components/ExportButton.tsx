@@ -23,45 +23,115 @@ export function ExportButton({ onExport, onCustomize, exporting }: ExportButtonP
 
   return (
     // The ref is attached to the parent div for click detection
-    <div ref={dropdownRef} className="relative inline-block text-left">
+    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
       <div>
-        <Button
-          variant="outline"
-          size="sm"
+        <button
           onClick={() => setIsOpen(!isOpen)}
           disabled={exporting}
+          style={{
+            padding: '4px 8px',
+            fontSize: '11px',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: 'var(--color-primary)',
+            color: 'white',
+            cursor: exporting ? 'not-allowed' : 'pointer',
+            opacity: exporting ? 0.5 : 1
+          }}
         >
           {exporting ? 'Exporting...' : 'Export'}
-        </Button>
+        </button>
       </div>
 
       {/* Conditionally render the dropdown menu */}
       {isOpen && (
         <div
-          className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: '100%',
+            marginTop: '4px',
+            width: '180px',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            zIndex: 50
+          }}
         >
-          <div className="py-1" role="menu" aria-orientation="vertical">
+          <div style={{ padding: '4px 0' }}>
             <button
               onClick={() => handleSelect('excel')}
               disabled={exporting}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-              role="menuitem"
+              style={{
+                display: 'block',
+                width: '100%',
+                textAlign: 'left',
+                padding: '8px 12px',
+                fontSize: '11px',
+                backgroundColor: 'transparent',
+                color: 'var(--color-text)',
+                border: 'none',
+                cursor: exporting ? 'not-allowed' : 'pointer',
+                opacity: exporting ? 0.5 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!exporting) {
+                  (e.target as HTMLElement).style.backgroundColor = 'var(--color-surface-light)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.backgroundColor = 'transparent';
+              }}
             >
               Download as Excel
             </button>
             <button
               onClick={() => handleSelect('pdf')}
               disabled={exporting}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-              role="menuitem"
+              style={{
+                display: 'block',
+                width: '100%',
+                textAlign: 'left',
+                padding: '8px 12px',
+                fontSize: '11px',
+                backgroundColor: 'transparent',
+                color: 'var(--color-text)',
+                border: 'none',
+                cursor: exporting ? 'not-allowed' : 'pointer',
+                opacity: exporting ? 0.5 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!exporting) {
+                  (e.target as HTMLElement).style.backgroundColor = 'var(--color-surface-light)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.backgroundColor = 'transparent';
+              }}
             >
               Download as PDF
             </button>
-            <div className="border-t my-1"></div> {/* Separator */}
+            <div style={{ borderTop: '1px solid var(--color-border)', margin: '4px 0' }}></div>
             <button
               onClick={onCustomize}
-              className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
-              role="menuitem"
+              style={{
+                display: 'block',
+                width: '100%',
+                textAlign: 'left',
+                padding: '8px 12px',
+                fontSize: '11px',
+                backgroundColor: 'transparent',
+                color: 'var(--color-accent)',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.backgroundColor = 'var(--color-surface-light)';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.backgroundColor = 'transparent';
+              }}
             >
               Customize Export...
             </button>
