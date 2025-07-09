@@ -181,6 +181,13 @@ function InboxPage() {
         }
         
         Object.assign(filters, filterObj);
+      } else {
+        // Check if activeFilter is a category name
+        const categoryNames = Object.keys(inboxStats.by_category || inboxStats.byCategory || {});
+        if (categoryNames.map(c => c.toUpperCase()).includes(activeFilter)) {
+          // Apply category filter
+          filters.category = [activeFilter.toLowerCase()];
+        }
       }
 
       // Include deleted items when DELETED filter is active
@@ -490,6 +497,14 @@ function InboxPage() {
       if ('type' in filterObj && !filterObj.type.includes(item.type)) return false;
       if ('category' in filterObj && (!item.category || !(filterObj.category as readonly string[]).includes(item.category))) return false;
       if ('assignedTo' in filterObj && filterObj.assignedTo?.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
+    } else {
+      // Check if activeFilter is a category name
+      const categoryNames = Object.keys(inboxStats.by_category || inboxStats.byCategory || {});
+      if (categoryNames.map(c => c.toUpperCase()).includes(activeFilter)) {
+        // Filter by category
+        const categoryLower = activeFilter.toLowerCase();
+        if (!item.category || item.category.toLowerCase() !== categoryLower) return false;
+      }
     }
     
     return true;
@@ -652,7 +667,12 @@ function InboxPage() {
                        key === 'MY_TASKS' ? (inboxStats.my_tasks || inboxStats.myTasks || 0) :
                        key === 'SENT_TASKS' ? 0 : // TODO: Add sent tasks count to stats
                        key === 'DELETED' ? inboxStats.deleted :
-                       getFilterCount(key);
+                       key === 'OVERDUE' ? inboxStats.overdue :
+                       key === 'MESSAGES' ? getFilterCount(key) :
+                       key === 'SYSTEM_ALERTS' ? getFilterCount(key) :
+                       key === 'SOL_ITEMS' ? getFilterCount(key) :
+                       key === 'LEGAL_ITEMS' ? getFilterCount(key) :
+                       0; // Default to 0 for unknown filters
           
           console.log(`Filter ${key}: count=${count}, active=${activeFilter === key}`);
           
