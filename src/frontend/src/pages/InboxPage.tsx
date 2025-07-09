@@ -10,6 +10,7 @@ import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as Us
 import { inboxApi } from '../services/inboxApi';
 import { ReplyModal } from '../components/ReplyModal';
 import { ForwardModal } from '../components/ForwardModal';
+import { CreateTaskModal } from '../components/CreateTaskModal';
 import '../styles/design-system.css';
 
 function InboxPage() {
@@ -26,6 +27,7 @@ function InboxPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [showForwardModal, setShowForwardModal] = useState(false);
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [inboxStats, setInboxStats] = useState<InboxStats>({
     total: 0,
     unread: 0,
@@ -104,6 +106,39 @@ function InboxPage() {
       console.error('Error forwarding message:', error);
       showError(`Failed to forward message: ${(error as Error).message}`);
       throw error; // Re-throw to let modal handle it
+    }
+  };
+
+  const handleCreateTask = async (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low') => {
+    if (!selectedItem) return;
+    
+    try {
+      await inboxApi.createTask(selectedItem.id, title, description, assigned_to_user_id, due_date, priority);
+      showSuccess('Task created successfully');
+      // Refresh data to show the new task
+      await fetchInboxData();
+    } catch (error) {
+      console.error('Error creating task:', error);
+      showError(`Failed to create task: ${(error as Error).message}`);
+      throw error; // Re-throw to let modal handle it
+    }
+  };
+
+  const handleUpdateTaskStatus = async (itemId: number, status: 'unread' | 'read' | 'in_progress' | 'completed') => {
+    try {
+      await inboxApi.updateTaskStatus(itemId, status);
+      const statusMessages = {
+        unread: 'Task reset to pending',
+        read: 'Task marked as read',
+        in_progress: 'Task started',
+        completed: 'Task completed'
+      };
+      showSuccess(statusMessages[status]);
+      // Refresh data to show the updated status
+      await fetchInboxData();
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      showError(`Failed to update task status: ${(error as Error).message}`);
     }
   };
 
@@ -1033,7 +1068,10 @@ function InboxPage() {
                     QUICK ACTIONS
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <button className="btn-compact btn-primary">
+                    <button 
+                      className="btn-compact btn-primary"
+                      onClick={() => setShowCreateTaskModal(true)}
+                    >
                       Create Task
                     </button>
                     <button className="btn-compact btn-secondary">
@@ -1045,6 +1083,61 @@ function InboxPage() {
                     <button className="btn-compact btn-secondary">
                       Escalate
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Task Status Actions */}
+              {selectedItem.type === 'task_assignment' && (
+                <div style={{ 
+                  marginTop: '20px',
+                  padding: '12px',
+                  backgroundColor: 'var(--color-surface)',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--color-border)'
+                }}>
+                  <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '8px' }}>
+                    TASK STATUS
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {selectedItem.status === 'unread' && (
+                      <button 
+                        className="btn-compact btn-primary"
+                        onClick={() => handleUpdateTaskStatus(selectedItem.id, 'in_progress')}
+                      >
+                        Start Task
+                      </button>
+                    )}
+                    {selectedItem.status === 'in_progress' && (
+                      <button 
+                        className="btn-compact btn-success"
+                        onClick={() => handleUpdateTaskStatus(selectedItem.id, 'completed')}
+                      >
+                        Mark Complete
+                      </button>
+                    )}
+                    {selectedItem.status === 'completed' && (
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '6px',
+                        padding: '6px 12px',
+                        backgroundColor: 'var(--color-success)',
+                        color: 'white',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '11px'
+                      }}>
+                        ✓ Task Completed
+                      </div>
+                    )}
+                    {selectedItem.status === 'in_progress' && (
+                      <button 
+                        className="btn-compact btn-secondary"
+                        onClick={() => handleUpdateTaskStatus(selectedItem.id, 'unread')}
+                      >
+                        Reset to Pending
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -1124,6 +1217,16 @@ function InboxPage() {
           onClose={() => setShowForwardModal(false)}
           originalItem={selectedItem}
           onSend={handleForward}
+        />
+      )}
+      
+      {/* Create Task Modal */}
+      {selectedItem && (
+        <CreateTaskModal
+          isOpen={showCreateTaskModal}
+          onClose={() => setShowCreateTaskModal(false)}
+          originalItem={selectedItem}
+          onSend={handleCreateTask}
         />
       )}
     </div>

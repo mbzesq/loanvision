@@ -410,4 +410,48 @@ router.get('/threads/:threadId', async (req: AuthRequest, res) => {
   }
 });
 
+// POST /api/inbox/:id/create-task - Create a task from an inbox item
+router.post('/:id/create-task', async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const itemId = parseInt(req.params.id);
+    const { title, description, assigned_to_user_id, due_date, priority } = req.body;
+    
+    if (isNaN(itemId)) {
+      return res.status(400).json({ error: 'Invalid item ID' });
+    }
+    
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: 'Task title is required' });
+    }
+    
+    // Get the original item to extract context
+    const originalItem = await InboxService.getInboxItemById(itemId, userId);
+    
+    // Create task with proper context
+    const taskData: CreateInboxItemRequest = {
+      type: 'task_assignment',
+      subject: title.trim(),
+      body: description || `Task created from: ${originalItem.subject}`,
+      priority: priority || 'normal',
+      category: originalItem.category,
+      thread_id: originalItem.thread_id,
+      loan_ids: originalItem.loan_ids,
+      assigned_to_user_id: assigned_to_user_id || userId,
+      due_date: due_date ? new Date(due_date) : undefined,
+      status: 'unread'
+    };
+    
+    const task = await InboxService.createInboxItem(taskData, userId);
+    res.status(201).json(task);
+    
+  } catch (error) {
+    if ((error as Error).message.includes('not found') || (error as Error).message.includes('access denied')) {
+      return res.status(404).json({ error: 'Original item not found' });
+    }
+    console.error('Error creating task:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

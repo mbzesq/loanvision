@@ -289,6 +289,16 @@ body.financial-theme {
   background-color: #b91c1c;
 }
 
+.btn-success {
+  background-color: var(--color-success);
+  color: white;
+  border-color: var(--color-success);
+}
+
+.btn-success:hover {
+  background-color: #059669;
+}
+
 /* Alert Styling */
 .alert-strip {
   background-color: var(--color-surface);

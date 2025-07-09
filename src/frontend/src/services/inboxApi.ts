@@ -139,6 +139,46 @@ class InboxApiService {
     return this.transformInboxItem(item);
   }
 
+  // Create a task from an inbox item
+  async createTask(itemId: number, title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low'): Promise<InboxItem> {
+    const item = await this.makeRequest<InboxItem>(`/${itemId}/create-task`, {
+      method: 'POST',
+      body: JSON.stringify({ 
+        title, 
+        description, 
+        assigned_to_user_id, 
+        due_date: due_date?.toISOString(), 
+        priority 
+      }),
+    });
+    return this.transformInboxItem(item);
+  }
+
+  // Update task status
+  async updateTaskStatus(itemId: number, status: 'unread' | 'read' | 'in_progress' | 'completed'): Promise<InboxItem> {
+    const item = await this.makeRequest<InboxItem>(`/${itemId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+    return this.transformInboxItem(item);
+  }
+
+  // Get list of users for task assignment
+  async getUsers(): Promise<User[]> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/users`, {
+      headers: {
+        'Authorization': `Bearer ${this.getAuthToken()}`,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    
+    const data = await response.json();
+    return data.users;
+  }
+
   // Get inbox items for a specific loan
   async getLoanInboxItems(loanId: string): Promise<{
     items: InboxItem[];

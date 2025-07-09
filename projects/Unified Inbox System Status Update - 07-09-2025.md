@@ -37,6 +37,11 @@ Replace the separate "Today" page alerts and tasks with a unified inbox that ser
 - Comprehensive indexing for performance
 - Support for threaded conversations and loan context
 
+**Scaling Considerations:**
+- Current architecture supports small to medium teams (10-1000 users)
+- Message storage directly in PostgreSQL (suitable for ~1M messages/month)
+- No current pagination or archiving (acceptable for Phase 1)
+
 #### 2. Backend API Infrastructure (100% Complete)
 **Services Implemented:**
 - `InboxService`: Complete CRUD operations with filtering and permissions
@@ -50,6 +55,10 @@ Replace the separate "Today" page alerts and tasks with a unified inbox that ser
 - `POST /api/inbox` - Create new items (tasks, messages, alerts)
 - `PUT /api/inbox/:id` - Update items with permission checks
 - `POST /api/inbox/:id/mark-read` - Real-time read status updates
+- `POST /api/inbox/:id/archive` - Archive individual items
+- `DELETE /api/inbox/:id` - Delete individual items
+- `POST /api/inbox/:id/reply` - Reply to messages with threading
+- `POST /api/inbox/:id/forward` - Forward messages to recipients
 - `POST /api/inbox/bulk-action` - Bulk operations (mark read, archive, delete)
 - `GET /api/inbox/threads/:threadId` - Thread conversation retrieval
 - `GET /api/inbox/loans/:loanId` - Loan-specific inbox items
@@ -74,11 +83,14 @@ Replace the separate "Today" page alerts and tasks with a unified inbox that ser
 
 **User Experience Features:**
 - Real-time mark-as-read functionality
-- Bulk selection and operations
+- Bulk selection and operations (mark read, archive, delete)
 - Advanced filtering with count badges
 - Thread grouping and standalone message display
 - Search functionality across all content
 - Category-based organization
+- Reply/Forward modals with Bloomberg-style design
+- Confirmation dialogs for destructive actions
+- Success/error feedback with auto-dismiss
 
 **State Management:**
 - React hooks for real-time updates
@@ -92,6 +104,34 @@ Replace the separate "Today" page alerts and tasks with a unified inbox that ser
 - Updated navigation structure
 - Added market data bar to Dashboard (static display)
 
+### ✅ Recently Completed Features (Phase 1)
+
+#### 1. Delete/Archive Operations (100% Complete)
+**Individual Operations:**
+- Archive button with single-item API endpoint
+- Delete button with confirmation dialogs
+- Optimistic UI updates for better UX
+- Success/error feedback with auto-dismiss
+
+**Bulk Operations:**
+- Delete button in bulk actions toolbar
+- Archive functionality for multiple items
+- Confirmation dialogs for destructive actions
+- Proper error handling and user feedback
+
+#### 2. Reply/Forward Implementation (100% Complete)
+**Reply System:**
+- Reply modal with original message context
+- Automatic "Re:" subject prefixing
+- Thread context preservation
+- Keyboard shortcuts (Ctrl+Enter, Escape)
+
+**Forward System:**
+- Forward modal with recipient management
+- Automatic "Fwd:" subject prefixing and message formatting
+- User-friendly recipient selection and management
+- Creates new threads (no threading for forwards)
+
 ### 🔄 Partially Implemented Features
 
 #### 1. Quick Actions (UI Complete, Backend Pending)
@@ -100,17 +140,6 @@ Replace the separate "Today" page alerts and tasks with a unified inbox that ser
 - View Loans button (placeholder)
 - Acknowledge button (placeholder)
 - Escalate button (placeholder)
-
-**Message Actions:**
-- Reply functionality (UI ready, backend pending)
-- Forward functionality (UI ready, backend pending)
-- Archive operations (UI ready, backend pending)
-
-#### 2. Bulk Operations (Basic Implementation)
-- Frontend UI supports bulk selection
-- Backend API endpoints exist for bulk actions
-- Limited to mark-read and archive operations
-- Delete and advanced bulk workflows pending
 
 ### ❌ Pending Implementation
 
