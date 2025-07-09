@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { 
@@ -166,41 +165,75 @@ const UniversalAlertsPanel: React.FC<UniversalAlertsPanelProps> = ({
 
   if (loading) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Bell className="h-5 w-5" />
+      <div className={`financial-card ${className}`}>
+        <div style={{ 
+          borderBottom: '1px solid var(--color-border)',
+          paddingBottom: '8px',
+          marginBottom: '12px'
+        }}>
+          <h3 style={{ 
+            fontSize: '12px', 
+            fontWeight: '600', 
+            textTransform: 'uppercase',
+            color: 'var(--color-text)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            margin: 0
+          }}>
+            <Bell style={{ width: '12px', height: '12px' }} />
             Portfolio Alerts
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-32">
-            <div className="text-gray-500">Loading alerts...</div>
-          </div>
-        </CardContent>
-      </Card>
+          </h3>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '128px' }}>
+          <div style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>Loading alerts...</div>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Bell className="h-5 w-5" />
+      <div className={`financial-card ${className}`}>
+        <div style={{ 
+          borderBottom: '1px solid var(--color-border)',
+          paddingBottom: '8px',
+          marginBottom: '12px'
+        }}>
+          <h3 style={{ 
+            fontSize: '12px', 
+            fontWeight: '600', 
+            textTransform: 'uppercase',
+            color: 'var(--color-text)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            margin: 0
+          }}>
+            <Bell style={{ width: '12px', height: '12px' }} />
             Portfolio Alerts
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-3" />
-            <p className="text-red-500">{error}</p>
-            <Button variant="outline" size="sm" onClick={loadAlerts} className="mt-3">
-              Retry
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </h3>
+        </div>
+        <div style={{ textAlign: 'center', padding: '32px 16px' }}>
+          <AlertTriangle style={{ width: '32px', height: '32px', color: 'var(--color-danger)', margin: '0 auto 12px' }} />
+          <p style={{ color: 'var(--color-danger)', fontSize: '12px' }}>{error}</p>
+          <button 
+            onClick={loadAlerts}
+            style={{
+              marginTop: '12px',
+              padding: '4px 8px',
+              fontSize: '11px',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--color-background)',
+              color: 'var(--color-text)',
+              cursor: 'pointer'
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -272,8 +305,9 @@ const UniversalAlertsPanel: React.FC<UniversalAlertsPanelProps> = ({
             </Button>
           ))}
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      
+      <div style={{ flex: 1, overflowY: 'auto' }}>
         {alerts.length === 0 ? (
           <div className="text-center py-8">
             <Bell className="h-12 w-12 text-gray-400 mx-auto mb-3" />
@@ -398,8 +432,8 @@ const UniversalAlertsPanel: React.FC<UniversalAlertsPanelProps> = ({
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
