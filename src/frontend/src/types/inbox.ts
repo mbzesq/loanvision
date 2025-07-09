@@ -191,6 +191,7 @@ export interface UpdateInboxItemRequest {
 export const INBOX_QUICK_FILTERS = {
   UNREAD: { status: ['unread'] as InboxItem['status'][] },
   MY_TASKS: { type: ['task_assignment'] as InboxItem['type'][], assignedTo: ['current_user'] },
+  SENT_TASKS: { type: ['task_assignment'] as InboxItem['type'][], createdBy: ['current_user'] },
   MESSAGES: { type: ['user_message'] as InboxItem['type'][] },
   DELETED: { status: ['deleted'] as InboxItem['status'][] },
 } as const;

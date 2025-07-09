@@ -73,6 +73,18 @@ router.get('/stats', async (req: AuthRequest, res) => {
   }
 });
 
+// GET /api/inbox/kpis - Get inbox KPI metrics
+router.get('/kpis', async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const kpis = await InboxService.getInboxKPIs(userId);
+    res.json(kpis);
+  } catch (error) {
+    console.error('Error fetching inbox KPIs:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/inbox/:id - Get a specific inbox item
 router.get('/:id', async (req: AuthRequest, res) => {
   try {

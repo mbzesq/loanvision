@@ -277,6 +277,93 @@ export class InboxService {
     };
   }
   
+  // Get KPI metrics for inbox performance
+  static async getInboxKPIs(userId: number): Promise<{
+    avgDaysToClear: number;
+    tasksCleared: number;
+    avgOverdueDays: number;
+    totalActiveItems: number;
+    overdueItems: number;
+    urgentItems: number;
+  }> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const queries = await Promise.all([
+      // Average days to clear completed tasks in last 30 days
+      pool.query(`
+        SELECT AVG(EXTRACT(epoch FROM (updated_at - created_at))/86400) as avg_days
+        FROM inbox_items ii
+        LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
+        WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
+          AND ii.status = 'completed'
+          AND ii.updated_at >= $2
+          AND ii.type = 'task_assignment'
+      `, [userId, thirtyDaysAgo]),
+      
+      // Tasks cleared in last 30 days
+      pool.query(`
+        SELECT COUNT(*) as count
+        FROM inbox_items ii
+        LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
+        WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
+          AND ii.status = 'completed'
+          AND ii.updated_at >= $2
+          AND ii.type = 'task_assignment'
+      `, [userId, thirtyDaysAgo]),
+      
+      // Average overdue days for overdue items
+      pool.query(`
+        SELECT AVG(EXTRACT(epoch FROM (NOW() - due_date))/86400) as avg_overdue_days
+        FROM inbox_items ii
+        LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
+        WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
+          AND ii.due_date < NOW()
+          AND ii.status NOT IN ('completed', 'archived', 'deleted')
+          AND ii.type = 'task_assignment'
+      `, [userId]),
+      
+      // Total active items
+      pool.query(`
+        SELECT COUNT(*) as count
+        FROM inbox_items ii
+        LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
+        WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
+          AND ii.status NOT IN ('completed', 'archived', 'deleted')
+      `, [userId]),
+      
+      // Overdue items
+      pool.query(`
+        SELECT COUNT(*) as count
+        FROM inbox_items ii
+        LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
+        WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
+          AND ii.due_date < NOW()
+          AND ii.status NOT IN ('completed', 'archived', 'deleted')
+          AND ii.type = 'task_assignment'
+      `, [userId]),
+      
+      // Urgent items
+      pool.query(`
+        SELECT COUNT(*) as count
+        FROM inbox_items ii
+        LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
+        WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
+          AND ii.priority = 'urgent'
+          AND ii.status NOT IN ('completed', 'archived', 'deleted')
+      `, [userId])
+    ]);
+
+    return {
+      avgDaysToClear: parseFloat(queries[0].rows[0]?.avg_days || '0') || 0,
+      tasksCleared: parseInt(queries[1].rows[0]?.count || '0'),
+      avgOverdueDays: parseFloat(queries[2].rows[0]?.avg_overdue_days || '0') || 0,
+      totalActiveItems: parseInt(queries[3].rows[0]?.count || '0'),
+      overdueItems: parseInt(queries[4].rows[0]?.count || '0'),
+      urgentItems: parseInt(queries[5].rows[0]?.count || '0')
+    };
+  }
+  
   // Create a new inbox item
   static async createInboxItem(data: CreateInboxItemRequest, createdByUserId: number): Promise<InboxItem> {
     const client = await pool.connect();

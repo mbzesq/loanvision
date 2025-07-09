@@ -1,5 +1,6 @@
 import { FinancialKPIDashboard } from '../components/FinancialKPIDashboard';
 import { PerformanceTrendChart } from '../components/PerformanceTrendChart';
+import { InboxKPIs } from '../components/InboxKPIs';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -709,35 +710,8 @@ function DashboardPage() {
           )}
         </div>
 
-        {/* Market Context */}
-        <div className="financial-card">
-          <div style={{ 
-            borderBottom: '1px solid var(--color-border)',
-            paddingBottom: '8px',
-            marginBottom: '12px'
-          }}>
-            <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
-              MARKET CONTEXT
-            </h3>
-          </div>
-          <div className="market-data-widget" style={{ flexDirection: 'column', gap: '8px' }}>
-            <div className="market-ticker">
-              <div className="symbol">10Y TREASURY</div>
-              <div className="value">4.23%</div>
-              <div className="change positive">+0.02</div>
-            </div>
-            <div className="market-ticker">
-              <div className="symbol">30Y FIXED MORTGAGE</div>
-              <div className="value">6.81%</div>
-              <div className="change positive">+0.05</div>
-            </div>
-            <div className="market-ticker">
-              <div className="symbol">30Y UMBS TBA 5.5%</div>
-              <div className="value">98.125</div>
-              <div className="change negative">-0.05</div>
-            </div>
-          </div>
-        </div>
+        {/* Inbox Performance Metrics */}
+        <InboxKPIs />
 
         {/* Risk Distribution - NPLVision Score */}
         <div className="financial-card">

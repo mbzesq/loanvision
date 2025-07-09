@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { 
   Search, Archive, MessageCircle, 
   AlertTriangle, FileText, DollarSign, TrendingUp,
-  Reply, Forward, MoreVertical, Filter, ChevronDown, ChevronRight,
-  Users, Trash2, Plus, Eye
+  Reply, Forward, MoreVertical, ChevronDown, ChevronRight,
+  Users, Trash2, Plus, Eye, ArrowUpDown
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType, InboxFilter } from '../types/inbox';
@@ -27,7 +27,6 @@ function InboxPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
   const [groupByThread] = useState(true);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -39,6 +38,7 @@ function InboxPage() {
   const [selectedSender] = useState<number | null>(null);
   const [showOverdueFilter, setShowOverdueFilter] = useState(false);
   const [showUrgentFilter, setShowUrgentFilter] = useState(false);
+  const [prioritySort, setPrioritySort] = useState<'asc' | 'desc' | null>(null);
   const [inboxStats, setInboxStats] = useState<InboxStats>({
     total: 0,
     unread: 0,
@@ -515,6 +515,7 @@ function InboxPage() {
       if ('status' in filterObj && Array.isArray(filterObj.status) && !filterObj.status.includes(item.status)) return false;
       if ('type' in filterObj && Array.isArray(filterObj.type) && !filterObj.type.includes(item.type)) return false;
       if ('assignedTo' in filterObj && Array.isArray(filterObj.assignedTo) && filterObj.assignedTo.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
+      if ('createdBy' in filterObj && Array.isArray(filterObj.createdBy) && filterObj.createdBy.includes('current_user') && currentUser && item.created_by?.id !== currentUser.id) return false;
     } else {
       // Check if activeFilter is a category name
       const categoryNames = Object.keys(inboxStats.by_category || inboxStats.byCategory || {});
@@ -528,7 +529,15 @@ function InboxPage() {
     return true;
   });
 
-  const groupedItems = groupItemsByThread(filteredItems);
+  // Sort items by priority if priority sort is enabled
+  const sortedItems = prioritySort ? [...filteredItems].sort((a, b) => {
+    const priorityOrder = { urgent: 4, high: 3, normal: 2, low: 1 };
+    const aPriority = priorityOrder[a.priority] || 0;
+    const bPriority = priorityOrder[b.priority] || 0;
+    return prioritySort === 'desc' ? bPriority - aPriority : aPriority - bPriority;
+  }) : filteredItems;
+
+  const groupedItems = groupItemsByThread(sortedItems);
 
   if (loading) {
     return (
@@ -713,13 +722,14 @@ function InboxPage() {
               if ('status' in filterObj && Array.isArray(filterObj.status) && !filterObj.status.includes(item.status)) return false;
               if ('type' in filterObj && Array.isArray(filterObj.type) && !filterObj.type.includes(item.type)) return false;
               if ('assignedTo' in filterObj && Array.isArray(filterObj.assignedTo) && filterObj.assignedTo.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
-              if ('createdBy' in filterObj && Array.isArray(filterObj.createdBy) && filterObj.createdBy.includes('current_user') && currentUser && (item.created_by)?.id !== currentUser.id) return false;
+              if ('createdBy' in filterObj && Array.isArray(filterObj.createdBy) && filterObj.createdBy.includes('current_user') && currentUser && item.created_by?.id !== currentUser.id) return false;
               return true;
             }).length;
           };
 
           const count = key === 'UNREAD' ? inboxStats.unread :
                        key === 'MY_TASKS' ? (inboxStats.my_tasks || inboxStats.myTasks || 0) :
+                       key === 'SENT_TASKS' ? (inboxStats.sent_tasks || 0) :
                        key === 'MESSAGES' ? getFilterCount(key) :
                        key === 'DELETED' ? inboxStats.deleted :
                        0;
@@ -744,8 +754,10 @@ function InboxPage() {
                 textAlign: 'left'
               }}
             >
-              <span style={{ marginLeft: key === 'MY_TASKS' || key === 'MESSAGES' ? '16px' : '0' }}>
-                {key === 'UNREAD' ? 'Unread (All)' : key.replace('_', ' ')}
+              <span style={{ marginLeft: key === 'MY_TASKS' || key === 'SENT_TASKS' || key === 'MESSAGES' ? '16px' : '0' }}>
+                {key === 'UNREAD' ? 'Unread (All)' : 
+                 key === 'SENT_TASKS' ? 'Sent Tasks' : 
+                 key.replace('_', ' ')}
               </span>
               {count > 0 && (
                 <span style={{ 
@@ -799,11 +811,11 @@ function InboxPage() {
             </button>
             
             <button 
-              className={`btn-compact ${showAdvancedFilters ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              title="Advanced filters"
+              className={`btn-compact ${prioritySort ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setPrioritySort(prioritySort === 'desc' ? 'asc' : prioritySort === 'asc' ? null : 'desc')}
+              title={`Sort by priority: ${prioritySort === 'desc' ? 'High to Low' : prioritySort === 'asc' ? 'Low to High' : 'No sort'}`}
             >
-              <Filter style={{ width: '12px', height: '12px' }} />
+              <ArrowUpDown style={{ width: '12px', height: '12px' }} />
             </button>
 
             {selectedItems.size > 0 && (
