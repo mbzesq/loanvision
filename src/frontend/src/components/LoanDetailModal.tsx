@@ -28,7 +28,6 @@ interface LoanDetailModalProps {
 export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   const [loan, setLoan] = useState<Loan | null>(null);
   const [timeline, setTimeline] = useState<Milestone[]>([]);
-  const [propertyData, setPropertyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -47,19 +46,6 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
     };
   }, [onClose]);
 
-  // Fetch property data function
-  const fetchPropertyData = async (loanId: string) => {
-    try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await axios.get(`${apiUrl}/api/v2/loans/${loanId}/property-details`);
-      console.log('Property data fetched:', response.data);
-      setPropertyData(response.data);
-    } catch (error) {
-      console.error('Failed to fetch property data:', error);
-      // Don't fail the entire modal if property data is not available
-      setPropertyData(null);
-    }
-  };
 
   useEffect(() => {
     const fetchAllDetails = async () => {
@@ -74,9 +60,6 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
         ]);
         setLoan(loanRes.data);
         setTimeline(timelineRes.data);
-        
-        // Fetch property data separately (non-blocking)
-        fetchPropertyData(loanId);
       } catch (error) {
         console.error('Failed to fetch loan details:', error);
       } finally {
