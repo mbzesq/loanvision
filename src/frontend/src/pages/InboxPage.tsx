@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Search, Archive, MessageCircle, 
-  AlertTriangle, FileText, DollarSign, Scale, TrendingUp,
+  AlertTriangle, FileText, DollarSign, TrendingUp,
   Reply, Forward, MoreVertical, Filter, ChevronDown, ChevronRight,
   Users, Trash2, Plus, Eye
 } from 'lucide-react';
@@ -29,14 +29,14 @@ function InboxPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
-  const [groupByThread, setGroupByThread] = useState(true);
+  const [groupByThread] = useState(true);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [showForwardModal, setShowForwardModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [showNewMessageModal, setShowNewMessageModal] = useState(false);
   const [showSenderFilter, setShowSenderFilter] = useState(false);
-  const [selectedSender, setSelectedSender] = useState<number | null>(null);
+  const [selectedSender] = useState<number | null>(null);
   const [showOverdueFilter, setShowOverdueFilter] = useState(false);
   const [showUrgentFilter, setShowUrgentFilter] = useState(false);
   const [inboxStats, setInboxStats] = useState<InboxStats>({
@@ -443,16 +443,6 @@ function InboxPage() {
     }
   };
 
-  const getCategoryIcon = (category?: string) => {
-    switch (category) {
-      case 'sol': return <Scale className="h-3 w-3" />;
-      case 'legal': return <FileText className="h-3 w-3" />;
-      case 'payment': return <DollarSign className="h-3 w-3" />;
-      case 'document': return <FileText className="h-3 w-3" />;
-      case 'performance': return <TrendingUp className="h-3 w-3" />;
-      default: return null;
-    }
-  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -522,11 +512,9 @@ function InboxPage() {
     const filterKey = activeFilter as keyof typeof INBOX_QUICK_FILTERS;
     if (filterKey in INBOX_QUICK_FILTERS) {
       const filterObj = INBOX_QUICK_FILTERS[filterKey];
-      if ('status' in filterObj && !filterObj.status.includes(item.status)) return false;
-      if ('priority' in filterObj && !filterObj.priority.includes(item.priority)) return false;
-      if ('type' in filterObj && !filterObj.type.includes(item.type)) return false;
-      if ('category' in filterObj && (!item.category || !(filterObj.category as readonly string[]).includes(item.category))) return false;
-      if ('assignedTo' in filterObj && filterObj.assignedTo?.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
+      if ('status' in filterObj && Array.isArray(filterObj.status) && !filterObj.status.includes(item.status)) return false;
+      if ('type' in filterObj && Array.isArray(filterObj.type) && !filterObj.type.includes(item.type)) return false;
+      if ('assignedTo' in filterObj && Array.isArray(filterObj.assignedTo) && filterObj.assignedTo.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
     } else {
       // Check if activeFilter is a category name
       const categoryNames = Object.keys(inboxStats.by_category || inboxStats.byCategory || {});
@@ -719,13 +707,13 @@ function InboxPage() {
           // Calculate count based on actual filter criteria, not current filtered items
           const getFilterCount = (filterKey: string) => {
             const filterObj = INBOX_QUICK_FILTERS[filterKey as keyof typeof INBOX_QUICK_FILTERS];
+            if (!filterObj) return 0;
+            
             return inboxItems.filter(item => {
-              if ('status' in filterObj && !filterObj.status.includes(item.status)) return false;
-              if ('priority' in filterObj && !filterObj.priority.includes(item.priority)) return false;
-              if ('type' in filterObj && !filterObj.type.includes(item.type)) return false;
-              if ('category' in filterObj && (!item.category || !(filterObj.category as readonly string[]).includes(item.category))) return false;
-              if ('assignedTo' in filterObj && filterObj.assignedTo?.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
-              if ('createdBy' in filterObj && filterObj.createdBy?.includes('current_user') && currentUser && (item.created_by)?.id !== currentUser.id) return false;
+              if ('status' in filterObj && Array.isArray(filterObj.status) && !filterObj.status.includes(item.status)) return false;
+              if ('type' in filterObj && Array.isArray(filterObj.type) && !filterObj.type.includes(item.type)) return false;
+              if ('assignedTo' in filterObj && Array.isArray(filterObj.assignedTo) && filterObj.assignedTo.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
+              if ('createdBy' in filterObj && Array.isArray(filterObj.createdBy) && filterObj.createdBy.includes('current_user') && currentUser && (item.created_by)?.id !== currentUser.id) return false;
               return true;
             }).length;
           };
@@ -816,8 +804,6 @@ function InboxPage() {
               title="Advanced filters"
             >
               <Filter style={{ width: '12px', height: '12px' }} />
-            </button>
-
             </button>
 
             {selectedItems.size > 0 && (

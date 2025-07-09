@@ -15,7 +15,6 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
   const [recipients, setRecipients] = useState<Array<{ user_id: number; name: string }>>([]);
   const [sending, setSending] = useState(false);
   const [users, setUsers] = useState<UserType[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState('');
 
@@ -23,14 +22,11 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
   useEffect(() => {
     const fetchUsers = async () => {
       if (isOpen) {
-        setLoadingUsers(true);
         try {
           const userList = await inboxApi.getUsers();
           setUsers(userList);
         } catch (error) {
           console.error('Error loading users:', error);
-        } finally {
-          setLoadingUsers(false);
         }
       }
     };
@@ -41,13 +37,13 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
   // Filter users based on search
   const filteredUsers = users.filter(user => 
     !recipients.some(r => r.user_id === user.id) &&
-    (user.first_name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-     user.last_name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-     user.email.toLowerCase().includes(userSearchQuery.toLowerCase()))
+    ((user.first_name || '').toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+     (user.last_name || '').toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+     (user.email || '').toLowerCase().includes(userSearchQuery.toLowerCase()))
   );
 
   const handleAddRecipient = (user: UserType) => {
-    setRecipients([...recipients, { user_id: user.id, name: `${user.first_name} ${user.last_name}` }]);
+    setRecipients([...recipients, { user_id: user.id, name: `${user.first_name || ''} ${user.last_name || ''}`.trim() }]);
     setUserSearchQuery('');
     setShowUserDropdown(false);
   };
