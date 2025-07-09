@@ -23,7 +23,7 @@ function InboxPage() {
   const [inboxItems, setInboxItems] = useState<InboxItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedItem, setSelectedItem] = useState<InboxItem | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string>('UNREAD');
+  const [activeFilter, setActiveFilter] = useState<string>('UNREAD_MESSAGES');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +47,10 @@ function InboxPage() {
     my_tasks: 0,
     deleted: 0,
     sent_tasks: 0,
+    messages: 0,
+    unread_messages: 0,
+    sent_messages: 0,
+    all_tasks: 0,
     by_category: {},
     by_priority: {},
     by_status: {},
@@ -707,71 +711,123 @@ function InboxPage() {
           </button>
         </div>
 
-        {/* Folders */}
+        {/* Messages Section */}
         <div style={{ fontSize: '10px', fontWeight: '600', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
-          FOLDERS
+          MESSAGES
         </div>
         
-        {Object.entries(INBOX_QUICK_FILTERS).map(([key]) => {
-          // Calculate count based on actual filter criteria, not current filtered items
-          const getFilterCount = (filterKey: string) => {
-            const filterObj = INBOX_QUICK_FILTERS[filterKey as keyof typeof INBOX_QUICK_FILTERS];
-            if (!filterObj) return 0;
-            
-            return inboxItems.filter(item => {
-              if ('status' in filterObj && Array.isArray(filterObj.status) && !filterObj.status.includes(item.status)) return false;
-              if ('type' in filterObj && Array.isArray(filterObj.type) && !filterObj.type.includes(item.type)) return false;
-              if ('assignedTo' in filterObj && Array.isArray(filterObj.assignedTo) && filterObj.assignedTo.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
-              if ('createdBy' in filterObj && Array.isArray(filterObj.createdBy) && filterObj.createdBy.includes('current_user') && currentUser && item.created_by?.id !== currentUser.id) return false;
-              return true;
-            }).length;
-          };
-
-          const count = key === 'UNREAD' ? inboxStats.unread :
-                       key === 'MY_TASKS' ? (inboxStats.my_tasks || inboxStats.myTasks || 0) :
-                       key === 'SENT_TASKS' ? (inboxStats.sent_tasks || 0) :
-                       key === 'MESSAGES' ? getFilterCount(key) :
-                       key === 'DELETED' ? inboxStats.deleted :
-                       0;
-          
-          console.log(`Filter ${key}: count=${count}, active=${activeFilter === key}`);
-          
-          return (
-            <button
-              key={key}
-              onClick={() => setActiveFilter(key)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '6px 8px',
-                fontSize: '11px',
-                border: 'none',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: activeFilter === key ? 'var(--color-primary)' : 'transparent',
-                color: activeFilter === key ? 'white' : 'var(--color-text)',
-                cursor: 'pointer',
-                textAlign: 'left'
-              }}
-            >
-              <span style={{ marginLeft: key === 'MY_TASKS' || key === 'SENT_TASKS' || key === 'MESSAGES' ? '16px' : '0' }}>
-                {key === 'UNREAD' ? 'Unread (All)' : 
-                 key === 'SENT_TASKS' ? 'Sent Tasks' : 
-                 key.replace('_', ' ')}
+        {[
+          { key: 'UNREAD_MESSAGES', label: 'Unread Messages', count: inboxStats.unread_messages },
+          { key: 'SENT_MESSAGES', label: 'Sent Messages', count: inboxStats.sent_messages },
+          { key: 'ALL_MESSAGES', label: 'All Messages', count: inboxStats.messages }
+        ].map(({ key, label, count }) => (
+          <button
+            key={key}
+            onClick={() => setActiveFilter(key)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '6px 8px',
+              fontSize: '11px',
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: activeFilter === key ? 'var(--color-primary)' : 'transparent',
+              color: activeFilter === key ? 'white' : 'var(--color-text)',
+              cursor: 'pointer',
+              textAlign: 'left',
+              marginLeft: '8px'
+            }}
+          >
+            <span>{label}</span>
+            {count > 0 && (
+              <span style={{ 
+                fontSize: '10px',
+                backgroundColor: activeFilter === key ? 'rgba(255,255,255,0.2)' : 'var(--color-surface-light)',
+                padding: '2px 6px',
+                borderRadius: '10px'
+              }}>
+                {count}
               </span>
-              {count > 0 && (
-                <span style={{ 
-                  fontSize: '10px',
-                  backgroundColor: activeFilter === key ? 'rgba(255,255,255,0.2)' : 'var(--color-surface-light)',
-                  padding: '2px 6px',
-                  borderRadius: '10px'
-                }}>
-                  {count}
-                </span>
-              )}
-            </button>
-          );
-        })}
+            )}
+          </button>
+        ))}
+
+        {/* Tasks Section */}
+        <div style={{ fontSize: '10px', fontWeight: '600', color: 'var(--color-text-muted)', marginTop: '16px', marginBottom: '4px' }}>
+          TASKS
+        </div>
+        
+        {[
+          { key: 'MY_TASKS', label: 'My Tasks', count: inboxStats.my_tasks },
+          { key: 'SENT_TASKS', label: 'Sent Tasks', count: inboxStats.sent_tasks },
+          { key: 'ALL_TASKS', label: 'All Tasks', count: inboxStats.all_tasks }
+        ].map(({ key, label, count }) => (
+          <button
+            key={key}
+            onClick={() => setActiveFilter(key)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '6px 8px',
+              fontSize: '11px',
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: activeFilter === key ? 'var(--color-primary)' : 'transparent',
+              color: activeFilter === key ? 'white' : 'var(--color-text)',
+              cursor: 'pointer',
+              textAlign: 'left',
+              marginLeft: '8px'
+            }}
+          >
+            <span>{label}</span>
+            {count > 0 && (
+              <span style={{ 
+                fontSize: '10px',
+                backgroundColor: activeFilter === key ? 'rgba(255,255,255,0.2)' : 'var(--color-surface-light)',
+                padding: '2px 6px',
+                borderRadius: '10px'
+              }}>
+                {count}
+              </span>
+            )}
+          </button>
+        ))}
+
+        {/* Deleted Section */}
+        <div style={{ fontSize: '10px', fontWeight: '600', color: 'var(--color-text-muted)', marginTop: '16px', marginBottom: '4px' }}>
+          DELETED ITEMS
+        </div>
+        
+        <button
+          onClick={() => setActiveFilter('DELETED')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '6px 8px',
+            fontSize: '11px',
+            border: 'none',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: activeFilter === 'DELETED' ? 'var(--color-primary)' : 'transparent',
+            color: activeFilter === 'DELETED' ? 'white' : 'var(--color-text)',
+            cursor: 'pointer',
+            textAlign: 'left'
+          }}
+        >
+          <span>Deleted Items</span>
+          {inboxStats.deleted > 0 && (
+            <span style={{ 
+              fontSize: '10px',
+              backgroundColor: activeFilter === 'DELETED' ? 'rgba(255,255,255,0.2)' : 'var(--color-surface-light)',
+              padding: '2px 6px',
+              borderRadius: '10px'
+            }}>
+              {inboxStats.deleted}
+            </span>
+          )}
+        </button>
 
       </div>
 
@@ -806,16 +862,52 @@ function InboxPage() {
               className={`btn-compact ${showSenderFilter ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setShowSenderFilter(!showSenderFilter)}
               title="Filter by sender"
+              style={{ position: 'relative' }}
             >
               <Users style={{ width: '12px', height: '12px' }} />
+              {showSenderFilter && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: '0',
+                  marginTop: '4px',
+                  padding: '4px 8px',
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '10px',
+                  whiteSpace: 'nowrap',
+                  zIndex: 10
+                }}>
+                  Sender filter (coming soon)
+                </div>
+              )}
             </button>
             
             <button 
               className={`btn-compact ${prioritySort ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setPrioritySort(prioritySort === 'desc' ? 'asc' : prioritySort === 'asc' ? null : 'desc')}
               title={`Sort by priority: ${prioritySort === 'desc' ? 'High to Low' : prioritySort === 'asc' ? 'Low to High' : 'No sort'}`}
+              style={{ position: 'relative' }}
             >
               <ArrowUpDown style={{ width: '12px', height: '12px' }} />
+              {prioritySort && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: '0',
+                  marginTop: '4px',
+                  padding: '4px 8px',
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '10px',
+                  whiteSpace: 'nowrap',
+                  zIndex: 10
+                }}>
+                  {prioritySort === 'desc' ? 'High to Low' : 'Low to High'}
+                </div>
+              )}
             </button>
 
             {selectedItems.size > 0 && (

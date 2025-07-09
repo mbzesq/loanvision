@@ -128,6 +128,10 @@ export interface InboxStats {
   my_tasks: number;
   deleted: number;
   sent_tasks: number;
+  messages: number;
+  unread_messages: number;
+  sent_messages: number;
+  all_tasks: number;
   by_category: Record<string, number>;
   by_priority: Record<string, number>;
   by_status: Record<string, number>;
@@ -189,10 +193,17 @@ export interface UpdateInboxItemRequest {
 
 // Predefined quick filters for Bloomberg-style interface
 export const INBOX_QUICK_FILTERS = {
-  UNREAD: { status: ['unread'] as InboxItem['status'][] },
+  // Messages Section
+  UNREAD_MESSAGES: { type: ['user_message'] as InboxItem['type'][], status: ['unread'] as InboxItem['status'][] },
+  SENT_MESSAGES: { type: ['user_message'] as InboxItem['type'][], createdBy: ['current_user'] },
+  ALL_MESSAGES: { type: ['user_message'] as InboxItem['type'][] },
+  
+  // Tasks Section  
   MY_TASKS: { type: ['task_assignment'] as InboxItem['type'][], assignedTo: ['current_user'] },
   SENT_TASKS: { type: ['task_assignment'] as InboxItem['type'][], createdBy: ['current_user'] },
-  MESSAGES: { type: ['user_message'] as InboxItem['type'][] },
+  ALL_TASKS: { type: ['task_assignment'] as InboxItem['type'][] },
+  
+  // Deleted
   DELETED: { status: ['deleted'] as InboxItem['status'][] },
 } as const;
 

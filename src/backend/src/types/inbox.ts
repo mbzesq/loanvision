@@ -144,6 +144,10 @@ export interface InboxStats {
   my_tasks: number;
   deleted: number;
   sent_tasks: number;
+  messages: number;
+  unread_messages: number;
+  sent_messages: number;
+  all_tasks: number;
   by_category: Record<string, number>;
   by_priority: Record<string, number>;
   by_status: Record<string, number>;

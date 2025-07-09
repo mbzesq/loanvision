@@ -32,26 +32,27 @@ export function InboxKPIs() {
           const data = await response.json();
           setKpiData(data);
         } else {
-          // Fallback mock data for now
+          console.error('Failed to fetch KPI data:', response.status, response.statusText);
+          // Use zeros instead of mock data to show real state
           setKpiData({
-            avgDaysToClear: 3.2,
-            tasksCleared: 47,
-            avgOverdueDays: 1.8,
-            totalActiveItems: 23,
-            overdueItems: 5,
-            urgentItems: 8
+            avgDaysToClear: 0,
+            tasksCleared: 0,
+            avgOverdueDays: 0,
+            totalActiveItems: 0,
+            overdueItems: 0,
+            urgentItems: 0
           });
         }
       } catch (error) {
         console.error('Error fetching inbox KPIs:', error);
-        // Fallback mock data
+        // Use zeros to show real state instead of fake data
         setKpiData({
-          avgDaysToClear: 3.2,
-          tasksCleared: 47,
-          avgOverdueDays: 1.8,
-          totalActiveItems: 23,
-          overdueItems: 5,
-          urgentItems: 8
+          avgDaysToClear: 0,
+          tasksCleared: 0,
+          avgOverdueDays: 0,
+          totalActiveItems: 0,
+          overdueItems: 0,
+          urgentItems: 0
         });
       } finally {
         setLoading(false);

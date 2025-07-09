@@ -205,7 +205,11 @@ export class InboxService {
         COUNT(*) FILTER (WHERE due_date < NOW() AND status NOT IN ('completed', 'archived')) as overdue,
         COUNT(*) FILTER (WHERE assigned_to_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('completed', 'archived')) as my_tasks,
         COUNT(*) FILTER (WHERE status = 'deleted') as deleted,
-        COUNT(*) FILTER (WHERE created_by_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('archived', 'deleted')) as sent_tasks
+        COUNT(*) FILTER (WHERE created_by_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('archived', 'deleted')) as sent_tasks,
+        COUNT(*) FILTER (WHERE type = 'user_message' AND status NOT IN ('archived', 'deleted')) as messages,
+        COUNT(*) FILTER (WHERE type = 'user_message' AND status = 'unread') as unread_messages,
+        COUNT(*) FILTER (WHERE created_by_user_id = $1 AND type = 'user_message' AND status NOT IN ('archived', 'deleted')) as sent_messages,
+        COUNT(*) FILTER (WHERE type = 'task_assignment' AND status NOT IN ('archived', 'deleted')) as all_tasks
       FROM inbox_items ii
       LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
       WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
@@ -271,6 +275,10 @@ export class InboxService {
       my_tasks: parseInt(stats.my_tasks),
       deleted: parseInt(stats.deleted),
       sent_tasks: parseInt(stats.sent_tasks),
+      messages: parseInt(stats.messages),
+      unread_messages: parseInt(stats.unread_messages),
+      sent_messages: parseInt(stats.sent_messages),
+      all_tasks: parseInt(stats.all_tasks),
       by_category,
       by_priority,
       by_status
