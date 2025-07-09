@@ -1,8 +1,6 @@
 // src/frontend/src/components/DataToolbar.tsx
 
 import { Search, X } from 'lucide-react';
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
 import { ExportButton } from "./ExportButton";
 
 interface DataToolbarProps {
