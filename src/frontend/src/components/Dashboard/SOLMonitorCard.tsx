@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
 import { Clock, AlertTriangle, XCircle, ExternalLink } from 'lucide-react';
 import { solService, SOLSummary } from '../../services/solService';
 import { Pie, PieChart, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import '../../styles/financial-design-system.css';
 
 const SOLMonitorCard: React.FC = () => {
   const [solSummary, setSOLSummary] = useState<SOLSummary | null>(null);
@@ -33,46 +31,70 @@ const SOLMonitorCard: React.FC = () => {
 
   if (loading) {
     return (
-      <Card className="h-full">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            SOL Monitor
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-gray-500">Loading SOL data...</div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="financial-card" style={{ height: '100%' }}>
+        <div style={{ 
+          borderBottom: '1px solid var(--color-border)',
+          paddingBottom: '8px',
+          marginBottom: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <Clock style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+          <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+            SOL MONITOR
+          </h3>
+        </div>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '200px',
+          color: 'var(--color-text-muted)',
+          fontSize: '12px'
+        }}>
+          Loading SOL data...
+        </div>
+      </div>
     );
   }
 
   if (error || !solSummary) {
     return (
-      <Card className="h-full">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            SOL Monitor
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-red-500">{error || 'No data available'}</div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="financial-card" style={{ height: '100%' }}>
+        <div style={{ 
+          borderBottom: '1px solid var(--color-border)',
+          paddingBottom: '8px',
+          marginBottom: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <Clock style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+          <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+            SOL MONITOR
+          </h3>
+        </div>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '200px',
+          color: 'var(--color-danger)',
+          fontSize: '12px'
+        }}>
+          {error || 'No data available'}
+        </div>
+      </div>
     );
   }
 
-  // Prepare data for pie chart
+  // Prepare data for pie chart with Bloomberg color scheme
   const pieData = [
-    { name: 'Low Risk', value: solSummary.low_risk_count, color: '#10b981' },
-    { name: 'Medium Risk', value: solSummary.medium_risk_count, color: '#f59e0b' },
-    { name: 'High Risk', value: solSummary.high_risk_count, color: '#ef4444' },
-    { name: 'Expired', value: solSummary.expired_count, color: '#6b7280' }
+    { name: 'Low Risk', value: solSummary.low_risk_count, color: 'var(--color-success)' },
+    { name: 'Medium Risk', value: solSummary.medium_risk_count, color: 'var(--color-warning)' },
+    { name: 'High Risk', value: solSummary.high_risk_count, color: 'var(--color-danger)' },
+    { name: 'Expired', value: solSummary.expired_count, color: 'var(--color-text-muted)' }
   ].filter(d => d.value > 0);
 
   const totalAtRisk = solSummary.high_risk_count + solSummary.medium_risk_count;
@@ -85,58 +107,99 @@ const SOLMonitorCard: React.FC = () => {
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-blue-600" />
-            SOL Monitor
-          </div>
-          <Badge variant="outline" className="text-xs">
-            {solSummary.total_loans} loans
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="financial-card" style={{ height: '100%' }}>
+      <div style={{ 
+        borderBottom: '1px solid var(--color-border)',
+        paddingBottom: '8px',
+        marginBottom: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Clock style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+          <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+            SOL MONITOR
+          </h3>
+        </div>
+        <div style={{
+          fontSize: '10px',
+          fontWeight: '600',
+          color: 'var(--color-text-muted)',
+          textTransform: 'uppercase',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '2px 6px'
+        }}>
+          {solSummary.total_loans} LOANS
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {/* Key Metrics */}
-        <div className="grid grid-cols-2 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <div 
-            className="bg-red-50 rounded-lg p-3 cursor-pointer hover:bg-red-100 transition-colors"
             onClick={() => handleNavigateToLoans('expired')}
+            style={{
+              backgroundColor: 'rgba(197, 48, 48, 0.1)',
+              border: '1px solid rgba(197, 48, 48, 0.3)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(197, 48, 48, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(197, 48, 48, 0.1)';
+            }}
           >
-            <div className="flex items-center justify-between">
-              <XCircle className="h-4 w-4 text-red-600" />
-              <span className="text-2xl font-bold text-red-600">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <XCircle style={{ width: '14px', height: '14px', color: 'var(--color-danger)' }} />
+              <span style={{ fontSize: '18px', fontWeight: '700', color: 'var(--color-danger)' }}>
                 {solSummary.expired_count}
               </span>
             </div>
-            <p className="text-xs text-red-600 mt-1">Expired</p>
+            <p style={{ fontSize: '10px', color: 'var(--color-danger)', marginTop: '4px', textTransform: 'uppercase' }}>Expired</p>
           </div>
           
           <div 
-            className="bg-yellow-50 rounded-lg p-3 cursor-pointer hover:bg-yellow-100 transition-colors"
             onClick={() => handleNavigateToLoans('at_risk')}
+            style={{
+              backgroundColor: 'rgba(251, 146, 60, 0.1)',
+              border: '1px solid rgba(251, 146, 60, 0.3)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(251, 146, 60, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(251, 146, 60, 0.1)';
+            }}
           >
-            <div className="flex items-center justify-between">
-              <AlertTriangle className="h-4 w-4 text-yellow-600" />
-              <span className="text-2xl font-bold text-yellow-600">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <AlertTriangle style={{ width: '14px', height: '14px', color: 'var(--color-warning)' }} />
+              <span style={{ fontSize: '18px', fontWeight: '700', color: 'var(--color-warning)' }}>
                 {totalAtRisk}
               </span>
             </div>
-            <p className="text-xs text-yellow-600 mt-1">At Risk</p>
+            <p style={{ fontSize: '10px', color: 'var(--color-warning)', marginTop: '4px', textTransform: 'uppercase' }}>At Risk</p>
           </div>
         </div>
 
         {/* Risk Distribution Chart */}
-        <div className="h-48">
+        <div style={{ height: '180px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={pieData}
                 cx="50%"
                 cy="50%"
-                innerRadius={40}
-                outerRadius={70}
+                innerRadius={30}
+                outerRadius={55}
                 paddingAngle={2}
                 dataKey="value"
               >
@@ -147,18 +210,19 @@ const SOLMonitorCard: React.FC = () => {
               <Tooltip 
                 formatter={(value: number) => `${value} loans`}
                 contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  fontSize: '12px'
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '11px',
+                  color: 'var(--color-text)'
                 }}
               />
               <Legend 
                 verticalAlign="bottom" 
-                height={36}
-                iconSize={10}
+                height={30}
+                iconSize={8}
                 formatter={(value: string) => (
-                  <span className="text-xs">{value}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--color-text)' }}>{value}</span>
                 )}
               />
             </PieChart>
@@ -166,70 +230,143 @@ const SOLMonitorCard: React.FC = () => {
         </div>
 
         {/* Risk Indicator */}
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-600">Portfolio Risk</span>
-            <Badge 
-              variant="outline" 
-              className={`text-xs ${
-                riskPercentage > 10 ? 'border-red-300 text-red-700' : 
-                riskPercentage > 5 ? 'border-yellow-300 text-yellow-700' : 
-                'border-green-300 text-green-700'
-              }`}
-            >
-              {riskPercentage}% at risk
-            </Badge>
+        <div style={{
+          backgroundColor: 'var(--color-background)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '8px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <span style={{ fontSize: '10px', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>Portfolio Risk</span>
+            <div style={{
+              fontSize: '10px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '2px 6px',
+              color: riskPercentage > 10 ? 'var(--color-danger)' : 
+                     riskPercentage > 5 ? 'var(--color-warning)' : 
+                     'var(--color-success)',
+              borderColor: riskPercentage > 10 ? 'var(--color-danger)' : 
+                          riskPercentage > 5 ? 'var(--color-warning)' : 
+                          'var(--color-success)'
+            }}>
+              {riskPercentage}% AT RISK
+            </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div style={{ width: '100%', backgroundColor: 'var(--color-border)', borderRadius: '2px', height: '6px' }}>
             <div 
-              className={`h-2 rounded-full transition-all duration-500 ${
-                riskPercentage > 10 ? 'bg-red-500' : 
-                riskPercentage > 5 ? 'bg-yellow-500' : 
-                'bg-green-500'
-              }`}
-              style={{ width: `${Math.min(riskPercentage, 100)}%` }}
+              style={{
+                height: '6px',
+                borderRadius: '2px',
+                transition: 'all 0.5s ease',
+                backgroundColor: riskPercentage > 10 ? 'var(--color-danger)' : 
+                               riskPercentage > 5 ? 'var(--color-warning)' : 
+                               'var(--color-success)',
+                width: `${Math.min(riskPercentage, 100)}%`
+              }}
             />
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t">
-          <Button 
-            variant="outline" 
-            size="sm" 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '6px',
+          paddingTop: '8px',
+          borderTop: '1px solid var(--color-border)'
+        }}>
+          <button 
             onClick={() => handleNavigateToLoans('high_risk')}
-            className="text-xs"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              padding: '6px 8px',
+              fontSize: '10px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--color-surface)',
+              color: 'var(--color-text)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-surface-light)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-surface)';
+            }}
           >
-            <ExternalLink className="h-3 w-3 mr-1" />
+            <ExternalLink style={{ width: '12px', height: '12px' }} />
             High Risk
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          </button>
+          <button 
             onClick={() => handleNavigateToLoans('expiring_soon')}
-            className="text-xs"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              padding: '6px 8px',
+              fontSize: '10px',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--color-surface)',
+              color: 'var(--color-text)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-surface-light)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-surface)';
+            }}
           >
-            <Clock className="h-3 w-3 mr-1" />
+            <Clock style={{ width: '12px', height: '12px' }} />
             Expiring Soon
-          </Button>
+          </button>
         </div>
 
         {/* Alerts */}
         {solSummary.alerts && solSummary.alerts.length > 0 && (
-          <div className="border-t pt-3">
-            <p className="text-xs font-medium text-gray-700 mb-2">Recent Alerts</p>
-            <div className="space-y-1">
+          <div style={{
+            borderTop: '1px solid var(--color-border)',
+            paddingTop: '8px'
+          }}>
+            <p style={{
+              fontSize: '10px',
+              fontWeight: '600',
+              color: 'var(--color-text)',
+              marginBottom: '6px',
+              textTransform: 'uppercase'
+            }}>Recent Alerts</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {solSummary.alerts.slice(0, 3).map((alert, index) => (
-                <div key={index} className="text-xs text-red-600 flex items-start gap-1">
-                  <AlertTriangle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                <div key={index} style={{
+                  fontSize: '10px',
+                  color: 'var(--color-danger)',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '4px'
+                }}>
+                  <AlertTriangle style={{ width: '12px', height: '12px', marginTop: '1px', flexShrink: 0 }} />
                   <span>{alert}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
