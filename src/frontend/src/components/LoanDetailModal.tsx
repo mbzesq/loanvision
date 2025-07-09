@@ -343,36 +343,6 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
                 <SOLInfoCard loanId={loanId} className="w-full" />
               </section>
 
-              {/* === Section 5: Property Enrichment Data (Validation) === */}
-              {propertyData && (
-                <section className="financial-card">
-                  <div style={{ 
-                    borderBottom: '1px solid var(--color-border)',
-                    paddingBottom: '8px',
-                    marginBottom: '12px'
-                  }}>
-                    <h3 style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '600', 
-                      color: 'var(--color-text-secondary)',
-                      textTransform: 'uppercase'
-                    }}>ENRICHMENT DATA (VALIDATION)</h3>
-                  </div>
-                  <pre style={{ 
-                    fontSize: '10px', 
-                    whiteSpace: 'pre-wrap', 
-                    wordBreak: 'break-all',
-                    color: 'var(--color-text-muted)',
-                    fontFamily: 'var(--font-mono)',
-                    backgroundColor: 'var(--color-background)',
-                    padding: '8px',
-                    borderRadius: 'var(--radius-sm)',
-                    overflow: 'auto'
-                  }}>
-                    {JSON.stringify(propertyData, null, 2)}
-                  </pre>
-                </section>
-              )}
             </div>
           )}
         </div>
