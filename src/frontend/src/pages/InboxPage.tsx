@@ -405,6 +405,53 @@ function InboxPage() {
     }
   };
 
+  const getTaskStatusBadge = (item: InboxItem) => {
+    if (item.type !== 'task_assignment') return null;
+    
+    const isTaskCreator = item.created_by?.id === currentUser?.id;
+    if (!isTaskCreator) return null; // Only show for sent tasks
+    
+    const badgeStyle = {
+      fontSize: '9px',
+      padding: '2px 6px',
+      borderRadius: '10px',
+      fontWeight: '600',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '2px',
+      marginLeft: '6px'
+    };
+    
+    switch (item.status) {
+      case 'unread':
+        return (
+          <span style={{ ...badgeStyle, backgroundColor: '#fbbf24', color: '#92400e' }}>
+            📤 Sent
+          </span>
+        );
+      case 'read':
+        return (
+          <span style={{ ...badgeStyle, backgroundColor: '#60a5fa', color: '#1e40af' }}>
+            👁 Viewed
+          </span>
+        );
+      case 'in_progress':
+        return (
+          <span style={{ ...badgeStyle, backgroundColor: '#a78bfa', color: '#5b21b6' }}>
+            ⏳ In Progress
+          </span>
+        );
+      case 'completed':
+        return (
+          <span style={{ ...badgeStyle, backgroundColor: '#34d399', color: '#065f46' }}>
+            ✅ Completed
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   const filteredItems = inboxItems.filter(item => {
     // Apply search query
     if (searchQuery && !item.subject.toLowerCase().includes(searchQuery.toLowerCase()) && 
@@ -922,9 +969,12 @@ function InboxPage() {
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
-                          flex: 1
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center'
                         }}>
                           {item.subject}
+                          {getTaskStatusBadge(item)}
                         </span>
                         <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', flexShrink: 0 }}>
                           {format(item.created_at || item.createdAt!, 'HH:mm')}
