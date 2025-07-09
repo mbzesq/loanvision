@@ -164,14 +164,14 @@ function InboxPage() {
         const filterObj = { ...INBOX_QUICK_FILTERS[filterKey] };
         
         // Handle special 'current_user' values
-        if (filterObj.assignedTo?.includes('current_user')) {
-          filterObj.assigned_to_user_id = currentUser?.id;
-          delete filterObj.assignedTo;
+        if ((filterObj as any).assignedTo?.includes('current_user')) {
+          (filterObj as any).assigned_to_user_id = currentUser?.id;
+          delete (filterObj as any).assignedTo;
         }
         
-        if (filterObj.createdBy?.includes('current_user')) {
-          filterObj.created_by_user_id = currentUser?.id;
-          delete filterObj.createdBy;
+        if ((filterObj as any).createdBy?.includes('current_user')) {
+          (filterObj as any).created_by_user_id = currentUser?.id;
+          delete (filterObj as any).createdBy;
         }
         
         Object.assign(filters, filterObj);
