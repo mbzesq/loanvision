@@ -130,7 +130,7 @@ export class InboxService {
     }
     
     // Get total count
-    const countQuery = `SELECT COUNT(DISTINCT ii.id) as total FROM (${query}) as counted_items`;
+    const countQuery = `SELECT COUNT(DISTINCT counted_items.id) as total FROM (${query}) as counted_items`;
     const countResult = await pool.query(countQuery, queryParams);
     const total = parseInt(countResult.rows[0].total);
     
