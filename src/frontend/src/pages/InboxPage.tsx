@@ -1055,8 +1055,20 @@ function InboxPage() {
                 {selectedItem.body}
               </div>
               
+              {/* Debug info */}
+              <div style={{ 
+                marginTop: '10px',
+                padding: '6px',
+                backgroundColor: 'var(--color-background)',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '10px',
+                color: 'var(--color-text-muted)'
+              }}>
+                Type: {selectedItem.type} | Status: {selectedItem.status} | Priority: {selectedItem.priority}
+              </div>
+              
               {/* Quick Actions */}
-              {selectedItem.type === 'system_alert' && (
+              {(selectedItem.type === 'system_alert' || selectedItem.type === 'user_message') && (
                 <div style={{ 
                   marginTop: '20px',
                   padding: '12px',
