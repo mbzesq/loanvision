@@ -2,7 +2,7 @@
 
 export type InboxItemType = 'system_alert' | 'user_message' | 'task_assignment' | 'loan_update' | 'document_share' | 'system_notification';
 export type InboxPriority = 'urgent' | 'high' | 'normal' | 'low';
-export type InboxStatus = 'unread' | 'read' | 'in_progress' | 'completed' | 'archived';
+export type InboxStatus = 'unread' | 'read' | 'in_progress' | 'completed' | 'archived' | 'deleted';
 export type InboxSource = 'system' | 'user' | 'api' | 'automation';
 export type RecipientType = 'to' | 'cc' | 'bcc';
 
@@ -133,6 +133,7 @@ export interface InboxFilterParams {
   limit?: number;
   offset?: number;
   include_archived?: boolean;
+  include_deleted?: boolean;
 }
 
 export interface InboxStats {
@@ -141,6 +142,7 @@ export interface InboxStats {
   urgent: number;
   overdue: number;
   my_tasks: number;
+  deleted: number;
   by_category: Record<string, number>;
   by_priority: Record<string, number>;
   by_status: Record<string, number>;

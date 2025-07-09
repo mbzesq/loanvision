@@ -20,7 +20,7 @@ export interface InboxItem {
   subject: string;
   body: string;
   priority: 'urgent' | 'high' | 'normal' | 'low';
-  status: 'unread' | 'read' | 'in_progress' | 'completed' | 'archived';
+  status: 'unread' | 'read' | 'in_progress' | 'completed' | 'archived' | 'deleted';
   source: 'system' | 'user' | 'api' | 'automation';
   category?: string;
   
@@ -117,6 +117,7 @@ export interface InboxFilter {
   limit?: number;
   offset?: number;
   include_archived?: boolean;
+  include_deleted?: boolean;
 }
 
 export interface InboxStats {
@@ -125,6 +126,7 @@ export interface InboxStats {
   urgent: number;
   overdue: number;
   my_tasks: number;
+  deleted: number;
   by_category: Record<string, number>;
   by_priority: Record<string, number>;
   by_status: Record<string, number>;
@@ -195,6 +197,7 @@ export const INBOX_QUICK_FILTERS = {
   SOL_ITEMS: { category: ['sol'] },
   LEGAL_ITEMS: { category: ['legal', 'foreclosure'] },
   OVERDUE: { status: ['in_progress'] as InboxItem['status'][] }, // Combined with date logic
+  DELETED: { status: ['deleted'] as InboxItem['status'][] },
 } as const;
 
 // Action types for bulk operations

@@ -119,9 +119,13 @@ export class InboxService {
       paramIndex++;
     }
     
-    // Exclude archived by default
-    if (!filters.include_archived) {
+    // Exclude archived and deleted by default
+    if (!filters.include_archived && !filters.include_deleted) {
+      conditions.push(`ii.status NOT IN ('archived', 'deleted')`);
+    } else if (!filters.include_archived) {
       conditions.push(`ii.status != 'archived'`);
+    } else if (!filters.include_deleted) {
+      conditions.push(`ii.status != 'deleted'`);
     }
     
     // Add WHERE clause
@@ -195,15 +199,15 @@ export class InboxService {
   static async getInboxStats(userId: number): Promise<InboxStats> {
     const query = `
       SELECT 
-        COUNT(*) as total,
+        COUNT(*) FILTER (WHERE status NOT IN ('archived', 'deleted')) as total,
         COUNT(*) FILTER (WHERE status = 'unread') as unread,
         COUNT(*) FILTER (WHERE priority = 'urgent') as urgent,
         COUNT(*) FILTER (WHERE due_date < NOW() AND status NOT IN ('completed', 'archived')) as overdue,
-        COUNT(*) FILTER (WHERE assigned_to_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('completed', 'archived')) as my_tasks
+        COUNT(*) FILTER (WHERE assigned_to_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('completed', 'archived')) as my_tasks,
+        COUNT(*) FILTER (WHERE status = 'deleted') as deleted
       FROM inbox_items ii
       LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
       WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
-        AND ii.status != 'archived'
     `;
     
     const categoryQuery = `
@@ -211,7 +215,7 @@ export class InboxService {
       FROM inbox_items ii
       LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
       WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
-        AND ii.status != 'archived'
+        AND ii.status NOT IN ('archived', 'deleted')
         AND category IS NOT NULL
       GROUP BY category
     `;
@@ -221,7 +225,7 @@ export class InboxService {
       FROM inbox_items ii
       LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
       WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
-        AND ii.status != 'archived'
+        AND ii.status NOT IN ('archived', 'deleted')
       GROUP BY priority
     `;
     
@@ -230,7 +234,7 @@ export class InboxService {
       FROM inbox_items ii
       LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
       WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
-        AND ii.status != 'archived'
+        AND ii.status NOT IN ('archived', 'deleted')
       GROUP BY status
     `;
     
@@ -264,6 +268,7 @@ export class InboxService {
       urgent: parseInt(stats.urgent),
       overdue: parseInt(stats.overdue),
       my_tasks: parseInt(stats.my_tasks),
+      deleted: parseInt(stats.deleted),
       by_category,
       by_priority,
       by_status
@@ -522,19 +527,17 @@ export class InboxService {
               await client.query('UPDATE inbox_items SET status = $1 WHERE id = $2', ['archived', itemId]);
               break;
             case 'delete':
-              // Log deletion activity before deleting
+              // Log deletion activity before marking as deleted
               await client.query(
                 'INSERT INTO inbox_activity_log (inbox_item_id, user_id, action) VALUES ($1, $2, $3)',
                 [itemId, userId, 'deleted']
               );
               
-              // Delete related records first (foreign key constraints)
-              await client.query('DELETE FROM inbox_recipients WHERE inbox_item_id = $1', [itemId]);
-              await client.query('DELETE FROM inbox_attachments WHERE inbox_item_id = $1', [itemId]);
-              await client.query('DELETE FROM inbox_activity_log WHERE inbox_item_id = $1', [itemId]);
-              
-              // Finally delete the main item
-              await client.query('DELETE FROM inbox_items WHERE id = $1', [itemId]);
+              // Mark as deleted instead of actually deleting (soft delete)
+              await client.query(
+                'UPDATE inbox_items SET status = $1, updated_at = NOW() WHERE id = $2', 
+                ['deleted', itemId]
+              );
               break;
             case 'assign':
               if (!action.assigned_to_user_id) {

@@ -39,6 +39,7 @@ function InboxPage() {
     urgent: 0,
     overdue: 0,
     my_tasks: 0,
+    deleted: 0,
     by_category: {},
     by_priority: {},
     by_status: {},
@@ -180,6 +181,11 @@ function InboxPage() {
         }
         
         Object.assign(filters, filterObj);
+      }
+
+      // Include deleted items when DELETED filter is active
+      if (activeFilter === 'DELETED') {
+        filters.include_deleted = true;
       }
 
       const [response, globalStats] = await Promise.all([
@@ -631,6 +637,7 @@ function InboxPage() {
                        key === 'URGENT' ? inboxStats.urgent :
                        key === 'MY_TASKS' ? (inboxStats.my_tasks || inboxStats.myTasks || 0) :
                        key === 'SENT_TASKS' ? 0 : // TODO: Add sent tasks count to stats
+                       key === 'DELETED' ? inboxStats.deleted :
                        filteredItems.length;
           
           console.log(`Filter ${key}: count=${count}, active=${activeFilter === key}`);

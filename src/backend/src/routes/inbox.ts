@@ -40,7 +40,8 @@ router.get('/', async (req: AuthRequest, res) => {
       thread_id: req.query.thread_id as string,
       limit: req.query.limit ? parseInt(req.query.limit as string) : 50,
       offset: req.query.offset ? parseInt(req.query.offset as string) : 0,
-      include_archived: req.query.include_archived === 'true'
+      include_archived: req.query.include_archived === 'true',
+      include_deleted: req.query.include_deleted === 'true'
     };
     
     const { items, total } = await InboxService.getInboxItems(userId, filters);
@@ -142,7 +143,7 @@ router.put('/:id', async (req: AuthRequest, res) => {
       return res.status(400).json({ error: 'Invalid priority value' });
     }
     
-    const validStatuses = ['unread', 'read', 'in_progress', 'completed', 'archived'];
+    const validStatuses = ['unread', 'read', 'in_progress', 'completed', 'archived', 'deleted'];
     if (data.status && !validStatuses.includes(data.status)) {
       return res.status(400).json({ error: 'Invalid status value' });
     }
