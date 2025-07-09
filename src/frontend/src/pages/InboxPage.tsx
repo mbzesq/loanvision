@@ -14,6 +14,10 @@ import { CreateTaskModal } from '../components/CreateTaskModal';
 import '../styles/design-system.css';
 
 function InboxPage() {
+  // Debug: Check if new code is loading
+  console.log('InboxPage loading with enhanced task features');
+  console.log('INBOX_QUICK_FILTERS:', Object.keys(INBOX_QUICK_FILTERS));
+  
   const [inboxItems, setInboxItems] = useState<InboxItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedItem, setSelectedItem] = useState<InboxItem | null>(null);
@@ -617,6 +621,8 @@ function InboxPage() {
                        key === 'SENT_TASKS' ? 0 : // TODO: Add sent tasks count to stats
                        filteredItems.length;
           
+          console.log(`Filter ${key}: count=${count}, active=${activeFilter === key}`);
+          
           return (
             <button
               key={key}
@@ -730,7 +736,10 @@ function InboxPage() {
             {/* New Task Button */}
             <button 
               className="btn-compact btn-primary"
-              onClick={() => setShowCreateTaskModal(true)}
+              onClick={() => {
+                console.log('New Task button clicked');
+                setShowCreateTaskModal(true);
+              }}
               title="Create new task"
             >
               <Plus style={{ width: '12px', height: '12px' }} />
