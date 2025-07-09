@@ -633,12 +633,26 @@ function InboxPage() {
         </div>
         
         {Object.entries(INBOX_QUICK_FILTERS).map(([key]) => {
+          // Calculate count based on actual filter criteria, not current filtered items
+          const getFilterCount = (filterKey: string) => {
+            const filterObj = INBOX_QUICK_FILTERS[filterKey as keyof typeof INBOX_QUICK_FILTERS];
+            return inboxItems.filter(item => {
+              if ('status' in filterObj && !filterObj.status.includes(item.status)) return false;
+              if ('priority' in filterObj && !filterObj.priority.includes(item.priority)) return false;
+              if ('type' in filterObj && !filterObj.type.includes(item.type)) return false;
+              if ('category' in filterObj && (!item.category || !(filterObj.category as readonly string[]).includes(item.category))) return false;
+              if ('assignedTo' in filterObj && filterObj.assignedTo?.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
+              if ('createdBy' in filterObj && filterObj.createdBy?.includes('current_user') && currentUser && (item.created_by)?.id !== currentUser.id) return false;
+              return true;
+            }).length;
+          };
+
           const count = key === 'UNREAD' ? inboxStats.unread :
                        key === 'URGENT' ? inboxStats.urgent :
                        key === 'MY_TASKS' ? (inboxStats.my_tasks || inboxStats.myTasks || 0) :
                        key === 'SENT_TASKS' ? 0 : // TODO: Add sent tasks count to stats
                        key === 'DELETED' ? inboxStats.deleted :
-                       filteredItems.length;
+                       getFilterCount(key);
           
           console.log(`Filter ${key}: count=${count}, active=${activeFilter === key}`);
           
