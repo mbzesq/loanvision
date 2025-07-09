@@ -581,3 +581,65 @@ label,
   font-family: var(--font-mono);
   line-height: 1.4;
 }
+
+/* Filter Panel Bloomberg Theme Overrides */
+.filter-panel {
+  --filter-background: var(--color-surface);
+  --filter-border: var(--color-border);
+  --filter-text: var(--color-text);
+  --filter-text-muted: var(--color-text-muted);
+  --filter-input-bg: var(--color-background);
+}
+
+/* Override light theme styling in filter panel */
+.filter-panel .bg-slate-50\/75,
+.filter-panel .bg-slate-50 {
+  background-color: var(--color-background) !important;
+}
+
+.filter-panel .text-slate-500 {
+  color: var(--color-text-muted) !important;
+}
+
+.filter-panel .border-t {
+  border-color: var(--color-border) !important;
+}
+
+/* Filter panel accordion items */
+.filter-panel [data-radix-accordion-content] {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+.filter-panel [data-radix-accordion-trigger] {
+  color: var(--color-text) !important;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filter-panel [data-radix-accordion-trigger]:hover {
+  background-color: var(--color-surface-light);
+}
+
+/* Filter panel inputs */
+.filter-panel input {
+  background-color: var(--color-background) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border) !important;
+}
+
+.filter-panel input::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+/* Filter panel checkboxes and labels */
+.filter-panel label {
+  color: var(--color-text) !important;
+  font-size: 11px !important;
+}
+
+/* Badge styling for filter counts */
+.filter-panel [data-badge] {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}

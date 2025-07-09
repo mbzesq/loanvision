@@ -1,5 +1,4 @@
 import { FinancialKPIDashboard } from '../components/FinancialKPIDashboard';
-import { AlertSummary } from '../components/AlertSummary';
 import { PerformanceTrendChart } from '../components/PerformanceTrendChart';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
@@ -585,9 +584,6 @@ function DashboardPage() {
         </div>
       </div>
 
-      {/* Alert Summary Strip */}
-      <AlertSummary compact />
-
       {/* Financial KPI Dashboard */}
       <div className="financial-card" style={{ marginBottom: '16px' }}>
         <div style={{ 
@@ -739,6 +735,46 @@ function DashboardPage() {
               <div className="symbol">30Y UMBS TBA 5.5%</div>
               <div className="value">98.125</div>
               <div className="change negative">-0.05</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Risk Distribution - NPLVision Score */}
+        <div className="financial-card">
+          <div style={{ 
+            borderBottom: '1px solid var(--color-border)',
+            paddingBottom: '8px',
+            marginBottom: '12px'
+          }}>
+            <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+              RISK DISTRIBUTION - NPLVISION SCORE
+            </h3>
+          </div>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            minHeight: '120px',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            <div style={{ 
+              fontSize: '14px', 
+              fontWeight: '600', 
+              color: 'var(--color-text)',
+              textAlign: 'center'
+            }}>
+              Coming Soon
+            </div>
+            <div style={{ 
+              fontSize: '10px', 
+              color: 'var(--color-text-muted)',
+              textAlign: 'center',
+              maxWidth: '200px',
+              lineHeight: '1.4'
+            }}>
+              Proprietary scoring framework analyzing payment history, equity position, 
+              legal timeline, and borrower profile for comprehensive risk assessment
             </div>
           </div>
         </div>

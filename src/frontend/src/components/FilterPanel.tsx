@@ -116,18 +116,84 @@ export function FilterPanel(props: FilterPanelProps) {
   const filteredLienPositions = useMemo(() => availableLienPos.filter(pos => String(pos).toLowerCase().includes(searchTerms.lienPos.toLowerCase())), [availableLienPos, searchTerms.lienPos]);
 
   return (
-    <div className="flex flex-col h-full border rounded-lg bg-white overflow-hidden">
-      <div className="p-4 border-b">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Filter Criteria</h2>
-          <Button variant="link" size="sm" onClick={onShowAll}>Show All</Button>
+    <div className="filter-panel" style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100%', 
+      border: '1px solid var(--color-border)', 
+      borderRadius: 'var(--radius)', 
+      backgroundColor: 'var(--color-surface)', 
+      overflow: 'hidden'
+    }}>
+      <div style={{ 
+        padding: '12px', 
+        borderBottom: '1px solid var(--color-border)',
+        backgroundColor: 'var(--color-surface)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ 
+            fontSize: '12px', 
+            fontWeight: '600', 
+            textTransform: 'uppercase',
+            color: 'var(--color-text)',
+            margin: 0
+          }}>
+            Filter Criteria
+          </h2>
+          <button 
+            onClick={onShowAll}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--color-primary)',
+              fontSize: '11px',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
+            Show All
+          </button>
         </div>
       </div>
-      <div className="p-4 border-b flex flex-col sm:flex-row gap-2">
-        <Button variant="outline" className="w-full sm:w-1/2" onClick={handleClear}>Clear Filters</Button>
-        <Button className="w-full sm:w-1/2 bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>Apply</Button>
+      <div style={{ 
+        padding: '12px', 
+        borderBottom: '1px solid var(--color-border)',
+        backgroundColor: 'var(--color-surface)',
+        display: 'flex',
+        gap: '8px'
+      }}>
+        <button 
+          onClick={handleClear}
+          style={{
+            flex: 1,
+            padding: '6px 12px',
+            fontSize: '11px',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: 'var(--color-background)',
+            color: 'var(--color-text)',
+            cursor: 'pointer'
+          }}
+        >
+          Clear Filters
+        </button>
+        <button 
+          onClick={handleApply}
+          style={{
+            flex: 1,
+            padding: '6px 12px',
+            fontSize: '11px',
+            border: 'none',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: 'var(--color-primary)',
+            color: 'white',
+            cursor: 'pointer'
+          }}
+        >
+          Apply
+        </button>
       </div>
-      <div className="flex-grow overflow-y-auto">
+      <div style={{ flexGrow: 1, overflowY: 'auto', backgroundColor: 'var(--color-surface)' }}>
         <Accordion type="multiple" className="w-full">
           {/* Property State */}
           <AccordionItem value="state">
@@ -138,18 +204,58 @@ export function FilterPanel(props: FilterPanelProps) {
               </div>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="p-2 bg-slate-50/75 border-t">
-                <Input placeholder="Search states..." value={searchTerms.propertyState} onChange={(e) => handleSearchChange('propertyState', e.target.value)} className="mb-2" />
-                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
+              <div style={{ 
+                padding: '8px', 
+                backgroundColor: 'var(--color-background)', 
+                borderTop: '1px solid var(--color-border)'
+              }}>
+                <input 
+                  placeholder="Search states..." 
+                  value={searchTerms.propertyState} 
+                  onChange={(e) => handleSearchChange('propertyState', e.target.value)} 
+                  style={{
+                    width: '100%',
+                    padding: '6px 8px',
+                    fontSize: '11px',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: 'var(--color-surface)',
+                    color: 'var(--color-text)',
+                    marginBottom: '8px'
+                  }}
+                />
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '6px', 
+                  maxHeight: '192px', 
+                  overflowY: 'auto' 
+                }}>
                   {filteredStates.length === 0 ? (
-                    <div className="text-sm text-slate-500 italic p-2">
+                    <div style={{ 
+                      fontSize: '11px', 
+                      color: 'var(--color-text-muted)', 
+                      fontStyle: 'italic', 
+                      padding: '8px' 
+                    }}>
                       No states match your search
                     </div>
                   ) : (
                     filteredStates.map((state) => (
-                      <div key={state.abbr} className="flex items-center space-x-2">
+                      <div key={state.abbr} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        padding: '2px 0'
+                      }}>
                         <Checkbox id={`state-${state.abbr}`} checked={filters.propertyState.includes(state.abbr)} onCheckedChange={(checked) => handleCheckboxChange('propertyState', state.abbr, !!checked)} />
-                        <Label htmlFor={`state-${state.abbr}`} className="font-normal">{state.name} ({state.abbr})</Label>
+                        <label htmlFor={`state-${state.abbr}`} style={{ 
+                          fontSize: '11px',
+                          color: 'var(--color-text)',
+                          cursor: 'pointer'
+                        }}>
+                          {state.name} ({state.abbr})
+                        </label>
                       </div>
                     ))
                   )}
