@@ -121,6 +121,24 @@ class InboxApiService {
     });
   }
 
+  // Reply to an item
+  async replyToItem(itemId: number, body: string, recipients?: Array<{ user_id: number; recipient_type?: 'to' | 'cc' | 'bcc' }>): Promise<InboxItem> {
+    const item = await this.makeRequest<InboxItem>(`/${itemId}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ body, recipients }),
+    });
+    return this.transformInboxItem(item);
+  }
+
+  // Forward an item
+  async forwardItem(itemId: number, body: string, recipients: Array<{ user_id: number; recipient_type?: 'to' | 'cc' | 'bcc' }>): Promise<InboxItem> {
+    const item = await this.makeRequest<InboxItem>(`/${itemId}/forward`, {
+      method: 'POST',
+      body: JSON.stringify({ body, recipients }),
+    });
+    return this.transformInboxItem(item);
+  }
+
   // Get inbox items for a specific loan
   async getLoanInboxItems(loanId: string): Promise<{
     items: InboxItem[];

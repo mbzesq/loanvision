@@ -8,6 +8,8 @@ import {
 import { format } from 'date-fns';
 import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType, InboxFilter } from '../types/inbox';
 import { inboxApi } from '../services/inboxApi';
+import { ReplyModal } from '../components/ReplyModal';
+import { ForwardModal } from '../components/ForwardModal';
 import '../styles/design-system.css';
 
 function InboxPage() {
@@ -22,6 +24,8 @@ function InboxPage() {
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
   const [groupByThread, setGroupByThread] = useState(true);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [showForwardModal, setShowForwardModal] = useState(false);
   const [inboxStats, setInboxStats] = useState<InboxStats>({
     total: 0,
     unread: 0,
@@ -71,6 +75,36 @@ function InboxPage() {
   const showError = (message: string) => {
     setError(message);
     setSuccessMessage(null);
+  };
+
+  const handleReply = async (body: string) => {
+    if (!selectedItem) return;
+    
+    try {
+      await inboxApi.replyToItem(selectedItem.id, body);
+      showSuccess('Reply sent successfully');
+      // Refresh data to show the new reply
+      await fetchInboxData();
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      showError(`Failed to send reply: ${(error as Error).message}`);
+      throw error; // Re-throw to let modal handle it
+    }
+  };
+
+  const handleForward = async (body: string, recipients: Array<{ user_id: number; recipient_type?: 'to' | 'cc' | 'bcc' }>) => {
+    if (!selectedItem) return;
+    
+    try {
+      await inboxApi.forwardItem(selectedItem.id, body, recipients);
+      showSuccess('Message forwarded successfully');
+      // Refresh data to show the new forward
+      await fetchInboxData();
+    } catch (error) {
+      console.error('Error forwarding message:', error);
+      showError(`Failed to forward message: ${(error as Error).message}`);
+      throw error; // Re-throw to let modal handle it
+    }
   };
 
   const fetchInboxData = async () => {
@@ -909,10 +943,16 @@ function InboxPage() {
                 </div>
                 
                 <div style={{ display: 'flex', gap: '4px' }}>
-                  <button className="btn-compact btn-secondary">
+                  <button 
+                    className="btn-compact btn-secondary"
+                    onClick={() => setShowReplyModal(true)}
+                  >
                     <Reply style={{ width: '12px', height: '12px' }} />
                   </button>
-                  <button className="btn-compact btn-secondary">
+                  <button 
+                    className="btn-compact btn-secondary"
+                    onClick={() => setShowForwardModal(true)}
+                  >
                     <Forward style={{ width: '12px', height: '12px' }} />
                   </button>
                   <button 
@@ -1035,10 +1075,16 @@ function InboxPage() {
                     }}
                   />
                   <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                    <button className="btn-compact btn-primary">
+                    <button 
+                      className="btn-compact btn-primary"
+                      onClick={() => setShowReplyModal(true)}
+                    >
                       Send Reply
                     </button>
-                    <button className="btn-compact btn-secondary">
+                    <button 
+                      className="btn-compact btn-secondary"
+                      onClick={() => setShowForwardModal(true)}
+                    >
                       Forward
                     </button>
                   </div>
@@ -1060,6 +1106,26 @@ function InboxPage() {
         )}
       </div>
       </div>
+      
+      {/* Reply Modal */}
+      {selectedItem && (
+        <ReplyModal
+          isOpen={showReplyModal}
+          onClose={() => setShowReplyModal(false)}
+          originalItem={selectedItem}
+          onSend={handleReply}
+        />
+      )}
+      
+      {/* Forward Modal */}
+      {selectedItem && (
+        <ForwardModal
+          isOpen={showForwardModal}
+          onClose={() => setShowForwardModal(false)}
+          originalItem={selectedItem}
+          onSend={handleForward}
+        />
+      )}
     </div>
   );
 }

@@ -235,6 +235,90 @@ router.delete('/:id', async (req: AuthRequest, res) => {
   }
 });
 
+// POST /api/inbox/:id/reply - Reply to an item
+router.post('/:id/reply', async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const itemId = parseInt(req.params.id);
+    const { body, recipients } = req.body;
+    
+    if (isNaN(itemId)) {
+      return res.status(400).json({ error: 'Invalid item ID' });
+    }
+    
+    if (!body || !body.trim()) {
+      return res.status(400).json({ error: 'Reply body is required' });
+    }
+    
+    // Get the original item to extract context
+    const originalItem = await InboxService.getInboxItemById(itemId, userId);
+    
+    // Create reply with proper threading
+    const replyData: CreateInboxItemRequest = {
+      type: 'user_message',
+      subject: originalItem.subject.startsWith('Re: ') ? originalItem.subject : `Re: ${originalItem.subject}`,
+      body: body.trim(),
+      priority: 'normal',
+      category: originalItem.category,
+      thread_id: originalItem.thread_id,
+      reply_to_id: itemId,
+      loan_ids: originalItem.loan_ids,
+      recipients: recipients || []
+    };
+    
+    const reply = await InboxService.createInboxItem(replyData, userId);
+    res.status(201).json(reply);
+    
+  } catch (error) {
+    if ((error as Error).message.includes('not found') || (error as Error).message.includes('access denied')) {
+      return res.status(404).json({ error: 'Original item not found' });
+    }
+    console.error('Error creating reply:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/inbox/:id/forward - Forward an item
+router.post('/:id/forward', async (req: AuthRequest, res) => {
+  try {
+    const userId = req.user!.id;
+    const itemId = parseInt(req.params.id);
+    const { body, recipients } = req.body;
+    
+    if (isNaN(itemId)) {
+      return res.status(400).json({ error: 'Invalid item ID' });
+    }
+    
+    if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+      return res.status(400).json({ error: 'Recipients are required for forwarding' });
+    }
+    
+    // Get the original item to extract context
+    const originalItem = await InboxService.getInboxItemById(itemId, userId);
+    
+    // Create forward with new thread
+    const forwardData: CreateInboxItemRequest = {
+      type: 'user_message',
+      subject: originalItem.subject.startsWith('Fwd: ') ? originalItem.subject : `Fwd: ${originalItem.subject}`,
+      body: `${body ? body.trim() + '\n\n' : ''}--- Forwarded Message ---\n${originalItem.body}`,
+      priority: originalItem.priority,
+      category: originalItem.category,
+      loan_ids: originalItem.loan_ids,
+      recipients: recipients
+    };
+    
+    const forward = await InboxService.createInboxItem(forwardData, userId);
+    res.status(201).json(forward);
+    
+  } catch (error) {
+    if ((error as Error).message.includes('not found') || (error as Error).message.includes('access denied')) {
+      return res.status(404).json({ error: 'Original item not found' });
+    }
+    console.error('Error creating forward:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/inbox/loans/:loanId - Get inbox items for a specific loan
 router.get('/loans/:loanId', async (req: AuthRequest, res) => {
   try {
