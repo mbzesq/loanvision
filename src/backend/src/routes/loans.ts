@@ -32,47 +32,51 @@ router.get('/loans/search', authenticateToken, async (req, res) => {
     const searchTerm = `%${q.toLowerCase()}%`;
     console.log('Searching loans with term:', searchTerm);
     
-    // Search loans by servicer_loan_id, borrower_name, and property_address
+    // Search loans by loan_id, borrower name, and property address
     const result = await pool.query(`
       SELECT 
-        servicer_loan_id,
-        borrower_name,
-        property_address,
-        property_city,
-        property_state,
-        property_zip,
-        current_balance,
-        loan_status
-      FROM loans 
+        loan_id,
+        first_name,
+        last_name,
+        address,
+        city,
+        state,
+        zip,
+        prin_bal,
+        legal_status
+      FROM daily_metrics_current 
       WHERE 
-        LOWER(servicer_loan_id) LIKE $1 OR
-        LOWER(borrower_name) LIKE $1 OR
-        LOWER(property_address) LIKE $1 OR
-        LOWER(property_city) LIKE $1
+        LOWER(loan_id) LIKE $1 OR
+        LOWER(CONCAT(first_name, ' ', last_name)) LIKE $1 OR
+        LOWER(address) LIKE $1 OR
+        LOWER(city) LIKE $1
       ORDER BY 
         CASE 
-          WHEN LOWER(servicer_loan_id) = LOWER($2) THEN 1
-          WHEN LOWER(servicer_loan_id) LIKE $1 THEN 2
-          WHEN LOWER(borrower_name) LIKE $1 THEN 3
+          WHEN LOWER(loan_id) = LOWER($2) THEN 1
+          WHEN LOWER(loan_id) LIKE $1 THEN 2
+          WHEN LOWER(CONCAT(first_name, ' ', last_name)) LIKE $1 THEN 3
           ELSE 4
         END,
-        servicer_loan_id
+        loan_id
       LIMIT 20
     `, [searchTerm, q.toLowerCase()]);
     
     console.log('Raw database results:', result.rows.length, 'rows');
     
-    const loans = result.rows.map(loan => ({
-      id: loan.servicer_loan_id,
-      display_name: `${loan.servicer_loan_id} - ${loan.borrower_name}`,
-      borrower_name: loan.borrower_name,
-      property_address: loan.property_address,
-      property_city: loan.property_city,
-      property_state: loan.property_state,
-      property_zip: loan.property_zip,
-      current_balance: loan.current_balance,
-      loan_status: loan.loan_status
-    }));
+    const loans = result.rows.map(loan => {
+      const borrowerName = `${loan.first_name || ''} ${loan.last_name || ''}`.trim();
+      return {
+        id: loan.loan_id,
+        display_name: `${loan.loan_id} - ${borrowerName}`,
+        borrower_name: borrowerName,
+        property_address: loan.address,
+        property_city: loan.city,
+        property_state: loan.state,
+        property_zip: loan.zip,
+        current_balance: loan.prin_bal,
+        loan_status: loan.legal_status
+      };
+    });
     
     console.log('Processed loans for response:', loans.length, 'loans');
     res.json({ loans });
