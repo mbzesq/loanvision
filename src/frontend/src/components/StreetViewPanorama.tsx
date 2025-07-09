@@ -16,35 +16,16 @@ const StreetViewPanorama: React.FC<StreetViewPanoramaProps> = ({ lat, lng }) => 
   useEffect(() => {
     if (isGoogleScriptLoaded && panoramaRef.current && window.google?.maps) {
       try {
-        const streetViewService = new window.google.maps.StreetViewService();
-        
-        // Check if Street View is available at this location
-        streetViewService.getPanorama({
-          location: { lat, lng },
-          radius: 50
-        }, (data, status) => {
-          if (status === window.google.maps.StreetViewStatus.OK) {
-            // Street View is available, create panorama
-            new window.google.maps.StreetViewPanorama(
-              panoramaRef.current!,
-              {
-                position: { lat, lng },
-                pov: { heading: 34, pitch: 10 },
-                visible: true,
-                zoomControl: true,
-                panControl: true,
-                addressControl: false,
-                fullscreenControl: false,
-                motionTracking: false,
-                motionTrackingControl: false
-              }
-            );
-            setError(null);
-          } else {
-            console.warn('Street View not available at this location:', status);
-            setError('Street View not available at this location');
+        // Create Street View panorama directly
+        new window.google.maps.StreetViewPanorama(
+          panoramaRef.current,
+          {
+            position: { lat, lng },
+            pov: { heading: 34, pitch: 10 },
+            visible: true
           }
-        });
+        );
+        setError(null);
       } catch (err) {
         console.error('Error initializing Street View:', err);
         setError('Error loading Street View');
