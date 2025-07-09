@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { DollarSign, MapPin, Calendar, Eye, ExternalLink, User, Home, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { DollarSign, MapPin, Eye, ExternalLink, User, Home, AlertTriangle } from 'lucide-react';
 
 interface LoanData {
   loan_id: string;
