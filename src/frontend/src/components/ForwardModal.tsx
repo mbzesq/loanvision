@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Send, UserPlus } from 'lucide-react';
-import { InboxItem, User } from '../types/inbox';
+import { InboxItem } from '../types/inbox';
 
 interface ForwardModalProps {
   isOpen: boolean;

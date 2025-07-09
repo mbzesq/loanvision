@@ -438,7 +438,7 @@ router.post('/:id/create-task', async (req: AuthRequest, res) => {
       thread_id: originalItem.thread_id,
       loan_ids: originalItem.loan_ids,
       assigned_to_user_id: assigned_to_user_id || userId,
-      due_date: due_date ? new Date(due_date) : undefined,
+      due_date: due_date ? due_date : undefined,
       status: 'unread'
     };
     

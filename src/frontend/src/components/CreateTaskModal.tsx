@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Calendar, User, AlertCircle } from 'lucide-react';
+import { X, Plus, Calendar, User } from 'lucide-react';
 import { InboxItem, User as UserType } from '../types/inbox';
 import { inboxApi } from '../services/inboxApi';
 
