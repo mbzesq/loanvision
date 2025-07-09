@@ -3,7 +3,7 @@ import {
   Search, Archive, MessageCircle, 
   AlertTriangle, FileText, DollarSign, Scale, TrendingUp,
   Reply, Forward, MoreVertical, Filter, ChevronDown, ChevronRight,
-  Users, Trash2, Plus
+  Users, Trash2, Plus, Eye
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType, InboxFilter } from '../types/inbox';
@@ -207,28 +207,39 @@ function InboxPage() {
     }
   };
 
-  const handleItemSelect = async (item: InboxItem) => {
+  const handleItemSelect = (item: InboxItem) => {
     setSelectedItem(item);
-    // Mark as read when selected
-    if (item.status === 'unread') {
-      try {
-        await inboxApi.markAsRead(item.id);
-        // Update local state
-        setInboxItems(items => 
-          items.map(i => 
-            i.id === item.id 
-              ? { ...i, status: 'read' as const, updated_at: new Date() }
-              : i
-          )
-        );
-        // Update stats
-        setInboxStats(stats => ({
-          ...stats,
-          unread: Math.max(0, stats.unread - 1)
-        }));
-      } catch (error) {
-        console.error('Error marking item as read:', error);
+    // Don't automatically mark as read - let user do it manually
+  };
+
+  const handleMarkAsRead = async (itemId: number) => {
+    try {
+      await inboxApi.markAsRead(itemId);
+      
+      // Update local state
+      setInboxItems(items => 
+        items.map(i => 
+          i.id === itemId 
+            ? { ...i, status: 'read' as const, updated_at: new Date() }
+            : i
+        )
+      );
+      
+      // Update selected item if it's the one being marked as read
+      if (selectedItem?.id === itemId) {
+        setSelectedItem(prev => prev ? { ...prev, status: 'read' as const, updated_at: new Date() } : null);
       }
+      
+      // Update stats
+      setInboxStats(stats => ({
+        ...stats,
+        unread: Math.max(0, stats.unread - 1)
+      }));
+      
+      showSuccess('Item marked as read');
+    } catch (error) {
+      console.error('Error marking item as read:', error);
+      showError(`Failed to mark item as read: ${(error as Error).message}`);
     }
   };
 
@@ -1074,6 +1085,15 @@ function InboxPage() {
                 </div>
                 
                 <div style={{ display: 'flex', gap: '4px' }}>
+                  {selectedItem.status === 'unread' && (
+                    <button 
+                      className="btn-compact btn-primary"
+                      onClick={() => handleMarkAsRead(selectedItem.id)}
+                      title="Mark as Read"
+                    >
+                      <Eye style={{ width: '12px', height: '12px' }} />
+                    </button>
+                  )}
                   <button 
                     className="btn-compact btn-secondary"
                     onClick={() => setShowReplyModal(true)}
