@@ -3,7 +3,7 @@ import {
   Search, Archive, MessageCircle, 
   AlertTriangle, FileText, DollarSign, Scale, TrendingUp,
   Reply, Forward, MoreVertical, Filter, ChevronDown, ChevronRight,
-  Users, Calendar, Tag
+  Users
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { InboxItem, InboxStats, INBOX_QUICK_FILTERS, InboxBulkAction, User as UserType, InboxFilter } from '../types/inbox';
@@ -26,6 +26,11 @@ function InboxPage() {
     unread: 0,
     urgent: 0,
     overdue: 0,
+    my_tasks: 0,
+    by_category: {},
+    by_priority: {},
+    by_status: {},
+    // Legacy compatibility
     myTasks: 0,
     byCategory: {},
     byPriority: {}
@@ -158,11 +163,12 @@ function InboxPage() {
     const standaloneItems: InboxItem[] = [];
     
     items.forEach(item => {
-      if (item.threadId) {
-        if (!threads.has(item.threadId)) {
-          threads.set(item.threadId, []);
+      const threadId = item.thread_id || item.threadId;
+      if (threadId) {
+        if (!threads.has(threadId)) {
+          threads.set(threadId, []);
         }
-        threads.get(item.threadId)!.push(item);
+        threads.get(threadId)!.push(item);
       } else {
         standaloneItems.push(item);
       }
@@ -172,7 +178,7 @@ function InboxPage() {
     
     // Add threaded conversations
     for (const [threadId, threadItems] of threads.entries()) {
-      threadItems.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      threadItems.sort((a, b) => new Date(a.created_at || a.createdAt!).getTime() - new Date(b.created_at || b.createdAt!).getTime());
       result.push({ thread: threadId, items: threadItems });
     }
     
@@ -236,8 +242,8 @@ function InboxPage() {
       if ('status' in filterObj && !filterObj.status.includes(item.status)) return false;
       if ('priority' in filterObj && !filterObj.priority.includes(item.priority)) return false;
       if ('type' in filterObj && !filterObj.type.includes(item.type)) return false;
-      if ('category' in filterObj && (!item.category || !filterObj.category.includes(item.category))) return false;
-      if ('assignedTo' in filterObj && filterObj.assignedTo?.includes('current_user') && item.assignedTo?.id !== currentUser.id) return false;
+      if ('category' in filterObj && (!item.category || !(filterObj.category as readonly string[]).includes(item.category))) return false;
+      if ('assignedTo' in filterObj && filterObj.assignedTo?.includes('current_user') && currentUser && (item.assigned_to || item.assignedTo)?.id !== currentUser.id) return false;
     }
     
     return true;
@@ -479,7 +485,7 @@ function InboxPage() {
 
         {/* Message List */}
         <div style={{ flex: 1, overflow: 'auto' }}>
-          {groupedItems.map((group, groupIndex) => {
+          {groupedItems.map((group) => {
             if (group.thread) {
               // Threaded conversation
               const isExpanded = expandedThreads.has(group.thread);
@@ -582,12 +588,12 @@ function InboxPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {threadMain.from && (
                             <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
-                              From: {threadMain.from.name}
+                              From: {threadMain.from.name || `${threadMain.from.first_name || ''} ${threadMain.from.last_name || ''}`.trim() || threadMain.from.email}
                             </span>
                           )}
-                          {(threadMain.loan_ids || threadMain.loanIds) && (threadMain.loan_ids || threadMain.loanIds).length > 0 && (
+                          {((threadMain.loan_ids || threadMain.loanIds) && (threadMain.loan_ids || threadMain.loanIds)!.length > 0) && (
                             <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
-                              {(threadMain.loan_ids || threadMain.loanIds).length} loan{(threadMain.loan_ids || threadMain.loanIds).length > 1 ? 's' : ''}
+                              {(threadMain.loan_ids || threadMain.loanIds)!.length} loan{(threadMain.loan_ids || threadMain.loanIds)!.length > 1 ? 's' : ''}
                             </span>
                           )}
                         </div>
@@ -616,7 +622,7 @@ function InboxPage() {
                           color: 'var(--color-text-muted)',
                           minWidth: '40px'
                         }}>
-                          {format(item.createdAt, 'HH:mm')}
+                          {format(item.created_at || item.createdAt!, 'HH:mm')}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ 
@@ -689,7 +695,7 @@ function InboxPage() {
                           {item.subject}
                         </span>
                         <span style={{ fontSize: '9px', color: 'var(--color-text-muted)', flexShrink: 0 }}>
-                          {format(item.createdAt, 'HH:mm')}
+                          {format(item.created_at || item.createdAt!, 'HH:mm')}
                         </span>
                       </div>
                       
@@ -710,17 +716,17 @@ function InboxPage() {
                             From: {item.from.name}
                           </span>
                         )}
-                        {item.loanIds && item.loanIds.length > 0 && (
+                        {((item.loan_ids || item.loanIds) && (item.loan_ids || item.loanIds)!.length > 0) && (
                           <span style={{ fontSize: '9px', color: 'var(--color-text-muted)' }}>
-                            {item.loanIds.length} loan{item.loanIds.length > 1 ? 's' : ''}
+                            {(item.loan_ids || item.loanIds)!.length} loan{(item.loan_ids || item.loanIds)!.length > 1 ? 's' : ''}
                           </span>
                         )}
-                        {item.dueDate && (
+                        {(item.due_date) && (
                           <span style={{ 
                             fontSize: '9px', 
-                            color: item.dueDate < new Date() ? 'var(--color-danger)' : 'var(--color-text-muted)'
+                            color: item.due_date < new Date() ? 'var(--color-danger)' : 'var(--color-text-muted)'
                           }}>
-                            Due: {format(item.dueDate, 'MM/dd')}
+                            Due: {format(item.due_date, 'MM/dd')}
                           </span>
                         )}
                       </div>
@@ -768,7 +774,7 @@ function InboxPage() {
                     {selectedItem.from && (
                       <span>From: {selectedItem.from.name}</span>
                     )}
-                    <span>{format(selectedItem.createdAt, 'MMM d, yyyy HH:mm')}</span>
+                    <span>{format(selectedItem.created_at || selectedItem.createdAt!, 'MMM d, yyyy HH:mm')}</span>
                     <span className={`status-indicator ${selectedItem.priority}`}>
                       {selectedItem.priority.toUpperCase()}
                     </span>
@@ -792,29 +798,29 @@ function InboxPage() {
               </div>
               
               {/* Context Info */}
-              {(selectedItem.loanIds || selectedItem.assignedTo || selectedItem.dueDate) && (
+              {((selectedItem.loan_ids || selectedItem.loanIds) || (selectedItem.assigned_to || selectedItem.assignedTo) || selectedItem.due_date) && (
                 <div style={{ 
                   padding: '8px',
                   backgroundColor: 'var(--color-surface-light)',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '11px'
                 }}>
-                  {selectedItem.loanIds && (
+                  {(selectedItem.loan_ids || selectedItem.loanIds) && (
                     <div style={{ marginBottom: '4px' }}>
-                      <strong>Related Loans:</strong> {selectedItem.loanIds.join(', ')}
+                      <strong>Related Loans:</strong> {(selectedItem.loan_ids || selectedItem.loanIds)!.join(', ')}
                     </div>
                   )}
-                  {selectedItem.assignedTo && (
+                  {(selectedItem.assigned_to || selectedItem.assignedTo) && (
                     <div style={{ marginBottom: '4px' }}>
-                      <strong>Assigned to:</strong> {selectedItem.assignedTo.name}
+                      <strong>Assigned to:</strong> {((selectedItem.assigned_to || selectedItem.assignedTo)!.name || `${(selectedItem.assigned_to || selectedItem.assignedTo)!.first_name || ''} ${(selectedItem.assigned_to || selectedItem.assignedTo)!.last_name || ''}`.trim() || (selectedItem.assigned_to || selectedItem.assignedTo)!.email)}
                     </div>
                   )}
-                  {selectedItem.dueDate && (
+                  {selectedItem.due_date && (
                     <div>
-                      <strong>Due Date:</strong> {format(selectedItem.dueDate, 'MMM d, yyyy')}
-                      {selectedItem.estimatedDuration && (
+                      <strong>Due Date:</strong> {format(selectedItem.due_date, 'MMM d, yyyy')}
+                      {selectedItem.estimated_duration && (
                         <span style={{ color: 'var(--color-text-muted)' }}>
-                          {' '}(Est. {Math.floor(selectedItem.estimatedDuration / 60)}h {selectedItem.estimatedDuration % 60}m)
+                          {' '}(Est. {Math.floor(selectedItem.estimated_duration / 60)}h {selectedItem.estimated_duration % 60}m)
                         </span>
                       )}
                     </div>
