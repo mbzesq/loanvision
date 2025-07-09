@@ -160,10 +160,18 @@ function InboxPage() {
         Object.assign(filters, filterObj);
       }
 
-      const response = await inboxApi.getInboxItems(filters);
+      const [response, globalStats] = await Promise.all([
+        inboxApi.getInboxItems(filters),
+        inboxApi.getInboxStats() // Get global stats separately
+      ]);
       
       setInboxItems(response.items);
-      setInboxStats(response.stats);
+      setInboxStats(globalStats); // Use global stats, not filtered stats
+      
+      // Debug logging
+      console.log('Active filter:', activeFilter);
+      console.log('Filtered items count:', response.items.length);
+      console.log('Global stats:', globalStats);
       
       // Auto-select first item if none selected
       if (!selectedItem && response.items.length > 0) {
@@ -1067,37 +1075,39 @@ function InboxPage() {
                 Type: {selectedItem.type} | Status: {selectedItem.status} | Priority: {selectedItem.priority}
               </div>
               
-              {/* Quick Actions */}
-              {(selectedItem.type === 'system_alert' || selectedItem.type === 'user_message') && (
-                <div style={{ 
-                  marginTop: '20px',
-                  padding: '12px',
-                  backgroundColor: 'var(--color-surface)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--color-border)'
-                }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '8px' }}>
-                    QUICK ACTIONS
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <button 
-                      className="btn-compact btn-primary"
-                      onClick={() => setShowCreateTaskModal(true)}
-                    >
-                      Create Task
-                    </button>
-                    <button className="btn-compact btn-secondary">
-                      View Loans
-                    </button>
-                    <button className="btn-compact btn-secondary">
-                      Acknowledge
-                    </button>
-                    <button className="btn-compact btn-secondary">
-                      Escalate
-                    </button>
-                  </div>
+              {/* Quick Actions - Always show for any selected item */}
+              <div style={{ 
+                marginTop: '20px',
+                padding: '12px',
+                backgroundColor: 'var(--color-surface)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-border)'
+              }}>
+                <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '8px' }}>
+                  QUICK ACTIONS
                 </div>
-              )}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button 
+                    className="btn-compact btn-primary"
+                    onClick={() => setShowCreateTaskModal(true)}
+                  >
+                    Create Task
+                  </button>
+                  {selectedItem.type === 'system_alert' && (
+                    <>
+                      <button className="btn-compact btn-secondary">
+                        View Loans
+                      </button>
+                      <button className="btn-compact btn-secondary">
+                        Acknowledge
+                      </button>
+                      <button className="btn-compact btn-secondary">
+                        Escalate
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
 
               {/* Task Status Actions */}
               {selectedItem.type === 'task_assignment' && (
