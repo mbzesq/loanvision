@@ -46,17 +46,21 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: Creat
 
   // Handle loan search
   const handleLoanSearch = async (query: string) => {
+    console.log('handleLoanSearch called with query:', query);
     setLoanSearchQuery(query);
     
     if (query.length < 2) {
+      console.log('Query too short, clearing results');
       setLoanSearchResults([]);
       setShowLoanDropdown(false);
       return;
     }
 
+    console.log('Starting loan search for:', query);
     setLoadingLoans(true);
     try {
       const results = await inboxApi.searchLoans(query);
+      console.log('Loan search results:', results);
       setLoanSearchResults(results);
       setShowLoanDropdown(true);
     } catch (error) {

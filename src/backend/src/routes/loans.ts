@@ -21,13 +21,16 @@ router.get('/loans', authenticateToken, async (req, res) => {
 // GET /loans/search - Search loans for task assignment
 router.get('/loans/search', authenticateToken, async (req, res) => {
   try {
+    console.log('Loan search endpoint hit with query:', req.query);
     const { q } = req.query;
     
     if (!q || typeof q !== 'string') {
+      console.log('Invalid query parameter:', q);
       return res.status(400).json({ error: 'Search query (q) is required' });
     }
     
     const searchTerm = `%${q.toLowerCase()}%`;
+    console.log('Searching loans with term:', searchTerm);
     
     // Search loans by servicer_loan_id, borrower_name, and property_address
     const result = await pool.query(`
@@ -57,6 +60,8 @@ router.get('/loans/search', authenticateToken, async (req, res) => {
       LIMIT 20
     `, [searchTerm, q.toLowerCase()]);
     
+    console.log('Raw database results:', result.rows.length, 'rows');
+    
     const loans = result.rows.map(loan => ({
       id: loan.servicer_loan_id,
       display_name: `${loan.servicer_loan_id} - ${loan.borrower_name}`,
@@ -69,6 +74,7 @@ router.get('/loans/search', authenticateToken, async (req, res) => {
       loan_status: loan.loan_status
     }));
     
+    console.log('Processed loans for response:', loans.length, 'loans');
     res.json({ loans });
   } catch (error) {
     console.error('Error searching loans:', error);

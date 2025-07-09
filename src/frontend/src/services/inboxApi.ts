@@ -208,17 +208,25 @@ class InboxApiService {
     current_balance: number;
     loan_status: string;
   }>> {
-    const response = await fetch(`${API_BASE_URL}/api/loans/search?q=${encodeURIComponent(query)}`, {
+    const url = `${API_BASE_URL}/api/loans/search?q=${encodeURIComponent(query)}`;
+    console.log('Making loan search request to:', url);
+    
+    const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${this.getAuthToken()}`,
       },
     });
     
+    console.log('Loan search response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error('Failed to search loans');
+      const errorText = await response.text();
+      console.error('Loan search error response:', errorText);
+      throw new Error(`Failed to search loans: ${response.status} ${errorText}`);
     }
     
     const data = await response.json();
+    console.log('Loan search API response:', data);
     return data.loans;
   }
 
