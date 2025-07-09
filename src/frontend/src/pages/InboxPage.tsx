@@ -11,6 +11,7 @@ import { inboxApi } from '../services/inboxApi';
 import { ReplyModal } from '../components/ReplyModal';
 import { ForwardModal } from '../components/ForwardModal';
 import { CreateTaskModal } from '../components/CreateTaskModal';
+import { NewMessageModal } from '../components/NewMessageModal';
 import { TaskBodyRenderer } from '../components/TaskBodyRenderer';
 import '../styles/design-system.css';
 
@@ -33,6 +34,11 @@ function InboxPage() {
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [showForwardModal, setShowForwardModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+  const [showNewMessageModal, setShowNewMessageModal] = useState(false);
+  const [showSenderFilter, setShowSenderFilter] = useState(false);
+  const [selectedSender, setSelectedSender] = useState<number | null>(null);
+  const [showOverdueFilter, setShowOverdueFilter] = useState(false);
+  const [showUrgentFilter, setShowUrgentFilter] = useState(false);
   const [inboxStats, setInboxStats] = useState<InboxStats>({
     total: 0,
     unread: 0,
@@ -40,6 +46,7 @@ function InboxPage() {
     overdue: 0,
     my_tasks: 0,
     deleted: 0,
+    sent_tasks: 0,
     by_category: {},
     by_priority: {},
     by_status: {},
@@ -153,6 +160,18 @@ function InboxPage() {
     }
   };
 
+  const handleNewMessage = async (subject: string, body: string, recipients: Array<{ user_id: number; recipient_type?: 'to' | 'cc' | 'bcc' }>) => {
+    try {
+      await inboxApi.createMessage(subject, body, recipients);
+      showSuccess('Message sent successfully');
+      await fetchInboxData();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      showError(`Failed to send message: ${(error as Error).message}`);
+      throw error;
+    }
+  };
+
   const fetchInboxData = async () => {
     setLoading(true);
     setError(null);
@@ -193,6 +212,17 @@ function InboxPage() {
       // Include deleted items when DELETED filter is active
       if (activeFilter === 'DELETED') {
         filters.include_deleted = true;
+      }
+
+      // Apply additional filters
+      if (selectedSender) {
+        filters.created_by_user_id = selectedSender;
+      }
+      if (showOverdueFilter) {
+        filters.due_before = new Date().toISOString();
+      }
+      if (showUrgentFilter) {
+        filters.priority = ['urgent'];
       }
 
       const [response, globalStats] = await Promise.all([
@@ -614,6 +644,26 @@ function InboxPage() {
         flexDirection: 'column',
         gap: '8px'
       }}>
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+          <button 
+            className="btn-compact btn-primary"
+            onClick={() => setShowCreateTaskModal(true)}
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            <Plus style={{ width: '12px', height: '12px', marginRight: '4px' }} />
+            NEW TASK
+          </button>
+          <button 
+            className="btn-compact btn-primary"
+            onClick={() => setShowNewMessageModal(true)}
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            <MessageCircle style={{ width: '12px', height: '12px', marginRight: '4px' }} />
+            NEW MESSAGE
+          </button>
+        </div>
+
         {/* Search */}
         <div style={{ position: 'relative', marginBottom: '8px' }}>
           <Search style={{ 
@@ -642,9 +692,27 @@ function InboxPage() {
           />
         </div>
 
-        {/* Quick Filters */}
+        {/* Filter Buttons */}
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+          <button
+            className={`btn-compact ${showOverdueFilter ? 'btn-danger' : 'btn-secondary'}`}
+            onClick={() => setShowOverdueFilter(!showOverdueFilter)}
+            style={{ flex: 1, fontSize: '10px' }}
+          >
+            OVERDUE
+          </button>
+          <button
+            className={`btn-compact ${showUrgentFilter ? 'btn-warning' : 'btn-secondary'}`}
+            onClick={() => setShowUrgentFilter(!showUrgentFilter)}
+            style={{ flex: 1, fontSize: '10px' }}
+          >
+            URGENT
+          </button>
+        </div>
+
+        {/* Folders */}
         <div style={{ fontSize: '10px', fontWeight: '600', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
-          QUICK FILTERS
+          FOLDERS
         </div>
         
         {Object.entries(INBOX_QUICK_FILTERS).map(([key]) => {
@@ -663,16 +731,10 @@ function InboxPage() {
           };
 
           const count = key === 'UNREAD' ? inboxStats.unread :
-                       key === 'URGENT' ? inboxStats.urgent :
                        key === 'MY_TASKS' ? (inboxStats.my_tasks || inboxStats.myTasks || 0) :
-                       key === 'SENT_TASKS' ? 0 : // TODO: Add sent tasks count to stats
-                       key === 'DELETED' ? inboxStats.deleted :
-                       key === 'OVERDUE' ? inboxStats.overdue :
                        key === 'MESSAGES' ? getFilterCount(key) :
-                       key === 'SYSTEM_ALERTS' ? getFilterCount(key) :
-                       key === 'SOL_ITEMS' ? getFilterCount(key) :
-                       key === 'LEGAL_ITEMS' ? getFilterCount(key) :
-                       0; // Default to 0 for unknown filters
+                       key === 'DELETED' ? inboxStats.deleted :
+                       0;
           
           console.log(`Filter ${key}: count=${count}, active=${activeFilter === key}`);
           
@@ -694,7 +756,9 @@ function InboxPage() {
                 textAlign: 'left'
               }}
             >
-              <span>{key.replace('_', ' ')}</span>
+              <span style={{ marginLeft: key === 'MY_TASKS' || key === 'MESSAGES' ? '16px' : '0' }}>
+                {key === 'UNREAD' ? 'Unread (All)' : key.replace('_', ' ')}
+              </span>
               {count > 0 && (
                 <span style={{ 
                   fontSize: '10px',
@@ -709,38 +773,6 @@ function InboxPage() {
           );
         })}
 
-        {/* Categories */}
-        <div style={{ fontSize: '10px', fontWeight: '600', color: 'var(--color-text-muted)', marginTop: '16px', marginBottom: '4px' }}>
-          CATEGORIES
-        </div>
-        
-        {Object.entries(inboxStats.by_category || inboxStats.byCategory || {}).map(([category, count]) => (
-          <button
-            key={category}
-            onClick={() => setActiveFilter(category.toUpperCase())}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '4px 8px',
-              fontSize: '11px',
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'transparent',
-              color: 'var(--color-text)',
-              cursor: 'pointer',
-              textAlign: 'left'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {getCategoryIcon(category)}
-              <span style={{ textTransform: 'capitalize' }}>{category}</span>
-            </div>
-            <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
-              {count}
-            </span>
-          </button>
-        ))}
       </div>
 
       {/* Middle Panel - Message List */}
@@ -771,9 +803,9 @@ function InboxPage() {
           
           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
             <button 
-              className={`btn-compact ${groupByThread ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setGroupByThread(!groupByThread)}
-              title="Toggle threading"
+              className={`btn-compact ${showSenderFilter ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setShowSenderFilter(!showSenderFilter)}
+              title="Filter by sender"
             >
               <Users style={{ width: '12px', height: '12px' }} />
             </button>
@@ -786,17 +818,6 @@ function InboxPage() {
               <Filter style={{ width: '12px', height: '12px' }} />
             </button>
 
-            {/* New Task Button */}
-            <button 
-              className="btn-compact btn-primary"
-              onClick={() => {
-                console.log('New Task button clicked');
-                setShowCreateTaskModal(true);
-              }}
-              title="Create new task"
-            >
-              <Plus style={{ width: '12px', height: '12px' }} />
-              New Task
             </button>
 
             {selectedItems.size > 0 && (
@@ -1390,6 +1411,13 @@ function InboxPage() {
         onClose={() => setShowCreateTaskModal(false)}
         originalItem={selectedItem || undefined}
         onSend={handleCreateTask}
+      />
+      
+      {/* New Message Modal */}
+      <NewMessageModal
+        isOpen={showNewMessageModal}
+        onClose={() => setShowNewMessageModal(false)}
+        onSend={handleNewMessage}
       />
     </div>
   );

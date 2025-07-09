@@ -299,6 +299,17 @@ body.financial-theme {
   background-color: #059669;
 }
 
+.btn-warning {
+  background-color: var(--color-warning);
+  color: black;
+  border-color: var(--color-warning);
+}
+
+.btn-warning:hover {
+  background-color: #d97706;
+  color: white;
+}
+
 /* Alert Styling */
 .alert-strip {
   background-color: var(--color-surface);

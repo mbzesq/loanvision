@@ -143,6 +143,7 @@ export interface InboxStats {
   overdue: number;
   my_tasks: number;
   deleted: number;
+  sent_tasks: number;
   by_category: Record<string, number>;
   by_priority: Record<string, number>;
   by_status: Record<string, number>;

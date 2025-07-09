@@ -204,7 +204,8 @@ export class InboxService {
         COUNT(*) FILTER (WHERE priority = 'urgent') as urgent,
         COUNT(*) FILTER (WHERE due_date < NOW() AND status NOT IN ('completed', 'archived')) as overdue,
         COUNT(*) FILTER (WHERE assigned_to_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('completed', 'archived')) as my_tasks,
-        COUNT(*) FILTER (WHERE status = 'deleted') as deleted
+        COUNT(*) FILTER (WHERE status = 'deleted') as deleted,
+        COUNT(*) FILTER (WHERE created_by_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('archived', 'deleted')) as sent_tasks
       FROM inbox_items ii
       LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
       WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)
@@ -269,6 +270,7 @@ export class InboxService {
       overdue: parseInt(stats.overdue),
       my_tasks: parseInt(stats.my_tasks),
       deleted: parseInt(stats.deleted),
+      sent_tasks: parseInt(stats.sent_tasks),
       by_category,
       by_priority,
       by_status

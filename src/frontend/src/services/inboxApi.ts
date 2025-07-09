@@ -180,6 +180,21 @@ class InboxApiService {
     return this.transformInboxItem(item);
   }
 
+  // Create a new message
+  async createMessage(subject: string, body: string, recipients: Array<{ user_id: number; recipient_type?: 'to' | 'cc' | 'bcc' }>): Promise<InboxItem> {
+    const item = await this.makeRequest<InboxItem>(``, {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'user_message',
+        subject,
+        body,
+        priority: 'normal',
+        recipients
+      }),
+    });
+    return this.transformInboxItem(item);
+  }
+
   // Get list of users for task assignment
   async getUsers(): Promise<User[]> {
     const response = await fetch(`${API_BASE_URL}/api/auth/users`, {

@@ -127,6 +127,7 @@ export interface InboxStats {
   overdue: number;
   my_tasks: number;
   deleted: number;
+  sent_tasks: number;
   by_category: Record<string, number>;
   by_priority: Record<string, number>;
   by_status: Record<string, number>;
@@ -189,14 +190,8 @@ export interface UpdateInboxItemRequest {
 // Predefined quick filters for Bloomberg-style interface
 export const INBOX_QUICK_FILTERS = {
   UNREAD: { status: ['unread'] as InboxItem['status'][] },
-  URGENT: { priority: ['urgent'] as InboxItem['priority'][] },
   MY_TASKS: { type: ['task_assignment'] as InboxItem['type'][], assignedTo: ['current_user'] },
-  SENT_TASKS: { type: ['task_assignment'] as InboxItem['type'][], createdBy: ['current_user'] },
   MESSAGES: { type: ['user_message'] as InboxItem['type'][] },
-  SYSTEM_ALERTS: { type: ['system_alert', 'system_notification'] as InboxItem['type'][] },
-  SOL_ITEMS: { category: ['sol'] },
-  LEGAL_ITEMS: { category: ['legal', 'foreclosure'] },
-  OVERDUE: { status: ['in_progress'] as InboxItem['status'][] }, // Combined with date logic
   DELETED: { status: ['deleted'] as InboxItem['status'][] },
 } as const;
 
