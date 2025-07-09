@@ -11,16 +11,12 @@ import '../styles/financial-design-system.css';
 
 export function MainLayout() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isDesktopNavCollapsed, setDesktopNavCollapsed] = useState(true);
-  const [isHoveringNav, setIsHoveringNav] = useState(false);
-
-  // Auto-collapse on desktop, save preference
-  useEffect(() => {
+  const [isDesktopNavCollapsed, setDesktopNavCollapsed] = useState(() => {
+    // Start collapsed by default, but check localStorage
     const saved = localStorage.getItem('desktopNavCollapsed');
-    if (saved !== null) {
-      setDesktopNavCollapsed(JSON.parse(saved));
-    }
-  }, []);
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [isHoveringNav, setIsHoveringNav] = useState(false);
 
   // Apply financial theme class to body
   useEffect(() => {
@@ -42,18 +38,28 @@ export function MainLayout() {
     <div className="min-h-screen w-full" style={{ backgroundColor: 'var(--color-background)' }}>
       {/* Desktop Layout: Sidebar + Content */}
       <div className="hidden lg:flex lg:h-screen relative">
-        {/* Fixed Sidebar - Always takes minimum space but expands on top */}
+        {/* Fixed Sidebar - Always takes minimum space but expands on hover */}
         <div 
-          className="flex-shrink-0 w-16 relative z-10"
-          onMouseEnter={() => setIsHoveringNav(true)}
-          onMouseLeave={() => setIsHoveringNav(false)}
+          className="flex-shrink-0 relative z-10"
+          style={{ width: isNavExpanded ? '256px' : '64px' }}
         >
-          <div className={`absolute top-0 left-0 h-full transition-all duration-300 ease-in-out ${
-            isNavExpanded ? 'w-64' : 'w-16'
-          } shadow-lg`} style={{ 
-            backgroundColor: 'var(--color-sidebar)', 
-            borderRight: '1px solid var(--color-border)' 
-          }}>
+          <div 
+            className={`absolute top-0 left-0 h-full transition-all duration-300 ease-in-out ${
+              isNavExpanded ? 'w-64' : 'w-16'
+            } shadow-lg`} 
+            style={{ 
+              backgroundColor: 'var(--color-sidebar)', 
+              borderRight: '1px solid var(--color-border)' 
+            }}
+            onMouseEnter={() => {
+              console.log('Mouse entered nav area');
+              setIsHoveringNav(true);
+            }}
+            onMouseLeave={() => {
+              console.log('Mouse left nav area');
+              setIsHoveringNav(false);
+            }}
+          >
             <SideNav 
               isCollapsed={!isNavExpanded}
               onToggleCollapse={handleDesktopNavToggle}
