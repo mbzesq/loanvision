@@ -10,8 +10,13 @@ import {
 
 const router = express.Router();
 
-// All inbox routes require authentication
-router.use(authenticateToken);
+// Skip authentication for OPTIONS requests (CORS preflight)
+router.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  return authenticateToken(req as AuthRequest, res, next);
+});
 
 // GET /api/inbox - Get inbox items with filtering and pagination
 router.get('/', async (req: AuthRequest, res) => {

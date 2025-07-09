@@ -26,19 +26,32 @@ const allowedOrigins = [
   'https://nplvision.com',
   'http://localhost:3001', // Development frontend
   'http://localhost:5173', // Vite development server
-  'http://127.0.0.1:5173'  // Alternative localhost
+  'http://127.0.0.1:5173',  // Alternative localhost
+  'http://localhost:3000', // Same-origin requests
+  'http://127.0.0.1:3000'  // Alternative same-origin
 ];
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
+    console.log(`[CORS] Request from origin: ${origin}`);
+    console.log(`[CORS] Allowed origins:`, allowedOrigins);
+    
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log(`[CORS] No origin - allowing request`);
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      const msg = `The CORS policy for this site does not allow access from origin: ${origin}`;
+      console.log(`[CORS] REJECTED: ${msg}`);
       return callback(new Error(msg), false);
     }
+    
+    console.log(`[CORS] ALLOWED: ${origin}`);
     return callback(null, true);
-  }
+  },
+  credentials: true // Allow cookies and authorization headers
 };
 
 app.use(cors(corsOptions)); // This must be the first middleware
