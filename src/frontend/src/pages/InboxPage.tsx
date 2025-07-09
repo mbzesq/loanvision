@@ -11,6 +11,7 @@ import { inboxApi } from '../services/inboxApi';
 import { ReplyModal } from '../components/ReplyModal';
 import { ForwardModal } from '../components/ForwardModal';
 import { CreateTaskModal } from '../components/CreateTaskModal';
+import { TaskBodyRenderer } from '../components/TaskBodyRenderer';
 import '../styles/design-system.css';
 
 function InboxPage() {
@@ -1141,14 +1142,7 @@ function InboxPage() {
               padding: '16px',
               overflow: 'auto'
             }}>
-              <div style={{ 
-                fontSize: '12px',
-                lineHeight: '1.5',
-                color: 'var(--color-text)',
-                whiteSpace: 'pre-wrap'
-              }}>
-                {selectedItem.body}
-              </div>
+              <TaskBodyRenderer body={selectedItem.body} />
               
               {/* Debug info */}
               <div style={{ 
