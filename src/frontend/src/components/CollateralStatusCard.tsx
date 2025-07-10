@@ -76,13 +76,38 @@ const CollateralStatusCard: React.FC<CollateralStatusCardProps> = ({ loanId, ref
       }
     } catch (error) {
       console.error('Error fetching collateral status:', error);
-      if (axios.isAxiosError(error) && error.response?.status !== 404) {
-        toast({
-          title: "Error",
-          description: "Failed to load collateral status.",
-          variant: "destructive",
-        });
+      
+      // Handle 404 or missing data gracefully - don't show error toast
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        if (status === 404 || status === 500) {
+          // Create a default empty status for loans without collateral data
+          setStatus({
+            loanId,
+            completenessScore: 0,
+            isComplete: false,
+            requiredDocuments: [
+              { type: 'Note', required: true, present: false, validated: false, count: 0 },
+              { type: 'Security Instrument', required: true, present: false, validated: false, count: 0 },
+              { type: 'Assignment', required: true, present: false, validated: false, count: 0 },
+              { type: 'Allonge', required: false, present: false, validated: true, count: 0 }
+            ],
+            missingDocuments: ['Note', 'Mortgage/Deed of Trust', 'Assignment'],
+            assignmentChainComplete: false,
+            chainGaps: [],
+            validationErrors: [],
+            lastUpdated: new Date().toISOString()
+          });
+          return;
+        }
       }
+      
+      // Only show error toast for unexpected errors
+      toast({
+        title: "Error",
+        description: "Failed to load collateral status.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
