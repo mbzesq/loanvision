@@ -6,9 +6,10 @@ import '../../styles/financial-design-system.css';
 interface SOLInfoCardProps {
   loanId: string;
   className?: string;
+  compact?: boolean;
 }
 
-const SOLInfoCard: React.FC<SOLInfoCardProps> = ({ loanId, className = '' }) => {
+const SOLInfoCard: React.FC<SOLInfoCardProps> = ({ loanId, className = '', compact = false }) => {
   const [solData, setSOLData] = useState<SOLCalculation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +96,64 @@ const SOLInfoCard: React.FC<SOLInfoCardProps> = ({ loanId, className = '' }) => 
 
   const isHighRisk = solData.sol_risk_level === 'HIGH' || solData.is_expired;
   const isMediumRisk = solData.sol_risk_level === 'MEDIUM';
+
+  // Compact version for embedding in other layouts
+  if (compact) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', height: '100%' }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          marginBottom: '8px'
+        }}>
+          <span style={{ 
+            fontSize: '10px', 
+            fontWeight: '600',
+            color: isHighRisk ? 'var(--color-danger)' : isMediumRisk ? 'var(--color-warning)' : 'var(--color-success)'
+          }}>
+            {solData.sol_risk_level} RISK
+          </span>
+          {solData.is_expired && (
+            <span style={{ 
+              fontSize: '8px', 
+              padding: '2px 4px',
+              backgroundColor: 'var(--color-danger)',
+              color: 'white',
+              borderRadius: '2px'
+            }}>
+              EXPIRED
+            </span>
+          )}
+        </div>
+        
+        <div className="financial-detail-item" style={{ padding: '3px 0' }}>
+          <span className="label" style={{ fontSize: '9px' }}>DAYS REMAINING</span>
+          <span className="value" style={{ 
+            fontSize: '11px', 
+            fontWeight: '600',
+            color: isHighRisk ? 'var(--color-danger)' : isMediumRisk ? 'var(--color-warning)' : 'var(--color-success)'
+          }}>
+            {solService.formatDaysUntilExpiration(solData.days_until_expiration)}
+          </span>
+        </div>
+        
+        <div className="financial-detail-item" style={{ padding: '3px 0' }}>
+          <span className="label" style={{ fontSize: '9px' }}>EXPIRATION</span>
+          <span className="value" style={{ fontSize: '10px' }}>
+            {solService.formatDate(solData.adjusted_expiration_date)}
+          </span>
+        </div>
+        
+        <div className="financial-detail-item" style={{ padding: '3px 0' }}>
+          <span className="label" style={{ fontSize: '9px' }}>TRIGGER</span>
+          <span className="value" style={{ fontSize: '10px' }}>
+            {solService.formatTriggerEvent(solData.sol_trigger_event)}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`financial-card ${className}`} style={{

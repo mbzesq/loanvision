@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../utils/axios';
-import { differenceInDays } from 'date-fns';
 import '../styles/financial-design-system.css';
 import { useToast } from '../hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
@@ -155,6 +154,31 @@ const LoanDetailPage = () => {
     ? ((parseFloat(loan.prin_bal) / propertyData.property_data.price) * 100).toFixed(1)
     : null;
 
+  // Calculate Legal Balance (UPB + accrued interest from next due date)
+  const calculateLegalBalance = () => {
+    if (!loan.prin_bal || !loan.int_rate || !loan.next_pymt_due) return null;
+    
+    const principal = parseFloat(loan.prin_bal);
+    const annualRate = parseFloat(loan.int_rate);
+    const nextDue = new Date(loan.next_pymt_due);
+    const today = new Date();
+    
+    if (nextDue <= today) return principal; // Past due, no additional interest
+    
+    const daysOverdue = Math.max(0, Math.floor((today.getTime() - nextDue.getTime()) / (1000 * 60 * 60 * 24)));
+    const dailyRate = annualRate / 365;
+    const accruedInterest = principal * dailyRate * daysOverdue;
+    
+    return principal + accruedInterest;
+  };
+
+  const legalBalance = calculateLegalBalance();
+  
+  // Calculate estimated equity (Property Value - Legal Balance)
+  const estimatedEquity = propertyData?.property_data?.price && legalBalance 
+    ? propertyData.property_data.price - legalBalance
+    : null;
+
   return (
     <div style={{ padding: '8px', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header Section - Very Compact */}
@@ -211,10 +235,10 @@ const LoanDetailPage = () => {
         </div>
       </div>
 
-      {/* Main Content Grid - Much More Compact */}
+      {/* Main Content Grid - Restructured for better space allocation */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: '1fr 1fr 1fr', 
+        gridTemplateColumns: '1fr 1.2fr 1fr 1fr', 
         gap: '12px',
         marginBottom: '12px'
       }}>
@@ -255,17 +279,34 @@ const LoanDetailPage = () => {
             </div>
             
             <div className="financial-detail-item" style={{ padding: '4px 0' }}>
-              <span className="label" style={{ fontSize: '9px' }}>DAYS TO MATURITY</span>
+              <span className="label" style={{ fontSize: '9px' }}>LEGAL BALANCE</span>
+              <span className="value" style={{ fontSize: '12px', fontWeight: '600' }}>
+                {legalBalance ? formatCurrency(legalBalance.toString()) : 'N/A'}
+              </span>
+            </div>
+            
+            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
+              <span className="label" style={{ fontSize: '9px' }}>ESTIMATED EQUITY</span>
               <span className="value" style={{ 
                 fontSize: '12px', 
                 fontWeight: '600',
-                color: loan.maturity_date && differenceInDays(new Date(loan.maturity_date), new Date()) < 365 
-                  ? 'var(--color-danger)' : 'var(--color-text)'
+                color: estimatedEquity ? (estimatedEquity > 0 ? 'var(--color-success)' : 'var(--color-danger)') : 'var(--color-text)'
               }}>
-                {loan.maturity_date 
-                  ? `${differenceInDays(new Date(loan.maturity_date), new Date())} days`
-                  : 'N/A'
-                }
+                {estimatedEquity ? formatCurrency(estimatedEquity.toString()) : 'N/A'}
+              </span>
+            </div>
+            
+            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
+              <span className="label" style={{ fontSize: '9px' }}>NPV (EST.)</span>
+              <span className="value" style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                TBD
+              </span>
+            </div>
+            
+            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
+              <span className="label" style={{ fontSize: '9px' }}>IRR (EST.)</span>
+              <span className="value" style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                TBD
               </span>
             </div>
           </div>
@@ -335,7 +376,24 @@ const LoanDetailPage = () => {
           </div>
         </div>
 
-        {/* Column 3: Payment History Compact */}
+        {/* Column 3: SOL Info - Compact */}
+        <div className="financial-card" style={{ padding: '12px' }}>
+          <h3 style={{ 
+            fontSize: '11px', 
+            fontWeight: '600', 
+            textTransform: 'uppercase',
+            margin: '0 0 8px 0',
+            borderBottom: '1px solid var(--color-border)',
+            paddingBottom: '4px'
+          }}>
+            STATUTE OF LIMITATIONS
+          </h3>
+          <div style={{ height: '140px', overflow: 'hidden' }}>
+            <SOLInfoCard loanId={loanId!} compact={true} />
+          </div>
+        </div>
+
+        {/* Column 4: Payment History Compact */}
         <div className="financial-card" style={{ padding: '12px' }}>
           <h3 style={{ 
             fontSize: '11px', 
@@ -375,12 +433,7 @@ const LoanDetailPage = () => {
         </div>
       </div>
 
-      {/* Second Row - SOL Info */}
-      <div style={{ marginBottom: '12px' }}>
-        <SOLInfoCard loanId={loanId!} />
-      </div>
-
-      {/* Third Row - Unified Collateral */}
+      {/* Second Row - Unified Collateral */}
       <UnifiedCollateralCard loanId={loanId!} />
 
       {/* Third Row - Foreclosure Timeline (if exists) */}
