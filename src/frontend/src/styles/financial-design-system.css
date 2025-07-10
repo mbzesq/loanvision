@@ -65,6 +65,24 @@ body:not(.financial-theme) {
   font-family: var(--font-sans);
 }
 
+/* Force Inter font on all elements unless specifically monospace */
+* {
+  font-family: inherit;
+}
+
+/* Ensure cards and common components use Inter */
+.financial-card,
+.financial-card *:not(.financial-mono),
+.card,
+.card *:not(.financial-mono) {
+  font-family: var(--font-sans) !important;
+}
+
+/* Explicit monospace class for data values that should be monospace */
+.financial-mono {
+  font-family: var(--font-mono) !important;
+}
+
 /* Professional Typography */
 .financial-theme h1 {
   font-size: 1.5rem;

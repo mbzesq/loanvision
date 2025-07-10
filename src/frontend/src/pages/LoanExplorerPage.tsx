@@ -455,10 +455,9 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span style={{ 
+            <span className="financial-mono" style={{ 
               fontWeight: '600', 
-              color: 'var(--color-text)', 
-              fontFamily: 'var(--font-mono)' 
+              color: 'var(--color-text)'
             }}>
               {value 
                 ? parseFloat(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
@@ -478,8 +477,7 @@ function LoanExplorerPage() {
           const value = info.getValue();
           return (
             <span style={{ 
-              color: 'var(--color-text)', 
-              fontFamily: 'var(--font-mono)' 
+              color: 'var(--color-text)'
             }}>
               {formatDate(value)}
             </span>
@@ -497,8 +495,7 @@ function LoanExplorerPage() {
           const value = info.getValue();
           return (
             <span style={{ 
-              color: 'var(--color-text)', 
-              fontFamily: 'var(--font-mono)' 
+              color: 'var(--color-text)'
             }}>
               {formatDate(value)}
             </span>
