@@ -26,10 +26,23 @@ const upload = multer({
   },
 });
 
-// Initialize services
-const azureDocumentService = new AzureDocumentService();
+// Initialize services (lazy initialization for Azure)
+let azureDocumentService: AzureDocumentService | null = null;
 const documentClassifier = new DocumentClassifier();
 const fieldExtractor = new FieldExtractor();
+
+// Helper to get Azure service with lazy initialization
+const getAzureService = () => {
+  if (!azureDocumentService) {
+    try {
+      azureDocumentService = new AzureDocumentService();
+    } catch (error) {
+      console.error('[DocumentAnalysis] Failed to initialize Azure service:', error);
+      throw new Error('Document analysis service is not available. Please check Azure configuration.');
+    }
+  }
+  return azureDocumentService;
+};
 
 // Test endpoint to check Azure configuration
 router.get('/test-azure-config', authenticateToken, async (req, res) => {
@@ -106,7 +119,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
 
     // Step 3: OCR with Azure Document Intelligence
     console.log('Step 3: Running OCR with Azure Document Intelligence...');
-    const ocrResult = await azureDocumentService.analyzeDocument(processBuffer);
+    const ocrResult = await getAzureService().analyzeDocument(processBuffer);
     console.log(`OCR completed. Extracted ${ocrResult.text.length} characters with ${ocrResult.keyValuePairs.size} key-value pairs`);
 
     // Step 4: Classify document type
