@@ -9,7 +9,7 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { UserCircle, LogOut, Building2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import organizationService from "../services/organizationService";
+import organizationService, { OrganizationService } from "../services/organizationService";
 import { Organization } from "../types/auth";
 
 export function UserProfile() {
@@ -78,9 +78,9 @@ export function UserProfile() {
                   </p>
                   <div className="flex items-center gap-1">
                     <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
-                      organizationService.getOrganizationTypeColor(organization.type)
+                      OrganizationService.getOrganizationTypeColor(organization.type)
                     }`}>
-                      {organizationService.formatOrganizationType(organization.type)}
+                      {OrganizationService.formatOrganizationType(organization.type)}
                     </span>
                   </div>
                 </div>

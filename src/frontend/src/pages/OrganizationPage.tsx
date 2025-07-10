@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Organization } from '../types/auth';
 import organizationService, { OrganizationUser, OrganizationInvitation } from '../services/organizationService';
 import { OrganizationInfo } from '../components/OrganizationBadge';
-import { Users, Mail, Plus, Trash2, Clock } from 'lucide-react';
+import { Users, Mail, Plus, Clock } from 'lucide-react';
 
 export default function OrganizationPage() {
   const { user } = useAuth();

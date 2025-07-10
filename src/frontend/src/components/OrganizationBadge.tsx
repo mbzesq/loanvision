@@ -1,6 +1,6 @@
 import { Building2 } from 'lucide-react';
 import { Organization } from '../types/auth';
-import organizationService from '../services/organizationService';
+import { OrganizationService } from '../services/organizationService';
 
 interface OrganizationBadgeProps {
   organization: Organization;
@@ -29,14 +29,14 @@ export function OrganizationBadge({
 
   return (
     <div className={`inline-flex items-center gap-1.5 rounded-full font-medium ${
-      organizationService.getOrganizationTypeColor(organization.type)
+      OrganizationService.getOrganizationTypeColor(organization.type)
     } ${sizeClasses[size]} ${className}`}>
       {showIcon && <Building2 className={iconSizes[size]} />}
       <span className="truncate">
         {organization.name}
       </span>
       <span className="text-opacity-70 ml-1">
-        ({organizationService.formatOrganizationType(organization.type)})
+        ({OrganizationService.formatOrganizationType(organization.type)})
       </span>
     </div>
   );
@@ -63,9 +63,9 @@ export function OrganizationInfo({
           </p>
           <div className="flex items-center gap-2">
             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-              organizationService.getOrganizationTypeColor(organization.type)
+              OrganizationService.getOrganizationTypeColor(organization.type)
             }`}>
-              {organizationService.formatOrganizationType(organization.type)}
+              {OrganizationService.formatOrganizationType(organization.type)}
             </span>
             {organization.email_domain && (
               <span className="text-xs text-slate-500">

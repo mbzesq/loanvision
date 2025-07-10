@@ -18,7 +18,7 @@ export interface OrganizationInvitation {
   created_at: string;
 }
 
-class OrganizationService {
+export class OrganizationService {
   
   // Get current user's organization
   async getMyOrganization(): Promise<Organization | null> {
