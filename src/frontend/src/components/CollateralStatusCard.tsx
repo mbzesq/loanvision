@@ -1,7 +1,7 @@
 // src/frontend/src/components/CollateralStatusCard.tsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { CheckCircle, XCircle, AlertTriangle, Link as LinkIcon, FileText, Clock, Shield } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Link as LinkIcon, Clock, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
@@ -23,17 +23,6 @@ interface ValidationError {
   documentId?: number;
 }
 
-interface ChainLink {
-  sequenceNumber: number;
-  transferor: string;
-  transferee: string;
-  transferDate?: string;
-  recordingDate?: string;
-  documentType: string;
-  instrumentNumber?: string;
-  isGap: boolean;
-  gapReason?: string;
-}
 
 interface CollateralStatus {
   loanId: string;
