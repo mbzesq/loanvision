@@ -8,9 +8,10 @@ interface CreateTaskModalProps {
   onClose: () => void;
   originalItem?: InboxItem; // Made optional for standalone task creation
   onSend: (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low', loanId?: string) => Promise<void>;
+  prefilledAssignee?: { id: number; name: string; email: string };
 }
 
-export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: CreateTaskModalProps) {
+export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefilledAssignee }: CreateTaskModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [assignedToUserId, setAssignedToUserId] = useState<number | undefined>();
@@ -43,6 +44,21 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend }: Creat
 
     fetchUsers();
   }, [isOpen]);
+
+  // Handle prefilled assignee
+  useEffect(() => {
+    if (isOpen && prefilledAssignee) {
+      setAssignedToUserId(prefilledAssignee.id);
+      setTitle(`Task for ${prefilledAssignee.name}`);
+    } else if (isOpen) {
+      // Reset when opening without prefilled data
+      setAssignedToUserId(undefined);
+      setTitle('');
+      setDescription('');
+      setDueDate('');
+      setPriority('normal');
+    }
+  }, [isOpen, prefilledAssignee]);
 
   // Handle loan search
   const handleLoanSearch = async (query: string) => {

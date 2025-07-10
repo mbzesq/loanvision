@@ -7,13 +7,15 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useAuth } from "../contexts/AuthContext";
-import { UserCircle, LogOut, Building2 } from "lucide-react";
+import { UserCircle, LogOut, Building2, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import organizationService, { OrganizationService } from "../services/organizationService";
 import { Organization } from "../types/auth";
 
 export function UserProfile() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loadingOrg, setLoadingOrg] = useState(true);
 
@@ -65,27 +67,31 @@ export function UserProfile() {
           </div>
         </DropdownMenuLabel>
         
-        {/* Organization Information */}
+        {/* Organization Information & Actions */}
         {organization && (
           <>
             <DropdownMenuSeparator />
-            <div className="px-2 py-1.5">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-slate-400" />
-                <div className="flex flex-col min-w-0">
-                  <p className="text-xs font-medium text-slate-700 truncate">
-                    {organization.name}
-                  </p>
-                  <div className="flex items-center gap-1">
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
-                      OrganizationService.getOrganizationTypeColor(organization.type)
-                    }`}>
-                      {OrganizationService.formatOrganizationType(organization.type)}
-                    </span>
-                  </div>
-                </div>
+            <DropdownMenuItem 
+              onClick={() => navigate('/organization')}
+              className="group cursor-pointer"
+            >
+              <Building2 className="mr-2 h-4 w-4" />
+              <div className="flex flex-col min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {organization.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {OrganizationService.formatOrganizationType(organization.type)}
+                </p>
               </div>
-            </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => navigate('/organization/directory')}
+              className="group cursor-pointer"
+            >
+              <Users className="mr-2 h-4 w-4" />
+              <span>Team Directory</span>
+            </DropdownMenuItem>
           </>
         )}
         

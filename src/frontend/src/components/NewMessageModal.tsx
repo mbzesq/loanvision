@@ -7,9 +7,10 @@ interface NewMessageModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSend: (subject: string, body: string, recipients: Array<{ user_id: number; recipient_type?: 'to' | 'cc' | 'bcc' }>) => Promise<void>;
+  prefilledRecipient?: { id: number; name: string; email: string };
 }
 
-export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProps) {
+export function NewMessageModal({ isOpen, onClose, onSend, prefilledRecipient }: NewMessageModalProps) {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [recipients, setRecipients] = useState<Array<{ user_id: number; name: string }>>([]);
@@ -33,6 +34,19 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
 
     fetchUsers();
   }, [isOpen]);
+
+  // Handle prefilled recipient
+  useEffect(() => {
+    if (isOpen && prefilledRecipient) {
+      setRecipients([{ user_id: prefilledRecipient.id, name: prefilledRecipient.name }]);
+      setSubject(`Message to ${prefilledRecipient.name}`);
+    } else if (isOpen) {
+      // Reset when opening without prefilled data
+      setRecipients([]);
+      setSubject('');
+      setBody('');
+    }
+  }, [isOpen, prefilledRecipient]);
 
   // Filter users based on search
   const filteredUsers = users.filter(user => 

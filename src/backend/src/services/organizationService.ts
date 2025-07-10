@@ -380,15 +380,16 @@ export class OrganizationService {
       WHERE u.organization_id = $1
     `;
     
-    const params = [organizationId];
+    const params: any[] = [organizationId];
     
     if (searchTerm) {
+      const paramIndex = params.length + 1;
       query += ` AND (
-        LOWER(u.first_name) LIKE $2 OR 
-        LOWER(u.last_name) LIKE $2 OR 
-        LOWER(u.email) LIKE $2 OR 
-        LOWER(u.job_title) LIKE $2 OR 
-        LOWER(u.department) LIKE $2
+        LOWER(u.first_name) LIKE $${paramIndex} OR 
+        LOWER(u.last_name) LIKE $${paramIndex} OR 
+        LOWER(u.email) LIKE $${paramIndex} OR 
+        LOWER(u.job_title) LIKE $${paramIndex} OR 
+        LOWER(u.department) LIKE $${paramIndex}
       )`;
       params.push(`%${searchTerm.toLowerCase()}%`);
     }

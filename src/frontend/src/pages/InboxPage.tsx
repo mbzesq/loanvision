@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   Search, Archive, MessageCircle, 
   AlertTriangle, FileText, DollarSign, TrendingUp,
@@ -20,6 +21,7 @@ function InboxPage() {
   console.log('InboxPage loading with enhanced task features');
   console.log('INBOX_QUICK_FILTERS:', Object.keys(INBOX_QUICK_FILTERS));
   
+  const location = useLocation();
   const [inboxItems, setInboxItems] = useState<InboxItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedItem, setSelectedItem] = useState<InboxItem | null>(null);
@@ -75,6 +77,18 @@ function InboxPage() {
   useEffect(() => {
     fetchInboxData();
   }, [activeFilter, searchQuery]);
+
+  // Handle prefilled data from organization directory
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.prefilledRecipient) {
+      // Open new message modal with prefilled recipient
+      setShowNewMessageModal(true);
+    } else if (state?.createTask && state?.prefilledAssignee) {
+      // Open create task modal with prefilled assignee
+      setShowCreateTaskModal(true);
+    }
+  }, [location.state]);
 
   // Auto-clear success messages after 3 seconds
   useEffect(() => {
@@ -1501,6 +1515,7 @@ function InboxPage() {
         onClose={() => setShowCreateTaskModal(false)}
         originalItem={selectedItem || undefined}
         onSend={handleCreateTask}
+        prefilledAssignee={location.state?.prefilledAssignee}
       />
       
       {/* New Message Modal */}
@@ -1508,6 +1523,7 @@ function InboxPage() {
         isOpen={showNewMessageModal}
         onClose={() => setShowNewMessageModal(false)}
         onSend={handleNewMessage}
+        prefilledRecipient={location.state?.prefilledRecipient}
       />
     </div>
   );
