@@ -1,7 +1,7 @@
 // src/frontend/src/pages/LoanDetailPageCompact.tsx
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../utils/axios';
 import { differenceInDays } from 'date-fns';
 import '../styles/financial-design-system.css';
 import { useToast } from '../hooks/use-toast';
@@ -52,18 +52,10 @@ const LoanDetailPage = () => {
   const [isEnriching, setIsEnriching] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (loanId) {
-      fetchLoanDetails();
-      fetchPropertyData();
-      fetchMilestones();
-    }
-  }, [loanId]);
-
   const fetchLoanDetails = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await axios.get(`${apiUrl}/api/loans/${loanId}`);
+      const response = await axios.get(`${apiUrl}/api/v2/loans/${loanId}`);
       setLoan(response.data);
     } catch (error) {
       console.error('Error fetching loan details:', error);
@@ -80,7 +72,7 @@ const LoanDetailPage = () => {
   const fetchPropertyData = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await axios.get(`${apiUrl}/api/loans/${loanId}/property-data`);
+      const response = await axios.get(`${apiUrl}/api/v2/loans/${loanId}/property-details`);
       setPropertyData(response.data);
     } catch (error) {
       console.log('Property data not available');
@@ -90,7 +82,7 @@ const LoanDetailPage = () => {
   const fetchMilestones = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await axios.get(`${apiUrl}/api/loans/${loanId}/milestones`);
+      const response = await axios.get(`${apiUrl}/api/loans/${loanId}/foreclosure-timeline`);
       setMilestones(response.data || []);
     } catch (error) {
       console.log('Milestones not available');
@@ -118,6 +110,14 @@ const LoanDetailPage = () => {
       setIsEnriching(false);
     }
   };
+
+  useEffect(() => {
+    if (loanId) {
+      fetchLoanDetails();
+      fetchPropertyData();
+      fetchMilestones();
+    }
+  }, [loanId]);
 
   if (loading) {
     return (
