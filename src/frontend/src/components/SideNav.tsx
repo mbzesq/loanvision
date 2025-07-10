@@ -1,6 +1,6 @@
 // src/frontend/src/components/SideNav.tsx
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Table, Upload, Scale, ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
+import { LayoutDashboard, Table, Upload, Scale, ChevronLeft, ChevronRight, Inbox, Gavel } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
@@ -10,6 +10,7 @@ const navLinks = [
   { to: '/dashboard', text: 'Dashboard', icon: LayoutDashboard },
   { to: '/loans', text: 'Loan Explorer', icon: Table },
   { to: '/sol-monitoring', text: 'SOL Monitoring', icon: Scale },
+  { to: '/foreclosure-monitoring', text: 'Foreclosure Monitoring', icon: Gavel },
   { to: '/upload', text: 'Import Data', icon: Upload },
 ];
 

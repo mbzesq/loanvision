@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import InboxPage from './pages/InboxPage';
 import LoanDetailPage from './pages/LoanDetailPage';
 import SOLMonitoringPage from './pages/SOLMonitoringPage';
+import ForeclosureMonitoringPage from './pages/ForeclosureMonitoringPage';
 import AlertSettingsPage from './pages/AlertSettingsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -56,6 +57,11 @@ function App() {
             <Route path="/sol-monitoring" element={
               <ProtectedRoute>
                 <SOLMonitoringPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/foreclosure-monitoring" element={
+              <ProtectedRoute>
+                <ForeclosureMonitoringPage />
               </ProtectedRoute>
             } />
             <Route path="/alert-settings" element={
