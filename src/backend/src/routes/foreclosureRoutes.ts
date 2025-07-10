@@ -186,7 +186,7 @@ router.get('/by-state', async (req, res) => {
         COUNT(*) FILTER (WHERE fe.fc_jurisdiction ILIKE '%judicial%') as judicial_count,
         COUNT(*) FILTER (WHERE fe.fc_jurisdiction ILIKE '%non%judicial%' OR fe.fc_jurisdiction NOT ILIKE '%judicial%') as non_judicial_count,
         ROUND(AVG(EXTRACT(DAY FROM NOW() - fe.fc_start_date))) as avg_days_in_process,
-        COUNT(*) FILTER (WHERE fe.foreclosure_sale_date IS NOT NULL OR fe.reo_date IS NOT NULL) as completed_count
+        COUNT(*) FILTER (WHERE fe.sale_held_date IS NOT NULL OR fe.real_estate_owned_date IS NOT NULL) as completed_count
       FROM foreclosure_events fe
       LEFT JOIN daily_metrics_current dmc ON fe.loan_id = dmc.loan_id
       WHERE fe.fc_start_date IS NOT NULL AND dmc.state IS NOT NULL
