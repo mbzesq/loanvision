@@ -326,36 +326,11 @@ router.post('/loans/batch', async (req, res) => {
     
     const solQuery = `
       SELECT 
-        lsc.loan_id,
-        lsc.jurisdiction_id,
-        lsc.property_state,
-        lsc.origination_date,
-        lsc.maturity_date,
-        lsc.default_date,
-        lsc.last_payment_date,
-        lsc.acceleration_date,
-        lsc.charge_off_date,
-        lsc.sol_trigger_event,
-        lsc.sol_trigger_date,
-        lsc.sol_expiration_date,
-        lsc.adjusted_expiration_date,
-        lsc.days_until_expiration,
-        lsc.is_expired,
-        lsc.sol_risk_level,
-        lsc.tolling_provisions,
-        lsc.notes,
-        lsc.last_calculated_at,
-        lsc.created_at,
-        lsc.updated_at,
-        sj.state_code,
-        sj.state_name,
-        sj.lien_years,
-        sj.note_years,
-        sj.foreclosure_years,
-        sj.lien_extinguished,
-        sj.foreclosure_barred
+        lsc.*,
+        sj.state_name as jurisdiction_name,
+        sj.risk_level as jurisdiction_risk_level
       FROM loan_sol_calculations lsc
-      LEFT JOIN sol_jurisdictions sj ON lsc.jurisdiction_id = sj.id
+      LEFT JOIN sol_jurisdictions sj ON sj.id = lsc.jurisdiction_id
       WHERE lsc.loan_id IN (${placeholders})
       ORDER BY lsc.loan_id
     `;
