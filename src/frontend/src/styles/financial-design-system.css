@@ -36,7 +36,7 @@
   
   /* Typography - Monospace for data */
   --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   
   /* Spacing - Tighter for density */
   --spacing-xs: 0.25rem;   /* 4px */
@@ -58,6 +58,11 @@ body.financial-theme {
   font-family: var(--font-sans);
   font-size: 13px; /* Smaller base size for density */
   line-height: 1.4;
+}
+
+/* Ensure Inter font is used platform-wide */
+body:not(.financial-theme) {
+  font-family: var(--font-sans);
 }
 
 /* Professional Typography */
