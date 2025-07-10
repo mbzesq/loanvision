@@ -33,9 +33,9 @@ const ForeclosureMonitoringPage: React.FC = () => {
       
       // Load all foreclosure data in parallel
       const [summary, loans, states] = await Promise.all([
-        foreclosureService.getForeclosureSummary().catch(() => generateMockSummary()),
-        foreclosureService.getForeclosureLoans().catch(() => generateMockLoans()),
-        foreclosureService.getForeclosureByState().catch(() => generateMockStateData())
+        foreclosureService.getForeclosureSummary(),
+        foreclosureService.getForeclosureLoans(),
+        foreclosureService.getForeclosureByState()
       ]);
       
       setForeclosureSummary(summary);
@@ -49,6 +49,13 @@ const ForeclosureMonitoringPage: React.FC = () => {
     } catch (err) {
       console.error('Error loading foreclosure data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load foreclosure data');
+      // If API fails, fall back to mock data for development
+      if (import.meta.env.DEV) {
+        setForeclosureSummary(generateMockSummary());
+        setForeclosureLoans(generateMockLoans());
+        setStateData(generateMockStateData());
+        setTrendData(generateMockTrendData());
+      }
     } finally {
       setLoading(false);
     }

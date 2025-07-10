@@ -21,13 +21,13 @@ router.get('/summary', async (req, res) => {
       SELECT 
         COUNT(*) FILTER (WHERE fe.fc_start_date IS NOT NULL) as total_in_foreclosure,
         COUNT(*) FILTER (WHERE fe.fc_jurisdiction ILIKE '%judicial%') as judicial_count,
-        COUNT(*) FILTER (WHERE fe.fc_jurisdiction ILIKE '%non%judicial%' OR fe.fc_jurisdiction NOT ILIKE '%judicial%') as non_judicial_count,
+        COUNT(*) FILTER (WHERE fe.fc_jurisdiction NOT ILIKE '%judicial%') as non_judicial_count,
         ROUND(AVG(CASE 
           WHEN fe.fc_start_date IS NOT NULL 
           THEN EXTRACT(DAY FROM NOW() - fe.fc_start_date) 
           ELSE NULL 
         END)) as avg_days_in_process,
-        COUNT(*) FILTER (WHERE fe.foreclosure_sale_date IS NOT NULL OR fe.reo_date IS NOT NULL) as completed_foreclosures
+        COUNT(*) FILTER (WHERE fe.sale_held_date IS NOT NULL OR fe.real_estate_owned_date IS NOT NULL) as completed_foreclosures
       FROM foreclosure_events fe
       WHERE fe.fc_start_date IS NOT NULL
     `;
@@ -39,12 +39,13 @@ router.get('/summary', async (req, res) => {
     const statusQuery = `
       SELECT 
         CASE 
-          WHEN reo_date IS NOT NULL THEN 'REO'
-          WHEN foreclosure_sale_date IS NOT NULL THEN 'Foreclosure Sale'
-          WHEN notice_of_sale_date IS NOT NULL THEN 'Notice of Sale'
-          WHEN lis_pendens_date IS NOT NULL THEN 'Lis Pendens Filed'
-          WHEN notice_of_default_date IS NOT NULL THEN 'Notice of Default'
-          ELSE 'Pre-Foreclosure'
+          WHEN real_estate_owned_date IS NOT NULL THEN 'REO'
+          WHEN sale_held_date IS NOT NULL THEN 'Foreclosure Sale'
+          WHEN sale_scheduled_date IS NOT NULL THEN 'Sale Scheduled'
+          WHEN judgment_date IS NOT NULL THEN 'Judgment Entered'
+          WHEN complaint_filed_date IS NOT NULL THEN 'Complaint Filed'
+          WHEN service_completed_date IS NOT NULL THEN 'Service Completed'
+          ELSE 'Pre-Legal'
         END as status,
         COUNT(*) as count
       FROM foreclosure_events fe
@@ -64,17 +65,17 @@ router.get('/summary', async (req, res) => {
       SELECT 
         COUNT(*) FILTER (WHERE 
           EXTRACT(DAY FROM NOW() - fc_start_date) > 365 
-          AND foreclosure_sale_date IS NULL 
-          AND reo_date IS NULL
+          AND sale_held_date IS NULL 
+          AND real_estate_owned_date IS NULL
         ) as overdue,
         COUNT(*) FILTER (WHERE 
           EXTRACT(DAY FROM NOW() - fc_start_date) <= 365 
-          AND foreclosure_sale_date IS NULL 
-          AND reo_date IS NULL
+          AND sale_held_date IS NULL 
+          AND real_estate_owned_date IS NULL
         ) as on_track,
         COUNT(*) FILTER (WHERE 
-          foreclosure_sale_date IS NOT NULL 
-          OR reo_date IS NOT NULL
+          sale_held_date IS NOT NULL 
+          OR real_estate_owned_date IS NOT NULL
         ) as completed
       FROM foreclosure_events fe
       WHERE fe.fc_start_date IS NOT NULL
@@ -118,25 +119,26 @@ router.get('/loans', async (req, res) => {
     const loansQuery = `
       SELECT 
         fe.loan_id,
-        dmc.borrower_name,
+        CONCAT(COALESCE(dmc.first_name, ''), ' ', COALESCE(dmc.last_name, '')) as borrower_name,
         dmc.state,
         fe.fc_jurisdiction as jurisdiction,
         CASE 
-          WHEN fe.reo_date IS NOT NULL THEN 'REO'
-          WHEN fe.foreclosure_sale_date IS NOT NULL THEN 'Foreclosure Sale'
-          WHEN fe.notice_of_sale_date IS NOT NULL THEN 'Notice of Sale'
-          WHEN fe.lis_pendens_date IS NOT NULL THEN 'Lis Pendens Filed'
-          WHEN fe.notice_of_default_date IS NOT NULL THEN 'Notice of Default'
-          ELSE 'Pre-Foreclosure'
+          WHEN fe.real_estate_owned_date IS NOT NULL THEN 'REO'
+          WHEN fe.sale_held_date IS NOT NULL THEN 'Foreclosure Sale'
+          WHEN fe.sale_scheduled_date IS NOT NULL THEN 'Sale Scheduled'
+          WHEN fe.judgment_date IS NOT NULL THEN 'Judgment Entered'
+          WHEN fe.complaint_filed_date IS NOT NULL THEN 'Complaint Filed'
+          WHEN fe.service_completed_date IS NOT NULL THEN 'Service Completed'
+          ELSE 'Pre-Legal'
         END as current_milestone,
         fe.fc_start_date,
         EXTRACT(DAY FROM NOW() - fe.fc_start_date) as days_in_process,
         CASE 
           WHEN EXTRACT(DAY FROM NOW() - fe.fc_start_date) > 365 THEN 'overdue'
-          WHEN fe.foreclosure_sale_date IS NOT NULL OR fe.reo_date IS NOT NULL THEN 'completed'
+          WHEN fe.sale_held_date IS NOT NULL OR fe.real_estate_owned_date IS NOT NULL THEN 'completed'
           ELSE 'on_track'
         END as status,
-        dmc.principal_balance
+        dmc.prin_bal as principal_balance
       FROM foreclosure_events fe
       LEFT JOIN daily_metrics_current dmc ON fe.loan_id = dmc.loan_id
       WHERE fe.fc_start_date IS NOT NULL
@@ -148,7 +150,7 @@ router.get('/loans', async (req, res) => {
     
     const loans = loansResult.rows.map(row => ({
       loanId: row.loan_id,
-      borrowerName: row.borrower_name || 'Unknown',
+      borrowerName: row.borrower_name?.trim() || 'Unknown',
       state: row.state || 'Unknown',
       jurisdiction: row.jurisdiction || 'Unknown',
       currentMilestone: row.current_milestone,
