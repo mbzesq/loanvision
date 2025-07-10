@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { ForeclosureSummary } from '../../services/foreclosureService';
 import '../../styles/financial-design-system.css';
@@ -9,6 +10,8 @@ interface ForeclosureMonitorCardProps {
 }
 
 const ForeclosureMonitorCard: React.FC<ForeclosureMonitorCardProps> = ({ data, loading }) => {
+  const navigate = useNavigate();
+
   if (loading || !data) {
     return (
       <div className="financial-card" style={{ height: '300px' }}>
@@ -32,6 +35,25 @@ const ForeclosureMonitorCard: React.FC<ForeclosureMonitorCardProps> = ({ data, l
     { name: 'On Track', value: data.riskDistribution.onTrack, color: '#16a34a' },
     { name: 'Completed', value: data.riskDistribution.completed, color: '#2563eb' }
   ];
+
+  const handleChartClick = (_: any, index: number) => {
+    const segment = chartData[index];
+    if (segment && segment.value > 0) {
+      const params = new URLSearchParams();
+      
+      // Set the timeline status filter based on segment name
+      if (segment.name === 'Overdue') {
+        params.set('timeline_status', 'Overdue');
+      } else if (segment.name === 'On Track') {
+        params.set('timeline_status', 'On Track');
+      }
+      
+      // Add foreclosure-specific filter
+      params.set('status', 'ACTIVE'); // Filter to active foreclosure loans
+      
+      navigate(`/loans?${params.toString()}`);
+    }
+  };
 
   const totalActive = data.riskDistribution.overdue + data.riskDistribution.onTrack;
   const overduePercentage = totalActive > 0 ? (data.riskDistribution.overdue / totalActive * 100) : 0;
@@ -67,9 +89,11 @@ const ForeclosureMonitorCard: React.FC<ForeclosureMonitorCardProps> = ({ data, l
                 outerRadius={60}
                 paddingAngle={2}
                 dataKey="value"
+                onClick={handleChartClick}
+                style={{ cursor: 'pointer' }}
               >
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell key={`cell-${index}`} fill={entry.color} style={{ cursor: 'pointer' }} />
                 ))}
               </Pie>
               <Tooltip 

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Clock, AlertTriangle, Calendar, RefreshCw, Gavel, MapPin } from 'lucide-react';
 import { foreclosureService, ForeclosureSummary, ForeclosureLoan, ForeclosureStateData } from '../services/foreclosureService';
 import ForeclosureMonitorCard from '../components/Dashboard/ForeclosureMonitorCard';
+import { LoanDetailModal } from '../components/LoanDetailModal';
+import { getOverallLoanStatus } from '../lib/timelineUtils';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import '../styles/financial-design-system.css';
 
@@ -21,6 +23,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
 
   useEffect(() => {
     loadForeclosureData();
@@ -313,7 +316,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '20px' }}>
         {/* Active Foreclosures Table */}
-        <div className="financial-card">
+        <div className="financial-card" style={{ height: 'fit-content' }}>
           <div style={{ 
             borderBottom: '1px solid var(--color-border)',
             paddingBottom: '8px',
@@ -326,74 +329,120 @@ const ForeclosureMonitoringPage: React.FC = () => {
               textTransform: 'uppercase',
               margin: 0
             }}>
-              ACTIVE FORECLOSURES
+              ACTIVE FORECLOSURES (TOP 10)
             </h3>
           </div>
 
-          <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <div style={{ maxHeight: '420px', overflowY: 'auto', position: 'relative' }}>
             <table style={{ width: '100%', fontSize: '11px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
-                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)' }}>
+              <thead style={{ 
+                position: 'sticky', 
+                top: 0, 
+                backgroundColor: 'var(--color-surface)',
+                zIndex: 10,
+                borderBottom: '2px solid var(--color-border)'
+              }}>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
                     LOAN ID
                   </th>
-                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)' }}>
+                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
                     BORROWER
                   </th>
-                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)' }}>
+                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
                     STATE
                   </th>
-                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)' }}>
+                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
                     MILESTONE
                   </th>
-                  <th style={{ textAlign: 'right', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)' }}>
+                  <th style={{ textAlign: 'right', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
                     DAYS
                   </th>
-                  <th style={{ textAlign: 'right', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)' }}>
+                  <th style={{ textAlign: 'right', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
                     BALANCE
                   </th>
-                  <th style={{ textAlign: 'center', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)' }}>
+                  <th style={{ textAlign: 'center', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
+                    TIMELINE STATUS
+                  </th>
+                  <th style={{ textAlign: 'center', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
                     STATUS
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {foreclosureLoans.map((loan, index) => (
-                  <tr 
-                    key={loan.loanId}
-                    style={{ 
-                      borderBottom: index < foreclosureLoans.length - 1 ? '1px solid var(--color-border)' : 'none'
-                    }}
-                  >
-                    <td style={{ padding: '8px 4px', fontWeight: '500', color: 'var(--color-primary)' }}>
-                      {loan.loanId}
-                    </td>
-                    <td style={{ padding: '8px 4px' }}>
-                      {loan.borrowerName}
-                    </td>
-                    <td style={{ padding: '8px 4px' }}>
-                      {loan.state}
-                    </td>
-                    <td style={{ padding: '8px 4px' }}>
-                      {loan.currentMilestone}
-                    </td>
-                    <td style={{ 
-                      padding: '8px 4px', 
-                      textAlign: 'right',
-                      color: loan.daysInProcess > 300 ? 'var(--color-danger)' : 'var(--color-text)'
-                    }}>
-                      {loan.daysInProcess}
-                    </td>
-                    <td style={{ padding: '8px 4px', textAlign: 'right' }}>
-                      {formatCurrency(loan.principalBalance)}
-                    </td>
-                    <td style={{ padding: '8px 4px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                        {getStatusIcon(loan.status)}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {foreclosureLoans.slice(0, 10).map((loan, index) => {
+                  // Convert foreclosure loan to format expected by getOverallLoanStatus
+                  const loanForStatus = {
+                    fc_status: loan.status === 'completed' ? 'CLOSED' : 'ACTIVE',
+                    state: loan.state,
+                    fc_jurisdiction: loan.jurisdiction,
+                    fc_start_date: loan.fcStartDate
+                  };
+                  const timelineStatus = getOverallLoanStatus(loanForStatus as any);
+                  
+                  return (
+                    <tr 
+                      key={loan.loanId}
+                      style={{ 
+                        borderBottom: index < 9 ? '1px solid var(--color-border)' : 'none'
+                      }}
+                    >
+                      <td style={{ padding: '8px 4px', fontWeight: '500', color: 'var(--color-primary)' }}>
+                        <button
+                          onClick={() => setSelectedLoanId(loan.loanId)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--color-primary)',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            fontSize: 'inherit',
+                            fontWeight: '500',
+                            padding: 0
+                          }}
+                        >
+                          {loan.loanId}
+                        </button>
+                      </td>
+                      <td style={{ padding: '8px 4px' }}>
+                        {loan.borrowerName}
+                      </td>
+                      <td style={{ padding: '8px 4px' }}>
+                        {loan.state}
+                      </td>
+                      <td style={{ padding: '8px 4px' }}>
+                        {loan.currentMilestone}
+                      </td>
+                      <td style={{ 
+                        padding: '8px 4px', 
+                        textAlign: 'right',
+                        color: loan.daysInProcess > 300 ? 'var(--color-danger)' : 'var(--color-text)'
+                      }}>
+                        {loan.daysInProcess}
+                      </td>
+                      <td style={{ padding: '8px 4px', textAlign: 'right' }}>
+                        {formatCurrency(loan.principalBalance)}
+                      </td>
+                      <td style={{ padding: '8px 4px', textAlign: 'center' }}>
+                        <span
+                          style={{
+                            color: timelineStatus === 'Overdue' ? 'var(--color-danger)' : 
+                                   timelineStatus === 'On Track' ? 'var(--color-success)' : 'var(--color-text-muted)',
+                            fontWeight: '500',
+                            fontSize: '10px'
+                          }}
+                        >
+                          {timelineStatus || 'N/A'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '8px 4px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                          {getStatusIcon(loan.status)}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -462,6 +511,14 @@ const ForeclosureMonitoringPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Loan Detail Modal */}
+      {selectedLoanId && (
+        <LoanDetailModal
+          loanId={selectedLoanId}
+          onClose={() => setSelectedLoanId(null)}
+        />
+      )}
     </div>
   );
 };
