@@ -16,6 +16,7 @@ import {
   Grid3X3,
   List
 } from 'lucide-react';
+import '../styles/financial-design-system.css';
 
 type ViewMode = 'grid' | 'list' | 'hierarchy';
 
@@ -144,23 +145,56 @@ export default function OrganizationDirectoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading organization directory...</p>
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '2px solid var(--color-primary)',
+            borderTop: '2px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }}></div>
+          <p style={{ color: 'var(--color-text-secondary)' }}>Loading organization directory...</p>
         </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: 'var(--color-background)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: 'var(--color-danger)', marginBottom: '16px' }}>{error}</p>
           <button 
             onClick={fetchData}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            style={{
+              backgroundColor: 'var(--color-primary)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: 'var(--radius-md)',
+              border: 'none',
+              cursor: 'pointer'
+            }}
           >
             Retry
           </button>
@@ -170,64 +204,168 @@ export default function OrganizationDirectoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: 'var(--color-background)',
+      color: 'var(--color-text-primary)'
+    }}>
+      <div style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '24px 16px'
+      }}>
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Organization Directory</h1>
-              <p className="text-gray-600">
+              <h1 style={{
+                fontSize: '24px',
+                fontWeight: '600',
+                color: 'var(--color-text-primary)',
+                marginBottom: '8px'
+              }}>Organization Directory</h1>
+              <p style={{ color: 'var(--color-text-secondary)' }}>
                 {organization?.name} • {filteredUsers.length} {filteredUsers.length === 1 ? 'member' : 'members'}
               </p>
             </div>
             
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-2 bg-white rounded-lg p-1 shadow-sm">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: 'var(--color-surface)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '4px',
+              border: '1px solid var(--color-border)'
+            }}>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                style={{
+                  padding: '8px',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: viewMode === 'grid' ? 'var(--color-primary)' : 'transparent',
+                  color: viewMode === 'grid' ? 'white' : 'var(--color-text-secondary)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
-                <Grid3X3 className="h-4 w-4" />
+                <Grid3X3 style={{ width: '16px', height: '16px' }} />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                style={{
+                  padding: '8px',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: viewMode === 'list' ? 'var(--color-primary)' : 'transparent',
+                  color: viewMode === 'list' ? 'white' : 'var(--color-text-secondary)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
-                <List className="h-4 w-4" />
+                <List style={{ width: '16px', height: '16px' }} />
               </button>
               <button
                 onClick={() => setViewMode('hierarchy')}
-                className={`p-2 rounded-md ${viewMode === 'hierarchy' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                style={{
+                  padding: '8px',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: viewMode === 'hierarchy' ? 'var(--color-primary)' : 'transparent',
+                  color: viewMode === 'hierarchy' ? 'white' : 'var(--color-text-secondary)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
-                <Users className="h-4 w-4" />
+                <Users style={{ width: '16px', height: '16px' }} />
               </button>
             </div>
           </div>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+        <div style={{
+          backgroundColor: 'var(--color-surface)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-border)',
+          padding: '24px',
+          marginBottom: '24px'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '16px',
+            flexWrap: 'wrap'
+          }}>
             {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <div style={{ flex: 1, position: 'relative', minWidth: '250px' }}>
+              <Search style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '16px',
+                height: '16px',
+                color: 'var(--color-text-muted)'
+              }} />
               <input
                 type="text"
                 placeholder="Search by name, email, title, or department..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                style={{
+                  width: '100%',
+                  paddingLeft: '40px',
+                  paddingRight: '16px',
+                  paddingTop: '8px',
+                  paddingBottom: '8px',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: 'var(--color-background)',
+                  color: 'var(--color-text-primary)',
+                  fontSize: '14px'
+                }}
               />
             </div>
             
             {/* Department Filter */}
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <div style={{ position: 'relative' }}>
+              <Filter style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '16px',
+                height: '16px',
+                color: 'var(--color-text-muted)'
+              }} />
               <select
                 value={departmentFilter}
                 onChange={(e) => setDepartmentFilter(e.target.value)}
-                className="pl-10 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                style={{
+                  paddingLeft: '40px',
+                  paddingRight: '32px',
+                  paddingTop: '8px',
+                  paddingBottom: '8px',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: 'var(--color-background)',
+                  color: 'var(--color-text-primary)',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}
               >
                 <option value="">All Departments</option>
                 {departments.map(dept => (
@@ -240,7 +378,11 @@ export default function OrganizationDirectoryPage() {
 
         {/* Directory Content */}
         {viewMode === 'grid' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '24px'
+          }}>
             {filteredUsers.map((member) => (
               <UserCard 
                 key={member.id} 
@@ -326,82 +468,243 @@ function UserCard({
     : user.email;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow p-6">
+    <div style={{
+      backgroundColor: 'var(--color-surface)',
+      borderRadius: 'var(--radius-lg)',
+      border: '1px solid var(--color-border)',
+      padding: '24px',
+      transition: 'all 0.2s ease',
+      cursor: 'default'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.borderColor = 'var(--color-primary)';
+      e.currentTarget.style.transform = 'translateY(-2px)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.borderColor = 'var(--color-border)';
+      e.currentTarget.style.transform = 'translateY(0)';
+    }}>
       {/* Profile Section */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center">
-          <span className="text-lg font-medium text-gray-600">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: '16px'
+      }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          backgroundColor: 'var(--color-surface-light)',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <span style={{
+            fontSize: '18px',
+            fontWeight: '500',
+            color: 'var(--color-text-primary)'
+          }}>
             {user.first_name?.[0] || user.email[0].toUpperCase()}
           </span>
         </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-gray-900 truncate">{userName}</h3>
-          <p className="text-sm text-gray-500 truncate">{user.email}</p>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <h3 style={{
+            fontWeight: '500',
+            color: 'var(--color-text-primary)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>{userName}</h3>
+          <p style={{
+            fontSize: '14px',
+            color: 'var(--color-text-muted)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>{user.email}</p>
         </div>
       </div>
 
       {/* Details */}
-      <div className="space-y-2 mb-4">
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        marginBottom: '16px'
+      }}>
         {user.job_title && (
-          <div className="flex items-center gap-2 text-sm">
-            <Briefcase className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-700 truncate">{user.job_title}</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px'
+          }}>
+            <Briefcase style={{ width: '16px', height: '16px', color: 'var(--color-text-muted)' }} />
+            <span style={{
+              color: 'var(--color-text-secondary)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>{user.job_title}</span>
           </div>
         )}
         
         {user.department && (
-          <div className="flex items-center gap-2 text-sm">
-            <Building className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-700 truncate">{user.department}</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px'
+          }}>
+            <Building style={{ width: '16px', height: '16px', color: 'var(--color-text-muted)' }} />
+            <span style={{
+              color: 'var(--color-text-secondary)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>{user.department}</span>
           </div>
         )}
         
         {user.phone && (
-          <div className="flex items-center gap-2 text-sm">
-            <Phone className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-700 truncate">{user.phone}</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px'
+          }}>
+            <Phone style={{ width: '16px', height: '16px', color: 'var(--color-text-muted)' }} />
+            <span style={{
+              color: 'var(--color-text-secondary)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>{user.phone}</span>
           </div>
         )}
         
         {user.office_location && (
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-700 truncate">{user.office_location}</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px'
+          }}>
+            <MapPin style={{ width: '16px', height: '16px', color: 'var(--color-text-muted)' }} />
+            <span style={{
+              color: 'var(--color-text-secondary)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>{user.office_location}</span>
           </div>
         )}
       </div>
 
       {/* Badges */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        marginBottom: '16px'
+      }}>
+        <span style={{
+          padding: '4px 8px',
+          borderRadius: '12px',
+          fontSize: '12px',
+          fontWeight: '500',
+          backgroundColor: 'rgba(37, 99, 235, 0.2)',
+          color: 'var(--color-primary)'
+        }}>
           {user.role.replace('_', ' ')}
         </span>
         {user.hierarchy_level && (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getHierarchyColor(user.hierarchy_level)}`}>
+          <span style={{
+            padding: '4px 8px',
+            borderRadius: '12px',
+            fontSize: '12px',
+            fontWeight: '500',
+            backgroundColor: 'rgba(148, 163, 184, 0.2)',
+            color: 'var(--color-text-secondary)'
+          }}>
             {formatHierarchyLevel(user.hierarchy_level)}
           </span>
         )}
         {user.manager_name && (
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+          <span style={{
+            padding: '4px 8px',
+            borderRadius: '12px',
+            fontSize: '12px',
+            fontWeight: '500',
+            backgroundColor: 'var(--color-surface-light)',
+            color: 'var(--color-text-secondary)',
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}>
             Reports to {user.manager_name}
           </span>
         )}
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2">
+      <div style={{ display: 'flex', gap: '8px' }}>
         <button
           onClick={() => onMessage(user)}
-          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100"
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
+            padding: '8px 12px',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'white',
+            backgroundColor: 'var(--color-primary)',
+            borderRadius: 'var(--radius-md)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-primary-dark)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+          }}
         >
-          <MessageSquare className="h-4 w-4" />
+          <MessageSquare style={{ width: '16px', height: '16px' }} />
           Message
         </button>
         <button
           onClick={() => onCreateTask(user)}
-          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-md hover:bg-green-100"
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
+            padding: '8px 12px',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'white',
+            backgroundColor: 'var(--color-success)',
+            borderRadius: 'var(--radius-md)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-success-dark)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-success)';
+          }}
         >
-          <CheckSquare className="h-4 w-4" />
+          <CheckSquare style={{ width: '16px', height: '16px' }} />
           Task
         </button>
       </div>

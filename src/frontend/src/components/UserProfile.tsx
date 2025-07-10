@@ -85,13 +85,6 @@ export function UserProfile() {
                 </p>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => navigate('/organization/directory')}
-              className="group cursor-pointer"
-            >
-              <Users className="mr-2 h-4 w-4" />
-              <span>Team Directory</span>
-            </DropdownMenuItem>
           </>
         )}
         

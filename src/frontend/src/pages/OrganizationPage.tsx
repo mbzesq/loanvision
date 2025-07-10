@@ -334,23 +334,6 @@ export default function OrganizationPage() {
           )}
         </div>
 
-        {/* Organization Info */}
-        <div style={{
-          backgroundColor: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '24px',
-          marginBottom: '24px'
-        }}>
-          <h2 style={{
-            fontSize: '18px',
-            fontWeight: '500',
-            color: 'var(--color-text-primary)',
-            marginBottom: '16px'
-          }}>Organization Details</h2>
-          <OrganizationInfo organization={organization} detailed={true} />
-        </div>
-
         {/* Users Section */}
         {users.length > 0 && (
           <div style={{
