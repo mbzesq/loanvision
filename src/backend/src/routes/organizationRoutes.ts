@@ -327,4 +327,154 @@ router.get('/:id/loans', authenticateToken, async (req: any, res) => {
   }
 });
 
+// Directory and Hierarchy Routes
+
+// Get organization directory with search
+router.get('/:id/directory', authenticateToken, async (req: any, res) => {
+  try {
+    const organizationId = parseInt(req.params.id);
+    const userOrg = await organizationService.getUserOrganization(req.user.id);
+    
+    // Users can only see directory for their own organization unless they're super_user
+    if (req.user.role !== 'super_user' && userOrg?.id !== organizationId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const { search } = req.query;
+    const users = await organizationService.getUsersForDirectory(organizationId, search as string);
+    res.json(users);
+  } catch (error) {
+    console.error('[OrganizationRoutes] Error getting organization directory:', error);
+    res.status(500).json({ error: 'Failed to get organization directory' });
+  }
+});
+
+// Get organization hierarchy
+router.get('/:id/hierarchy', authenticateToken, async (req: any, res) => {
+  try {
+    const organizationId = parseInt(req.params.id);
+    const userOrg = await organizationService.getUserOrganization(req.user.id);
+    
+    // Users can only see hierarchy for their own organization unless they're super_user
+    if (req.user.role !== 'super_user' && userOrg?.id !== organizationId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const hierarchy = await organizationService.getOrganizationHierarchy(organizationId);
+    res.json(hierarchy);
+  } catch (error) {
+    console.error('[OrganizationRoutes] Error getting organization hierarchy:', error);
+    res.status(500).json({ error: 'Failed to get organization hierarchy' });
+  }
+});
+
+// Get user's direct reports
+router.get('/users/:userId/direct-reports', authenticateToken, async (req: any, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    
+    // Users can only see their own direct reports unless they're admin/super_user
+    if (req.user.role !== 'super_user' && req.user.role !== 'admin' && req.user.id !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const directReports = await organizationService.getDirectReports(userId);
+    res.json(directReports);
+  } catch (error) {
+    console.error('[OrganizationRoutes] Error getting direct reports:', error);
+    res.status(500).json({ error: 'Failed to get direct reports' });
+  }
+});
+
+// Update user profile (hierarchy info)
+router.put('/users/:userId/profile', authenticateToken, async (req: any, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    
+    // Users can only update their own profile or admins can update others
+    if (req.user.role !== 'super_user' && req.user.role !== 'admin' && req.user.id !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const {
+      managerId,
+      jobTitle,
+      department,
+      hierarchyLevel,
+      phone,
+      officeLocation,
+      bio,
+      profileImageUrl
+    } = req.body;
+    
+    await organizationService.updateUserProfile(userId, {
+      managerId,
+      jobTitle,
+      department,
+      hierarchyLevel,
+      phone,
+      officeLocation,
+      bio,
+      profileImageUrl
+    });
+    
+    res.json({ message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('[OrganizationRoutes] Error updating user profile:', error);
+    res.status(500).json({ error: 'Failed to update user profile' });
+  }
+});
+
+// Department management routes
+router.get('/:id/departments', authenticateToken, async (req: any, res) => {
+  try {
+    const organizationId = parseInt(req.params.id);
+    const userOrg = await organizationService.getUserOrganization(req.user.id);
+    
+    if (req.user.role !== 'super_user' && userOrg?.id !== organizationId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const departments = await organizationService.getOrganizationDepartments(organizationId);
+    res.json(departments);
+  } catch (error) {
+    console.error('[OrganizationRoutes] Error getting departments:', error);
+    res.status(500).json({ error: 'Failed to get departments' });
+  }
+});
+
+router.post('/:id/departments', authenticateToken, requireAdmin, async (req: any, res) => {
+  try {
+    const organizationId = parseInt(req.params.id);
+    const userOrg = await organizationService.getUserOrganization(req.user.id);
+    
+    if (req.user.role !== 'super_user' && userOrg?.id !== organizationId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const { name, description, headUserId, parentDepartmentId } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ error: 'Department name is required' });
+    }
+    
+    const department = await organizationService.createDepartment({
+      organizationId,
+      name,
+      description,
+      headUserId,
+      parentDepartmentId
+    });
+    
+    res.status(201).json(department);
+  } catch (error) {
+    console.error('[OrganizationRoutes] Error creating department:', error);
+    if ((error as any).code === '23505') {
+      res.status(409).json({ error: 'Department name already exists in this organization' });
+    } else {
+      res.status(500).json({ error: 'Failed to create department' });
+    }
+  }
+});
+
 export default router;

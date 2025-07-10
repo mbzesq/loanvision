@@ -7,6 +7,15 @@ export interface User {
     lastName?: string;
     role: UserRole;
     organizationId?: number;
+    managerId?: number;
+    jobTitle?: string;
+    department?: string;
+    hierarchyLevel?: 'executive' | 'senior_manager' | 'manager' | 'team_lead' | 'senior' | 'intermediate' | 'junior' | 'intern';
+    hireDate?: Date;
+    phone?: string;
+    officeLocation?: string;
+    bio?: string;
+    profileImageUrl?: string;
     createdAt: Date;
     updatedAt: Date;
   }

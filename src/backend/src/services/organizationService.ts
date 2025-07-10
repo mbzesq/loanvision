@@ -33,6 +33,37 @@ export interface OrganizationLoanAccess {
   updated_at: Date;
 }
 
+export interface OrganizationUser {
+  id: number;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  role: string;
+  manager_id?: number;
+  job_title?: string;
+  department?: string;
+  hierarchy_level?: string;
+  hire_date?: string;
+  phone?: string;
+  office_location?: string;
+  bio?: string;
+  profile_image_url?: string;
+  manager_name?: string;
+  direct_reports_count?: number;
+}
+
+export interface OrganizationDepartment {
+  id: number;
+  organization_id: number;
+  name: string;
+  description?: string;
+  head_user_id?: number;
+  parent_department_id?: number;
+  head_user_name?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface OrganizationInvitation {
   id: number;
   organization_id: number;
@@ -198,12 +229,43 @@ export class OrganizationService {
     return result.rows[0] || null;
   }
 
-  async getOrganizationUsers(organizationId: number): Promise<Array<{id: number, email: string, first_name?: string, last_name?: string, role: string}>> {
+  async getOrganizationUsers(organizationId: number, includeHierarchy = true): Promise<OrganizationUser[]> {
     const query = `
-      SELECT id, email, first_name, last_name, role 
-      FROM users 
-      WHERE organization_id = $1
-      ORDER BY first_name, last_name, email
+      SELECT 
+        u.id, 
+        u.email, 
+        u.first_name, 
+        u.last_name, 
+        u.role,
+        u.manager_id,
+        u.job_title,
+        u.department,
+        u.hierarchy_level,
+        u.hire_date,
+        u.phone,
+        u.office_location,
+        u.bio,
+        u.profile_image_url,
+        ${includeHierarchy ? `
+        CONCAT(m.first_name, ' ', m.last_name) as manager_name,
+        (SELECT COUNT(*) FROM users dr WHERE dr.manager_id = u.id) as direct_reports_count
+        ` : 'NULL as manager_name, 0 as direct_reports_count'}
+      FROM users u 
+      ${includeHierarchy ? 'LEFT JOIN users m ON u.manager_id = m.id' : ''}
+      WHERE u.organization_id = $1
+      ORDER BY 
+        CASE u.hierarchy_level 
+          WHEN 'executive' THEN 1
+          WHEN 'senior_manager' THEN 2
+          WHEN 'manager' THEN 3
+          WHEN 'team_lead' THEN 4
+          WHEN 'senior' THEN 5
+          WHEN 'intermediate' THEN 6
+          WHEN 'junior' THEN 7
+          WHEN 'intern' THEN 8
+          ELSE 9
+        END,
+        u.first_name, u.last_name, u.email
     `;
     const result = await pool.query(query, [organizationId]);
     return result.rows;
@@ -212,6 +274,167 @@ export class OrganizationService {
   async assignUserToOrganization(userId: number, organizationId: number): Promise<void> {
     const query = 'UPDATE users SET organization_id = $1 WHERE id = $2';
     await pool.query(query, [organizationId, userId]);
+  }
+
+  // Hierarchy management methods
+  async updateUserProfile(userId: number, updates: {
+    managerId?: number;
+    jobTitle?: string;
+    department?: string;
+    hierarchyLevel?: string;
+    phone?: string;
+    officeLocation?: string;
+    bio?: string;
+    profileImageUrl?: string;
+  }): Promise<void> {
+    const setClause = Object.keys(updates)
+      .filter(key => updates[key as keyof typeof updates] !== undefined)
+      .map((key, index) => {
+        const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        return `${dbKey} = $${index + 2}`;
+      })
+      .join(', ');
+    
+    if (!setClause) return;
+    
+    const values = Object.keys(updates)
+      .filter(key => updates[key as keyof typeof updates] !== undefined)
+      .map(key => updates[key as keyof typeof updates]);
+    
+    const query = `UPDATE users SET ${setClause} WHERE id = $1`;
+    await pool.query(query, [userId, ...values]);
+  }
+
+  async getDirectReports(managerId: number): Promise<OrganizationUser[]> {
+    const query = `
+      SELECT 
+        u.id, 
+        u.email, 
+        u.first_name, 
+        u.last_name, 
+        u.role,
+        u.job_title,
+        u.department,
+        u.hierarchy_level,
+        u.hire_date,
+        u.phone,
+        u.office_location,
+        0 as direct_reports_count
+      FROM users u 
+      WHERE u.manager_id = $1
+      ORDER BY u.first_name, u.last_name
+    `;
+    const result = await pool.query(query, [managerId]);
+    return result.rows;
+  }
+
+  async getOrganizationHierarchy(organizationId: number): Promise<any> {
+    // Get all users with their hierarchy info
+    const users = await this.getOrganizationUsers(organizationId, true);
+    
+    // Build hierarchy tree
+    const userMap = new Map();
+    const rootUsers: any[] = [];
+    
+    // First pass: create user map
+    users.forEach(user => {
+      userMap.set(user.id, {
+        ...user,
+        directReports: []
+      });
+    });
+    
+    // Second pass: build hierarchy
+    users.forEach(user => {
+      if (user.manager_id && userMap.has(user.manager_id)) {
+        userMap.get(user.manager_id).directReports.push(userMap.get(user.id));
+      } else {
+        rootUsers.push(userMap.get(user.id));
+      }
+    });
+    
+    return rootUsers;
+  }
+
+  async getUsersForDirectory(organizationId: number, searchTerm?: string): Promise<OrganizationUser[]> {
+    let query = `
+      SELECT 
+        u.id, 
+        u.email, 
+        u.first_name, 
+        u.last_name, 
+        u.role,
+        u.manager_id,
+        u.job_title,
+        u.department,
+        u.hierarchy_level,
+        u.hire_date,
+        u.phone,
+        u.office_location,
+        u.bio,
+        u.profile_image_url,
+        CONCAT(m.first_name, ' ', m.last_name) as manager_name,
+        (SELECT COUNT(*) FROM users dr WHERE dr.manager_id = u.id) as direct_reports_count
+      FROM users u 
+      LEFT JOIN users m ON u.manager_id = m.id
+      WHERE u.organization_id = $1
+    `;
+    
+    const params = [organizationId];
+    
+    if (searchTerm) {
+      query += ` AND (
+        LOWER(u.first_name) LIKE $2 OR 
+        LOWER(u.last_name) LIKE $2 OR 
+        LOWER(u.email) LIKE $2 OR 
+        LOWER(u.job_title) LIKE $2 OR 
+        LOWER(u.department) LIKE $2
+      )`;
+      params.push(`%${searchTerm.toLowerCase()}%`);
+    }
+    
+    query += ` ORDER BY u.first_name, u.last_name`;
+    
+    const result = await pool.query(query, params);
+    return result.rows;
+  }
+
+  // Department management
+  async createDepartment(orgData: {
+    organizationId: number;
+    name: string;
+    description?: string;
+    headUserId?: number;
+    parentDepartmentId?: number;
+  }): Promise<OrganizationDepartment> {
+    const query = `
+      INSERT INTO organization_departments (organization_id, name, description, head_user_id, parent_department_id)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+    
+    const result = await pool.query(query, [
+      orgData.organizationId,
+      orgData.name,
+      orgData.description,
+      orgData.headUserId,
+      orgData.parentDepartmentId
+    ]);
+    return result.rows[0];
+  }
+
+  async getOrganizationDepartments(organizationId: number): Promise<OrganizationDepartment[]> {
+    const query = `
+      SELECT 
+        od.*,
+        CONCAT(u.first_name, ' ', u.last_name) as head_user_name
+      FROM organization_departments od
+      LEFT JOIN users u ON od.head_user_id = u.id
+      WHERE od.organization_id = $1
+      ORDER BY od.name
+    `;
+    const result = await pool.query(query, [organizationId]);
+    return result.rows;
   }
 
   // Invitation management
