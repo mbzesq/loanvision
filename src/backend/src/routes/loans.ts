@@ -5,6 +5,7 @@ import { enrichLoanWithPropertyData } from '../services/homeHarvestService';
 import { getCurrentPropertyData } from '../services/propertyDataService';
 // import { enrichLoanWithRentCast } from '../services/rentCastService';
 import { authenticateToken } from '../middleware/authMiddleware';
+import organizationAccessService from '../services/organizationAccessService';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ router.get('/loans', authenticateToken, async (req, res) => {
 });
 
 // GET /loans/search - Search loans for task assignment
-router.get('/loans/search', authenticateToken, async (req, res) => {
+router.get('/loans/search', authenticateToken, async (req: any, res) => {
   try {
     console.log('Loan search endpoint hit with query:', req.query);
     const { q } = req.query;
@@ -32,8 +33,8 @@ router.get('/loans/search', authenticateToken, async (req, res) => {
     const searchTerm = `%${q.toLowerCase()}%`;
     console.log('Searching loans with term:', searchTerm);
     
-    // Search loans by loan_id, borrower name, and property address
-    const result = await pool.query(`
+    // Apply organization-based filtering
+    const baseQuery = `
       SELECT 
         loan_id,
         first_name,
@@ -45,11 +46,12 @@ router.get('/loans/search', authenticateToken, async (req, res) => {
         prin_bal,
         legal_status
       FROM daily_metrics_current 
-      WHERE 
+      WHERE (
         LOWER(loan_id) LIKE $1 OR
         LOWER(CONCAT(first_name, ' ', last_name)) LIKE $1 OR
         LOWER(address) LIKE $1 OR
         LOWER(city) LIKE $1
+      ) {LOAN_FILTER}
       ORDER BY 
         CASE 
           WHEN LOWER(loan_id) = LOWER($2) THEN 1
@@ -59,7 +61,15 @@ router.get('/loans/search', authenticateToken, async (req, res) => {
         END,
         loan_id
       LIMIT 20
-    `, [searchTerm, q.toLowerCase()]);
+    `;
+    
+    const { query, params } = await organizationAccessService.applyLoanFilter(
+      baseQuery, 
+      req.user.id, 
+      [searchTerm, q.toLowerCase()]
+    );
+    
+    const result = await pool.query(query, params);
     
     console.log('Raw database results:', result.rows.length, 'rows');
     
@@ -114,7 +124,7 @@ router.get('/loans/:loanId/enrichments', authenticateToken, async (req, res) => 
 });
 
 // V2 endpoint for single loan details
-router.get('/v2/loans/:loanId', authenticateToken, async (req, res) => {
+router.get('/v2/loans/:loanId', authenticateToken, organizationAccessService.createLoanAccessMiddleware(), async (req, res) => {
   try {
     const { loanId } = req.params;
     const query = 'SELECT * FROM daily_metrics_current WHERE loan_id = $1';
@@ -131,9 +141,9 @@ router.get('/v2/loans/:loanId', authenticateToken, async (req, res) => {
 });
 
 // V2 endpoint for all loans
-router.get('/v2/loans', authenticateToken, async (req, res) => {
+router.get('/v2/loans', authenticateToken, async (req: any, res) => {
   try {
-    const query = `
+    const baseQuery = `
       SELECT
         dmc.*,
         fe.id AS foreclosure_id,
@@ -162,10 +172,17 @@ router.get('/v2/loans', authenticateToken, async (req, res) => {
         foreclosure_events AS fe
       ON
         dmc.loan_id = fe.loan_id
+      WHERE 1=1 {LOAN_FILTER}
       ORDER BY
         dmc.loan_id;
     `;
-    const result = await pool.query(query);
+    
+    const { query, params } = await organizationAccessService.applyLoanFilter(
+      baseQuery, 
+      req.user.id
+    );
+    
+    const result = await pool.query(query, params);
     console.log(`[Backend] V2 loans query returned ${result.rows.length} rows.`); // MANDATORY LOG
     res.json(result.rows);
   } catch (error) {
@@ -175,7 +192,7 @@ router.get('/v2/loans', authenticateToken, async (req, res) => {
 });
 
 // Endpoint for foreclosure timeline
-router.get('/loans/:loanId/foreclosure-timeline', authenticateToken, async (req, res) => {
+router.get('/loans/:loanId/foreclosure-timeline', authenticateToken, organizationAccessService.createLoanAccessMiddleware(), async (req, res) => {
   try {
     const { loanId } = req.params;
     console.log(`[API] Fetching foreclosure timeline for loan: ${loanId}`);
@@ -195,7 +212,7 @@ router.get('/loans/:loanId/foreclosure-timeline', authenticateToken, async (req,
 });
 
 // V2 endpoint to get property details for a loan
-router.get('/v2/loans/:loanId/property-details', authenticateToken, async (req, res) => {
+router.get('/v2/loans/:loanId/property-details', authenticateToken, organizationAccessService.createLoanAccessMiddleware(), async (req, res) => {
   try {
     const { loanId } = req.params;
 
@@ -229,7 +246,7 @@ router.get('/v2/loans/:loanId/property-details', authenticateToken, async (req, 
 });
 
 // V2 endpoint to trigger RentCast property data enrichment
-router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
+router.post('/v2/loans/:loanId/enrich', authenticateToken, organizationAccessService.createLoanAccessMiddleware('servicer'), async (req, res) => {
   // Local helper function for proper title case formatting
   function toTitleCase(str: string): string {
     if (!str) return '';
@@ -322,7 +339,7 @@ router.post('/v2/loans/:loanId/enrich', authenticateToken, async (req, res) => {
 });
 
 // Legacy endpoint for HomeHarvest enrichment (keeping for backward compatibility)
-router.post('/v2/loans/:loanId/enrich-homeharvest', authenticateToken, async (req, res) => {
+router.post('/v2/loans/:loanId/enrich-homeharvest', authenticateToken, organizationAccessService.createLoanAccessMiddleware('servicer'), async (req, res) => {
   try {
     const { loanId } = req.params;
 

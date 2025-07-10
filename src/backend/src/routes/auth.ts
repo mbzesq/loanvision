@@ -33,12 +33,15 @@ router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Resp
     // Hash password
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // Insert new user with default 'user' role
+    // Insert new user with default 'user' role and assign to System Organization
+    const systemOrgResult = await pool.query('SELECT id FROM organizations WHERE slug = $1', ['system']);
+    const systemOrgId = systemOrgResult.rows[0]?.id;
+    
     const newUser = await pool.query(
-      `INSERT INTO users (email, password_hash, first_name, last_name, role) 
-       VALUES ($1, $2, $3, $4, $5) 
-       RETURNING id, email, first_name, last_name, role, created_at, updated_at`,
-      [email, passwordHash, firstName || null, lastName || null, 'user']
+      `INSERT INTO users (email, password_hash, first_name, last_name, role, organization_id) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
+       RETURNING id, email, first_name, last_name, role, organization_id, created_at, updated_at`,
+      [email, passwordHash, firstName || null, lastName || null, 'user', systemOrgId]
     );
 
     const user = newUser.rows[0];
@@ -50,6 +53,7 @@ router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Resp
       firstName: user.first_name,
       lastName: user.last_name,
       role: user.role,
+      organizationId: user.organization_id,
       createdAt: user.created_at,
       updatedAt: user.updated_at
     };
@@ -75,7 +79,7 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response<A
 
     // Find user by email
     const userQuery = await pool.query(
-      `SELECT id, email, password_hash, first_name, last_name, role, created_at, updated_at 
+      `SELECT id, email, password_hash, first_name, last_name, role, organization_id, created_at, updated_at 
        FROM users WHERE email = $1`,
       [email]
     );
@@ -99,6 +103,7 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response<A
         id: user.id,
         email: user.email,
         role: user.role as UserRole,
+        organizationId: user.organization_id,
         tokenId // Add token ID for session tracking
       },
       JWT_SECRET,
@@ -120,6 +125,7 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response<A
       firstName: user.first_name,
       lastName: user.last_name,
       role: user.role,
+      organizationId: user.organization_id,
       createdAt: user.created_at,
       updatedAt: user.updated_at
     };

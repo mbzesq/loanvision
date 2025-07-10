@@ -300,7 +300,7 @@ export class InboxService {
     const queries = await Promise.all([
       // Average days to clear completed tasks in last 30 days
       pool.query(`
-        SELECT AVG(EXTRACT(epoch FROM (updated_at - created_at))/86400) as avg_days
+        SELECT AVG(EXTRACT(epoch FROM (ii.updated_at - ii.created_at))/86400) as avg_days
         FROM inbox_items ii
         LEFT JOIN inbox_recipients ir ON ii.id = ir.inbox_item_id AND ir.user_id = $1
         WHERE (ii.created_by_user_id = $1 OR ii.assigned_to_user_id = $1 OR ir.user_id = $1)

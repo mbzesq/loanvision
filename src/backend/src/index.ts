@@ -97,6 +97,10 @@ app.use('/api/v2/loans', documentAnalysisRouter);
 import inboxRouter from './routes/inbox';
 app.use('/api/inbox', inboxRouter);
 
+// Organization Routes
+import organizationRouter from './routes/organizationRoutes';
+app.use('/api/organizations', organizationRouter);
+
 
 // Add this entire async block right before app.listen
 

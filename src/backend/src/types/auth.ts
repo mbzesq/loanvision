@@ -6,6 +6,7 @@ export interface User {
     firstName?: string;
     lastName?: string;
     role: UserRole;
+    organizationId?: number;
     createdAt: Date;
     updatedAt: Date;
   }
@@ -31,5 +32,6 @@ export interface AuthResponse {
     id: number;
     email: string;
     role: UserRole;
+    organizationId?: number;
     tokenId?: string; // For session tracking
   }
