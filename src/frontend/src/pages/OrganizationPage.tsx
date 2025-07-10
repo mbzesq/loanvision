@@ -333,8 +333,8 @@ export default function OrganizationPage() {
           )}
         </div>
 
-        {/* Users Section */}
-        {users.length > 0 && (
+        {/* Invite Form - Standalone */}
+        {canManageUsers && showInviteForm && (
           <div style={{
             backgroundColor: 'var(--color-surface)',
             border: '1px solid var(--color-border)',
@@ -342,209 +342,96 @@ export default function OrganizationPage() {
             padding: '24px',
             marginBottom: '24px'
           }}>
-            <div style={{
+            <form onSubmit={handleInviteUser} style={{
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '16px'
+              gap: '16px',
+              alignItems: 'end'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Users style={{ width: '20px', height: '20px', color: 'var(--color-text-secondary)' }} />
-                <h2 style={{
-                  fontSize: '18px',
-                  fontWeight: '500',
-                  color: 'var(--color-text-primary)'
-                }}>Organization Members</h2>
-                <span style={{
-                  backgroundColor: 'var(--color-surface-light)',
-                  color: 'var(--color-text-primary)',
+              <div style={{ flex: 1 }}>
+                <label style={{
+                  display: 'block',
                   fontSize: '14px',
-                  padding: '2px 8px',
-                  borderRadius: '12px'
+                  fontWeight: '500',
+                  color: 'var(--color-text-primary)',
+                  marginBottom: '4px'
                 }}>
-                  {users.length}
-                </span>
-              </div>
-              {canManageUsers && (
-                <button
-                  onClick={() => setShowInviteForm(!showInviteForm)}
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={inviteForm.email}
+                  onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
                   style={{
-                    backgroundColor: 'var(--color-primary)',
-                    color: 'white',
-                    padding: '8px 16px',
+                    width: '100%',
+                    border: '1px solid var(--color-border)',
                     borderRadius: 'var(--radius-md)',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
+                    padding: '8px 12px',
+                    backgroundColor: 'var(--color-background)',
+                    color: 'var(--color-text-primary)'
+                  }}
+                  placeholder="user@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: 'var(--color-text-primary)',
+                  marginBottom: '4px'
+                }}>
+                  Role
+                </label>
+                <select
+                  value={inviteForm.role}
+                  onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
+                  style={{
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '8px 12px',
+                    backgroundColor: 'var(--color-background)',
+                    color: 'var(--color-text-primary)'
                   }}
                 >
-                  <Plus style={{ width: '16px', height: '16px' }} />
-                  Invite User
-                </button>
-              )}
-            </div>
-
-            {/* Invite Form */}
-            {canManageUsers && showInviteForm && (
-              <div style={{
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                padding: '16px',
-                marginBottom: '16px',
-                backgroundColor: 'var(--color-background)'
-              }}>
-                <form onSubmit={handleInviteUser} style={{
-                  display: 'flex',
-                  gap: '16px',
-                  alignItems: 'end'
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: 'var(--color-text-primary)',
-                      marginBottom: '4px'
-                    }}>
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      value={inviteForm.email}
-                      onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                      style={{
-                        width: '100%',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-md)',
-                        padding: '8px 12px',
-                        backgroundColor: 'var(--color-surface)',
-                        color: 'var(--color-text-primary)'
-                      }}
-                      placeholder="user@example.com"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: 'var(--color-text-primary)',
-                      marginBottom: '4px'
-                    }}>
-                      Role
-                    </label>
-                    <select
-                      value={inviteForm.role}
-                      onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
-                      style={{
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-md)',
-                        padding: '8px 12px',
-                        backgroundColor: 'var(--color-surface)',
-                        color: 'var(--color-text-primary)'
-                      }}
-                    >
-                      <option value="user">User</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={inviting}
-                    style={{
-                      backgroundColor: 'var(--color-success)',
-                      color: 'white',
-                      padding: '8px 16px',
-                      borderRadius: 'var(--radius-md)',
-                      border: 'none',
-                      cursor: 'pointer',
-                      opacity: inviting ? 0.5 : 1
-                    }}
-                  >
-                    {inviting ? 'Sending...' : 'Send Invite'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowInviteForm(false)}
-                    style={{
-                      backgroundColor: 'var(--color-surface-light)',
-                      color: 'var(--color-text-primary)',
-                      padding: '8px 16px',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--color-border)',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </form>
+                  <option value="user">User</option>
+                  <option value="manager">Manager</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
-            )}
-
-            {/* Users List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {users.map((orgUser) => (
-                <div key={orgUser.id} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px',
-                  border: '1px solid var(--color-border)',
+              <button
+                type="submit"
+                disabled={inviting}
+                style={{
+                  backgroundColor: 'var(--color-success)',
+                  color: 'white',
+                  padding: '8px 16px',
                   borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-background)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '32px',
-                      height: '32px',
-                      backgroundColor: 'var(--color-surface-light)',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <span style={{
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: 'var(--color-text-primary)'
-                      }}>
-                        {orgUser.first_name?.[0] || orgUser.email[0].toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <p style={{
-                        fontWeight: '500',
-                        color: 'var(--color-text-primary)'
-                      }}>
-                        {orgUser.first_name && orgUser.last_name 
-                          ? `${orgUser.first_name} ${orgUser.last_name}`
-                          : orgUser.email
-                        }
-                      </p>
-                      <p style={{
-                        fontSize: '14px',
-                        color: 'var(--color-text-muted)'
-                      }}>{orgUser.email}</p>
-                    </div>
-                  </div>
-                  <span style={{
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    ...getRoleBadgeStyle(orgUser.role)
-                  }}>
-                    {orgUser.role.replace('_', ' ')}
-                  </span>
-                </div>
-              ))}
-            </div>
+                  border: 'none',
+                  cursor: 'pointer',
+                  opacity: inviting ? 0.5 : 1
+                }}
+              >
+                {inviting ? 'Sending...' : 'Send Invite'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowInviteForm(false)}
+                style={{
+                  backgroundColor: 'var(--color-surface-light)',
+                  color: 'var(--color-text-primary)',
+                  padding: '8px 16px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--color-border)',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </form>
           </div>
         )}
+
 
         {/* Pending Invitations - Only for admins */}
         {canManageUsers && invitations.length > 0 && (

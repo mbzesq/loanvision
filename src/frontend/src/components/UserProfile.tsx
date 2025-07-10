@@ -43,13 +43,25 @@ export function UserProfile() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:bg-slate-100 focus:outline-none">
-          <UserCircle className="h-8 w-8 text-slate-400" />
+        <button 
+          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors focus:outline-none"
+          style={{
+            color: 'var(--color-text-primary)',
+            backgroundColor: 'transparent'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-surface-light)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+        >
+          <UserCircle className="h-8 w-8" style={{ color: 'var(--color-text-secondary)' }} />
           <div className="text-left">
-            <p className="font-semibold text-slate-800">{user.firstName} {user.lastName}</p>
-            <p className="text-xs text-slate-500 capitalize">{user.role?.replace('_', ' ')}</p>
+            <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{user.firstName} {user.lastName}</p>
+            <p className="text-xs capitalize" style={{ color: 'var(--color-text-secondary)' }}>{user.role?.replace('_', ' ')}</p>
             {organization && (
-              <p className="text-xs text-slate-400 truncate max-w-32">{organization.name}</p>
+              <p className="text-xs truncate max-w-32" style={{ color: 'var(--color-text-muted)' }}>{organization.name}</p>
             )}
           </div>
         </button>
