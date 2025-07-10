@@ -275,4 +275,99 @@ router.get('/jurisdictions', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/sol/loans/batch
+ * Get SOL calculations for multiple loans at once
+ * Body: { loan_ids: string[] }
+ */
+router.post('/loans/batch', async (req, res) => {
+  try {
+    const { loan_ids } = req.body;
+    
+    if (!loan_ids || !Array.isArray(loan_ids)) {
+      return res.status(400).json({
+        success: false,
+        error: 'loan_ids array is required'
+      });
+    }
+    
+    if (loan_ids.length === 0) {
+      return res.json({
+        success: true,
+        data: []
+      });
+    }
+    
+    if (loan_ids.length > 1000) {
+      return res.status(400).json({
+        success: false,
+        error: 'Maximum 1000 loan IDs allowed per batch request'
+      });
+    }
+    
+    console.log(`🔍 Fetching SOL data for ${loan_ids.length} loans...`);
+    
+    // Create parameterized query for batch lookup
+    const placeholders = loan_ids.map((_, index) => `$${index + 1}`).join(',');
+    
+    const solQuery = `
+      SELECT 
+        lsc.loan_id,
+        lsc.jurisdiction_id,
+        lsc.property_state,
+        lsc.origination_date,
+        lsc.maturity_date,
+        lsc.default_date,
+        lsc.last_payment_date,
+        lsc.acceleration_date,
+        lsc.charge_off_date,
+        lsc.sol_trigger_event,
+        lsc.sol_trigger_date,
+        lsc.sol_expiration_date,
+        lsc.adjusted_expiration_date,
+        lsc.days_until_expiration,
+        lsc.is_expired,
+        lsc.sol_risk_level,
+        lsc.tolling_provisions,
+        lsc.notes,
+        lsc.last_calculated_at,
+        lsc.created_at,
+        lsc.updated_at,
+        sj.state_code,
+        sj.state_name,
+        sj.lien_years,
+        sj.note_years,
+        sj.foreclosure_years,
+        sj.lien_extinguished,
+        sj.foreclosure_barred
+      FROM loan_sol_calculations lsc
+      LEFT JOIN sol_jurisdictions sj ON lsc.jurisdiction_id = sj.id
+      WHERE lsc.loan_id IN (${placeholders})
+      ORDER BY lsc.loan_id
+    `;
+    
+    const solResult = await pool.query(solQuery, loan_ids);
+    
+    console.log(`✅ Found SOL data for ${solResult.rows.length} of ${loan_ids.length} loans`);
+    
+    res.json({
+      success: true,
+      data: solResult.rows,
+      metadata: {
+        requested: loan_ids.length,
+        found: solResult.rows.length,
+        missing: loan_ids.length - solResult.rows.length
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching batch SOL data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch batch SOL data',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;
