@@ -306,9 +306,23 @@ router.post('/loans/batch', async (req, res) => {
     }
     
     console.log(`🔍 Fetching SOL data for ${loan_ids.length} loans...`);
+    console.log(`🔍 Sample loan IDs: ${loan_ids.slice(0, 3).join(', ')}${loan_ids.length > 3 ? '...' : ''}`);
     
     // Create parameterized query for batch lookup
     const placeholders = loan_ids.map((_, index) => `$${index + 1}`).join(',');
+    console.log(`🔍 Generated ${loan_ids.length} placeholders for query`);
+    
+    // Quick table check
+    try {
+      const tableCheck = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM information_schema.tables 
+        WHERE table_name = 'loan_sol_calculations'
+      `);
+      console.log(`🔍 loan_sol_calculations table exists: ${tableCheck.rows[0].count > 0}`);
+    } catch (tableError) {
+      console.warn('⚠️ Could not check table existence:', tableError);
+    }
     
     const solQuery = `
       SELECT 

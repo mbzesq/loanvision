@@ -148,6 +148,14 @@ class SOLService {
       return new Map();
     } catch (error) {
       console.error('Error fetching batch SOL data:', error);
+      // For debugging - log the full error details
+      if (error instanceof Error) {
+        console.error('Batch SOL error details:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
+      }
       return new Map();
     }
   }
