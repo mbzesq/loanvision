@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useAuth } from "../contexts/AuthContext";
-import { UserCircle, LogOut, Building2, Users } from "lucide-react";
+import { UserCircle, LogOut, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import organizationService, { OrganizationService } from "../services/organizationService";

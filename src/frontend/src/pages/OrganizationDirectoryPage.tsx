@@ -390,7 +390,6 @@ export default function OrganizationDirectoryPage() {
                 onMessage={handleMessageUser}
                 onCreateTask={handleCreateTask}
                 formatHierarchyLevel={formatHierarchyLevel}
-                getHierarchyColor={getHierarchyColor}
               />
             ))}
           </div>
@@ -454,14 +453,12 @@ function UserCard({
   user, 
   onMessage, 
   onCreateTask, 
-  formatHierarchyLevel, 
-  getHierarchyColor 
+  formatHierarchyLevel
 }: {
   user: OrganizationUser;
   onMessage: (user: OrganizationUser) => void;
   onCreateTask: (user: OrganizationUser) => void;
   formatHierarchyLevel: (level?: string) => string;
-  getHierarchyColor: (level?: string) => string;
 }) {
   const userName = user.first_name && user.last_name 
     ? `${user.first_name} ${user.last_name}`

@@ -3,7 +3,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Organization } from '../types/auth';
 import organizationService, { OrganizationUser, OrganizationInvitation } from '../services/organizationService';
-import { OrganizationInfo } from '../components/OrganizationBadge';
 import { Users, Mail, Plus, Clock, ArrowRight, BookOpen } from 'lucide-react';
 import '../styles/financial-design-system.css';
 
