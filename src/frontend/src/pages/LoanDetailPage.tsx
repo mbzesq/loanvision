@@ -3,14 +3,13 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { differenceInDays } from 'date-fns';
-import { CheckCircle, Clock, TrendingUp, AlertTriangle, MapPin, DollarSign } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import '../styles/financial-design-system.css';
 import { useToast } from '../hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
-import { DocumentAnalysisCard } from '../components/DocumentAnalysisCard';
 import SOLInfoCard from '../components/SOL/SOLInfoCard';
-import CollateralStatusCard from '../components/CollateralStatusCard';
+import UnifiedCollateralCard from '../components/UnifiedCollateralCard';
 
 // Enhanced interface for detailed loan data
 interface LoanDetail extends Loan {
@@ -377,16 +376,13 @@ const LoanDetailPage = () => {
         </div>
       </div>
 
-      {/* Second Row - Status Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1fr', 
-        gap: '12px', 
-        marginBottom: '12px' 
-      }}>
+      {/* Second Row - SOL Info */}
+      <div style={{ marginBottom: '12px' }}>
         <SOLInfoCard loanId={loanId!} />
-        <CollateralStatusCard loanId={loanId!} />
       </div>
+
+      {/* Third Row - Unified Collateral */}
+      <UnifiedCollateralCard loanId={loanId!} />
 
       {/* Third Row - Foreclosure Timeline (if exists) */}
       {milestones.length > 0 && (
@@ -440,8 +436,6 @@ const LoanDetailPage = () => {
         </div>
       )}
 
-      {/* Document Analysis - Full Width */}
-      <DocumentAnalysisCard loanId={loanId!} />
     </div>
   );
 };
