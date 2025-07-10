@@ -178,23 +178,15 @@ function LoanExplorerPage() {
         console.log('[Frontend] Received data from /api/v2/loans:', response.data); // MANDATORY LOG
         setLoans(response.data);
         
-        // Fetch SOL data for all loans
+        // Fetch SOL data for all loans using batch API
         try {
-          const solMap = new Map<string, SOLCalculation>();
-          const solPromises = response.data.map(async (loan) => {
-            try {
-              const solCalc = await solService.getLoanSOL(loan.loan_id);
-              if (solCalc) {
-                solMap.set(loan.loan_id, solCalc);
-              }
-            } catch (err) {
-              // Silently handle individual SOL fetch failures
-              console.debug(`SOL data not available for loan ${loan.loan_id}`);
-            }
-          });
+          const loanIds = response.data.map(loan => loan.loan_id);
+          console.log(`[LoanExplorer] Fetching SOL data for ${loanIds.length} loans using batch API...`);
           
-          await Promise.allSettled(solPromises);
+          const solMap = await solService.getBatchLoanSOL(loanIds);
           setSOLData(solMap);
+          
+          console.log(`[LoanExplorer] Successfully loaded SOL data for ${solMap.size} loans`);
         } catch (err) {
           console.warn('Failed to fetch SOL data:', err);
         }

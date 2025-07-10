@@ -120,6 +120,39 @@ class SOLService {
   }
 
   /**
+   * Get SOL calculations for multiple loans at once (batch operation)
+   */
+  async getBatchLoanSOL(loanIds: string[]): Promise<Map<string, SOLCalculation>> {
+    try {
+      if (loanIds.length === 0) {
+        return new Map();
+      }
+
+      console.log(`[SOLService] Fetching SOL data for ${loanIds.length} loans in batch...`);
+      
+      const response = await axiosInstance.post<APIResponse<SOLCalculation[]>>('/api/sol/loans/batch', {
+        loan_ids: loanIds
+      });
+      
+      if (response.data.success && response.data.data) {
+        const solMap = new Map<string, SOLCalculation>();
+        response.data.data.forEach(solCalc => {
+          solMap.set(solCalc.loan_id, solCalc);
+        });
+        
+        console.log(`[SOLService] Successfully loaded SOL data for ${solMap.size} loans`);
+        return solMap;
+      }
+      
+      console.warn('[SOLService] Batch SOL request failed:', response.data.error);
+      return new Map();
+    } catch (error) {
+      console.error('Error fetching batch SOL data:', error);
+      return new Map();
+    }
+  }
+
+  /**
    * Trigger portfolio SOL recalculation (admin function)
    */
   async triggerPortfolioCalculation(): Promise<{ updated: number; errors: number }> {
