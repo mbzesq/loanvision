@@ -24,6 +24,15 @@ export interface User {
   role: UserRole;
   organizationId?: number;
   organization?: Organization;
+  managerId?: number;
+  jobTitle?: string;
+  department?: string;
+  hierarchyLevel?: 'executive' | 'senior_manager' | 'manager' | 'team_lead' | 'senior' | 'intermediate' | 'junior' | 'intern';
+  hireDate?: string;
+  phone?: string;
+  officeLocation?: string;
+  bio?: string;
+  profileImageUrl?: string;
   created_at: string;
   updated_at: string;
 }

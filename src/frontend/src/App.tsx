@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import LandingPage from './pages/LandingPage';
 import OrganizationPage from './pages/OrganizationPage';
+import OrganizationDirectoryPage from './pages/OrganizationDirectoryPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from './components/ui/toaster';
@@ -73,6 +74,11 @@ function App() {
             <Route path="/organization" element={
               <ProtectedRoute>
                 <OrganizationPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/organization/directory" element={
+              <ProtectedRoute>
+                <OrganizationDirectoryPage />
               </ProtectedRoute>
             } />
             {/* Other pages will be added as new routes here */}

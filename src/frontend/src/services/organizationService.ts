@@ -7,6 +7,17 @@ export interface OrganizationUser {
   first_name?: string;
   last_name?: string;
   role: string;
+  manager_id?: number;
+  job_title?: string;
+  department?: string;
+  hierarchy_level?: string;
+  hire_date?: string;
+  phone?: string;
+  office_location?: string;
+  bio?: string;
+  profile_image_url?: string;
+  manager_name?: string;
+  direct_reports_count?: number;
 }
 
 export interface OrganizationInvitation {
@@ -123,6 +134,58 @@ export class OrganizationService {
   async getOrganizationLoans(organizationId: number, accessType?: string): Promise<string[]> {
     const params = accessType ? { access_type: accessType } : {};
     const response = await axios.get(`/api/organizations/${organizationId}/loans`, { params });
+    return response.data;
+  }
+
+  // Directory and Hierarchy Methods
+  
+  // Get organization directory with search
+  async getUsersForDirectory(organizationId: number, searchTerm?: string): Promise<OrganizationUser[]> {
+    const params = searchTerm ? { search: searchTerm } : {};
+    const response = await axios.get(`/api/organizations/${organizationId}/directory`, { params });
+    return response.data;
+  }
+
+  // Get organization hierarchy
+  async getOrganizationHierarchy(organizationId: number): Promise<any[]> {
+    const response = await axios.get(`/api/organizations/${organizationId}/hierarchy`);
+    return response.data;
+  }
+
+  // Get user's direct reports
+  async getDirectReports(userId: number): Promise<OrganizationUser[]> {
+    const response = await axios.get(`/api/organizations/users/${userId}/direct-reports`);
+    return response.data;
+  }
+
+  // Update user profile (hierarchy info)
+  async updateUserProfile(userId: number, updates: {
+    managerId?: number;
+    jobTitle?: string;
+    department?: string;
+    hierarchyLevel?: string;
+    phone?: string;
+    officeLocation?: string;
+    bio?: string;
+    profileImageUrl?: string;
+  }): Promise<void> {
+    await axios.put(`/api/organizations/users/${userId}/profile`, updates);
+  }
+
+  // Get organization departments
+  async getOrganizationDepartments(organizationId: number): Promise<any[]> {
+    const response = await axios.get(`/api/organizations/${organizationId}/departments`);
+    return response.data;
+  }
+
+  // Create department
+  async createDepartment(organizationId: number, departmentData: {
+    name: string;
+    description?: string;
+    headUserId?: number;
+    parentDepartmentId?: number;
+  }): Promise<any> {
+    const response = await axios.post(`/api/organizations/${organizationId}/departments`, departmentData);
     return response.data;
   }
 

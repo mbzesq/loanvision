@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Organization } from '../types/auth';
 import organizationService, { OrganizationUser, OrganizationInvitation } from '../services/organizationService';
 import { OrganizationInfo } from '../components/OrganizationBadge';
-import { Users, Mail, Plus, Clock } from 'lucide-react';
+import { Users, Mail, Plus, Clock, ArrowRight, BookOpen } from 'lucide-react';
 
 export default function OrganizationPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [users, setUsers] = useState<OrganizationUser[]>([]);
   const [invitations, setInvitations] = useState<OrganizationInvitation[]>([]);
@@ -134,6 +136,65 @@ export default function OrganizationPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Organization</h1>
           <p className="text-gray-600">View and manage your organization details</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="bg-white shadow rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Organization Directory</h3>
+                <p className="text-gray-600 text-sm">View all team members, contact info, and org chart</p>
+              </div>
+              <BookOpen className="h-8 w-8 text-blue-600" />
+            </div>
+            <button
+              onClick={() => navigate('/organization/directory')}
+              className="mt-4 w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+            >
+              View Directory
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+          
+          <div className="bg-white shadow rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Team Overview</h3>
+                <p className="text-gray-600 text-sm">{users.length} team members</p>
+              </div>
+              <Users className="h-8 w-8 text-green-600" />
+            </div>
+            <div className="mt-4 space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Active Members</span>
+                <span className="font-medium">{users.length}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Pending Invites</span>
+                <span className="font-medium">{invitations.length}</span>
+              </div>
+            </div>
+          </div>
+          
+          {canManageUsers && (
+            <div className="bg-white shadow rounded-lg p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Quick Actions</h3>
+                  <p className="text-gray-600 text-sm">Manage your organization</p>
+                </div>
+                <Mail className="h-8 w-8 text-purple-600" />
+              </div>
+              <button
+                onClick={() => setShowInviteForm(!showInviteForm)}
+                className="mt-4 w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center justify-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Invite Member
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Organization Info */}
