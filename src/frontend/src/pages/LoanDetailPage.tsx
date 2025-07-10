@@ -10,6 +10,7 @@ import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
 import { DocumentAnalysisCard } from '../components/DocumentAnalysisCard';
 import SOLInfoCard from '../components/SOL/SOLInfoCard';
+import CollateralStatusCard from '../components/CollateralStatusCard';
 
 // Enhanced interface for detailed loan data including origination and payment history
 interface LoanDetail extends Loan {
@@ -619,8 +620,8 @@ const LoanDetailPage = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
         <SOLInfoCard loanId={loanId!} />
         
-        {/* Empty space for second column - can add another card here later */}
-        <div></div>
+        {/* Enhanced Collateral Status Card */}
+        <CollateralStatusCard loanId={loanId!} />
       </div>
 
       {/* Full width Collateral Documents Card */}

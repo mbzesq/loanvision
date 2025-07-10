@@ -2,11 +2,12 @@ import { Router } from 'express';
 import multer from 'multer';
 import pool from '../db';
 import { authenticateToken } from '../middleware/authMiddleware';
-import { TextractService } from '../ocr/textractClient';
+import { AzureDocumentService } from '../ocr/azureDocumentClient';
 import { DocumentClassifier } from '../ml/documentClassifier';
 import { FieldExtractor } from '../extraction/fieldExtractor';
 import { s3Service } from '../services/s3Service';
 import { ocrEnhancementService } from '../services/ocrEnhancementService';
+import { collateralAnalysisService } from '../services/collateralAnalysisService';
 
 const router = Router();
 
@@ -26,27 +27,27 @@ const upload = multer({
 });
 
 // Initialize services
-const textractService = new TextractService();
+const azureDocumentService = new AzureDocumentService();
 const documentClassifier = new DocumentClassifier();
 const fieldExtractor = new FieldExtractor();
 
-// Test endpoint to check AWS configuration
-router.get('/test-aws-config', authenticateToken, async (req, res) => {
+// Test endpoint to check Azure configuration
+router.get('/test-azure-config', authenticateToken, async (req, res) => {
   try {
     const config = {
-      hasAccessKeyId: !!process.env.AWS_ACCESS_KEY_ID,
-      hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY,
-      accessKeyIdLength: process.env.AWS_ACCESS_KEY_ID?.length || 0,
-      region: process.env.AWS_REGION || 'not set',
+      hasEndpoint: !!process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT,
+      hasKey: !!process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY,
+      endpointLength: process.env.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT?.length || 0,
+      keyLength: process.env.AZURE_DOCUMENT_INTELLIGENCE_KEY?.length || 0,
       nodeEnv: process.env.NODE_ENV,
     };
     
     res.json({
       status: 'Configuration Check',
-      awsConfig: config,
-      message: config.hasAccessKeyId && config.hasSecretKey 
-        ? 'AWS credentials appear to be configured' 
-        : 'AWS credentials are missing'
+      azureConfig: config,
+      message: config.hasEndpoint && config.hasKey 
+        ? 'Azure Document Intelligence credentials appear to be configured' 
+        : 'Azure Document Intelligence credentials are missing'
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -103,19 +104,19 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       }
     }
 
-    // Step 3: OCR with Textract
-    console.log('Step 3: Running OCR with Textract...');
-    const textractResult = await textractService.analyzeDocument(processBuffer);
-    console.log(`OCR completed. Extracted ${textractResult.text.length} characters with ${textractResult.keyValuePairs.size} key-value pairs`);
+    // Step 3: OCR with Azure Document Intelligence
+    console.log('Step 3: Running OCR with Azure Document Intelligence...');
+    const ocrResult = await azureDocumentService.analyzeDocument(processBuffer);
+    console.log(`OCR completed. Extracted ${ocrResult.text.length} characters with ${ocrResult.keyValuePairs.size} key-value pairs`);
 
     // Step 4: Classify document type
     console.log('Step 4: Classifying document...');
-    const classification = await documentClassifier.classify(textractResult);
+    const classification = await documentClassifier.classify(ocrResult);
     console.log(`Document classified as ${classification.documentType} with confidence ${classification.confidence.toFixed(4)}`);
 
     // Step 5: Extract fields based on document type
     console.log('Step 5: Extracting fields...');
-    const extractedFields = await fieldExtractor.extractFields(textractResult, classification.documentType);
+    const extractedFields = await fieldExtractor.extractFields(ocrResult, classification.documentType);
     console.log(`Extracted ${extractedFields.fieldConfidence.size} fields`);
 
     // Step 6: Save to database
@@ -154,8 +155,8 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
     const extractionMetadata = {
       fieldConfidence: Object.fromEntries(extractedFields.fieldConfidence),
       classificationScores: Object.fromEntries(classification.scores),
-      ocrConfidence: textractResult.confidence,
-      keyValuePairCount: textractResult.keyValuePairs.size,
+      ocrConfidence: ocrResult.confidence,
+      keyValuePairCount: ocrResult.keyValuePairs.size,
       processingTime,
     };
 
@@ -178,7 +179,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       extractedFields.assignmentDate,
       extractedFields.recordingDate,
       extractedFields.instrumentNumber,
-      textractResult.text, // Store full OCR text for debugging
+      ocrResult.text, // Store full OCR text for debugging
       JSON.stringify(extractionMetadata),
       processingTime,
       file.size,
@@ -189,7 +190,22 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
     // Step 7: Flag low-confidence fields for QA
     await flagLowConfidenceFields(savedDocument.id, extractedFields);
 
-    // Step 8: Clean up temporary S3 storage (data now extracted to database)
+    // Step 8: Enhanced Collateral Analysis - validate fields and update chain
+    try {
+      await collateralAnalysisService.analyzeDocument(
+        loanId,
+        savedDocument.id,
+        extractedFields,
+        classification.documentType,
+        classification.confidence
+      );
+      console.log(`Enhanced collateral analysis completed for document ${savedDocument.id}`);
+    } catch (analysisError) {
+      console.warn('Enhanced collateral analysis failed (non-critical):', analysisError);
+      // Don't fail the request for analysis issues
+    }
+
+    // Step 9: Clean up temporary S3 storage (data now extracted to database)
     try {
       await s3Service.deleteDocument(s3Result.key);
       console.log(`Cleaned up temporary S3 file: ${s3Result.key}`);
@@ -395,6 +411,32 @@ router.get('/:loanId/collateral', authenticateToken, async (req, res) => {
     console.error('Failed to fetch collateral documents:', error);
     res.status(500).json({
       error: 'Failed to fetch collateral documents',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// GET /api/v2/loans/:loanId/collateral-status
+// Enhanced collateral status with validation and chain analysis
+router.get('/:loanId/collateral-status', authenticateToken, async (req, res) => {
+  const { loanId } = req.params;
+
+  try {
+    console.log(`🔍 Fetching enhanced collateral status for loan: ${loanId}`);
+    
+    const collateralStatus = await collateralAnalysisService.getCollateralStatus(loanId);
+    
+    res.json({
+      success: true,
+      loanId,
+      status: collateralStatus,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: unknown) {
+    console.error('Failed to fetch collateral status:', error);
+    res.status(500).json({
+      error: 'Failed to fetch collateral status',
       details: error instanceof Error ? error.message : 'Unknown error',
     });
   }

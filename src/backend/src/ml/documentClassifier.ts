@@ -1,4 +1,4 @@
-import { TextractResult } from '../ocr/textractClient';
+import { DocumentAnalysisResult } from '../ocr/azureDocumentClient';
 
 export enum DocumentType {
   NOTE = 'Note',
@@ -84,9 +84,9 @@ export class DocumentClassifier {
     },
   };
 
-  async classify(textractResult: TextractResult): Promise<ClassificationResult> {
-    const text = textractResult.text.toLowerCase();
-    const keyValues = textractResult.keyValuePairs;
+  async classify(ocrResult: DocumentAnalysisResult): Promise<ClassificationResult> {
+    const text = ocrResult.text.toLowerCase();
+    const keyValues = ocrResult.keyValuePairs;
     
     const scores = new Map<DocumentType, number>();
     let maxScore = 0;
@@ -207,7 +207,7 @@ export class DocumentClassifier {
 
   // Method to update classifier with feedback (for future ML improvement)
   async updateWithFeedback(
-    textractResult: TextractResult,
+    ocrResult: DocumentAnalysisResult,
     predictedType: DocumentType,
     actualType: DocumentType
   ): Promise<void> {

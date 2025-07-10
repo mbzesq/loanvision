@@ -97,9 +97,6 @@ app.use('/api/v2/loans', documentAnalysisRouter);
 import inboxRouter from './routes/inbox';
 app.use('/api/inbox', inboxRouter);
 
-// AWS Test Routes
-import awsTestRouter from './routes/awsTest';
-app.use('/api/aws', awsTestRouter);
 
 // Add this entire async block right before app.listen
 

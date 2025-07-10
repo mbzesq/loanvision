@@ -1,4 +1,4 @@
-import { TextractResult } from '../ocr/textractClient';
+import { DocumentAnalysisResult } from '../ocr/azureDocumentClient';
 import { DocumentType } from '../ml/documentClassifier';
 
 export interface ExtractedFields {
@@ -35,7 +35,7 @@ export class FieldExtractor {
   private readonly namePattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/;
 
   async extractFields(
-    textractResult: TextractResult, 
+    ocrResult: DocumentAnalysisResult, 
     documentType: DocumentType
   ): Promise<ExtractedFields> {
     const fields: ExtractedFields = {
@@ -43,27 +43,27 @@ export class FieldExtractor {
     };
 
     // Extract common fields
-    this.extractPropertyAddress(textractResult, fields);
+    this.extractPropertyAddress(ocrResult, fields);
 
     // Extract document-specific fields
     switch (documentType) {
       case DocumentType.NOTE:
       case DocumentType.SECURITY_INSTRUMENT:
-        this.extractLoanFields(textractResult, fields);
+        this.extractLoanFields(ocrResult, fields);
         break;
       case DocumentType.ASSIGNMENT:
-        this.extractAssignmentFields(textractResult, fields);
+        this.extractAssignmentFields(ocrResult, fields);
         break;
       case DocumentType.ALLONGE:
         // Allonge typically just has endorsement info
-        this.extractEndorsementFields(textractResult, fields);
+        this.extractEndorsementFields(ocrResult, fields);
         break;
     }
 
     return fields;
   }
 
-  private extractPropertyAddress(result: TextractResult, fields: ExtractedFields): void {
+  private extractPropertyAddress(result: DocumentAnalysisResult, fields: ExtractedFields): void {
     const text = result.text;
     const keyValues = result.keyValuePairs;
 
@@ -71,7 +71,7 @@ export class FieldExtractor {
     const addressKeys = ['property address', 'premises', 'property', 'located at', 'address'];
     
     for (const key of addressKeys) {
-      keyValues.forEach((value, k) => {
+      keyValues.forEach((value: string, k: string) => {
         if (k.toLowerCase().includes(key)) {
           const parsedAddress = this.parseAddress(value);
           if (parsedAddress) {
@@ -94,7 +94,7 @@ export class FieldExtractor {
     }
   }
 
-  private extractLoanFields(result: TextractResult, fields: ExtractedFields): void {
+  private extractLoanFields(result: DocumentAnalysisResult, fields: ExtractedFields): void {
     const keyValues = result.keyValuePairs;
     const text = result.text;
 
@@ -214,12 +214,12 @@ export class FieldExtractor {
     });
   }
 
-  private extractAssignmentFields(result: TextractResult, fields: ExtractedFields): void {
+  private extractAssignmentFields(result: DocumentAnalysisResult, fields: ExtractedFields): void {
     const keyValues = result.keyValuePairs;
     const text = result.text;
 
     // Extract assignor/assignee
-    keyValues.forEach((value, key) => {
+    keyValues.forEach((value: string, key: string) => {
       const keyLower = key.toLowerCase();
       
       if (keyLower.includes('assignor') || keyLower.includes('from')) {
@@ -249,7 +249,7 @@ export class FieldExtractor {
     });
   }
 
-  private extractEndorsementFields(result: TextractResult, fields: ExtractedFields): void {
+  private extractEndorsementFields(result: DocumentAnalysisResult, fields: ExtractedFields): void {
     // For allonge, mainly extract the endorser information
     const text = result.text;
     const endorsementPattern = /pay to the order of\s+([A-Za-z\s,.'&]+?)(?:\n|without)/i;

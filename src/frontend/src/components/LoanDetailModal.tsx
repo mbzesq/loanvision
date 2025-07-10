@@ -229,6 +229,15 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
                       </a>
                     </DetailItem>
                     <DetailItem label="Lien Position">{formatValue(loan.lien_pos)}</DetailItem>
+                    <DetailItem label="Collateral Status">
+                      <span style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--color-text-muted)',
+                        fontStyle: 'italic'
+                      }}>
+                        View full details in Loan Detail Page
+                      </span>
+                    </DetailItem>
                   </div>
                 </div>
               </section>
