@@ -31,4 +31,5 @@ export interface AuthResponse {
     id: number;
     email: string;
     role: UserRole;
+    tokenId?: string; // For session tracking
   }

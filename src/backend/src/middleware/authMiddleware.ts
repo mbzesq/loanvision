@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { JWTPayload, UserRole } from '../types/auth';
+import { sessionService } from '../services/sessionService';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-me-in-production';
 
@@ -19,6 +20,14 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   try {
     const payload = jwt.verify(token, JWT_SECRET) as JWTPayload;
     req.user = payload;
+    
+    // Update last activity for session tracking
+    if (payload.tokenId) {
+      sessionService.updateLastActivity(payload.tokenId).catch(err => {
+        console.warn('Failed to update last activity:', err);
+      });
+    }
+    
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

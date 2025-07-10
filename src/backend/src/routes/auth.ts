@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import pool from '../db';
 import { User, UserRole, RegisterRequest, LoginRequest, AuthResponse } from '../types/auth';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware';
+import { sessionService } from '../services/sessionService';
 
 const router = Router();
 
@@ -91,16 +92,26 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response<A
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Generate JWT token with unique identifier for session tracking
+    const tokenId = `${user.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
-        role: user.role as UserRole
+        role: user.role as UserRole,
+        tokenId // Add token ID for session tracking
       },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
+
+    // Create login session record
+    try {
+      await sessionService.createLoginSession(user.id, tokenId, req);
+    } catch (sessionError) {
+      console.warn('[Auth] Failed to create session record:', sessionError);
+      // Continue with login even if session tracking fails
+    }
 
     // Create user object (exclude password hash)
     const userResponse: User = {
@@ -120,6 +131,61 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response<A
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Failed to login' });
+  }
+});
+
+// POST /api/auth/logout - Record logout
+router.post('/logout', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const tokenId = req.user?.tokenId;
+    
+    if (tokenId) {
+      await sessionService.recordLogout(tokenId, 'manual');
+    }
+    
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Failed to logout' });
+  }
+});
+
+// GET /api/auth/sessions/:userId - Get session history for a user (admin only)
+router.get('/sessions/:userId', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const requestingUserRole = req.user?.role;
+    const requestingUserId = req.user?.id;
+
+    // Only allow admins or the user themselves to view session history
+    if (requestingUserRole !== 'admin' && requestingUserRole !== 'super_user' && requestingUserId !== parseInt(userId)) {
+      return res.status(403).json({ error: 'Unauthorized to view session history' });
+    }
+
+    const sessions = await sessionService.getSessionHistory(parseInt(userId), 100);
+    res.json({ sessions });
+  } catch (error) {
+    console.error('Error fetching session history:', error);
+    res.status(500).json({ error: 'Failed to fetch session history' });
+  }
+});
+
+// GET /api/auth/analytics - Get session analytics (admin only)
+router.get('/analytics', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const requestingUserRole = req.user?.role;
+
+    // Only allow admins to view analytics
+    if (requestingUserRole !== 'admin' && requestingUserRole !== 'super_user') {
+      return res.status(403).json({ error: 'Unauthorized to view analytics' });
+    }
+
+    const days = parseInt(req.query.days as string) || 30;
+    const analytics = await sessionService.getSessionAnalytics(days);
+    res.json({ analytics });
+  } catch (error) {
+    console.error('Error fetching session analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch session analytics' });
   }
 });
 
