@@ -12,6 +12,7 @@ import AlertSettingsPage from './pages/AlertSettingsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import LandingPage from './pages/LandingPage';
+import OrganizationPage from './pages/OrganizationPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from './components/ui/toaster';
@@ -67,6 +68,11 @@ function App() {
             <Route path="/alert-settings" element={
               <ProtectedRoute>
                 <AlertSettingsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/organization" element={
+              <ProtectedRoute>
+                <OrganizationPage />
               </ProtectedRoute>
             } />
             {/* Other pages will be added as new routes here */}

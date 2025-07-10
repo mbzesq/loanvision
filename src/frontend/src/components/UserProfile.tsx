@@ -7,13 +7,35 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useAuth } from "../contexts/AuthContext";
-import { UserCircle, LogOut } from "lucide-react"; // Import necessary icons
+import { UserCircle, LogOut, Building2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import organizationService from "../services/organizationService";
+import { Organization } from "../types/auth";
 
 export function UserProfile() {
   const { user, logout } = useAuth();
+  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [loadingOrg, setLoadingOrg] = useState(true);
+
+  useEffect(() => {
+    const fetchUserOrganization = async () => {
+      if (!user) return;
+      
+      try {
+        const org = await organizationService.getMyOrganization();
+        setOrganization(org);
+      } catch (error) {
+        console.error('Failed to fetch user organization:', error);
+      } finally {
+        setLoadingOrg(false);
+      }
+    };
+
+    fetchUserOrganization();
+  }, [user]);
 
   if (!user) {
-    return null; // Render nothing if the user is not loaded
+    return null;
   }
 
   return (
@@ -24,6 +46,9 @@ export function UserProfile() {
           <div className="text-left">
             <p className="font-semibold text-slate-800">{user.firstName} {user.lastName}</p>
             <p className="text-xs text-slate-500 capitalize">{user.role?.replace('_', ' ')}</p>
+            {organization && (
+              <p className="text-xs text-slate-400 truncate max-w-32">{organization.name}</p>
+            )}
           </div>
         </button>
       </DropdownMenuTrigger>
@@ -34,10 +59,48 @@ export function UserProfile() {
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
+            <p className="text-xs leading-none text-muted-foreground capitalize">
+              {user.role?.replace('_', ' ')}
+            </p>
           </div>
         </DropdownMenuLabel>
+        
+        {/* Organization Information */}
+        {organization && (
+          <>
+            <DropdownMenuSeparator />
+            <div className="px-2 py-1.5">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-slate-400" />
+                <div className="flex flex-col min-w-0">
+                  <p className="text-xs font-medium text-slate-700 truncate">
+                    {organization.name}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
+                      organizationService.getOrganizationTypeColor(organization.type)
+                    }`}>
+                      {organizationService.formatOrganizationType(organization.type)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+        
+        {loadingOrg && !organization && (
+          <>
+            <DropdownMenuSeparator />
+            <div className="px-2 py-1.5">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-slate-400" />
+                <p className="text-xs text-slate-500">Loading organization...</p>
+              </div>
+            </div>
+          </>
+        )}
         <DropdownMenuSeparator />
-        {/* Future items like "Settings" or "Profile" can be added here */}
         <DropdownMenuItem onClick={logout} className="group text-red-600 focus:text-red-600">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>

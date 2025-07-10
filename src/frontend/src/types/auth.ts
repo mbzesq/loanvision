@@ -2,12 +2,28 @@
 
 export type UserRole = 'super_user' | 'admin' | 'manager' | 'user';
 
+export interface Organization {
+  id: number;
+  name: string;
+  slug: string;
+  type: 'servicer' | 'investor' | 'law_firm' | 'asset_manager' | 'other';
+  email_domain?: string;
+  description?: string;
+  website?: string;
+  phone?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface User {
   id: number;
   email: string;
   firstName?: string;
   lastName?: string;
   role: UserRole;
+  organizationId?: number;
+  organization?: Organization;
   created_at: string;
   updated_at: string;
 }
