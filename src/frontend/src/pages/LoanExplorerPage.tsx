@@ -91,12 +91,19 @@ function LoanExplorerPage() {
     const milestone = searchParams.get('milestone');
     const month = searchParams.get('month');
     const solFilter = searchParams.get('sol_filter');
+    const timelineStatus = searchParams.get('timeline_status');
     
     if (state) {
       urlFilters.propertyState = [state];
     }
     if (status) {
-      urlFilters.assetStatus = [status];
+      // Handle special foreclosure status filter
+      if (status === 'ACTIVE') {
+        // For active foreclosure status, filter to FC (foreclosure) legal status
+        urlFilters.assetStatus = ['FC'];
+      } else {
+        urlFilters.assetStatus = [status];
+      }
     }
     if (milestone) {
       // For foreclosure milestones: Legal Status = FC + Latest milestone = clicked milestone
@@ -107,6 +114,11 @@ function LoanExplorerPage() {
     if (month) {
       // Could be used for date filtering in the future
       console.log('Month filter from URL:', month);
+    }
+    
+    // Handle timeline status filter from foreclosure monitoring
+    if (timelineStatus) {
+      urlFilters.timelineStatus = [timelineStatus];
     }
     
     // Handle SOL filter from dashboard navigation
