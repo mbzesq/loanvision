@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { differenceInDays } from 'date-fns';
-import { CheckCircle } from 'lucide-react';
 import '../styles/financial-design-system.css';
 import { useToast } from '../hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
@@ -189,7 +188,7 @@ const LoanDetailPage = () => {
             <span>•</span>
             <span>{formatValue(loan.city)}, {formatValue(loan.state)}</span>
             <span>•</span>
-            <span>Status: {formatValue(loan.status_description)}</span>
+            <span>Status: {formatValue(loan.legal_status)}</span>
           </div>
         </div>
         
@@ -244,7 +243,7 @@ const LoanDetailPage = () => {
             <div className="financial-detail-item" style={{ padding: '4px 0' }}>
               <span className="label" style={{ fontSize: '9px' }}>INTEREST RATE</span>
               <span className="value" style={{ fontSize: '12px' }}>
-                {loan.interest_rate ? `${parseFloat(loan.interest_rate).toFixed(2)}%` : 'N/A'}
+                {loan.int_rate ? `${parseFloat(loan.int_rate).toFixed(2)}%` : 'N/A'}
               </span>
             </div>
             

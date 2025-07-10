@@ -158,7 +158,7 @@ export class SessionService {
       `;
 
       const result = await pool.query(query, [sessionToken]);
-      return result.rowCount > 0;
+      return (result.rowCount || 0) > 0;
     } catch (error) {
       console.error('[Session] Error updating last activity:', error);
       return false;
@@ -226,7 +226,7 @@ export class SessionService {
       `;
 
       const result = await pool.query(query);
-      const expiredCount = result.rowCount;
+      const expiredCount = result.rowCount || 0;
       
       if (expiredCount > 0) {
         console.log(`[Session] Expired ${expiredCount} inactive sessions older than ${hoursThreshold} hours`);

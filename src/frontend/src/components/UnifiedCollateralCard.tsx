@@ -38,7 +38,7 @@ interface UnifiedCollateralCardProps {
   loanId: string;
 }
 
-const getDocumentTypeColor = (docType: string, confidence?: number): string => {
+const getDocumentTypeColor = (docType: string): string => {
   const baseColors: { [key: string]: string } = {
     'Note': 'var(--color-primary)',
     'Mortgage': 'var(--color-success)',
