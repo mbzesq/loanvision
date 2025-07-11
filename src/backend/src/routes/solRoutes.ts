@@ -327,9 +327,12 @@ router.get('/jurisdictions', authenticateToken, async (req, res) => {
       SELECT 
         state_code,
         state_name,
-        foreclosure_types,
         risk_level,
-        sol_category,
+        lien_years,
+        note_years,
+        foreclosure_years,
+        lien_extinguished,
+        foreclosure_barred,
         created_at,
         updated_at
       FROM sol_jurisdictions
@@ -475,19 +478,19 @@ router.get('/jurisdiction-analysis', authenticateToken, async (req: any, res) =>
         COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH') as high_risk_count,
         COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM') as medium_risk_count,
         COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'LOW') as low_risk_count,
-        ROUND(AVG(lsc.days_until_expiration)) as avg_days_to_expiration,
+        ROUND(AVG(lsc.days_until_expiration)::numeric) as avg_days_to_expiration,
         -- SOL Risk Concentration (expired + high risk as percentage)
         ROUND(
-          (COUNT(*) FILTER (WHERE lsc.is_expired = true OR lsc.sol_risk_level = 'HIGH')::float / COUNT(*)) * 100, 
+          ((COUNT(*) FILTER (WHERE lsc.is_expired = true OR lsc.sol_risk_level = 'HIGH')::float / COUNT(*)) * 100)::numeric, 
           1
         ) as sol_risk_concentration,
         -- Critical SOL Risk Score (weighted by severity and time proximity)
         ROUND(
-          (COUNT(*) FILTER (WHERE lsc.is_expired = true) * 100 +
+          ((COUNT(*) FILTER (WHERE lsc.is_expired = true) * 100 +
            COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH' AND lsc.days_until_expiration <= 90) * 80 +
            COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH' AND lsc.days_until_expiration > 90) * 60 +
            COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM' AND lsc.days_until_expiration <= 180) * 40)::float / 
-          (COUNT(*) * 100), 4
+          (COUNT(*) * 100))::numeric, 4
         ) as critical_risk_score,
         -- Jurisdiction inherent risk
         MAX(sj.risk_level) as jurisdiction_risk_level,
@@ -681,7 +684,7 @@ router.get('/geographic-heatmap', authenticateToken, async (req: any, res) => {
           COUNT(*) FILTER (WHERE lsc.is_expired = true) as expired_count,
           COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH') as high_risk_count,
           ROUND(
-            (COUNT(*) FILTER (WHERE lsc.is_expired = true OR lsc.sol_risk_level = 'HIGH')::float / COUNT(*)) * 100, 
+            ((COUNT(*) FILTER (WHERE lsc.is_expired = true OR lsc.sol_risk_level = 'HIGH')::float / COUNT(*)) * 100)::numeric, 
             1
           ) as portfolio_risk_percentage
         FROM loan_sol_calculations lsc
