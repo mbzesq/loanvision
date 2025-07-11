@@ -445,4 +445,128 @@ router.post('/loans/batch', authenticateToken, async (req: any, res) => {
   }
 });
 
+/**
+ * GET /api/sol/jurisdiction-analysis
+ * Get SOL data broken down by jurisdiction/state
+ */
+router.get('/jurisdiction-analysis', authenticateToken, async (req: any, res) => {
+  try {
+    console.log('🗺️ Fetching SOL jurisdiction analysis...');
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    if (accessibleLoanIds.length === 0) {
+      res.json({
+        success: true,
+        data: []
+      });
+      return;
+    }
+    
+    const placeholders = accessibleLoanIds.map((_, index) => `$${index + 1}`).join(',');
+    
+    const jurisdictionQuery = `
+      SELECT 
+        lsc.property_state as state,
+        COUNT(*) as total_loans,
+        COUNT(*) FILTER (WHERE lsc.is_expired = true) as expired_count,
+        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH') as high_risk_count,
+        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM') as medium_risk_count,
+        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'LOW') as low_risk_count,
+        ROUND(AVG(lsc.days_until_expiration)) as avg_days_to_expiration
+      FROM loan_sol_calculations lsc
+      WHERE lsc.loan_id IN (${placeholders})
+      AND lsc.property_state IS NOT NULL
+      GROUP BY lsc.property_state
+      ORDER BY total_loans DESC
+    `;
+    
+    const result = await pool.query(jurisdictionQuery, accessibleLoanIds);
+    
+    const jurisdictionData = result.rows.map(row => ({
+      state: row.state,
+      totalLoans: parseInt(row.total_loans) || 0,
+      expiredCount: parseInt(row.expired_count) || 0,
+      highRiskCount: parseInt(row.high_risk_count) || 0,
+      mediumRiskCount: parseInt(row.medium_risk_count) || 0,
+      lowRiskCount: parseInt(row.low_risk_count) || 0,
+      avgDaysToExpiration: parseInt(row.avg_days_to_expiration) || 0
+    }));
+    
+    res.json({
+      success: true,
+      data: jurisdictionData
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching SOL jurisdiction analysis:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch SOL jurisdiction analysis',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/sol/trend-analysis
+ * Get historical SOL trend data (for now, generate based on current data)
+ */
+router.get('/trend-analysis', authenticateToken, async (req: any, res) => {
+  try {
+    console.log('📈 Fetching SOL trend analysis...');
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    if (accessibleLoanIds.length === 0) {
+      res.json({
+        success: true,
+        data: []
+      });
+      return;
+    }
+    
+    // For now, generate trend data based on current SOL calculations
+    // In the future, this could use historical SOL calculation snapshots
+    const summary = await solEventService.getSOLSummaryForLoans(accessibleLoanIds);
+    
+    // Generate 6 months of simulated trend data based on current state
+    const currentDate = new Date();
+    const trendData = [];
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate);
+      date.setMonth(date.getMonth() - i);
+      
+      // Simulate slight variations in data over time
+      const variation = 0.8 + (Math.random() * 0.4); // 80-120% of current values
+      
+      trendData.push({
+        month: date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+        expired: Math.round(summary.expired_count * variation),
+        highRisk: Math.round(summary.high_risk_count * variation),
+        mediumRisk: Math.round(summary.medium_risk_count * variation),
+        lowRisk: Math.round(summary.low_risk_count * variation),
+        totalLoans: Math.round(summary.total_loans * variation)
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: trendData,
+      note: 'Trend data is currently simulated based on current SOL calculations. Historical tracking will be implemented in future versions.'
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching SOL trend analysis:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch SOL trend analysis',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;
