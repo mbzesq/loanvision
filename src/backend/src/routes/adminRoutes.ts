@@ -156,6 +156,62 @@ router.post('/sol/full-setup', checkAdminKey, async (req, res) => {
 });
 
 /**
+ * POST /api/admin/setup-investor-mapping
+ * Set up organization-investor mapping for scalable access control
+ */
+router.post('/setup-investor-mapping', checkAdminKey, async (req, res) => {
+  try {
+    console.log('🔧 Admin endpoint: Setting up investor mapping...');
+    
+    const { Pool } = await import('pg');
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+    });
+
+    // Run the migration script
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    const migrationPath = path.join(__dirname, '../migrations/add_organization_investors.sql');
+    const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+    
+    await pool.query(migrationSQL);
+    
+    // Check results
+    const resultQuery = `
+      SELECT 
+        o.name as organization_name,
+        COUNT(oi.id) as investor_count
+      FROM organizations o
+      LEFT JOIN organization_investors oi ON o.id = oi.organization_id AND oi.is_active = true
+      GROUP BY o.id, o.name
+      ORDER BY o.name
+    `;
+    
+    const result = await pool.query(resultQuery);
+    await pool.end();
+    
+    res.json({
+      success: true,
+      message: 'Investor mapping setup completed successfully',
+      data: {
+        organizations: result.rows,
+        migration_applied: true
+      },
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Investor mapping setup failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Investor mapping setup failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
  * GET /api/admin/sessions
  * Get user sessions with names for admin monitoring
  */

@@ -4,10 +4,10 @@ import pool from '../db';
 export class OrganizationAccessService {
   
   /**
-   * Get SQL WHERE clause to filter loans by organization access
+   * Get SQL WHERE clause to filter loans by organization access using investor name mapping
    * @param organizationId - The organization ID to filter by
    * @param userRole - The user's role (super_user can see all loans)
-   * @param accessTypes - Optional array of access types to filter by
+   * @param accessTypes - Optional array of access types to filter by (for backwards compatibility)
    * @returns SQL WHERE clause string and parameters
    */
   getOrganizationLoanFilter(
@@ -25,24 +25,17 @@ export class OrganizationAccessService {
       return { whereClause: 'AND 1 = 0', params: [] }; // Always false condition
     }
     
-    let whereClause = `
+    // Use investor name mapping for organization access control
+    const whereClause = `
       AND EXISTS (
-        SELECT 1 FROM organization_loan_access ola 
-        WHERE ola.loan_id = loan_id_column
-        AND ola.organization_id = $1
-        AND ola.is_active = true 
-        AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
+        SELECT 1 FROM organization_investors oi 
+        WHERE oi.investor_name = investor_name_column
+        AND oi.organization_id = $1
+        AND oi.is_active = true
+      )
     `;
     
     const params: any[] = [organizationId];
-    
-    if (accessTypes && accessTypes.length > 0) {
-      const placeholders = accessTypes.map((_, index) => `$${index + 2}`).join(', ');
-      whereClause += ` AND ola.access_type IN (${placeholders})`;
-      params.push(...accessTypes);
-    }
-    
-    whereClause += ')';
     
     return { whereClause, params };
   }
@@ -76,21 +69,17 @@ export class OrganizationAccessService {
       // Users without organization have no access
       if (!organization_id) return false;
       
-      // Check organization loan access
-      let accessQuery = `
-        SELECT 1 FROM organization_loan_access 
-        WHERE organization_id = $1 
-        AND loan_id = $2 
-        AND is_active = true 
-        AND (expires_at IS NULL OR expires_at > NOW())
+      // Check organization loan access using investor name mapping
+      const accessQuery = `
+        SELECT 1 
+        FROM daily_metrics_current dmc
+        JOIN organization_investors oi ON dmc.investor_name = oi.investor_name
+        WHERE oi.organization_id = $1 
+        AND dmc.loan_id = $2 
+        AND oi.is_active = true
       `;
       
       const params = [organization_id, loanId];
-      
-      if (requiredAccessType) {
-        accessQuery += ' AND access_type = $3';
-        params.push(requiredAccessType);
-      }
       
       const result = await pool.query(accessQuery, params);
       return result.rows.length > 0;
@@ -140,20 +129,16 @@ export class OrganizationAccessService {
       // Users without organization have no access
       if (!organization_id) return [];
       
-      // Get accessible loans for the organization
+      // Get accessible loans for the organization using investor name mapping
       let query = `
-        SELECT DISTINCT loan_id FROM organization_loan_access 
-        WHERE organization_id = $1 
-        AND is_active = true 
-        AND (expires_at IS NULL OR expires_at > NOW())
+        SELECT DISTINCT dmc.loan_id 
+        FROM daily_metrics_current dmc
+        JOIN organization_investors oi ON dmc.investor_name = oi.investor_name
+        WHERE oi.organization_id = $1 
+        AND oi.is_active = true
       `;
       
       const params = [organization_id];
-      
-      if (accessType) {
-        query += ' AND access_type = $2';
-        params.push(accessType);
-      }
       
       if (limit) {
         query += ` LIMIT $${params.length + 1}`;
@@ -199,8 +184,14 @@ export class OrganizationAccessService {
       const { whereClause, params: filterParams } = this.getOrganizationLoanFilter(organization_id, role);
       
       // Replace placeholder in the base query
-      // Note: The base query should use "loan_id" as the column name or this should be parameterized
-      const modifiedQuery = baseQuery.replace('{LOAN_FILTER}', whereClause.replace('loan_id_column', 'loan_id'));
+      // Handle both loan_id and investor_name column references
+      let finalWhereClause = whereClause;
+      if (whereClause.includes('investor_name_column')) {
+        finalWhereClause = whereClause.replace('investor_name_column', 'investor_name');
+      } else {
+        finalWhereClause = whereClause.replace('loan_id_column', 'loan_id');
+      }
+      const modifiedQuery = baseQuery.replace('{LOAN_FILTER}', finalWhereClause);
       
       return { 
         query: modifiedQuery, 
