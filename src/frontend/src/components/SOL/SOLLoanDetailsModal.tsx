@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, AlertTriangle, Calendar, MapPin, DollarSign, User, Building } from 'lucide-react';
+import { X, Calendar, MapPin, DollarSign, User, Building } from 'lucide-react';
 import { solService } from '../../services/solService';
 
 interface SOLLoanDetailsModalProps {
@@ -18,15 +18,6 @@ const SOLLoanDetailsModal: React.FC<SOLLoanDetailsModalProps> = ({
   subtitle
 }) => {
   if (!isOpen) return null;
-
-  const getRiskColor = (riskLevel: string) => {
-    switch (riskLevel) {
-      case 'HIGH': return 'var(--color-danger)';
-      case 'MEDIUM': return 'var(--color-warning)';
-      case 'LOW': return 'var(--color-success)';
-      default: return 'var(--color-text-muted)';
-    }
-  };
 
   const formatCurrency = (amount: number | string) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;

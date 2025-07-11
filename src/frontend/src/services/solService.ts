@@ -315,14 +315,14 @@ class SOLService {
    */
   async getLoansByJurisdiction(state: string): Promise<{data: any[], summary: any, metadata: any}> {
     try {
-      const response = await axiosInstance.post<APIResponse<any>>('/api/sol/loans-by-jurisdiction', {
+      const response = await axiosInstance.post('/api/sol/loans-by-jurisdiction', {
         state
       });
       if (response.data.success && response.data.data) {
         return {
           data: response.data.data,
-          summary: response.data.summary,
-          metadata: response.data.metadata
+          summary: response.data.summary || {},
+          metadata: response.data.metadata || {}
         };
       }
       throw new Error(response.data.error || 'Failed to fetch loans by jurisdiction');
