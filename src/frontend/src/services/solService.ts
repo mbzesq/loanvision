@@ -293,6 +293,46 @@ class SOLService {
   }
 
   /**
+   * Get loans expiring in a specific month for clickable chart interaction
+   */
+  async getLoansByMonth(month: string): Promise<any[]> {
+    try {
+      const response = await axiosInstance.post<APIResponse<any[]>>('/api/sol/loans-by-month', {
+        month
+      });
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+      throw new Error(response.data.error || 'Failed to fetch loans by month');
+    } catch (error) {
+      console.error(`Error fetching loans for month ${month}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get loans in a specific jurisdiction/state for clickable chart interaction
+   */
+  async getLoansByJurisdiction(state: string): Promise<{data: any[], summary: any, metadata: any}> {
+    try {
+      const response = await axiosInstance.post<APIResponse<any>>('/api/sol/loans-by-jurisdiction', {
+        state
+      });
+      if (response.data.success && response.data.data) {
+        return {
+          data: response.data.data,
+          summary: response.data.summary,
+          metadata: response.data.metadata
+        };
+      }
+      throw new Error(response.data.error || 'Failed to fetch loans by jurisdiction');
+    } catch (error) {
+      console.error(`Error fetching loans for jurisdiction ${state}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Format date for display
    */
   formatDate(dateString: string | null | undefined): string {

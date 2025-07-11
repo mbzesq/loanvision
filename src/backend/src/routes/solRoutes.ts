@@ -761,4 +761,214 @@ router.get('/geographic-heatmap', authenticateToken, async (req: any, res) => {
   }
 });
 
+/**
+ * POST /api/sol/loans-by-month
+ * Get loans expiring in a specific month for clickable chart interaction
+ */
+router.post('/loans-by-month', authenticateToken, async (req: any, res) => {
+  try {
+    const { month } = req.body; // Expected format: "2024-03" or "2024-03-01"
+    
+    if (!month) {
+      return res.status(400).json({
+        success: false,
+        error: 'Month parameter is required (format: YYYY-MM)'
+      });
+    }
+    
+    console.log(`🗓️ Fetching loans expiring in month: ${month}`);
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    if (accessibleLoanIds.length === 0) {
+      res.json({
+        success: true,
+        data: [],
+        metadata: { month, count: 0 }
+      });
+      return;
+    }
+    
+    // Parse month to get start and end dates
+    const monthDate = new Date(month + '-01');
+    const startDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    const endDate = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+    
+    const placeholders = accessibleLoanIds.map((_, index) => `$${index + 3}`).join(',');
+    
+    const loansQuery = `
+      SELECT 
+        lsc.loan_id,
+        lsc.property_state,
+        lsc.adjusted_expiration_date,
+        lsc.sol_risk_level,
+        lsc.days_until_expiration,
+        lsc.is_expired,
+        lsc.sol_trigger_event,
+        lsc.sol_trigger_date,
+        sj.state_name as jurisdiction_name,
+        sj.risk_level as jurisdiction_risk_level,
+        -- Get loan details from daily metrics
+        dmc.borrower_name,
+        dmc.property_address,
+        dmc.upb,
+        dmc.loan_status
+      FROM loan_sol_calculations lsc
+      LEFT JOIN sol_jurisdictions sj ON sj.state_code = lsc.property_state
+      LEFT JOIN daily_metrics_current dmc ON dmc.loan_id = lsc.loan_id
+      WHERE lsc.loan_id IN (${placeholders})
+      AND lsc.adjusted_expiration_date >= $1
+      AND lsc.adjusted_expiration_date <= $2
+      AND lsc.is_expired = false
+      ORDER BY lsc.adjusted_expiration_date, lsc.sol_risk_level DESC
+    `;
+    
+    const result = await pool.query(loansQuery, [startDate.toISOString(), endDate.toISOString(), ...accessibleLoanIds]);
+    
+    console.log(`✅ Found ${result.rows.length} loans expiring in ${month}`);
+    
+    res.json({
+      success: true,
+      data: result.rows,
+      metadata: {
+        month,
+        monthName: monthDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
+        count: result.rows.length,
+        dateRange: {
+          start: startDate.toISOString().substring(0, 10),
+          end: endDate.toISOString().substring(0, 10)
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching loans by month:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch loans by month',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/sol/loans-by-jurisdiction
+ * Get loans in a specific jurisdiction/state for clickable chart interaction
+ */
+router.post('/loans-by-jurisdiction', authenticateToken, async (req: any, res) => {
+  try {
+    const { state } = req.body; // Expected format: "TX", "CA", etc.
+    
+    if (!state) {
+      return res.status(400).json({
+        success: false,
+        error: 'State parameter is required (format: state code like TX, CA)'
+      });
+    }
+    
+    console.log(`🏛️ Fetching loans in jurisdiction: ${state}`);
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    if (accessibleLoanIds.length === 0) {
+      res.json({
+        success: true,
+        data: [],
+        metadata: { state, count: 0 }
+      });
+      return;
+    }
+    
+    const placeholders = accessibleLoanIds.map((_, index) => `$${index + 2}`).join(',');
+    
+    const loansQuery = `
+      SELECT 
+        lsc.loan_id,
+        lsc.property_state,
+        lsc.adjusted_expiration_date,
+        lsc.sol_risk_level,
+        lsc.days_until_expiration,
+        lsc.is_expired,
+        lsc.sol_trigger_event,
+        lsc.sol_trigger_date,
+        sj.state_name as jurisdiction_name,
+        sj.risk_level as jurisdiction_risk_level,
+        -- Get loan details from daily metrics
+        dmc.borrower_name,
+        dmc.property_address,
+        dmc.upb,
+        dmc.loan_status
+      FROM loan_sol_calculations lsc
+      LEFT JOIN sol_jurisdictions sj ON sj.state_code = lsc.property_state
+      LEFT JOIN daily_metrics_current dmc ON dmc.loan_id = lsc.loan_id
+      WHERE lsc.loan_id IN (${placeholders})
+      AND lsc.property_state = $1
+      ORDER BY 
+        CASE 
+          WHEN lsc.is_expired THEN 0
+          WHEN lsc.sol_risk_level = 'HIGH' THEN 1
+          WHEN lsc.sol_risk_level = 'MEDIUM' THEN 2
+          ELSE 3
+        END,
+        lsc.days_until_expiration ASC
+    `;
+    
+    const result = await pool.query(loansQuery, [state, ...accessibleLoanIds]);
+    
+    // Get jurisdiction summary
+    const summaryQuery = `
+      SELECT 
+        sj.state_name,
+        sj.risk_level as jurisdiction_risk_level,
+        COUNT(*) as total_loans,
+        COUNT(*) FILTER (WHERE lsc.is_expired = true) as expired_count,
+        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH') as high_risk_count,
+        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM') as medium_risk_count,
+        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'LOW') as low_risk_count,
+        ROUND(AVG(lsc.days_until_expiration)::numeric) as avg_days_to_expiration
+      FROM loan_sol_calculations lsc
+      LEFT JOIN sol_jurisdictions sj ON sj.state_code = lsc.property_state
+      WHERE lsc.loan_id IN (${placeholders})
+      AND lsc.property_state = $1
+      GROUP BY sj.state_name, sj.risk_level
+    `;
+    
+    const summaryResult = await pool.query(summaryQuery, [state, ...accessibleLoanIds]);
+    const summary = summaryResult.rows[0] || {
+      state_name: state,
+      jurisdiction_risk_level: 'UNKNOWN',
+      total_loans: 0,
+      expired_count: 0,
+      high_risk_count: 0,
+      medium_risk_count: 0,
+      low_risk_count: 0,
+      avg_days_to_expiration: 0
+    };
+    
+    console.log(`✅ Found ${result.rows.length} loans in jurisdiction ${state}`);
+    
+    res.json({
+      success: true,
+      data: result.rows,
+      summary,
+      metadata: {
+        state,
+        stateName: summary.state_name,
+        count: result.rows.length,
+        jurisdictionRiskLevel: summary.jurisdiction_risk_level
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching loans by jurisdiction:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch loans by jurisdiction',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, TrendingUp, TrendingDown, Calendar, AlertTriangle, Scale, RefreshCw } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, Calendar, AlertTriangle, Scale, RefreshCw, ChevronUp, ChevronDown } from 'lucide-react';
 import { solService, SOLSummary } from '../services/solService';
 import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
+import SOLLoanDetailsModal from '../components/SOL/SOLLoanDetailsModal';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import '../styles/financial-design-system.css';
 
@@ -52,6 +53,16 @@ const SOLMonitoringPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalLoans, setModalLoans] = useState<any[]>([]);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalSubtitle, setModalSubtitle] = useState('');
+
+  // Sorting state
+  const [sortField, setSortField] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
   useEffect(() => {
     loadSOLData();
   }, []);
@@ -85,6 +96,97 @@ const SOLMonitoringPage: React.FC = () => {
 
   const handleRefresh = () => {
     loadSOLData();
+  };
+
+  // Chart click handlers
+  const handleTrendPointClick = async (data: any) => {
+    if (!data || !data.activePayload || !data.activePayload[0]) return;
+    
+    const clickedData = data.activePayload[0].payload;
+    // Extract YYYY-MM format from the month string or monthDate
+    let monthKey = '';
+    if (clickedData.monthDate) {
+      monthKey = clickedData.monthDate.substring(0, 7);
+    } else if (clickedData.month) {
+      // Convert "Jan 2024" format to "2024-01"
+      const date = new Date(clickedData.month + ' 1');
+      if (!isNaN(date.getTime())) {
+        monthKey = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+      }
+    }
+    
+    if (!monthKey) {
+      console.error('Could not determine month key from clicked data:', clickedData);
+      return;
+    }
+    
+    try {
+      setModalTitle(`SOL Expirations for ${clickedData.month}`);
+      setModalSubtitle(`Loans expiring during this month`);
+      setModalLoans([]);
+      setModalOpen(true);
+      
+      const loans = await solService.getLoansByMonth(monthKey);
+      setModalLoans(loans);
+    } catch (error) {
+      console.error('Error fetching loans by month:', error);
+      setModalLoans([]);
+    }
+  };
+
+  const handleJurisdictionBarClick = async (data: any) => {
+    if (!data || !data.activePayload || !data.activePayload[0]) return;
+    
+    const clickedData = data.activePayload[0].payload;
+    
+    try {
+      setModalTitle(`SOL Loans in ${clickedData.state}`);
+      setModalSubtitle(`All SOL-monitored loans in this jurisdiction`);
+      setModalLoans([]);
+      setModalOpen(true);
+      
+      const result = await solService.getLoansByJurisdiction(clickedData.state);
+      setModalLoans(result.data);
+    } catch (error) {
+      console.error('Error fetching loans by jurisdiction:', error);
+      setModalLoans([]);
+    }
+  };
+
+  // Sorting functionality
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const getSortedJurisdictionData = () => {
+    if (!sortField) return jurisdictionData;
+    
+    return [...jurisdictionData].sort((a, b) => {
+      let aVal = a[sortField as keyof SOLJurisdictionData];
+      let bVal = b[sortField as keyof SOLJurisdictionData];
+      
+      // Handle different data types
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = (bVal as string).toLowerCase();
+      }
+      
+      if (sortDirection === 'asc') {
+        return aVal > bVal ? 1 : -1;
+      } else {
+        return aVal < bVal ? 1 : -1;
+      }
+    });
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />;
   };
 
   if (loading) {
@@ -276,7 +378,7 @@ const SOLMonitoringPage: React.FC = () => {
             </div>
             <div style={{ height: '256px' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
+                <LineChart data={trendData} onClick={handleTrendPointClick}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis 
                     dataKey="month" 
@@ -294,6 +396,28 @@ const SOLMonitoringPage: React.FC = () => {
                       borderRadius: 'var(--radius-sm)',
                       color: 'var(--color-text-primary)'
                     }}
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div style={{
+                            backgroundColor: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '8px',
+                            fontSize: '11px'
+                          }}>
+                            <p style={{ margin: 0, fontWeight: '600' }}>{label}</p>
+                            <p style={{ margin: '4px 0 0 0', color: 'var(--color-danger)' }}>
+                              {payload[0].value} loans expiring
+                            </p>
+                            <p style={{ margin: '4px 0 0 0', fontSize: '10px', color: 'var(--color-text-muted)' }}>
+                              Click to view details
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
                   />
                   <Legend />
                   <Line 
@@ -303,7 +427,8 @@ const SOLMonitoringPage: React.FC = () => {
                     strokeWidth={3}
                     name="SOL Expirations"
                     strokeDasharray="none"
-                    dot={{ fill: 'var(--color-danger)', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: 'var(--color-danger)', strokeWidth: 2, r: 6, cursor: 'pointer' }}
+                    activeDot={{ r: 8, cursor: 'pointer' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -327,7 +452,7 @@ const SOLMonitoringPage: React.FC = () => {
             </div>
             <div style={{ height: '256px' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={jurisdictionData}>
+                <BarChart data={jurisdictionData} onClick={handleJurisdictionBarClick}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis 
                     dataKey="state" 
@@ -345,10 +470,42 @@ const SOLMonitoringPage: React.FC = () => {
                       borderRadius: 'var(--radius-sm)',
                       color: 'var(--color-text-primary)'
                     }}
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        const expired = payload.find(p => p.dataKey === 'expiredCount')?.value || 0;
+                        const highRisk = payload.find(p => p.dataKey === 'highRiskCount')?.value || 0;
+                        const total = payload[0]?.payload?.totalLoans || 0;
+                        
+                        return (
+                          <div style={{
+                            backgroundColor: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '8px',
+                            fontSize: '11px'
+                          }}>
+                            <p style={{ margin: 0, fontWeight: '600' }}>{label}</p>
+                            <p style={{ margin: '4px 0 0 0', color: 'var(--color-danger)' }}>
+                              Expired: {expired}
+                            </p>
+                            <p style={{ margin: '2px 0 0 0', color: 'var(--color-warning)' }}>
+                              High Risk: {highRisk}
+                            </p>
+                            <p style={{ margin: '2px 0 0 0', color: 'var(--color-text-muted)' }}>
+                              Total: {total}
+                            </p>
+                            <p style={{ margin: '4px 0 0 0', fontSize: '10px', color: 'var(--color-text-muted)' }}>
+                              Click to view details
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
                   />
                   <Legend />
-                  <Bar dataKey="expiredCount" fill="var(--color-danger)" name="Expired" />
-                  <Bar dataKey="highRiskCount" fill="var(--color-warning)" name="High Risk" />
+                  <Bar dataKey="expiredCount" fill="var(--color-danger)" name="Expired" cursor="pointer" />
+                  <Bar dataKey="highRiskCount" fill="var(--color-warning)" name="High Risk" cursor="pointer" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -369,16 +526,64 @@ const SOLMonitoringPage: React.FC = () => {
               <table className="financial-table">
                 <thead>
                   <tr>
-                    <th>STATE</th>
-                    <th>RISK %</th>
-                    <th>TOTAL LOANS</th>
-                    <th>EXPIRED</th>
-                    <th>HIGH RISK</th>
-                    <th>JURISDICTION RISK</th>
+                    <th 
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      onClick={() => handleSort('state')}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        STATE
+                        {getSortIcon('state')}
+                      </div>
+                    </th>
+                    <th 
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      onClick={() => handleSort('highRiskPercentage')}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        RISK %
+                        {getSortIcon('highRiskPercentage')}
+                      </div>
+                    </th>
+                    <th 
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      onClick={() => handleSort('totalLoans')}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        TOTAL LOANS
+                        {getSortIcon('totalLoans')}
+                      </div>
+                    </th>
+                    <th 
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      onClick={() => handleSort('expiredCount')}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        EXPIRED
+                        {getSortIcon('expiredCount')}
+                      </div>
+                    </th>
+                    <th 
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      onClick={() => handleSort('highRiskCount')}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        HIGH RISK
+                        {getSortIcon('highRiskCount')}
+                      </div>
+                    </th>
+                    <th 
+                      style={{ cursor: 'pointer', userSelect: 'none' }}
+                      onClick={() => handleSort('jurisdictionRiskLevel')}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        JURISDICTION RISK
+                        {getSortIcon('jurisdictionRiskLevel')}
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {jurisdictionData.map((jurisdiction) => (
+                  {getSortedJurisdictionData().map((jurisdiction) => (
                     <tr key={jurisdiction.state}>
                       <td style={{ fontWeight: '600' }}>{jurisdiction.state}</td>
                       <td>
@@ -565,6 +770,15 @@ const SOLMonitoringPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Loan Details Modal */}
+      <SOLLoanDetailsModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        loans={modalLoans}
+        title={modalTitle}
+        subtitle={modalSubtitle}
+      />
     </div>
   );
 };
