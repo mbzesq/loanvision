@@ -31,10 +31,40 @@ const SOLLoanDetailsModal: React.FC<SOLLoanDetailsModalProps> = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1200px', width: '95vw' }}>
+    <div 
+      style={{ 
+        position: 'fixed', 
+        inset: '0', 
+        backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        zIndex: 50, 
+        padding: '16px' 
+      }}
+      onClick={onClose}
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()} 
+        style={{ 
+          maxWidth: '1200px', 
+          width: '95vw',
+          maxHeight: '90vh',
+          backgroundColor: 'var(--color-surface)',
+          borderRadius: 'var(--radius-lg)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
+      >
         {/* Header */}
-        <div className="modal-header">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          padding: '16px',
+          borderBottom: '1px solid var(--color-border)'
+        }}>
           <div>
             <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>{title}</h2>
             {subtitle && (
@@ -43,7 +73,22 @@ const SOLLoanDetailsModal: React.FC<SOLLoanDetailsModalProps> = ({
               </p>
             )}
           </div>
-          <button className="modal-close" onClick={onClose}>
+          <button 
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: '4px',
+              cursor: 'pointer',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--color-text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-surface-light)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
             <X size={20} />
           </button>
         </div>
@@ -52,7 +97,8 @@ const SOLLoanDetailsModal: React.FC<SOLLoanDetailsModalProps> = ({
         <div style={{ 
           display: 'flex', 
           gap: '12px', 
-          marginBottom: '16px',
+          margin: '16px',
+          marginBottom: '0',
           padding: '12px',
           backgroundColor: 'var(--color-surface-light)',
           borderRadius: 'var(--radius-sm)',
@@ -93,7 +139,12 @@ const SOLLoanDetailsModal: React.FC<SOLLoanDetailsModalProps> = ({
         </div>
 
         {/* Loan List */}
-        <div className="scroll-container" style={{ maxHeight: '500px' }}>
+        <div style={{ 
+          flex: 1,
+          overflowY: 'auto',
+          padding: '16px',
+          paddingTop: '16px'
+        }}>
           {loans.length === 0 ? (
             <div style={{ 
               textAlign: 'center', 
@@ -211,7 +262,12 @@ const SOLLoanDetailsModal: React.FC<SOLLoanDetailsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="modal-footer">
+        <div style={{
+          padding: '16px',
+          borderTop: '1px solid var(--color-border)',
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}>
           <button className="btn-compact btn-secondary" onClick={onClose}>
             Close
           </button>

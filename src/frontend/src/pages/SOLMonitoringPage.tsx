@@ -378,7 +378,7 @@ const SOLMonitoringPage: React.FC = () => {
             </div>
             <div style={{ height: '256px' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData} onClick={handleTrendPointClick}>
+                <LineChart data={trendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis 
                     dataKey="month" 
@@ -427,8 +427,26 @@ const SOLMonitoringPage: React.FC = () => {
                     strokeWidth={3}
                     name="SOL Expirations"
                     strokeDasharray="none"
-                    dot={{ fill: 'var(--color-danger)', strokeWidth: 2, r: 6, cursor: 'pointer' }}
-                    activeDot={{ r: 8, cursor: 'pointer' }}
+                    dot={{ 
+                      fill: 'var(--color-danger)', 
+                      strokeWidth: 2, 
+                      r: 6, 
+                      cursor: 'pointer',
+                      onClick: (e: any, payload: any) => {
+                        if (payload) {
+                          handleTrendPointClick({ activePayload: [{ payload: payload.payload }] });
+                        }
+                      }
+                    }}
+                    activeDot={{ 
+                      r: 8, 
+                      cursor: 'pointer',
+                      onClick: (e: any, payload: any) => {
+                        if (payload) {
+                          handleTrendPointClick({ activePayload: [{ payload: payload.payload }] });
+                        }
+                      }
+                    }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -452,7 +470,7 @@ const SOLMonitoringPage: React.FC = () => {
             </div>
             <div style={{ height: '256px' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={jurisdictionData} onClick={handleJurisdictionBarClick}>
+                <BarChart data={jurisdictionData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis 
                     dataKey="state" 
@@ -504,8 +522,28 @@ const SOLMonitoringPage: React.FC = () => {
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="expiredCount" fill="var(--color-danger)" name="Expired" cursor="pointer" />
-                  <Bar dataKey="highRiskCount" fill="var(--color-warning)" name="High Risk" cursor="pointer" />
+                  <Bar 
+                    dataKey="expiredCount" 
+                    fill="var(--color-danger)" 
+                    name="Expired" 
+                    cursor="pointer"
+                    onClick={(data: any) => {
+                      if (data) {
+                        handleJurisdictionBarClick({ activePayload: [{ payload: data }] });
+                      }
+                    }}
+                  />
+                  <Bar 
+                    dataKey="highRiskCount" 
+                    fill="var(--color-warning)" 
+                    name="High Risk" 
+                    cursor="pointer"
+                    onClick={(data: any) => {
+                      if (data) {
+                        handleJurisdictionBarClick({ activePayload: [{ payload: data }] });
+                      }
+                    }}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
