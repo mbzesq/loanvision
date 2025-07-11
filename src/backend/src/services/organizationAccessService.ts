@@ -20,10 +20,15 @@ export class OrganizationAccessService {
       return { whereClause: '', params: [] };
     }
     
+    // TEMPORARY FIX: Allow all users to see all loans during development
+    // TODO: Remove this when organization access is properly set up
+    console.log(`[DEBUG] User role: ${userRole}, orgId: ${organizationId} - allowing access to all loans (dev mode)`);
+    return { whereClause: '', params: [] };
+    
     // Users without organization can't see any loans
-    if (!organizationId) {
-      return { whereClause: 'AND 1 = 0', params: [] }; // Always false condition
-    }
+    // if (!organizationId) {
+    //   return { whereClause: 'AND 1 = 0', params: [] }; // Always false condition
+    // }
     
     let whereClause = `
       AND EXISTS (

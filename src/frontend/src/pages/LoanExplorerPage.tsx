@@ -267,10 +267,10 @@ function LoanExplorerPage() {
       }
     }
     
-    // If no search term and no filters applied, return empty array
-    if (!hasAppliedFilter && (!globalFilter || globalFilter.length === 0)) {
-      return [];
-    }
+    // Show all loans by default, filter only when search/filters are applied
+    // if (!hasAppliedFilter && (!globalFilter || globalFilter.length === 0)) {
+    //   return [];
+    // }
 
     return loans.filter(loan => {
       const { propertyState, assetStatus, investor, lienPos, principalBalance, timelineStatus, maturityFilter, solRiskLevel, solExpiration } = activeFilters;
@@ -768,15 +768,15 @@ function LoanExplorerPage() {
                 textTransform: 'uppercase',
                 marginBottom: '8px'
               }}>
-                {hasAppliedFilter ? "NO LOANS FOUND" : "BEGIN YOUR SEARCH"}
+                {filteredLoans.length === 0 ? "NO LOANS FOUND" : "LOADING LOANS..."}
               </h3>
               <p style={{ 
                 fontSize: '12px',
                 color: 'var(--color-text-muted)'
               }}>
-                {hasAppliedFilter
-                  ? "No loans match your current filter criteria."
-                  : "Use the filters on the left to find specific loans in your portfolio."}
+                {filteredLoans.length === 0
+                  ? "No loans match your current filter criteria. Try adjusting your filters."
+                  : "Loading loan data..."}
               </p>
             </div>
           )}
