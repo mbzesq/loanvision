@@ -768,13 +768,13 @@ function LoanExplorerPage() {
                 textTransform: 'uppercase',
                 marginBottom: '8px'
               }}>
-                {filteredLoans.length === 0 ? "NO LOANS FOUND" : "LOADING LOANS..."}
+                {filteredData.length === 0 ? "NO LOANS FOUND" : "LOADING LOANS..."}
               </h3>
               <p style={{ 
                 fontSize: '12px',
                 color: 'var(--color-text-muted)'
               }}>
-                {filteredLoans.length === 0
+                {filteredData.length === 0
                   ? "No loans match your current filter criteria. Try adjusting your filters."
                   : "Loading loan data..."}
               </p>
