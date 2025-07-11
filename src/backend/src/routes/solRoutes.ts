@@ -2,6 +2,8 @@ import express from 'express';
 import { Pool } from 'pg';
 import { SOLCalculationService } from '../services/SOLCalculationService';
 import { SOLEventService } from '../services/SOLEventService';
+import { authenticateToken } from '../middleware/authMiddleware';
+import organizationAccessService from '../services/organizationAccessService';
 
 const router = express.Router();
 
@@ -17,10 +19,30 @@ const solEventService = new SOLEventService(pool);
  * GET /api/sol/summary
  * Get SOL summary statistics for dashboard
  */
-router.get('/summary', async (req, res) => {
+router.get('/summary', authenticateToken, async (req: any, res) => {
   try {
     console.log('📊 Fetching SOL summary...');
-    const summary = await solEventService.getSOLSummary();
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    // If user has no accessible loans, return empty summary
+    if (accessibleLoanIds.length === 0) {
+      res.json({
+        success: true,
+        data: {
+          total_loans: 0,
+          expired_count: 0,
+          high_risk_count: 0,
+          medium_risk_count: 0,
+          low_risk_count: 0,
+          alerts: []
+        }
+      });
+      return;
+    }
+    
+    const summary = await solEventService.getSOLSummaryForLoans(accessibleLoanIds);
     
     res.json({
       success: true,
@@ -40,10 +62,30 @@ router.get('/summary', async (req, res) => {
  * GET /api/sol/dashboard-data
  * Alternative endpoint name for dashboard compatibility
  */
-router.get('/dashboard-data', async (req, res) => {
+router.get('/dashboard-data', authenticateToken, async (req: any, res) => {
   try {
     console.log('📊 Fetching SOL dashboard data...');
-    const summary = await solEventService.getSOLSummary();
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    // If user has no accessible loans, return empty summary
+    if (accessibleLoanIds.length === 0) {
+      res.json({
+        success: true,
+        data: {
+          total_loans: 0,
+          expired_count: 0,
+          high_risk_count: 0,
+          medium_risk_count: 0,
+          low_risk_count: 0,
+          alerts: []
+        }
+      });
+      return;
+    }
+    
+    const summary = await solEventService.getSOLSummaryForLoans(accessibleLoanIds);
     
     res.json({
       success: true,
@@ -63,7 +105,7 @@ router.get('/dashboard-data', async (req, res) => {
  * GET /api/sol/loan/:loanId
  * Get SOL calculation for a specific loan (from pre-calculated data)
  */
-router.get('/loan/:loanId', async (req, res) => {
+router.get('/loan/:loanId', authenticateToken, organizationAccessService.createLoanAccessMiddleware(), async (req, res) => {
   try {
     const { loanId } = req.params;
     console.log(`🔍 Fetching SOL data for loan: ${loanId}`);
@@ -110,8 +152,17 @@ router.get('/loan/:loanId', async (req, res) => {
  * POST /api/sol/calculate-portfolio
  * Manually trigger daily SOL batch processing (detects changes and updates)
  */
-router.post('/calculate-portfolio', async (req, res) => {
+router.post('/calculate-portfolio', authenticateToken, async (req: any, res) => {
   try {
+    // Check if user has admin or super_user role
+    if (req.user.role !== 'admin' && req.user.role !== 'super_user') {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied',
+        message: 'Only admin users can trigger SOL batch processing'
+      });
+    }
+    
     console.log('🔄 Starting manual SOL daily batch processing...');
     
     const result = await solEventService.runDailySOLUpdate();
@@ -142,7 +193,7 @@ router.post('/calculate-portfolio', async (req, res) => {
  * POST /api/sol/update-loan/:loanId
  * Trigger SOL update for a specific loan
  */
-router.post('/update-loan/:loanId', async (req, res) => {
+router.post('/update-loan/:loanId', authenticateToken, organizationAccessService.createLoanAccessMiddleware('servicer'), async (req, res) => {
   try {
     const { loanId } = req.params;
     const { eventType = 'status_change' } = req.body;
@@ -182,8 +233,17 @@ router.post('/update-loan/:loanId', async (req, res) => {
  * POST /api/sol/daily-update
  * Manually trigger daily SOL update batch
  */
-router.post('/daily-update', async (req, res) => {
+router.post('/daily-update', authenticateToken, async (req: any, res) => {
   try {
+    // Check if user has admin or super_user role
+    if (req.user.role !== 'admin' && req.user.role !== 'super_user') {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied',
+        message: 'Only admin users can trigger daily SOL updates'
+      });
+    }
+    
     console.log('🕒 Starting manual daily SOL update...');
     
     const result = await solEventService.runDailySOLUpdate();
@@ -214,11 +274,27 @@ router.post('/daily-update', async (req, res) => {
  * GET /api/sol/alerts
  * Get SOL expiration alerts
  */
-router.get('/alerts', async (req, res) => {
+router.get('/alerts', authenticateToken, async (req: any, res) => {
   try {
     console.log('🚨 Fetching SOL expiration alerts...');
     
-    const alerts = await solEventService.checkExpirationAlerts();
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    // If user has no accessible loans, return empty alerts
+    if (accessibleLoanIds.length === 0) {
+      res.json({
+        success: true,
+        data: {
+          alerts: [],
+          count: 0,
+          timestamp: new Date().toISOString()
+        }
+      });
+      return;
+    }
+    
+    const alerts = await solEventService.checkExpirationAlertsForLoans(accessibleLoanIds);
     
     res.json({
       success: true,
@@ -243,7 +319,7 @@ router.get('/alerts', async (req, res) => {
  * GET /api/sol/jurisdictions
  * Get all SOL jurisdictions
  */
-router.get('/jurisdictions', async (req, res) => {
+router.get('/jurisdictions', authenticateToken, async (req, res) => {
   try {
     console.log('📍 Fetching SOL jurisdictions...');
     
@@ -280,7 +356,7 @@ router.get('/jurisdictions', async (req, res) => {
  * Get SOL calculations for multiple loans at once
  * Body: { loan_ids: string[] }
  */
-router.post('/loans/batch', async (req, res) => {
+router.post('/loans/batch', authenticateToken, async (req: any, res) => {
   try {
     const { loan_ids } = req.body;
     
@@ -305,24 +381,32 @@ router.post('/loans/batch', async (req, res) => {
       });
     }
     
-    console.log(`🔍 Fetching SOL data for ${loan_ids.length} loans...`);
-    console.log(`🔍 Sample loan IDs: ${loan_ids.slice(0, 3).join(', ')}${loan_ids.length > 3 ? '...' : ''}`);
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    // Filter requested loan IDs to only include accessible ones
+    const accessibleSet = new Set(accessibleLoanIds);
+    const filteredLoanIds = loan_ids.filter(id => accessibleSet.has(id));
+    
+    if (filteredLoanIds.length === 0) {
+      return res.json({
+        success: true,
+        data: [],
+        metadata: {
+          requested: loan_ids.length,
+          found: 0,
+          missing: loan_ids.length,
+          filtered_for_access: loan_ids.length
+        }
+      });
+    }
+    
+    console.log(`🔍 Fetching SOL data for ${filteredLoanIds.length} accessible loans (filtered from ${loan_ids.length} requested)...`);
+    console.log(`🔍 Sample loan IDs: ${filteredLoanIds.slice(0, 3).join(', ')}${filteredLoanIds.length > 3 ? '...' : ''}`);
     
     // Create parameterized query for batch lookup
-    const placeholders = loan_ids.map((_, index) => `$${index + 1}`).join(',');
-    console.log(`🔍 Generated ${loan_ids.length} placeholders for query`);
-    
-    // Quick table check
-    try {
-      const tableCheck = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM information_schema.tables 
-        WHERE table_name = 'loan_sol_calculations'
-      `);
-      console.log(`🔍 loan_sol_calculations table exists: ${tableCheck.rows[0].count > 0}`);
-    } catch (tableError) {
-      console.warn('⚠️ Could not check table existence:', tableError);
-    }
+    const placeholders = filteredLoanIds.map((_, index) => `$${index + 1}`).join(',');
+    console.log(`🔍 Generated ${filteredLoanIds.length} placeholders for query`);
     
     const solQuery = `
       SELECT 
@@ -335,17 +419,19 @@ router.post('/loans/batch', async (req, res) => {
       ORDER BY lsc.loan_id
     `;
     
-    const solResult = await pool.query(solQuery, loan_ids);
+    const solResult = await pool.query(solQuery, filteredLoanIds);
     
-    console.log(`✅ Found SOL data for ${solResult.rows.length} of ${loan_ids.length} loans`);
+    console.log(`✅ Found SOL data for ${solResult.rows.length} of ${filteredLoanIds.length} accessible loans`);
     
     res.json({
       success: true,
       data: solResult.rows,
       metadata: {
         requested: loan_ids.length,
+        accessible: filteredLoanIds.length,
         found: solResult.rows.length,
-        missing: loan_ids.length - solResult.rows.length
+        missing: filteredLoanIds.length - solResult.rows.length,
+        filtered_for_access: loan_ids.length - filteredLoanIds.length
       }
     });
     

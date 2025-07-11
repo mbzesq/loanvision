@@ -1,6 +1,8 @@
 import express from 'express';
 import { Pool } from 'pg';
 import { getForeclosureTimeline } from '../services/foreclosureService';
+import { authenticateToken } from '../middleware/authMiddleware';
+import organizationAccessService from '../services/organizationAccessService';
 
 const router = express.Router();
 
@@ -13,9 +15,32 @@ const pool = new Pool({
  * GET /api/foreclosure/summary
  * Get foreclosure summary statistics for dashboard
  */
-router.get('/summary', async (req, res) => {
+router.get('/summary', authenticateToken, async (req: any, res) => {
   try {
     console.log('🏠 Fetching foreclosure summary...');
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    // If user has no accessible loans, return empty summary
+    if (accessibleLoanIds.length === 0) {
+      res.json({
+        totalInForeclosure: 0,
+        judicialCount: 0,
+        nonJudicialCount: 0,
+        avgDaysInProcess: 0,
+        completedForeclosures: 0,
+        statusBreakdown: {},
+        riskDistribution: {
+          overdue: 0,
+          onTrack: 0,
+          completed: 0
+        }
+      });
+      return;
+    }
+    
+    const placeholders = accessibleLoanIds.map((_, index) => `$${index + 1}`).join(',');
     
     const summaryQuery = `
       SELECT 
@@ -30,9 +55,10 @@ router.get('/summary', async (req, res) => {
         COUNT(*) FILTER (WHERE fe.sale_held_date IS NOT NULL OR fe.real_estate_owned_date IS NOT NULL) as completed_foreclosures
       FROM foreclosure_events fe
       WHERE fe.fc_start_date IS NOT NULL
+      AND fe.loan_id IN (${placeholders})
     `;
     
-    const summaryResult = await pool.query(summaryQuery);
+    const summaryResult = await pool.query(summaryQuery, accessibleLoanIds);
     const summary = summaryResult.rows[0];
     
     // Get status breakdown
@@ -50,11 +76,12 @@ router.get('/summary', async (req, res) => {
         COUNT(*) as count
       FROM foreclosure_events fe
       WHERE fe.fc_start_date IS NOT NULL
+      AND fe.loan_id IN (${placeholders})
       GROUP BY status
       ORDER BY count DESC
     `;
     
-    const statusResult = await pool.query(statusQuery);
+    const statusResult = await pool.query(statusQuery, accessibleLoanIds);
     const statusBreakdown = statusResult.rows.reduce((acc, row) => {
       acc[row.status] = parseInt(row.count);
       return acc;
@@ -79,9 +106,10 @@ router.get('/summary', async (req, res) => {
         ) as completed
       FROM foreclosure_events fe
       WHERE fe.fc_start_date IS NOT NULL
+      AND fe.loan_id IN (${placeholders})
     `;
     
-    const riskResult = await pool.query(riskQuery);
+    const riskResult = await pool.query(riskQuery, accessibleLoanIds);
     const riskDistribution = riskResult.rows[0];
     
     const response = {
@@ -112,9 +140,20 @@ router.get('/summary', async (req, res) => {
  * GET /api/foreclosure/loans
  * Get active foreclosure loans list
  */
-router.get('/loans', async (req, res) => {
+router.get('/loans', authenticateToken, async (req: any, res) => {
   try {
     console.log('📋 Fetching foreclosure loans...');
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    // If user has no accessible loans, return empty array
+    if (accessibleLoanIds.length === 0) {
+      res.json([]);
+      return;
+    }
+    
+    const placeholders = accessibleLoanIds.map((_, index) => `$${index + 1}`).join(',');
     
     const loansQuery = `
       SELECT 
@@ -142,11 +181,12 @@ router.get('/loans', async (req, res) => {
       FROM foreclosure_events fe
       LEFT JOIN daily_metrics_current dmc ON fe.loan_id = dmc.loan_id
       WHERE fe.fc_start_date IS NOT NULL
+      AND fe.loan_id IN (${placeholders})
       ORDER BY fe.fc_start_date DESC
       LIMIT 100
     `;
     
-    const loansResult = await pool.query(loansQuery);
+    const loansResult = await pool.query(loansQuery, accessibleLoanIds);
     
     const loans = loansResult.rows.map(row => ({
       loanId: row.loan_id,
@@ -175,9 +215,20 @@ router.get('/loans', async (req, res) => {
  * GET /api/foreclosure/by-state
  * Get foreclosure data breakdown by state
  */
-router.get('/by-state', async (req, res) => {
+router.get('/by-state', authenticateToken, async (req: any, res) => {
   try {
     console.log('🗺️ Fetching foreclosure data by state...');
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    // If user has no accessible loans, return empty array
+    if (accessibleLoanIds.length === 0) {
+      res.json([]);
+      return;
+    }
+    
+    const placeholders = accessibleLoanIds.map((_, index) => `$${index + 1}`).join(',');
     
     const stateQuery = `
       SELECT 
@@ -190,11 +241,12 @@ router.get('/by-state', async (req, res) => {
       FROM foreclosure_events fe
       LEFT JOIN daily_metrics_current dmc ON fe.loan_id = dmc.loan_id
       WHERE fe.fc_start_date IS NOT NULL AND dmc.state IS NOT NULL
+      AND fe.loan_id IN (${placeholders})
       GROUP BY dmc.state
       ORDER BY total_loans DESC
     `;
     
-    const stateResult = await pool.query(stateQuery);
+    const stateResult = await pool.query(stateQuery, accessibleLoanIds);
     
     const stateData = stateResult.rows.map(row => ({
       state: row.state,
@@ -219,7 +271,7 @@ router.get('/by-state', async (req, res) => {
  * GET /api/foreclosure/timeline/:loanId
  * Get foreclosure timeline for a specific loan
  */
-router.get('/timeline/:loanId', async (req, res) => {
+router.get('/timeline/:loanId', authenticateToken, organizationAccessService.createLoanAccessMiddleware(), async (req, res) => {
   try {
     const { loanId } = req.params;
     console.log(`📅 Fetching foreclosure timeline for loan: ${loanId}`);

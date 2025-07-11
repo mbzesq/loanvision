@@ -275,4 +275,93 @@ export class SOLEventService {
       alerts
     };
   }
+
+  /**
+   * Get SOL summary for specific loans (with organization access filtering)
+   */
+  async getSOLSummaryForLoans(loanIds: string[]): Promise<{
+    total_loans: number;
+    expired_count: number;
+    high_risk_count: number;
+    medium_risk_count: number;
+    low_risk_count: number;
+    alerts: string[];
+  }> {
+    if (loanIds.length === 0) {
+      return {
+        total_loans: 0,
+        expired_count: 0,
+        high_risk_count: 0,
+        medium_risk_count: 0,
+        low_risk_count: 0,
+        alerts: []
+      };
+    }
+
+    const placeholders = loanIds.map((_, index) => `$${index + 1}`).join(',');
+    const summaryQuery = `
+      SELECT 
+        COUNT(*) as total_loans,
+        SUM(CASE WHEN is_expired THEN 1 ELSE 0 END) as expired_count,
+        SUM(CASE WHEN sol_risk_level = 'HIGH' THEN 1 ELSE 0 END) as high_risk_count,
+        SUM(CASE WHEN sol_risk_level = 'MEDIUM' THEN 1 ELSE 0 END) as medium_risk_count,
+        SUM(CASE WHEN sol_risk_level = 'LOW' THEN 1 ELSE 0 END) as low_risk_count
+      FROM loan_sol_calculations
+      WHERE loan_id IN (${placeholders})
+    `;
+
+    const result = await this.pool.query(summaryQuery, loanIds);
+    const summary = result.rows[0];
+
+    // Get current alerts for these specific loans
+    const alerts = await this.checkExpirationAlertsForLoans(loanIds);
+
+    return {
+      total_loans: parseInt(summary.total_loans) || 0,
+      expired_count: parseInt(summary.expired_count) || 0,
+      high_risk_count: parseInt(summary.high_risk_count) || 0,
+      medium_risk_count: parseInt(summary.medium_risk_count) || 0,
+      low_risk_count: parseInt(summary.low_risk_count) || 0,
+      alerts
+    };
+  }
+
+  /**
+   * Check for loans approaching SOL expiration for specific loans
+   */
+  async checkExpirationAlertsForLoans(loanIds: string[]): Promise<string[]> {
+    if (loanIds.length === 0) return [];
+
+    const alerts: string[] = [];
+    const placeholders = loanIds.map((_, index) => `$${index + 1}`).join(',');
+
+    const alertQuery = `
+      SELECT 
+        lsc.loan_id,
+        lsc.property_state,
+        lsc.days_until_expiration,
+        lsc.adjusted_expiration_date,
+        lsc.sol_risk_level
+      FROM loan_sol_calculations lsc
+      WHERE lsc.loan_id IN (${placeholders})
+      AND lsc.days_until_expiration BETWEEN 0 AND 90
+      AND lsc.is_expired = false
+      ORDER BY lsc.days_until_expiration ASC
+    `;
+
+    const result = await this.pool.query(alertQuery, loanIds);
+    
+    for (const loan of result.rows) {
+      const days = loan.days_until_expiration;
+      let alertLevel = '';
+      
+      if (days <= 30) alertLevel = 'CRITICAL';
+      else if (days <= 60) alertLevel = 'HIGH';
+      else alertLevel = 'MEDIUM';
+      
+      alerts.push(`${alertLevel}: Loan ${loan.loan_id} (${loan.property_state}) expires in ${days} days`);
+    }
+
+    return alerts;
+  }
 }
