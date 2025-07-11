@@ -432,7 +432,7 @@ const SOLMonitoringPage: React.FC = () => {
                       strokeWidth: 2, 
                       r: 6, 
                       cursor: 'pointer',
-                      onClick: (e: any, payload: any) => {
+                      onClick: (_e: any, payload: any) => {
                         if (payload) {
                           handleTrendPointClick({ activePayload: [{ payload: payload.payload }] });
                         }
@@ -441,7 +441,7 @@ const SOLMonitoringPage: React.FC = () => {
                     activeDot={{ 
                       r: 8, 
                       cursor: 'pointer',
-                      onClick: (e: any, payload: any) => {
+                      onClick: (_e: any, payload: any) => {
                         if (payload) {
                           handleTrendPointClick({ activePayload: [{ payload: payload.payload }] });
                         }
