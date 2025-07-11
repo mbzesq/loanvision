@@ -4,6 +4,8 @@ import { Request } from 'express';
 export interface SessionData {
   id?: number;
   userId: number;
+  userName?: string;
+  userEmail?: string;
   sessionToken?: string;
   loginTime: Date;
   logoutTime?: Date;
@@ -83,6 +85,16 @@ export class SessionService {
       const userAgent = req.headers['user-agent'] || '';
       const { deviceType, browser, os } = this.parseUserAgent(userAgent);
 
+      // Get user information for logging
+      const userQuery = `
+        SELECT first_name, last_name, email 
+        FROM users 
+        WHERE id = $1
+      `;
+      const userResult = await pool.query(userQuery, [userId]);
+      const user = userResult.rows[0];
+      const userName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : `User ${userId}`;
+
       const query = `
         INSERT INTO user_sessions (
           user_id, session_token, login_time, last_activity,
@@ -103,9 +115,13 @@ export class SessionService {
       ]);
 
       const session = result.rows[0];
-      console.log(`[Session] Created login session for user ${userId} from ${ipAddress} (${deviceType}/${browser})`);
+      console.log(`[Session] Created login session for ${userName} (ID: ${userId}) from ${ipAddress} (${deviceType}/${browser})`);
       
-      return this.mapRowToSessionData(session);
+      // Return session data with user info
+      const sessionData = this.mapRowToSessionData(session);
+      sessionData.userName = userName;
+      sessionData.userEmail = user?.email;
+      return sessionData;
     } catch (error) {
       console.error('[Session] Error creating login session:', error);
       throw error;
@@ -268,12 +284,60 @@ export class SessionService {
   }
 
   /**
+   * Get all sessions with user names (for admin use)
+   */
+  async getAllSessionsWithUsers(limit: number = 100): Promise<SessionData[]> {
+    try {
+      const query = `
+        SELECT 
+          us.*,
+          CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) as user_name,
+          u.email as user_email
+        FROM user_sessions us
+        JOIN users u ON us.user_id = u.id
+        ORDER BY us.created_at DESC
+        LIMIT $1
+      `;
+
+      const result = await pool.query(query, [limit]);
+      return result.rows.map(this.mapRowToSessionDataWithUser);
+    } catch (error) {
+      console.error('[Session] Error fetching all sessions with users:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Map database row to SessionData interface
    */
   private mapRowToSessionData(row: any): SessionData {
     return {
       id: row.id,
       userId: row.user_id,
+      sessionToken: row.session_token,
+      loginTime: row.login_time,
+      logoutTime: row.logout_time,
+      lastActivity: row.last_activity,
+      ipAddress: row.ip_address,
+      userAgent: row.user_agent,
+      deviceType: row.device_type,
+      browser: row.browser,
+      os: row.os,
+      sessionStatus: row.session_status,
+      logoutType: row.logout_type,
+      sessionDurationMinutes: row.session_duration_minutes
+    };
+  }
+
+  /**
+   * Map database row with user info to SessionData interface
+   */
+  private mapRowToSessionDataWithUser(row: any): SessionData {
+    return {
+      id: row.id,
+      userId: row.user_id,
+      userName: row.user_name?.trim() || null,
+      userEmail: row.user_email,
       sessionToken: row.session_token,
       loginTime: row.login_time,
       logoutTime: row.logout_time,

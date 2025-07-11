@@ -1,6 +1,7 @@
 import express from 'express';
 import { runSOLMigration } from '../scripts/runSOLMigration';
 import { importSOLData } from '../scripts/importSOLData';
+import { sessionService } from '../services/sessionService';
 
 const router = express.Router();
 
@@ -149,6 +150,37 @@ router.post('/sol/full-setup', checkAdminKey, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Full SOL setup failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/sessions
+ * Get user sessions with names for admin monitoring
+ */
+router.get('/sessions', checkAdminKey, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 100;
+    console.log(`🔧 Admin endpoint: Fetching ${limit} recent sessions with user names...`);
+    
+    const sessions = await sessionService.getAllSessionsWithUsers(limit);
+    
+    res.json({
+      success: true,
+      data: {
+        sessions,
+        count: sessions.length,
+        message: `Retrieved ${sessions.length} recent sessions with user information`
+      },
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Failed to fetch sessions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch sessions',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
