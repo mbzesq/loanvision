@@ -656,18 +656,14 @@ router.get('/geographic-heatmap', authenticateToken, async (req: any, res) => {
     const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
     
     // Get all SOL jurisdictions with their inherent risk levels
+    // First, let's check what columns actually exist in the table
     const jurisdictionQuery = `
       SELECT 
-        sj.state_code,
-        sj.state_name,
-        sj.risk_level as jurisdiction_risk_level,
-        sj.lien_years,
-        sj.note_years,
-        sj.foreclosure_years,
-        sj.lien_extinguished,
-        sj.foreclosure_barred
-      FROM sol_jurisdictions sj
-      ORDER BY sj.state_code
+        state_code,
+        state_name,
+        risk_level as jurisdiction_risk_level
+      FROM sol_jurisdictions
+      ORDER BY state_code
     `;
     
     const jurisdictionResult = await pool.query(jurisdictionQuery);
@@ -723,21 +719,8 @@ router.get('/geographic-heatmap', authenticateToken, async (req: any, res) => {
         case 'LOW': riskScore += 5; break;
       }
       
-      // Adjust for SOL periods (shorter = riskier)
-      const minSOLYears = Math.min(
-        jurisdiction.lien_years || 10,
-        jurisdiction.note_years || 10,
-        jurisdiction.foreclosure_years || 10
-      );
-      if (minSOLYears <= 3) riskScore += 30;
-      else if (minSOLYears <= 4) riskScore += 20;
-      else if (minSOLYears <= 5) riskScore += 10;
-      
-      // Adjust for lien extinguishment
-      if (jurisdiction.lien_extinguished) riskScore += 15;
-      
-      // Adjust for foreclosure being barred
-      if (jurisdiction.foreclosure_barred) riskScore += 15;
+      // For now, use default risk adjustments based on jurisdiction risk level only
+      // SOL period data not available in current schema
       
       // Cap at 100
       riskScore = Math.min(riskScore, 100);
@@ -747,11 +730,12 @@ router.get('/geographic-heatmap', authenticateToken, async (req: any, res) => {
         stateName: jurisdiction.state_name,
         jurisdictionRiskLevel: jurisdiction.jurisdiction_risk_level,
         riskScore,
-        lienYears: jurisdiction.lien_years,
-        noteYears: jurisdiction.note_years,
-        foreclosureYears: jurisdiction.foreclosure_years,
-        lienExtinguished: jurisdiction.lien_extinguished,
-        foreclosureBarred: jurisdiction.foreclosure_barred,
+        // Set default values for columns not in production schema
+        lienYears: null,
+        noteYears: null,
+        foreclosureYears: null,
+        lienExtinguished: false,
+        foreclosureBarred: false,
         // Portfolio exposure data
         portfolioLoanCount: exposure.loanCount,
         portfolioExpiredCount: exposure.expiredCount,
