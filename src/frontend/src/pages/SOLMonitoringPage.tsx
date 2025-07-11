@@ -19,13 +19,35 @@ interface SOLJurisdictionData {
   totalLoans: number;
   expiredCount: number;
   highRiskCount: number;
+  mediumRiskCount: number;
+  lowRiskCount: number;
   avgDaysToExpiration: number;
+  highRiskPercentage: number;
+  jurisdictionRiskLevel: string;
+}
+
+interface SOLHeatMapData {
+  stateCode: string;
+  stateName: string;
+  jurisdictionRiskLevel: string;
+  riskScore: number;
+  lienYears: number;
+  noteYears: number;
+  foreclosureYears: number;
+  lienExtinguished: boolean;
+  foreclosureBarred: boolean;
+  portfolioLoanCount: number;
+  portfolioExpiredCount: number;
+  portfolioHighRiskCount: number;
+  portfolioRiskPercentage: number;
+  hasPortfolioExposure: boolean;
 }
 
 const SOLMonitoringPage: React.FC = () => {
   const [solSummary, setSOLSummary] = useState<SOLSummary | null>(null);
   const [trendData, setTrendData] = useState<SOLTrendData[]>([]);
   const [jurisdictionData, setJurisdictionData] = useState<SOLJurisdictionData[]>([]);
+  const [heatMapData, setHeatMapData] = useState<SOLHeatMapData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
@@ -39,30 +61,18 @@ const SOLMonitoringPage: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Load current summary
-      const summary = await solService.getSOLSummary();
+      // Load all SOL data in parallel
+      const [summary, trendAnalysis, jurisdictionAnalysis, heatMap] = await Promise.all([
+        solService.getSOLSummary(),
+        solService.getTrendAnalysis(),
+        solService.getJurisdictionAnalysis(),
+        solService.getGeographicHeatMap()
+      ]);
+      
       setSOLSummary(summary);
-      
-      // Generate mock trend data for demonstration
-      const mockTrendData: SOLTrendData[] = [
-        { month: 'Jan 2025', expired: 12, highRisk: 28, mediumRisk: 45, lowRisk: 165, totalLoans: 250 },
-        { month: 'Feb 2025', expired: 15, highRisk: 32, mediumRisk: 48, lowRisk: 158, totalLoans: 253 },
-        { month: 'Mar 2025', expired: 18, highRisk: 35, mediumRisk: 52, lowRisk: 150, totalLoans: 255 },
-        { month: 'Apr 2025', expired: 22, highRisk: 38, mediumRisk: 55, lowRisk: 145, totalLoans: 260 },
-        { month: 'May 2025', expired: 25, highRisk: 42, mediumRisk: 58, lowRisk: 140, totalLoans: 265 },
-        { month: 'Jun 2025', expired: 28, highRisk: 45, mediumRisk: 62, lowRisk: 135, totalLoans: 270 },
-      ];
-      setTrendData(mockTrendData);
-      
-      // Generate mock jurisdiction data
-      const mockJurisdictionData: SOLJurisdictionData[] = [
-        { state: 'FL', totalLoans: 85, expiredCount: 8, highRiskCount: 15, avgDaysToExpiration: 450 },
-        { state: 'TX', totalLoans: 72, expiredCount: 6, highRiskCount: 12, avgDaysToExpiration: 520 },
-        { state: 'CA', totalLoans: 65, expiredCount: 4, highRiskCount: 8, avgDaysToExpiration: 680 },
-        { state: 'NY', totalLoans: 48, expiredCount: 3, highRiskCount: 6, avgDaysToExpiration: 720 },
-        { state: 'OH', totalLoans: 35, expiredCount: 2, highRiskCount: 4, avgDaysToExpiration: 580 },
-      ];
-      setJurisdictionData(mockJurisdictionData);
+      setTrendData(trendAnalysis);
+      setJurisdictionData(jurisdictionAnalysis);
+      setHeatMapData(heatMap);
       
       setLastRefresh(new Date());
     } catch (err) {
@@ -258,8 +268,11 @@ const SOLMonitoringPage: React.FC = () => {
             }}>
               <TrendingUp style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
               <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
-                SOL RISK TRENDS
+                SOL EXPIRATION FORECAST
               </h3>
+              <p style={{ fontSize: '10px', color: 'var(--color-text-muted)', margin: 0 }}>
+                Monthly timeline showing actual SOL expiration dates (updates daily)
+              </p>
             </div>
             <div style={{ height: '256px' }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -285,24 +298,12 @@ const SOLMonitoringPage: React.FC = () => {
                   <Legend />
                   <Line 
                     type="monotone" 
-                    dataKey="expired" 
+                    dataKey="expiringCount" 
                     stroke="var(--color-danger)" 
-                    strokeWidth={2}
-                    name="Expired"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="highRisk" 
-                    stroke="var(--color-warning)" 
-                    strokeWidth={2}
-                    name="High Risk"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="mediumRisk" 
-                    stroke="var(--color-info)" 
-                    strokeWidth={2}
-                    name="Medium Risk"
+                    strokeWidth={3}
+                    name="SOL Expirations"
+                    strokeDasharray="none"
+                    dot={{ fill: 'var(--color-danger)', strokeWidth: 2, r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -369,16 +370,25 @@ const SOLMonitoringPage: React.FC = () => {
                 <thead>
                   <tr>
                     <th>STATE</th>
+                    <th>RISK %</th>
                     <th>TOTAL LOANS</th>
                     <th>EXPIRED</th>
                     <th>HIGH RISK</th>
-                    <th>AVG DAYS TO EXP</th>
+                    <th>JURISDICTION RISK</th>
                   </tr>
                 </thead>
                 <tbody>
                   {jurisdictionData.map((jurisdiction) => (
                     <tr key={jurisdiction.state}>
                       <td style={{ fontWeight: '600' }}>{jurisdiction.state}</td>
+                      <td>
+                        <span className={`status-indicator ${
+                          jurisdiction.highRiskPercentage >= 50 ? 'critical' : 
+                          jurisdiction.highRiskPercentage >= 25 ? 'warning' : 'success'
+                        }`}>
+                          {jurisdiction.highRiskPercentage}%
+                        </span>
+                      </td>
                       <td className="data-value">{jurisdiction.totalLoans}</td>
                       <td>
                         <span className={`status-indicator ${jurisdiction.expiredCount > 0 ? 'critical' : 'success'}`}>
@@ -390,13 +400,167 @@ const SOLMonitoringPage: React.FC = () => {
                           {jurisdiction.highRiskCount}
                         </span>
                       </td>
-                      <td className="data-value">
-                        {jurisdiction.avgDaysToExpiration}d
+                      <td>
+                        <span className={`status-indicator ${
+                          jurisdiction.jurisdictionRiskLevel === 'HIGH' ? 'critical' :
+                          jurisdiction.jurisdictionRiskLevel === 'MEDIUM' ? 'warning' : 'success'
+                        }`}>
+                          {jurisdiction.jurisdictionRiskLevel}
+                        </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          {/* Geographic Heat Map */}
+          <div className="financial-card">
+            <div style={{ 
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: '8px',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+                GEOGRAPHIC SOL RISK MAP
+              </h3>
+            </div>
+            
+            {/* Interactive US Map */}
+            <div style={{ height: '400px', width: '100%', marginBottom: '12px' }}>
+              <svg
+                viewBox="0 0 1000 600"
+                style={{ 
+                  width: '100%', 
+                  height: '100%',
+                  backgroundColor: 'var(--color-surface-light)',
+                  borderRadius: 'var(--radius-sm)'
+                }}
+              >
+                {/* US Map SVG paths would go here - for now showing a simplified grid */}
+                <text 
+                  x="500" 
+                  y="300" 
+                  textAnchor="middle" 
+                  style={{ 
+                    fontSize: '16px', 
+                    fill: 'var(--color-text-muted)',
+                    fontWeight: '600'
+                  }}
+                >
+                  Interactive US Map Coming Soon
+                </text>
+                <text 
+                  x="500" 
+                  y="330" 
+                  textAnchor="middle" 
+                  style={{ 
+                    fontSize: '12px', 
+                    fill: 'var(--color-text-muted)'
+                  }}
+                >
+                  SOL Risk Heat Map Visualization
+                </text>
+              </svg>
+            </div>
+
+            {/* State Risk Grid as Fallback/Detail View */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', 
+              gap: '6px',
+              maxHeight: '250px',
+              overflowY: 'auto',
+              marginBottom: '12px'
+            }}>
+              {heatMapData
+                .filter(state => state.hasPortfolioExposure || state.riskScore >= 60) // Show portfolio states + high risk
+                .sort((a, b) => {
+                  // Prioritize portfolio exposure, then risk score
+                  if (a.hasPortfolioExposure && !b.hasPortfolioExposure) return -1;
+                  if (!a.hasPortfolioExposure && b.hasPortfolioExposure) return 1;
+                  return b.riskScore - a.riskScore;
+                })
+                .slice(0, 24) // Show top states
+                .map((state) => {
+                  const isHighRisk = state.portfolioRiskPercentage >= 50 || state.riskScore >= 80;
+                  const isMediumRisk = state.portfolioRiskPercentage >= 25 || state.riskScore >= 60;
+                  
+                  return (
+                    <div 
+                      key={state.stateCode}
+                      style={{
+                        padding: '6px',
+                        borderRadius: 'var(--radius-sm)',
+                        backgroundColor: 
+                          isHighRisk ? 'rgba(197, 48, 48, 0.1)' :
+                          isMediumRisk ? 'rgba(251, 146, 60, 0.1)' :
+                          state.hasPortfolioExposure ? 'rgba(59, 130, 246, 0.1)' :
+                          'rgba(34, 197, 94, 0.1)',
+                        border: `1px solid ${
+                          isHighRisk ? 'rgba(197, 48, 48, 0.3)' :
+                          isMediumRisk ? 'rgba(251, 146, 60, 0.3)' :
+                          state.hasPortfolioExposure ? 'rgba(59, 130, 246, 0.3)' :
+                          'rgba(34, 197, 94, 0.3)'
+                        }`,
+                        position: 'relative',
+                        cursor: state.hasPortfolioExposure ? 'pointer' : 'default'
+                      }}
+                      title={`${state.stateName}: ${state.portfolioLoanCount} loans, ${state.portfolioRiskPercentage}% SOL risk`}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                        <span style={{ fontWeight: '600', fontSize: '11px' }}>{state.stateCode}</span>
+                        {state.hasPortfolioExposure && (
+                          <div style={{
+                            fontSize: '8px',
+                            fontWeight: '600',
+                            padding: '1px 4px',
+                            borderRadius: '2px',
+                            backgroundColor: 
+                              isHighRisk ? 'var(--color-danger)' :
+                              isMediumRisk ? 'var(--color-warning)' : 'var(--color-info)',
+                            color: 'white'
+                          }}>
+                            {state.portfolioRiskPercentage}%
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '9px', color: 'var(--color-text-muted)', marginBottom: '2px' }}>
+                        {state.stateName}
+                      </div>
+                      {state.hasPortfolioExposure ? (
+                        <div style={{ fontSize: '8px', color: 'var(--color-text-primary)' }}>
+                          {state.portfolioLoanCount} loans • {state.portfolioExpiredCount} expired
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '8px', color: 'var(--color-text-muted)' }}>
+                          Risk Score: {state.riskScore}
+                          {state.lienExtinguished && ' • Lien Ext.'}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+
+            {/* Legend and Risk Explanation */}
+            <div style={{ 
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '12px',
+              padding: '8px',
+              backgroundColor: 'var(--color-surface-light)',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '9px',
+              color: 'var(--color-text-muted)'
+            }}>
+              <div>
+                <strong>Portfolio Risk:</strong> Red (≥50%), Orange (≥25%), Blue (&lt;25%)
+              </div>
+              <div>
+                <strong>Jurisdiction Risk:</strong> Based on SOL periods, lien rules, foreclosure restrictions
+              </div>
             </div>
           </div>
         </div>

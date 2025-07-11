@@ -447,11 +447,12 @@ router.post('/loans/batch', authenticateToken, async (req: any, res) => {
 
 /**
  * GET /api/sol/jurisdiction-analysis
- * Get SOL data broken down by jurisdiction/state
+ * Get jurisdictions ranked by SOL risk concentration (not by loan count)
+ * Shows states with highest SOL risk exposure regardless of portfolio size
  */
 router.get('/jurisdiction-analysis', authenticateToken, async (req: any, res) => {
   try {
-    console.log('🗺️ Fetching SOL jurisdiction analysis...');
+    console.log('🗺️ Fetching SOL risk analysis by jurisdiction (ranked by risk, not loan count)...');
     
     // Get accessible loan IDs for the user
     const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
@@ -474,12 +475,34 @@ router.get('/jurisdiction-analysis', authenticateToken, async (req: any, res) =>
         COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH') as high_risk_count,
         COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM') as medium_risk_count,
         COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'LOW') as low_risk_count,
-        ROUND(AVG(lsc.days_until_expiration)) as avg_days_to_expiration
+        ROUND(AVG(lsc.days_until_expiration)) as avg_days_to_expiration,
+        -- SOL Risk Concentration (expired + high risk as percentage)
+        ROUND(
+          (COUNT(*) FILTER (WHERE lsc.is_expired = true OR lsc.sol_risk_level = 'HIGH')::float / COUNT(*)) * 100, 
+          1
+        ) as sol_risk_concentration,
+        -- Critical SOL Risk Score (weighted by severity and time proximity)
+        ROUND(
+          (COUNT(*) FILTER (WHERE lsc.is_expired = true) * 100 +
+           COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH' AND lsc.days_until_expiration <= 90) * 80 +
+           COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH' AND lsc.days_until_expiration > 90) * 60 +
+           COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM' AND lsc.days_until_expiration <= 180) * 40)::float / 
+          (COUNT(*) * 100), 4
+        ) as critical_risk_score,
+        -- Jurisdiction inherent risk
+        MAX(sj.risk_level) as jurisdiction_risk_level,
+        -- Count of loans expiring in next 6 months
+        COUNT(*) FILTER (WHERE lsc.days_until_expiration <= 180 AND lsc.is_expired = false) as expiring_soon_count
       FROM loan_sol_calculations lsc
+      LEFT JOIN sol_jurisdictions sj ON lsc.property_state = sj.state_code
       WHERE lsc.loan_id IN (${placeholders})
       AND lsc.property_state IS NOT NULL
       GROUP BY lsc.property_state
-      ORDER BY total_loans DESC
+      ORDER BY 
+        critical_risk_score DESC,
+        sol_risk_concentration DESC,
+        expired_count DESC,
+        expiring_soon_count DESC
     `;
     
     const result = await pool.query(jurisdictionQuery, accessibleLoanIds);
@@ -491,19 +514,33 @@ router.get('/jurisdiction-analysis', authenticateToken, async (req: any, res) =>
       highRiskCount: parseInt(row.high_risk_count) || 0,
       mediumRiskCount: parseInt(row.medium_risk_count) || 0,
       lowRiskCount: parseInt(row.low_risk_count) || 0,
-      avgDaysToExpiration: parseInt(row.avg_days_to_expiration) || 0
+      avgDaysToExpiration: parseInt(row.avg_days_to_expiration) || 0,
+      solRiskConcentration: parseFloat(row.sol_risk_concentration) || 0,
+      criticalRiskScore: parseFloat(row.critical_risk_score) || 0,
+      jurisdictionRiskLevel: row.jurisdiction_risk_level || 'UNKNOWN',
+      expiringSoonCount: parseInt(row.expiring_soon_count) || 0,
+      // Legacy field for compatibility
+      highRiskPercentage: parseFloat(row.sol_risk_concentration) || 0
     }));
     
     res.json({
       success: true,
-      data: jurisdictionData
+      data: jurisdictionData,
+      metadata: {
+        sortingCriteria: 'Ranked by SOL risk concentration and critical risk score, not loan count',
+        riskMetrics: {
+          solRiskConcentration: 'Percentage of expired + high risk loans',
+          criticalRiskScore: 'Weighted risk score considering expiration proximity and severity',
+          expiringSoonCount: 'Loans expiring within 6 months'
+        }
+      }
     });
     
   } catch (error) {
-    console.error('❌ Error fetching SOL jurisdiction analysis:', error);
+    console.error('❌ Error fetching SOL jurisdiction risk analysis:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch SOL jurisdiction analysis',
+      error: 'Failed to fetch SOL jurisdiction risk analysis',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
@@ -511,11 +548,12 @@ router.get('/jurisdiction-analysis', authenticateToken, async (req: any, res) =>
 
 /**
  * GET /api/sol/trend-analysis
- * Get historical SOL trend data (for now, generate based on current data)
+ * Get dynamic SOL expiration timeline showing how many loans expire each month
+ * Based on current SOL calculations that update daily with new metrics data
  */
 router.get('/trend-analysis', authenticateToken, async (req: any, res) => {
   try {
-    console.log('📈 Fetching SOL trend analysis...');
+    console.log('📈 Fetching dynamic SOL expiration timeline...');
     
     // Get accessible loan IDs for the user
     const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
@@ -528,42 +566,209 @@ router.get('/trend-analysis', authenticateToken, async (req: any, res) => {
       return;
     }
     
-    // For now, generate trend data based on current SOL calculations
-    // In the future, this could use historical SOL calculation snapshots
-    const summary = await solEventService.getSOLSummaryForLoans(accessibleLoanIds);
+    const placeholders = accessibleLoanIds.map((_, index) => `$${index + 1}`).join(',');
     
-    // Generate 6 months of simulated trend data based on current state
+    // Get current SOL calculations - these are dynamic and update daily
+    const solQuery = `
+      SELECT 
+        loan_id,
+        adjusted_expiration_date,
+        is_expired,
+        calculation_date
+      FROM loan_sol_calculations
+      WHERE loan_id IN (${placeholders})
+      AND adjusted_expiration_date IS NOT NULL
+      AND is_expired = false
+      ORDER BY adjusted_expiration_date
+    `;
+    
+    const result = await pool.query(solQuery, accessibleLoanIds);
+    const loans = result.rows;
+    
+    console.log(`📊 Processing ${loans.length} loans with current SOL expiration dates`);
+    
+    // Group loans by expiration month to show how many expire each month
+    const expirationCounts = new Map();
     const currentDate = new Date();
-    const trendData = [];
     
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(currentDate);
-      date.setMonth(date.getMonth() - i);
-      
-      // Simulate slight variations in data over time
-      const variation = 0.8 + (Math.random() * 0.4); // 80-120% of current values
-      
-      trendData.push({
-        month: date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
-        expired: Math.round(summary.expired_count * variation),
-        highRisk: Math.round(summary.high_risk_count * variation),
-        mediumRisk: Math.round(summary.medium_risk_count * variation),
-        lowRisk: Math.round(summary.low_risk_count * variation),
-        totalLoans: Math.round(summary.total_loans * variation)
+    // Initialize next 24 months
+    for (let i = 0; i < 24; i++) {
+      const monthDate = new Date(currentDate);
+      monthDate.setMonth(monthDate.getMonth() + i);
+      monthDate.setDate(1);
+      const monthKey = monthDate.toISOString().substring(0, 7); // YYYY-MM format
+      expirationCounts.set(monthKey, {
+        month: monthDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+        expiringCount: 0,
+        monthDate: monthDate.toISOString()
       });
     }
+    
+    // Count loans expiring in each month
+    loans.forEach(loan => {
+      if (loan.adjusted_expiration_date) {
+        const expirationDate = new Date(loan.adjusted_expiration_date);
+        const monthKey = expirationDate.toISOString().substring(0, 7); // YYYY-MM format
+        
+        if (expirationCounts.has(monthKey)) {
+          expirationCounts.get(monthKey).expiringCount++;
+        }
+      }
+    });
+    
+    // Convert to array and filter out months with no expirations for cleaner chart
+    const trendData = Array.from(expirationCounts.values())
+      .filter(item => item.expiringCount > 0)
+      .slice(0, 18); // Show up to 18 months ahead
     
     res.json({
       success: true,
       data: trendData,
-      note: 'Trend data is currently simulated based on current SOL calculations. Historical tracking will be implemented in future versions.'
+      metadata: {
+        totalActiveLoans: loans.length,
+        calculationBasis: 'Current SOL calculations updated daily with new metrics data',
+        note: 'Shows actual SOL expiration dates by month. Updates automatically as daily metrics change SOL calculations.'
+      }
     });
     
   } catch (error) {
-    console.error('❌ Error fetching SOL trend analysis:', error);
+    console.error('❌ Error fetching SOL expiration timeline:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch SOL trend analysis',
+      error: 'Failed to fetch SOL expiration timeline',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/sol/geographic-heatmap
+ * Get SOL risk heat map data for all US states based on jurisdiction rules
+ */
+router.get('/geographic-heatmap', authenticateToken, async (req: any, res) => {
+  try {
+    console.log('🗺️ Fetching SOL geographic heat map...');
+    
+    // Get accessible loan IDs for the user
+    const accessibleLoanIds = await organizationAccessService.getAccessibleLoanIds(req.user.id);
+    
+    // Get all SOL jurisdictions with their inherent risk levels
+    const jurisdictionQuery = `
+      SELECT 
+        sj.state_code,
+        sj.state_name,
+        sj.risk_level as jurisdiction_risk_level,
+        sj.lien_years,
+        sj.note_years,
+        sj.foreclosure_years,
+        sj.lien_extinguished,
+        sj.foreclosure_barred
+      FROM sol_jurisdictions sj
+      ORDER BY sj.state_code
+    `;
+    
+    const jurisdictionResult = await pool.query(jurisdictionQuery);
+    
+    // Get portfolio exposure by state (if user has accessible loans)
+    let portfolioExposure = new Map();
+    if (accessibleLoanIds.length > 0) {
+      const placeholders = accessibleLoanIds.map((_, index) => `$${index + 1}`).join(',');
+      
+      const exposureQuery = `
+        SELECT 
+          lsc.property_state as state,
+          COUNT(*) as loan_count,
+          COUNT(*) FILTER (WHERE lsc.is_expired = true) as expired_count,
+          COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH') as high_risk_count,
+          ROUND(
+            (COUNT(*) FILTER (WHERE lsc.is_expired = true OR lsc.sol_risk_level = 'HIGH')::float / COUNT(*)) * 100, 
+            1
+          ) as portfolio_risk_percentage
+        FROM loan_sol_calculations lsc
+        WHERE lsc.loan_id IN (${placeholders})
+        AND lsc.property_state IS NOT NULL
+        GROUP BY lsc.property_state
+      `;
+      
+      const exposureResult = await pool.query(exposureQuery, accessibleLoanIds);
+      exposureResult.rows.forEach(row => {
+        portfolioExposure.set(row.state, {
+          loanCount: parseInt(row.loan_count),
+          expiredCount: parseInt(row.expired_count),
+          highRiskCount: parseInt(row.high_risk_count),
+          portfolioRiskPercentage: parseFloat(row.portfolio_risk_percentage)
+        });
+      });
+    }
+    
+    // Combine jurisdiction rules with portfolio exposure
+    const heatMapData = jurisdictionResult.rows.map(jurisdiction => {
+      const exposure = portfolioExposure.get(jurisdiction.state_code) || {
+        loanCount: 0,
+        expiredCount: 0,
+        highRiskCount: 0,
+        portfolioRiskPercentage: 0
+      };
+      
+      // Calculate overall risk score (0-100)
+      let riskScore = 0;
+      
+      // Base score from jurisdiction risk level
+      switch (jurisdiction.jurisdiction_risk_level) {
+        case 'HIGH': riskScore += 40; break;
+        case 'MEDIUM': riskScore += 20; break;
+        case 'LOW': riskScore += 5; break;
+      }
+      
+      // Adjust for SOL periods (shorter = riskier)
+      const minSOLYears = Math.min(
+        jurisdiction.lien_years || 10,
+        jurisdiction.note_years || 10,
+        jurisdiction.foreclosure_years || 10
+      );
+      if (minSOLYears <= 3) riskScore += 30;
+      else if (minSOLYears <= 4) riskScore += 20;
+      else if (minSOLYears <= 5) riskScore += 10;
+      
+      // Adjust for lien extinguishment
+      if (jurisdiction.lien_extinguished) riskScore += 15;
+      
+      // Adjust for foreclosure being barred
+      if (jurisdiction.foreclosure_barred) riskScore += 15;
+      
+      // Cap at 100
+      riskScore = Math.min(riskScore, 100);
+      
+      return {
+        stateCode: jurisdiction.state_code,
+        stateName: jurisdiction.state_name,
+        jurisdictionRiskLevel: jurisdiction.jurisdiction_risk_level,
+        riskScore,
+        lienYears: jurisdiction.lien_years,
+        noteYears: jurisdiction.note_years,
+        foreclosureYears: jurisdiction.foreclosure_years,
+        lienExtinguished: jurisdiction.lien_extinguished,
+        foreclosureBarred: jurisdiction.foreclosure_barred,
+        // Portfolio exposure data
+        portfolioLoanCount: exposure.loanCount,
+        portfolioExpiredCount: exposure.expiredCount,
+        portfolioHighRiskCount: exposure.highRiskCount,
+        portfolioRiskPercentage: exposure.portfolioRiskPercentage,
+        hasPortfolioExposure: exposure.loanCount > 0
+      };
+    });
+    
+    res.json({
+      success: true,
+      data: heatMapData,
+      note: 'Geographic heat map showing inherent SOL risk by jurisdiction, with portfolio exposure overlay.'
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching SOL geographic heat map:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch SOL geographic heat map',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

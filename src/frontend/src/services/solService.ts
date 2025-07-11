@@ -245,6 +245,54 @@ class SOLService {
   }
 
   /**
+   * Get SOL jurisdiction analysis data
+   */
+  async getJurisdictionAnalysis(): Promise<any[]> {
+    try {
+      const response = await axiosInstance.get<APIResponse<any[]>>('/api/sol/jurisdiction-analysis');
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+      throw new Error(response.data.error || 'Failed to fetch jurisdiction analysis');
+    } catch (error) {
+      console.error('Error fetching SOL jurisdiction analysis:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get SOL trend analysis data
+   */
+  async getTrendAnalysis(): Promise<any[]> {
+    try {
+      const response = await axiosInstance.get<APIResponse<any[]>>('/api/sol/trend-analysis');
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+      throw new Error(response.data.error || 'Failed to fetch trend analysis');
+    } catch (error) {
+      console.error('Error fetching SOL trend analysis:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get SOL geographic heat map data
+   */
+  async getGeographicHeatMap(): Promise<any[]> {
+    try {
+      const response = await axiosInstance.get<APIResponse<any[]>>('/api/sol/geographic-heatmap');
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+      throw new Error(response.data.error || 'Failed to fetch geographic heat map');
+    } catch (error) {
+      console.error('Error fetching SOL geographic heat map:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Format date for display
    */
   formatDate(dateString: string | null | undefined): string {
