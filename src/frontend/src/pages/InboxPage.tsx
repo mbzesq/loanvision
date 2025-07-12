@@ -727,8 +727,8 @@ function InboxPage() {
         </div>
 
         {/* Messages Section */}
-        <div style={{ fontSize: '10px', fontWeight: '600', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
-          MESSAGES
+        <div className="section-label-serif" style={{ color: 'var(--color-text-secondary)', marginBottom: '8px', marginTop: '4px' }}>
+          Messages
         </div>
         
         {[
@@ -769,8 +769,8 @@ function InboxPage() {
         ))}
 
         {/* Tasks Section */}
-        <div style={{ fontSize: '10px', fontWeight: '600', color: 'var(--color-text-muted)', marginTop: '16px', marginBottom: '4px' }}>
-          TASKS
+        <div className="section-label-serif" style={{ color: 'var(--color-text-secondary)', marginTop: '20px', marginBottom: '8px' }}>
+          Tasks
         </div>
         
         {[
@@ -811,8 +811,8 @@ function InboxPage() {
         ))}
 
         {/* Deleted Section */}
-        <div style={{ fontSize: '10px', fontWeight: '600', color: 'var(--color-text-muted)', marginTop: '16px', marginBottom: '4px' }}>
-          DELETED ITEMS
+        <div className="section-label-serif" style={{ color: 'var(--color-text-secondary)', marginTop: '20px', marginBottom: '8px' }}>
+          Deleted Items
         </div>
         
         <button
@@ -857,15 +857,15 @@ function InboxPage() {
       }}>
         {/* List Header */}
         <div style={{ 
-          padding: '12px',
+          padding: '20px 16px',
           borderBottom: '1px solid var(--color-border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
           <div>
-            <h2 style={{ fontSize: '14px', fontWeight: '600', margin: '0 0 2px 0' }}>
-              INBOX
+            <h2 className="page-title" style={{ margin: '0 0 8px 0' }}>
+              Inbox
             </h2>
             <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
               {filteredItems.length} items • {inboxStats.unread} unread
@@ -1244,7 +1244,7 @@ function InboxPage() {
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 12px 0', color: 'var(--inbox-text-primary)' }}>
+                  <h3 className="section-header" style={{ margin: '0 0 12px 0' }}>
                     {selectedItem.subject}
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '18px', fontSize: '12px', color: 'var(--inbox-text-secondary)', justifyContent: 'space-between' }}>
@@ -1361,8 +1361,8 @@ function InboxPage() {
                 border: '1px solid var(--inbox-border)',
                 boxShadow: 'var(--inbox-shadow-sm)'
               }}>
-                <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}>
-                  QUICK ACTIONS
+                <div className="section-label-serif" style={{ marginBottom: '12px' }}>
+                  Quick Actions
                 </div>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   <button 
@@ -1397,8 +1397,8 @@ function InboxPage() {
                   border: '1px solid var(--inbox-border)',
                   boxShadow: 'var(--inbox-shadow-sm)'
                 }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}>
-                    TASK STATUS
+                  <div className="section-label-serif" style={{ marginBottom: '12px' }}>
+                    Task Status
                   </div>
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     {selectedItem.status === 'unread' && (
@@ -1452,8 +1452,8 @@ function InboxPage() {
                   border: '1px solid var(--inbox-border)',
                   boxShadow: 'var(--inbox-shadow-sm)'
                 }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}>
-                    REPLY
+                  <div className="section-label-serif" style={{ marginBottom: '12px' }}>
+                    Reply
                   </div>
                   <textarea
                     placeholder="Type your reply..."
