@@ -15,6 +15,7 @@ import { CreateTaskModal } from '../components/CreateTaskModal';
 import { NewMessageModal } from '../components/NewMessageModal';
 import { TaskBodyRenderer } from '../components/TaskBodyRenderer';
 import '../styles/design-system.css';
+import '../styles/inbox-light-theme.css';
 
 function InboxPage() {
   // Debug: Check if new code is loading
@@ -606,10 +607,10 @@ function InboxPage() {
   }
 
   return (
-    <div style={{ 
+    <div className="inbox-light-theme" style={{ 
       display: 'flex',
       height: '100vh',
-      backgroundColor: 'var(--color-background)',
+      backgroundColor: 'var(--inbox-bg-primary)',
       flexDirection: 'column'
     }}>
       {/* Success/Error Messages */}
@@ -650,14 +651,14 @@ function InboxPage() {
         overflow: 'hidden'
       }}>
         {/* Left Sidebar - Filters */}
-      <div style={{ 
-        width: '250px',
-        backgroundColor: 'var(--color-surface)',
-        borderRight: '1px solid var(--color-border)',
-        padding: '12px',
+      <div className="inbox-sidebar" style={{ 
+        width: '280px',
+        backgroundColor: 'var(--inbox-bg-secondary)',
+        borderRight: '1px solid var(--inbox-border)',
+        padding: '20px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px'
+        gap: '12px'
       }}>
         {/* Action Buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
@@ -847,11 +848,12 @@ function InboxPage() {
 
       {/* Middle Panel - Message List */}
       <div style={{ 
-        width: '400px',
-        backgroundColor: 'var(--color-surface)',
-        borderRight: '1px solid var(--color-border)',
+        width: '420px',
+        backgroundColor: 'var(--inbox-bg-primary)',
+        borderRight: '1px solid var(--inbox-border)',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        boxShadow: 'var(--inbox-shadow-sm)'
       }}>
         {/* List Header */}
         <div style={{ 
@@ -972,12 +974,15 @@ function InboxPage() {
                         }
                       }
                     }}
+                    className="inbox-message-item"
                     style={{
-                      padding: '12px',
-                      borderBottom: '1px solid var(--color-border)',
+                      padding: '16px',
+                      margin: '8px 12px',
+                      borderRadius: '8px',
                       cursor: 'pointer',
-                      backgroundColor: selectedItem?.threadId === group.thread ? 'var(--color-surface-light)' : 'transparent',
-                      fontWeight: hasUnread ? '600' : 'normal'
+                      backgroundColor: selectedItem?.threadId === group.thread ? 'var(--inbox-selected-bg)' : 'var(--inbox-bg-tertiary)',
+                      fontWeight: hasUnread ? '500' : '400',
+                      border: selectedItem?.threadId === group.thread ? '1px solid var(--inbox-selected-border)' : '1px solid transparent'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
@@ -1119,13 +1124,16 @@ function InboxPage() {
               return (
                 <div
                   key={item.id}
+                  className="inbox-message-item"
                   onClick={() => handleItemSelect(item)}
                   style={{
-                    padding: '12px',
-                    borderBottom: '1px solid var(--color-border)',
+                    padding: '16px',
+                    margin: '8px 12px',
+                    borderRadius: '8px',
                     cursor: 'pointer',
-                    backgroundColor: selectedItem?.id === item.id ? 'var(--color-surface-light)' : 'transparent',
-                    fontWeight: item.status === 'unread' ? '600' : 'normal'
+                    backgroundColor: selectedItem?.id === item.id ? 'var(--inbox-selected-bg)' : 'var(--inbox-bg-tertiary)',
+                    fontWeight: item.status === 'unread' ? '500' : '400',
+                    border: selectedItem?.id === item.id ? '1px solid var(--inbox-selected-border)' : '1px solid transparent'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
@@ -1220,26 +1228,26 @@ function InboxPage() {
       </div>
 
       {/* Right Panel - Detail View */}
-      <div style={{ 
+      <div className="detail-panel" style={{ 
         flex: 1,
-        backgroundColor: 'var(--color-background)',
+        backgroundColor: 'var(--inbox-bg-primary)',
         display: 'flex',
         flexDirection: 'column'
       }}>
         {selectedItem ? (
           <>
             {/* Detail Header */}
-            <div style={{ 
-              padding: '16px',
-              borderBottom: '1px solid var(--color-border)',
-              backgroundColor: 'var(--color-surface)'
+            <div className="detail-header" style={{ 
+              padding: '20px',
+              borderBottom: '1px solid var(--inbox-border)',
+              backgroundColor: 'var(--inbox-bg-secondary)'
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600', margin: '0 0 4px 0' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '500', margin: '0 0 8px 0', color: 'var(--inbox-text-primary)' }}>
                     {selectedItem.subject}
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '11px', color: 'var(--color-text-muted)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px', color: 'var(--inbox-text-secondary)' }}>
                     {selectedItem.from && (
                       <span>From: {selectedItem.from.name}</span>
                     )}
@@ -1293,10 +1301,12 @@ function InboxPage() {
               {/* Context Info */}
               {((selectedItem.loan_ids || selectedItem.loanIds) || (selectedItem.assigned_to || selectedItem.assignedTo) || selectedItem.due_date) && (
                 <div style={{ 
-                  padding: '8px',
-                  backgroundColor: 'var(--color-surface-light)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '11px'
+                  padding: '12px',
+                  backgroundColor: 'var(--inbox-bg-tertiary)',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  border: '1px solid var(--inbox-border)',
+                  boxShadow: 'var(--inbox-shadow-xs)'
                 }}>
                   {(selectedItem.loan_ids || selectedItem.loanIds) && (
                     <div style={{ marginBottom: '4px' }}>
@@ -1325,7 +1335,7 @@ function InboxPage() {
             {/* Detail Body */}
             <div style={{ 
               flex: 1,
-              padding: '16px',
+              padding: '20px',
               overflow: 'auto'
             }}>
               <TaskBodyRenderer body={selectedItem.body} />
@@ -1343,12 +1353,12 @@ function InboxPage() {
               </div>
               
               {/* Quick Actions - Always show for any selected item */}
-              <div style={{ 
-                marginTop: '20px',
-                padding: '12px',
-                backgroundColor: 'var(--color-surface)',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--color-border)'
+              <div className="quick-actions" style={{ 
+                marginTop: '24px',
+                padding: '16px',
+                backgroundColor: 'var(--inbox-bg-secondary)',
+                borderRadius: '8px',
+                border: '1px solid var(--inbox-border)'
               }}>
                 <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '8px' }}>
                   QUICK ACTIONS
@@ -1379,11 +1389,12 @@ function InboxPage() {
               {/* Task Status Actions */}
               {selectedItem.type === 'task_assignment' && (
                 <div style={{ 
-                  marginTop: '20px',
-                  padding: '12px',
-                  backgroundColor: 'var(--color-surface)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--color-border)'
+                  marginTop: '24px',
+                  padding: '16px',
+                  backgroundColor: 'var(--inbox-bg-secondary)',
+                  borderRadius: '8px',
+                  border: '1px solid var(--inbox-border)',
+                  boxShadow: 'var(--inbox-shadow-sm)'
                 }}>
                   <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '8px' }}>
                     TASK STATUS
@@ -1433,11 +1444,12 @@ function InboxPage() {
               
               {selectedItem.type === 'user_message' && (
                 <div style={{ 
-                  marginTop: '20px',
-                  padding: '12px',
-                  backgroundColor: 'var(--color-surface)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--color-border)'
+                  marginTop: '24px',
+                  padding: '16px',
+                  backgroundColor: 'var(--inbox-bg-secondary)',
+                  borderRadius: '8px',
+                  border: '1px solid var(--inbox-border)',
+                  boxShadow: 'var(--inbox-shadow-sm)'
                 }}>
                   <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '8px' }}>
                     REPLY

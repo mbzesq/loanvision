@@ -1,0 +1,347 @@
+/* NPLVision Inbox Light Theme
+   Clean, modern light theme with professional aesthetics */
+
+:root {
+  /* Light Theme Color Palette */
+  --inbox-bg-primary: #ffffff;                    /* Pure white - Main content */
+  --inbox-bg-secondary: #f8fafc;                  /* Very light gray - Sidebar */
+  --inbox-bg-tertiary: #f9fafb;                   /* Light gray - Message cards */
+  --inbox-bg-surface: #ffffff;                    /* White - Elevated surfaces */
+  --inbox-bg-surface-light: #f3f4f6;              /* Light surface for badges/highlights */
+  
+  /* Text Colors with High Contrast */
+  --inbox-text-primary: #1a1a1a;                  /* Near-black - Primary text */
+  --inbox-text-secondary: #4b5563;                 /* Dark gray - Secondary text */
+  --inbox-text-muted: #6b7280;                    /* Medium gray - Muted text */
+  --inbox-text-light: #9ca3af;                    /* Light gray - Very muted text */
+  
+  /* Border Colors */
+  --inbox-border: #e5e7eb;                        /* Light gray - Dividers */
+  --inbox-border-light: #f3f4f6;                  /* Very light - Subtle borders */
+  
+  /* Brand Colors - Adjusted for light theme */
+  --inbox-primary: #2563eb;                       /* Blue - Primary actions */
+  --inbox-primary-hover: #1d4ed8;                 /* Darker blue - Hover state */
+  --inbox-primary-light: #dbeafe;                 /* Light blue - Background */
+  --inbox-primary-text: #1e40af;                  /* Dark blue - Text on light bg */
+  
+  /* Status Colors - Forest green for success */
+  --inbox-success: #059669;                       /* Forest green - Success */
+  --inbox-success-light: #d1fae5;                 /* Light green - Success bg */
+  --inbox-success-text: #047857;                  /* Dark green - Success text */
+  
+  --inbox-warning: #d97706;                       /* Amber - Warning */
+  --inbox-warning-light: #fef3c7;                 /* Light amber - Warning bg */
+  --inbox-warning-text: #92400e;                  /* Dark amber - Warning text */
+  
+  --inbox-danger: #dc2626;                        /* Red - Danger/Critical */
+  --inbox-danger-light: #fee2e2;                  /* Light red - Danger bg */
+  --inbox-danger-text: #991b1b;                   /* Dark red - Danger text */
+  
+  --inbox-info: #2563eb;                          /* Blue - Info */
+  --inbox-info-light: #dbeafe;                    /* Light blue - Info bg */
+  --inbox-info-text: #1e40af;                     /* Dark blue - Info text */
+  
+  /* Shadows - Subtle for depth */
+  --inbox-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --inbox-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --inbox-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --inbox-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  
+  /* Typography */
+  --inbox-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Hover States */
+  --inbox-hover-bg: #f3f4f6;                      /* Light gray hover background */
+  --inbox-hover-border: #d1d5db;                  /* Darker border on hover */
+  
+  /* Selected/Active States */
+  --inbox-selected-bg: #eff6ff;                   /* Very light blue - Selected items */
+  --inbox-selected-border: #bfdbfe;               /* Light blue border */
+  
+  /* Focus States */
+  --inbox-focus-ring: rgba(37, 99, 235, 0.5);    /* Blue focus ring */
+}
+
+/* Override dark theme variables for inbox pages */
+.inbox-light-theme {
+  /* Background overrides */
+  --color-background: var(--inbox-bg-primary);
+  --color-surface: var(--inbox-bg-surface);
+  --color-surface-light: var(--inbox-bg-surface-light);
+  --color-sidebar: var(--inbox-bg-secondary);
+  
+  /* Text overrides */
+  --color-text: var(--inbox-text-primary);
+  --color-text-primary: var(--inbox-text-primary);
+  --color-text-secondary: var(--inbox-text-secondary);
+  --color-text-muted: var(--inbox-text-muted);
+  
+  /* Border overrides */
+  --color-border: var(--inbox-border);
+  
+  /* Status color overrides */
+  --color-primary: var(--inbox-primary);
+  --color-success: var(--inbox-success);
+  --color-warning: var(--inbox-warning);
+  --color-danger: var(--inbox-danger);
+  --color-info: var(--inbox-info);
+  
+  /* Status background overrides */
+  --color-success-bg: var(--inbox-success-light);
+  --color-warning-bg: var(--inbox-warning-light);
+  --color-danger-bg: var(--inbox-danger-light);
+  --color-info-bg: var(--inbox-info-light);
+}
+
+/* Base styles for inbox light theme */
+.inbox-light-theme {
+  background-color: var(--inbox-bg-primary);
+  color: var(--inbox-text-primary);
+  font-family: var(--inbox-font-family);
+  font-weight: 400;
+}
+
+/* Enhanced typography for readability */
+.inbox-light-theme h1,
+.inbox-light-theme h2,
+.inbox-light-theme h3,
+.inbox-light-theme h4 {
+  color: var(--inbox-text-primary);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+/* Message list items with better contrast */
+.inbox-light-theme .inbox-message-item {
+  background-color: var(--inbox-bg-tertiary);
+  border: 1px solid var(--inbox-border);
+  box-shadow: var(--inbox-shadow-xs);
+  transition: all 150ms ease;
+}
+
+.inbox-light-theme .inbox-message-item:hover {
+  background-color: var(--inbox-bg-surface);
+  border-color: var(--inbox-hover-border);
+  box-shadow: var(--inbox-shadow-sm);
+}
+
+.inbox-light-theme .inbox-message-item.selected {
+  background-color: var(--inbox-selected-bg);
+  border-color: var(--inbox-selected-border);
+}
+
+/* Sidebar styling */
+.inbox-light-theme .inbox-sidebar {
+  background-color: var(--inbox-bg-secondary);
+  border-right: 1px solid var(--inbox-border);
+  box-shadow: var(--inbox-shadow-sm);
+}
+
+/* Button styles for light theme */
+.inbox-light-theme .btn-primary {
+  background-color: var(--inbox-primary);
+  color: white;
+  border: 1px solid var(--inbox-primary);
+  box-shadow: var(--inbox-shadow-sm);
+  font-weight: 500;
+}
+
+.inbox-light-theme .btn-primary:hover {
+  background-color: var(--inbox-primary-hover);
+  border-color: var(--inbox-primary-hover);
+  box-shadow: var(--inbox-shadow-md);
+}
+
+.inbox-light-theme .btn-secondary {
+  background-color: white;
+  color: var(--inbox-text-secondary);
+  border: 1px solid var(--inbox-border);
+  box-shadow: var(--inbox-shadow-xs);
+  font-weight: 400;
+}
+
+.inbox-light-theme .btn-secondary:hover {
+  background-color: var(--inbox-hover-bg);
+  border-color: var(--inbox-hover-border);
+  box-shadow: var(--inbox-shadow-sm);
+}
+
+/* Input fields */
+.inbox-light-theme input,
+.inbox-light-theme textarea,
+.inbox-light-theme select {
+  background-color: white;
+  border: 1px solid var(--inbox-border);
+  color: var(--inbox-text-primary);
+  font-weight: 400;
+}
+
+.inbox-light-theme input:focus,
+.inbox-light-theme textarea:focus,
+.inbox-light-theme select:focus {
+  border-color: var(--inbox-primary);
+  box-shadow: 0 0 0 3px var(--inbox-focus-ring);
+  outline: none;
+}
+
+/* Status indicators */
+.inbox-light-theme .status-indicator {
+  font-weight: 500;
+}
+
+.inbox-light-theme .status-indicator.success {
+  background-color: var(--inbox-success-light);
+  color: var(--inbox-success-text);
+  border: 1px solid var(--inbox-success);
+}
+
+.inbox-light-theme .status-indicator.warning {
+  background-color: var(--inbox-warning-light);
+  color: var(--inbox-warning-text);
+  border: 1px solid var(--inbox-warning);
+}
+
+.inbox-light-theme .status-indicator.critical,
+.inbox-light-theme .status-indicator.danger {
+  background-color: var(--inbox-danger-light);
+  color: var(--inbox-danger-text);
+  border: 1px solid var(--inbox-danger);
+}
+
+.inbox-light-theme .status-indicator.info {
+  background-color: var(--inbox-info-light);
+  color: var(--inbox-info-text);
+  border: 1px solid var(--inbox-info);
+}
+
+/* Cards and panels */
+.inbox-light-theme .card,
+.inbox-light-theme .panel {
+  background-color: white;
+  border: 1px solid var(--inbox-border);
+  box-shadow: var(--inbox-shadow-sm);
+}
+
+/* Modals */
+.inbox-light-theme .modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.inbox-light-theme .modal-content {
+  background-color: white;
+  box-shadow: var(--inbox-shadow-lg);
+  border: 1px solid var(--inbox-border);
+}
+
+/* Priority indicators */
+.inbox-light-theme .priority-urgent {
+  color: var(--inbox-danger);
+}
+
+.inbox-light-theme .priority-high {
+  color: var(--inbox-warning);
+}
+
+.inbox-light-theme .priority-normal {
+  color: var(--inbox-info);
+}
+
+.inbox-light-theme .priority-low {
+  color: var(--inbox-text-muted);
+}
+
+/* Thread expansion */
+.inbox-light-theme .thread-item {
+  border-left: 2px solid var(--inbox-border);
+  background-color: var(--inbox-bg-secondary);
+}
+
+.inbox-light-theme .thread-item:hover {
+  background-color: var(--inbox-hover-bg);
+  border-left-color: var(--inbox-primary);
+}
+
+/* Detail panel */
+.inbox-light-theme .detail-panel {
+  background-color: white;
+  border-left: 1px solid var(--inbox-border);
+}
+
+.inbox-light-theme .detail-header {
+  background-color: var(--inbox-bg-secondary);
+  border-bottom: 1px solid var(--inbox-border);
+}
+
+/* Quick actions */
+.inbox-light-theme .quick-actions {
+  background-color: var(--inbox-bg-secondary);
+  border: 1px solid var(--inbox-border);
+  box-shadow: var(--inbox-shadow-sm);
+}
+
+/* Badges */
+.inbox-light-theme .badge {
+  font-weight: 500;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+}
+
+/* Unread indicator */
+.inbox-light-theme .unread-indicator {
+  background-color: var(--inbox-primary);
+  box-shadow: var(--inbox-shadow-sm);
+}
+
+/* Checkbox styling */
+.inbox-light-theme input[type="checkbox"] {
+  border: 1px solid var(--inbox-border);
+  background-color: white;
+}
+
+.inbox-light-theme input[type="checkbox"]:checked {
+  background-color: var(--inbox-primary);
+  border-color: var(--inbox-primary);
+}
+
+/* Scrollbar styling for webkit browsers */
+.inbox-light-theme ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.inbox-light-theme ::-webkit-scrollbar-track {
+  background-color: var(--inbox-bg-secondary);
+}
+
+.inbox-light-theme ::-webkit-scrollbar-thumb {
+  background-color: var(--inbox-border);
+  border-radius: 4px;
+}
+
+.inbox-light-theme ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--inbox-text-muted);
+}
+
+/* Focus visible for accessibility */
+.inbox-light-theme *:focus-visible {
+  outline: 2px solid var(--inbox-primary);
+  outline-offset: 2px;
+}
+
+/* Ensure proper font weights throughout */
+.inbox-light-theme p,
+.inbox-light-theme div,
+.inbox-light-theme span {
+  font-weight: 400;
+}
+
+.inbox-light-theme strong,
+.inbox-light-theme b {
+  font-weight: 500;
+}
+
+.inbox-light-theme .font-semibold {
+  font-weight: 600;
+}
