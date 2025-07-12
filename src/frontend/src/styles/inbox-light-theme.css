@@ -2,12 +2,13 @@
    Clean, modern light theme with professional aesthetics */
 
 :root {
-  /* Light Theme Color Palette */
-  --inbox-bg-primary: #ffffff;                    /* Pure white - Main content */
-  --inbox-bg-secondary: #f8fafc;                  /* Very light gray - Sidebar */
-  --inbox-bg-tertiary: #f9fafb;                   /* Light gray - Message cards */
+  /* Carta-inspired Warm Color Palette */
+  --inbox-bg-primary: #fcfbf2;                    /* Warm cream - Main content */
+  --inbox-bg-secondary: #f9f8f0;                  /* Light warm gray - Sidebar */
+  --inbox-bg-tertiary: #ffffff;                   /* Pure white - Message cards */
   --inbox-bg-surface: #ffffff;                    /* White - Elevated surfaces */
-  --inbox-bg-surface-light: #f3f4f6;              /* Light surface for badges/highlights */
+  --inbox-bg-surface-light: #f9f8f0;              /* Light warm surface for highlights */
+  --inbox-bg-alternate: #f9f8f0;                  /* Very light warm gray - Alternate items */
   
   /* Text Colors with High Contrast */
   --inbox-text-primary: #1a1a1a;                  /* Near-black - Primary text */
@@ -42,11 +43,18 @@
   --inbox-info-light: #dbeafe;                    /* Light blue - Info bg */
   --inbox-info-text: #1e40af;                     /* Dark blue - Info text */
   
-  /* Shadows - Subtle for depth */
-  --inbox-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --inbox-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --inbox-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --inbox-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  /* Carta-style Shadows - Subtle but defined */
+  --inbox-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --inbox-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --inbox-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --inbox-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.08);
+  
+  /* Enhanced spacing for 50% increase */
+  --inbox-spacing-xs: 6px;    /* Was 4px */
+  --inbox-spacing-sm: 12px;   /* Was 8px */
+  --inbox-spacing-md: 18px;   /* Was 12px */
+  --inbox-spacing-lg: 24px;   /* Was 16px */
+  --inbox-spacing-xl: 36px;   /* Was 24px */
   
   /* Typography */
   --inbox-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -102,33 +110,75 @@
   font-weight: 400;
 }
 
-/* Enhanced typography for readability */
+/* Enhanced typography with bumped font weights */
 .inbox-light-theme h1,
 .inbox-light-theme h2,
 .inbox-light-theme h3,
 .inbox-light-theme h4 {
   color: var(--inbox-text-primary);
-  font-weight: 500;
+  font-weight: 600; /* Bumped from 500 */
   letter-spacing: -0.025em;
 }
 
-/* Message list items with better contrast */
+/* Message subjects and titles - more prominent */
+.inbox-light-theme .message-subject {
+  font-weight: 600; /* Semibold for subjects */
+  color: var(--inbox-text-primary);
+}
+
+/* Message content styling */
+.inbox-light-theme .message-content {
+  font-weight: 500; /* Bumped from 400 */
+  color: var(--inbox-text-primary);
+}
+
+/* Metadata and timestamps */
+.inbox-light-theme .message-metadata {
+  font-weight: 500; /* Bumped from 400 */
+  color: var(--inbox-text-muted);
+}
+
+/* General text weight bump */
+.inbox-light-theme p,
+.inbox-light-theme div,
+.inbox-light-theme span {
+  font-weight: 500; /* Bumped from 400 */
+}
+
+.inbox-light-theme strong,
+.inbox-light-theme b {
+  font-weight: 600; /* Bumped from 500 */
+}
+
+/* Carta-style message cards with white backgrounds and shadows */
 .inbox-light-theme .inbox-message-item {
-  background-color: var(--inbox-bg-tertiary);
+  background-color: var(--inbox-bg-tertiary); /* Pure white */
   border: 1px solid var(--inbox-border);
-  box-shadow: var(--inbox-shadow-xs);
-  transition: all 150ms ease;
+  box-shadow: var(--inbox-shadow-sm); /* Carta shadow: 0 1px 3px rgba(0,0,0,0.1) */
+  transition: all 200ms ease;
+  margin-bottom: var(--inbox-spacing-md); /* Increased spacing between items */
 }
 
 .inbox-light-theme .inbox-message-item:hover {
   background-color: var(--inbox-bg-surface);
   border-color: var(--inbox-hover-border);
-  box-shadow: var(--inbox-shadow-sm);
+  box-shadow: var(--inbox-shadow-md); /* Enhanced shadow on hover */
+  transform: translateY(-1px); /* Subtle lift effect */
 }
 
 .inbox-light-theme .inbox-message-item.selected {
   background-color: var(--inbox-selected-bg);
   border-color: var(--inbox-selected-border);
+  box-shadow: var(--inbox-shadow-md);
+}
+
+/* Alternate row styling for better visual separation */
+.inbox-light-theme .inbox-message-item:nth-child(even) {
+  background-color: var(--inbox-bg-alternate); /* Very light warm gray */
+}
+
+.inbox-light-theme .inbox-message-item:nth-child(even):hover {
+  background-color: var(--inbox-bg-surface);
 }
 
 /* Sidebar styling */
@@ -273,11 +323,23 @@
   border-bottom: 1px solid var(--inbox-border);
 }
 
-/* Quick actions */
-.inbox-light-theme .quick-actions {
-  background-color: var(--inbox-bg-secondary);
+/* Quick actions and reply areas - enhanced with Carta-style shadows */
+.inbox-light-theme .quick-actions,
+.inbox-light-theme .reply-area {
+  background-color: var(--inbox-bg-surface);
   border: 1px solid var(--inbox-border);
   box-shadow: var(--inbox-shadow-sm);
+  padding: var(--inbox-spacing-lg); /* Increased padding */
+  margin: var(--inbox-spacing-lg) 0; /* More breathing room */
+}
+
+.inbox-light-theme .reply-section {
+  background-color: var(--inbox-bg-surface);
+  border: 1px solid var(--inbox-border);
+  box-shadow: var(--inbox-shadow-sm);
+  border-radius: 8px;
+  padding: var(--inbox-spacing-lg);
+  margin-top: var(--inbox-spacing-xl);
 }
 
 /* Badges */
