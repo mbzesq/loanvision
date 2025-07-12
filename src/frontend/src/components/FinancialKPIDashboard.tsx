@@ -349,7 +349,7 @@ export const FinancialKPIDashboard: React.FC = () => {
           >
             <div style={{ flex: 1 }}>
               <div className="kpi-label">{kpi.label}</div>
-              <div className="kpi-value">{kpi.value}</div>
+              <div className="kpi-value metric-value">{kpi.value}</div>
               {kpi.change !== 0 && (
                 <div 
                   className="kpi-change"

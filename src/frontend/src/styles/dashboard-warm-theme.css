@@ -1,0 +1,233 @@
+/* NPLVision Dashboard Warm Theme - Carta-inspired */
+
+:root {
+  /* Warm Color Palette */
+  --dashboard-bg-primary: rgb(252, 248, 243);      /* Warm cream - Main background */
+  --dashboard-bg-card: #ffffff;                    /* Pure white - Cards */
+  --dashboard-bg-surface: #ffffff;                 /* White - Surfaces */
+  
+  /* Warm Text Colors */
+  --dashboard-text-primary: #1c1917;               /* Warm black - Primary text */
+  --dashboard-text-secondary: #78716c;             /* Warm gray - Secondary text */
+  --dashboard-text-muted: #a8a29e;                 /* Light warm gray - Muted text */
+  
+  /* Status Colors */
+  --dashboard-success: #059669;                    /* Forest green - Positive */
+  --dashboard-danger: #dc2626;                     /* Deep red - Negative */
+  --dashboard-warning: #d97706;                    /* Amber - Warning */
+  --dashboard-info: #1e40af;                       /* Navy blue - Info */
+  
+  /* Borders */
+  --dashboard-border: #e7e2dc;                     /* Warm light gray */
+  
+  /* Shadows - Using warm black base */
+  --dashboard-shadow: 0 1px 3px rgba(28, 25, 23, 0.1);
+  --dashboard-shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.06);
+  
+  /* Typography */
+  --dashboard-font-serif: Georgia, 'Times New Roman', Times, serif;
+  --dashboard-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Dashboard Warm Theme Container */
+.dashboard-warm-theme {
+  background-color: var(--dashboard-bg-primary);
+  color: var(--dashboard-text-primary);
+  font-family: var(--dashboard-font-sans);
+  min-height: 100vh;
+}
+
+/* Typography Hierarchy */
+.dashboard-warm-theme .page-title {
+  font-family: var(--dashboard-font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--dashboard-text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.dashboard-warm-theme .section-title {
+  font-family: var(--dashboard-font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
+
+.dashboard-warm-theme .metric-value {
+  font-family: var(--dashboard-font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+  letter-spacing: -0.02em;
+}
+
+/* Override financial card styles */
+.dashboard-warm-theme .financial-card {
+  background-color: var(--dashboard-bg-card);
+  border: 1px solid var(--dashboard-border);
+  box-shadow: var(--dashboard-shadow);
+  border-radius: 8px;
+  padding: calc(var(--spacing-sm) * 1.2); /* 20% increase */
+}
+
+.dashboard-warm-theme .financial-card:hover {
+  border-color: var(--dashboard-border);
+  box-shadow: 0 2px 6px rgba(28, 25, 23, 0.12);
+}
+
+/* KPI Cards with enhanced padding */
+.dashboard-warm-theme .kpi-card-dense {
+  background-color: var(--dashboard-bg-card);
+  border: 1px solid var(--dashboard-border);
+  box-shadow: var(--dashboard-shadow);
+  padding: calc(var(--spacing-sm) * 1.2);
+  min-height: 72px; /* Slightly taller for breathing room */
+}
+
+.dashboard-warm-theme .kpi-card-dense .kpi-value {
+  font-family: var(--dashboard-font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+}
+
+.dashboard-warm-theme .kpi-card-dense .kpi-label {
+  color: var(--dashboard-text-secondary);
+  font-size: 11px;
+  font-family: var(--dashboard-font-sans);
+}
+
+/* Market data bar */
+.dashboard-warm-theme .market-data-bar {
+  background-color: var(--dashboard-bg-card);
+  border: 1px solid var(--dashboard-border);
+  box-shadow: var(--dashboard-shadow-sm);
+}
+
+/* Quick stats bar */
+.dashboard-warm-theme .quick-stats {
+  background-color: var(--dashboard-bg-card);
+  box-shadow: var(--dashboard-shadow-sm);
+  border: 1px solid var(--dashboard-border);
+  padding: calc(var(--spacing-sm) * 1.2) calc(var(--spacing-md) * 1.2);
+}
+
+.dashboard-warm-theme .quick-stat .label {
+  color: var(--dashboard-text-secondary);
+  font-size: 10px;
+}
+
+.dashboard-warm-theme .quick-stat .value {
+  color: var(--dashboard-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Status indicators */
+.dashboard-warm-theme .status-indicator.success {
+  background-color: rgba(5, 150, 105, 0.1);
+  color: var(--dashboard-success);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+.dashboard-warm-theme .status-indicator.critical {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: var(--dashboard-danger);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.dashboard-warm-theme .status-indicator.warning {
+  background-color: rgba(217, 119, 6, 0.1);
+  color: var(--dashboard-warning);
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.dashboard-warm-theme .status-indicator.info {
+  background-color: rgba(30, 64, 175, 0.1);
+  color: var(--dashboard-info);
+  border: 1px solid rgba(30, 64, 175, 0.2);
+}
+
+/* Data colors */
+.dashboard-warm-theme .data-fresh {
+  color: var(--dashboard-success);
+}
+
+.dashboard-warm-theme .data-timestamp {
+  color: var(--dashboard-text-secondary);
+  font-size: 10px;
+}
+
+/* Chart backgrounds */
+.dashboard-warm-theme .recharts-wrapper {
+  background-color: var(--dashboard-bg-card);
+}
+
+/* Table styling */
+.dashboard-warm-theme .financial-table {
+  background-color: var(--dashboard-bg-card);
+}
+
+.dashboard-warm-theme .financial-table thead {
+  background-color: transparent;
+  border-bottom: 2px solid var(--dashboard-border);
+}
+
+.dashboard-warm-theme .financial-table th {
+  color: var(--dashboard-text-secondary);
+}
+
+.dashboard-warm-theme .financial-table td {
+  color: var(--dashboard-text-primary);
+}
+
+.dashboard-warm-theme .financial-table tbody tr {
+  border-bottom: 1px solid var(--dashboard-border);
+}
+
+.dashboard-warm-theme .financial-table tbody tr:hover {
+  background-color: rgba(252, 248, 243, 0.5);
+}
+
+/* Override text colors */
+.dashboard-warm-theme [style*="color: var(--color-text)"] {
+  color: var(--dashboard-text-primary) !important;
+}
+
+.dashboard-warm-theme [style*="color: var(--color-text-muted)"] {
+  color: var(--dashboard-text-secondary) !important;
+}
+
+.dashboard-warm-theme [style*="color: var(--color-text-secondary)"] {
+  color: var(--dashboard-text-secondary) !important;
+}
+
+/* Override background colors */
+.dashboard-warm-theme [style*="backgroundColor: var(--color-background)"] {
+  background-color: var(--dashboard-bg-primary) !important;
+}
+
+.dashboard-warm-theme [style*="backgroundColor: var(--color-surface)"] {
+  background-color: var(--dashboard-bg-card) !important;
+}
+
+.dashboard-warm-theme [style*="backgroundColor: var(--color-surface-dark)"] {
+  background-color: var(--dashboard-bg-card) !important;
+}
+
+/* Override border colors */
+.dashboard-warm-theme [style*="border"] {
+  border-color: var(--dashboard-border) !important;
+}
+
+/* Positive/Negative indicators */
+.dashboard-warm-theme [style*="color: var(--color-success)"] {
+  color: var(--dashboard-success) !important;
+}
+
+.dashboard-warm-theme [style*="color: var(--color-danger)"] {
+  color: var(--dashboard-danger) !important;
+}

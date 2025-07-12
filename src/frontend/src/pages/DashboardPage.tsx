@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/design-system.css';
+import '../styles/dashboard-warm-theme.css';
 
 interface LoanStatusData {
   status: string;
@@ -503,15 +504,12 @@ function DashboardPage() {
     return 'info';
   };
   return (
-    <div style={{ 
+    <div className="dashboard-warm-theme" style={{ 
       padding: '12px', 
-      minHeight: '100vh',
-      backgroundColor: 'var(--color-background)'
+      minHeight: '100vh'
     }}>
       {/* Market Data Bar */}
-      <div style={{ 
-        backgroundColor: 'var(--color-surface-dark)',
-        borderBottom: '1px solid var(--color-border)',
+      <div className="market-data-bar" style={{ 
         padding: '8px 12px',
         marginBottom: '12px'
       }}>
@@ -595,8 +593,8 @@ function DashboardPage() {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <h2 style={{ fontSize: '14px', fontWeight: '600', textTransform: 'uppercase' }}>
-            PORTFOLIO METRICS
+          <h2 className="page-title" style={{ margin: 0 }}>
+            Portfolio Metrics
           </h2>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <span className="data-timestamp">Real-time</span>
@@ -621,9 +619,10 @@ function DashboardPage() {
             paddingBottom: '8px',
             marginBottom: '12px'
           }}>
-            <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
-              PERFORMANCE TRENDS (30D)
+            <h3 className="section-title" style={{ margin: 0 }}>
+              Performance Trends
             </h3>
+            <span style={{ fontSize: '11px', color: 'var(--dashboard-text-secondary)' }}>(30 Days)</span>
           </div>
           <PerformanceTrendChart />
         </div>
@@ -635,8 +634,8 @@ function DashboardPage() {
             paddingBottom: '8px',
             marginBottom: '12px'
           }}>
-            <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
-              RISK DISTRIBUTION
+            <h3 className="section-title" style={{ margin: 0 }}>
+              Risk Distribution
             </h3>
           </div>
           <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
