@@ -151,14 +151,8 @@ export function InboxKPIs() {
         paddingBottom: '8px',
         marginBottom: '16px'
       }}>
-        <h3 style={{ 
-          fontSize: '12px', 
-          fontWeight: '600', 
-          color: 'var(--color-text-secondary)',
-          textTransform: 'uppercase',
-          margin: 0
-        }}>
-          INBOX PERFORMANCE METRICS
+        <h3 className="section-title" style={{ margin: 0 }}>
+          Inbox Performance
         </h3>
       </div>
       
@@ -168,14 +162,12 @@ export function InboxKPIs() {
         gap: '16px'
       }}>
         {kpiItems.map((item, index) => (
-          <div key={index} style={{
+          <div key={index} className="inbox-kpi-card" style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '12px',
-            backgroundColor: 'var(--color-surface)',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--color-border)'
+            borderRadius: 'var(--radius-sm)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {item.icon}
@@ -188,9 +180,8 @@ export function InboxKPIs() {
                 {item.label}
               </span>
             </div>
-            <span style={{ 
-              fontSize: '16px', 
-              fontWeight: '600',
+            <span className="metric-value" style={{ 
+              fontSize: '16px',
               color: getTrendColor(item.trend)
             }}>
               {item.value}

@@ -334,16 +334,18 @@ export const FinancialKPIDashboard: React.FC = () => {
               cursor: kpi.clickAction ? 'pointer' : 'default',
               transition: 'all 0.15s ease'
             }}
-            onMouseOver={(e) => {
+            onMouseEnter={(e) => {
               if (kpi.clickAction) {
-                e.currentTarget.style.backgroundColor = 'var(--color-surface-light)';
+                e.currentTarget.style.backgroundColor = 'rgba(252, 248, 243, 0.6)';
                 e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 2px 6px rgba(28, 25, 23, 0.12)';
               }
             }}
-            onMouseOut={(e) => {
+            onMouseLeave={(e) => {
               if (kpi.clickAction) {
-                e.currentTarget.style.backgroundColor = 'var(--color-surface)';
-                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.backgroundColor = '';
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = '';
               }
             }}
           >

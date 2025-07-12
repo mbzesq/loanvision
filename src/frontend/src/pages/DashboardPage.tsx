@@ -656,8 +656,8 @@ function DashboardPage() {
             paddingBottom: '8px',
             marginBottom: '12px'
           }}>
-            <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
-              LOAN PIPELINE & STATUS
+            <h3 className="section-title" style={{ margin: 0 }}>
+              Loan Pipeline & Status
             </h3>
           </div>
           {loading ? (
@@ -719,9 +719,10 @@ function DashboardPage() {
             paddingBottom: '8px',
             marginBottom: '12px'
           }}>
-            <h3 style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
-              RISK DISTRIBUTION - NPLVISION SCORE
+            <h3 className="section-title" style={{ margin: 0 }}>
+              Risk Distribution
             </h3>
+            <span style={{ fontSize: '11px', color: 'var(--dashboard-text-secondary)' }}>(NPLVision Score)</span>
           </div>
           <div style={{ 
             display: 'flex', 

@@ -85,6 +85,13 @@
   box-shadow: var(--dashboard-shadow);
   padding: calc(var(--spacing-sm) * 1.2);
   min-height: 72px; /* Slightly taller for breathing room */
+  transition: all 0.15s ease;
+}
+
+.dashboard-warm-theme .kpi-card-dense:hover {
+  background-color: rgba(252, 248, 243, 0.6) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 6px rgba(28, 25, 23, 0.12) !important;
 }
 
 .dashboard-warm-theme .kpi-card-dense .kpi-value {
@@ -230,4 +237,72 @@
 
 .dashboard-warm-theme [style*="color: var(--color-danger)"] {
   color: var(--dashboard-danger) !important;
+}
+
+/* ========================================
+   MISSING COMPONENTS STYLING
+   ======================================== */
+
+/* Recent Transition Box - Apply warm theme */
+.dashboard-warm-theme .recent-transition-box,
+.dashboard-warm-theme .transition-box {
+  background-color: var(--dashboard-bg-card) !important;
+  border: 1px solid var(--dashboard-border) !important;
+  box-shadow: var(--dashboard-shadow) !important;
+  color: var(--dashboard-text-primary) !important;
+}
+
+/* Inbox Performance Metrics KPIs */
+.dashboard-warm-theme .inbox-kpi-card,
+.dashboard-warm-theme .inbox-metric-card {
+  background-color: var(--dashboard-bg-card) !important;
+  border: 1px solid var(--dashboard-border) !important;
+  box-shadow: var(--dashboard-shadow) !important;
+  color: var(--dashboard-text-primary) !important;
+}
+
+.dashboard-warm-theme .inbox-kpi-card .kpi-value,
+.dashboard-warm-theme .inbox-metric-card .metric-value {
+  font-family: var(--dashboard-font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+}
+
+.dashboard-warm-theme .inbox-kpi-card .kpi-label,
+.dashboard-warm-theme .inbox-metric-card .metric-label {
+  color: var(--dashboard-text-secondary);
+  font-family: var(--dashboard-font-sans);
+}
+
+/* InboxKPIs component specific styling */
+.dashboard-warm-theme .inbox-kpis .kpi-item {
+  background-color: var(--dashboard-bg-card) !important;
+  border: 1px solid var(--dashboard-border) !important;
+  box-shadow: var(--dashboard-shadow) !important;
+}
+
+/* Any remaining dark cards */
+.dashboard-warm-theme .card,
+.dashboard-warm-theme .metric-card,
+.dashboard-warm-theme .kpi-container {
+  background-color: var(--dashboard-bg-card) !important;
+  border: 1px solid var(--dashboard-border) !important;
+  box-shadow: var(--dashboard-shadow) !important;
+  color: var(--dashboard-text-primary) !important;
+}
+
+/* Dashboard grid containers */
+.dashboard-warm-theme .dashboard-grid,
+.dashboard-warm-theme .dashboard-grid-dense {
+  background-color: transparent;
+}
+
+/* Force light theme on any dark themed cards */
+.dashboard-warm-theme [class*="dark"],
+.dashboard-warm-theme [style*="background-color: var(--color-surface-dark)"],
+.dashboard-warm-theme [style*="backgroundColor: var(--color-surface-dark)"] {
+  background-color: var(--dashboard-bg-card) !important;
+  color: var(--dashboard-text-primary) !important;
+  border-color: var(--dashboard-border) !important;
 }
