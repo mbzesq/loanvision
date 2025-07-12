@@ -976,12 +976,12 @@ function InboxPage() {
                     }}
                     className="inbox-message-item"
                     style={{
-                      padding: '24px', /* Increased by 50% */
-                      margin: '12px 18px 18px 18px', /* Increased margin and bottom spacing */
+                      padding: '24px',
+                      margin: '12px 18px 18px 18px',
                       borderRadius: '8px',
                       cursor: 'pointer',
                       backgroundColor: selectedItem?.threadId === group.thread ? 'var(--inbox-selected-bg)' : 'var(--inbox-bg-tertiary)',
-                      fontWeight: hasUnread ? '600' : '500', /* Bumped font weights */
+                      fontWeight: hasUnread ? '600' : '500',
                       border: selectedItem?.threadId === group.thread ? '1px solid var(--inbox-selected-border)' : '1px solid var(--inbox-border)'
                     }}
                   >
@@ -1127,12 +1127,12 @@ function InboxPage() {
                   className="inbox-message-item"
                   onClick={() => handleItemSelect(item)}
                   style={{
-                    padding: '24px', /* Increased by 50% */
-                    margin: '12px 18px 18px 18px', /* Increased margin and bottom spacing */
+                    padding: '24px',
+                    margin: '12px 18px 18px 18px',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     backgroundColor: selectedItem?.id === item.id ? 'var(--inbox-selected-bg)' : 'var(--inbox-bg-tertiary)',
-                    fontWeight: item.status === 'unread' ? '600' : '500', /* Bumped font weights */
+                    fontWeight: item.status === 'unread' ? '600' : '500',
                     border: selectedItem?.id === item.id ? '1px solid var(--inbox-selected-border)' : '1px solid var(--inbox-border)'
                   }}
                 >
@@ -1238,20 +1238,20 @@ function InboxPage() {
           <>
             {/* Detail Header */}
             <div className="detail-header" style={{ 
-              padding: '30px', /* Increased by 50% */
+              padding: '30px',
               borderBottom: '1px solid var(--inbox-border)',
               backgroundColor: 'var(--inbox-bg-secondary)'
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 12px 0', color: 'var(--inbox-text-primary)' }}> {/* Bumped font weight and spacing */
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 12px 0', color: 'var(--inbox-text-primary)' }}>
                     {selectedItem.subject}
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '18px', fontSize: '12px', color: 'var(--inbox-text-secondary)', justifyContent: 'space-between' }}> {/* Increased gap and right-align timestamp */
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '18px', fontSize: '12px', color: 'var(--inbox-text-secondary)', justifyContent: 'space-between' }}>
                     {selectedItem.from && (
                       <span>From: {selectedItem.from.name}</span>
                     )}
-                    <span style={{ marginLeft: 'auto' }}>{format(selectedItem.created_at || selectedItem.createdAt!, 'MMM d, yyyy HH:mm')}</span> {/* Right-aligned timestamp */
+                    <span style={{ marginLeft: 'auto' }}>{format(selectedItem.created_at || selectedItem.createdAt!, 'MMM d, yyyy HH:mm')}</span>
                     <span className={`status-indicator ${selectedItem.priority}`}>
                       {selectedItem.priority.toUpperCase()}
                     </span>
@@ -1335,7 +1335,7 @@ function InboxPage() {
             {/* Detail Body */}
             <div style={{ 
               flex: 1,
-              padding: '30px', /* Increased by 50% */
+              padding: '30px',
               overflow: 'auto'
             }}>
               <TaskBodyRenderer body={selectedItem.body} />
@@ -1354,17 +1354,17 @@ function InboxPage() {
               
               {/* Quick Actions - Always show for any selected item */}
               <div className="quick-actions" style={{ 
-                marginTop: '36px', /* Increased by 50% */
-                padding: '24px', /* Increased by 50% */
+                marginTop: '36px',
+                padding: '24px',
                 backgroundColor: 'var(--inbox-bg-secondary)',
                 borderRadius: '8px',
                 border: '1px solid var(--inbox-border)',
-                boxShadow: 'var(--inbox-shadow-sm)' /* Enhanced shadow */
+                boxShadow: 'var(--inbox-shadow-sm)'
               }}>
-                <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}> {/* Increased spacing */
+                <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}>
                   QUICK ACTIONS
                 </div>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}> {/* Increased gap */
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   <button 
                     className="btn-compact btn-primary"
                     onClick={() => setShowCreateTaskModal(true)}
@@ -1390,17 +1390,17 @@ function InboxPage() {
               {/* Task Status Actions */}
               {selectedItem.type === 'task_assignment' && (
                 <div style={{ 
-                  marginTop: '36px', /* Increased by 50% */
-                  padding: '24px', /* Increased by 50% */
+                  marginTop: '36px',
+                  padding: '24px',
                   backgroundColor: 'var(--inbox-bg-secondary)',
                   borderRadius: '8px',
                   border: '1px solid var(--inbox-border)',
                   boxShadow: 'var(--inbox-shadow-sm)'
                 }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}> {/* Increased spacing */
+                  <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}>
                     TASK STATUS
                   </div>
-                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}> {/* Increased gap */
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     {selectedItem.status === 'unread' && (
                       <button 
                         className="btn-compact btn-primary"
@@ -1445,14 +1445,14 @@ function InboxPage() {
               
               {selectedItem.type === 'user_message' && (
                 <div className="reply-section" style={{ 
-                  marginTop: '36px', /* Increased by 50% */
-                  padding: '24px', /* Increased by 50% */
+                  marginTop: '36px',
+                  padding: '24px',
                   backgroundColor: 'var(--inbox-bg-secondary)',
                   borderRadius: '8px',
                   border: '1px solid var(--inbox-border)',
                   boxShadow: 'var(--inbox-shadow-sm)'
                 }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}> {/* Increased spacing */
+                  <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '12px' }}>
                     REPLY
                   </div>
                   <textarea
@@ -1469,7 +1469,7 @@ function InboxPage() {
                       resize: 'vertical'
                     }}
                   />
-                  <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}> {/* Increased spacing and gap */
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
                     <button 
                       className="btn-compact btn-primary"
                       onClick={() => setShowReplyModal(true)}
