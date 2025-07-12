@@ -179,30 +179,17 @@ export function ReplyModal({ isOpen, onClose, originalItem, onSend }: ReplyModal
             <button 
               type="button"
               onClick={onClose}
-              style={{
-                padding: '8px 16px',
-                fontSize: '12px',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'var(--color-surface)',
-                color: 'var(--color-text-primary)',
-                cursor: 'pointer'
-              }}
+              className="btn-compact btn-tertiary"
             >
               Cancel
             </button>
             <button 
               type="submit"
               disabled={!body.trim() || sending}
+              className="btn-compact btn-primary"
               style={{
-                padding: '8px 16px',
-                fontSize: '12px',
-                border: 'none',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: sending ? 'var(--color-surface)' : 'var(--color-primary)',
-                color: 'white',
-                cursor: sending || !body.trim() ? 'not-allowed' : 'pointer',
                 opacity: sending || !body.trim() ? 0.5 : 1,
+                cursor: sending || !body.trim() ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px'

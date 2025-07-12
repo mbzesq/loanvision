@@ -711,14 +711,14 @@ function InboxPage() {
         {/* Filter Buttons */}
         <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
           <button
-            className={`btn-compact ${showOverdueFilter ? 'btn-danger' : 'btn-secondary'}`}
+            className={`btn-compact ${showOverdueFilter ? 'btn-danger' : 'btn-tertiary'}`}
             onClick={() => setShowOverdueFilter(!showOverdueFilter)}
             style={{ flex: 1, fontSize: '10px' }}
           >
             OVERDUE
           </button>
           <button
-            className={`btn-compact ${showUrgentFilter ? 'btn-warning' : 'btn-secondary'}`}
+            className={`btn-compact ${showUrgentFilter ? 'btn-warning' : 'btn-tertiary'}`}
             onClick={() => setShowUrgentFilter(!showUrgentFilter)}
             style={{ flex: 1, fontSize: '10px' }}
           >
@@ -875,7 +875,7 @@ function InboxPage() {
           
           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
             <button 
-              className={`btn-compact ${showSenderFilter ? 'btn-primary' : 'btn-secondary'}`}
+              className={`btn-compact ${showSenderFilter ? 'btn-primary' : 'btn-tertiary'}`}
               onClick={() => setShowSenderFilter(!showSenderFilter)}
               title="Filter by sender"
               style={{ position: 'relative' }}
@@ -901,7 +901,7 @@ function InboxPage() {
             </button>
             
             <button 
-              className={`btn-compact ${prioritySort ? 'btn-primary' : 'btn-secondary'}`}
+              className={`btn-compact ${prioritySort ? 'btn-primary' : 'btn-tertiary'}`}
               onClick={() => setPrioritySort(prioritySort === 'desc' ? 'asc' : prioritySort === 'asc' ? null : 'desc')}
               title={`Sort by priority: ${prioritySort === 'desc' ? 'High to Low' : prioritySort === 'asc' ? 'Low to High' : 'No sort'}`}
               style={{ position: 'relative' }}
@@ -1269,7 +1269,7 @@ function InboxPage() {
                     </button>
                   )}
                   <button 
-                    className="btn-compact btn-secondary"
+                    className="btn-compact btn-tertiary"
                     onClick={() => setShowReplyModal(true)}
                   >
                     <Reply style={{ width: '12px', height: '12px' }} />
@@ -1281,7 +1281,7 @@ function InboxPage() {
                     <Forward style={{ width: '12px', height: '12px' }} />
                   </button>
                   <button 
-                    className="btn-compact btn-secondary"
+                    className="btn-compact btn-tertiary"
                     onClick={() => handleArchiveItem(selectedItem.id)}
                   >
                     <Archive style={{ width: '12px', height: '12px' }} />
@@ -1292,7 +1292,7 @@ function InboxPage() {
                   >
                     <Trash2 style={{ width: '12px', height: '12px' }} />
                   </button>
-                  <button className="btn-compact btn-secondary">
+                  <button className="btn-compact btn-tertiary">
                     <MoreVertical style={{ width: '12px', height: '12px' }} />
                   </button>
                 </div>
