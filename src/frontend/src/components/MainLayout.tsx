@@ -35,7 +35,7 @@ export function MainLayout() {
   const isNavExpanded = !isDesktopNavCollapsed || isHoveringNav;
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen w-full" style={{ backgroundColor: 'var(--warm-cream-bg)' }}>
       {/* Desktop Layout: Sidebar + Content */}
       <div className="hidden lg:flex lg:h-screen relative">
         {/* Fixed Sidebar - Always takes minimum space but expands on hover */}
@@ -48,8 +48,8 @@ export function MainLayout() {
               isNavExpanded ? 'w-64' : 'w-16'
             } shadow-lg`} 
             style={{ 
-              backgroundColor: '#ede7de', 
-              borderRight: '1px solid var(--color-border)' 
+              backgroundColor: 'var(--warm-cream-tertiary)', 
+              borderRight: '1px solid var(--warm-cream-border)' 
             }}
             onMouseEnter={() => {
               console.log('Mouse entered nav area');
@@ -71,8 +71,8 @@ export function MainLayout() {
         <main className="flex-1 overflow-y-auto flex flex-col">
           {/* Header */}
           <header className="h-16 px-6 flex items-center justify-between" style={{ 
-            backgroundColor: '#f5f1ec', 
-            borderBottom: '1px solid var(--color-border)' 
+            backgroundColor: 'var(--warm-cream-secondary)', 
+            borderBottom: '1px solid var(--warm-cream-border)' 
           }}>
             <div className="flex items-center gap-4">
               <Button
@@ -80,7 +80,7 @@ export function MainLayout() {
                 size="sm"
                 onClick={handleDesktopNavToggle}
                 className="flex items-center gap-2"
-                style={{ color: 'var(--color-text-secondary)' }}
+                style={{ color: 'var(--warm-text-secondary)' }}
               >
                 <Menu className="h-4 w-4" />
                 <span className="text-sm font-medium">Menu</span>
@@ -103,13 +103,13 @@ export function MainLayout() {
 
         {/* Mobile Slide-out Menu */}
         <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetContent side="left" className="p-0 w-64" style={{ backgroundColor: '#ede7de' }}>
+          <SheetContent side="left" className="p-0 w-64" style={{ backgroundColor: 'var(--warm-cream-tertiary)' }}>
             <SideNav onLinkClick={() => setMobileMenuOpen(false)} />
           </SheetContent>
         </Sheet>
 
         {/* Main Page Content for Mobile */}
-        <main className="overflow-y-auto" style={{ backgroundColor: 'var(--color-background)' }}>
+        <main className="overflow-y-auto" style={{ backgroundColor: 'var(--warm-cream-bg)' }}>
           <Outlet />
         </main>
       </div>

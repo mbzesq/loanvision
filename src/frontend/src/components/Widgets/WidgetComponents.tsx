@@ -37,7 +37,7 @@ export const UPBWidget: React.FC<{ refreshKey?: number }> = ({ refreshKey }) => 
   }, [refreshKey]);
 
   if (loading || !summary) {
-    return <div className="h-full flex items-center justify-center text-gray-500">Loading...</div>;
+    return <div className="h-full flex items-center justify-center" style={{ color: 'var(--warm-text-secondary)' }}>Loading...</div>;
   }
 
   const formatCurrency = (value: number) => {
@@ -94,7 +94,7 @@ export const LoanCountWidget: React.FC<{ refreshKey?: number }> = ({ refreshKey 
   }, [refreshKey]);
 
   if (loading || !summary) {
-    return <div className="h-full flex items-center justify-center text-gray-500">Loading...</div>;
+    return <div className="h-full flex items-center justify-center" style={{ color: 'var(--warm-text-secondary)' }}>Loading...</div>;
   }
 
   return (
@@ -138,7 +138,7 @@ export const AverageBalanceWidget: React.FC<{ refreshKey?: number }> = ({ refres
   }, [refreshKey]);
 
   if (loading || !summary) {
-    return <div className="h-full flex items-center justify-center text-gray-500">Loading...</div>;
+    return <div className="h-full flex items-center justify-center" style={{ color: 'var(--warm-text-secondary)' }}>Loading...</div>;
   }
 
   const formatCurrency = (value: number) => {

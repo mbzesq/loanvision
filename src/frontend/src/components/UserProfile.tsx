@@ -46,22 +46,22 @@ export function UserProfile() {
         <button 
           className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors focus:outline-none"
           style={{
-            color: 'var(--color-text-primary)',
+            color: 'var(--warm-text-primary)',
             backgroundColor: 'transparent'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-surface-light)';
+            e.currentTarget.style.backgroundColor = 'var(--warm-card-hover)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent';
           }}
         >
-          <UserCircle className="h-8 w-8" style={{ color: 'var(--color-text-secondary)' }} />
+          <UserCircle className="h-8 w-8" style={{ color: 'var(--warm-text-secondary)' }} />
           <div className="text-left">
-            <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{user.firstName} {user.lastName}</p>
-            <p className="text-xs capitalize" style={{ color: 'var(--color-text-secondary)' }}>{user.role?.replace('_', ' ')}</p>
+            <p className="font-semibold" style={{ color: 'var(--warm-text-primary)' }}>{user.firstName} {user.lastName}</p>
+            <p className="text-xs capitalize" style={{ color: 'var(--warm-text-secondary)' }}>{user.role?.replace('_', ' ')}</p>
             {organization && (
-              <p className="text-xs truncate max-w-32" style={{ color: 'var(--color-text-muted)' }}>{organization.name}</p>
+              <p className="text-xs truncate max-w-32" style={{ color: 'var(--warm-text-muted)' }}>{organization.name}</p>
             )}
           </div>
         </button>
@@ -105,8 +105,8 @@ export function UserProfile() {
             <DropdownMenuSeparator />
             <div className="px-2 py-1.5">
               <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-slate-400" />
-                <p className="text-xs text-slate-500">Loading organization...</p>
+                <Building2 className="h-4 w-4" style={{ color: 'var(--warm-text-muted)' }} />
+                <p className="text-xs" style={{ color: 'var(--warm-text-secondary)' }}>Loading organization...</p>
               </div>
             </div>
           </>

@@ -177,7 +177,7 @@ const SOLAlertsPanel: React.FC<SOLAlertsPanelProps> = ({
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-32">
-            <div className="text-gray-500">Loading alerts...</div>
+            <div style={{ color: 'var(--warm-text-secondary)' }}>Loading alerts...</div>
           </div>
         </CardContent>
       </Card>

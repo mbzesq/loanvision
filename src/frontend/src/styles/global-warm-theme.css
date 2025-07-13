@@ -36,6 +36,23 @@
   /* Typography - Consistent Sans-Serif */
   --warm-font-serif: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --warm-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* UI Component Variables for shadcn/ui */
+  --accent: var(--warm-card-hover);
+  --accent-foreground: var(--warm-text-primary);
+  --popover: var(--warm-card-bg);
+  --popover-foreground: var(--warm-text-primary);
+  --muted: var(--warm-text-muted);
+  --muted-foreground: var(--warm-text-secondary);
+  
+  /* Legacy component compatibility */
+  --color-background: var(--warm-cream-bg);
+  --color-text-primary: var(--warm-text-primary);
+  --color-text-secondary: var(--warm-text-secondary);
+  --color-text-muted: var(--warm-text-muted);
+  --color-surface: var(--warm-card-bg);
+  --color-surface-light: var(--warm-card-hover);
+  --color-border: var(--warm-cream-border);
 }
 
 /* Global Theme Application */

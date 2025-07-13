@@ -259,7 +259,7 @@ export const WidgetDashboard: React.FC<WidgetDashboardProps> = ({
   if (!currentLayout) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Loading dashboard...</div>
+        <div style={{ color: 'var(--warm-text-secondary)' }}>Loading dashboard...</div>
       </div>
     );
   }

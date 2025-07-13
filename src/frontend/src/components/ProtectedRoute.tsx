@@ -14,10 +14,10 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
   // Show loading state while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--warm-cream-bg)' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderColor: 'var(--warm-navy)' }}></div>
+          <p className="mt-4" style={{ color: 'var(--warm-text-secondary)' }}>Loading...</p>
         </div>
       </div>
     );
@@ -31,10 +31,10 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
   // Check role-based access if roles are specified
   if (roles && user && !roles.includes(user.role)) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--warm-cream-bg)' }}>
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600">You don't have permission to access this page.</p>
+          <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--warm-text-primary)' }}>Access Denied</h1>
+          <p style={{ color: 'var(--warm-text-secondary)' }}>You don't have permission to access this page.</p>
         </div>
       </div>
     );
