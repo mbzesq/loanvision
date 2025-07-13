@@ -27,18 +27,25 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
         to={link.to}
         end
         onClick={onLinkClick}
-        className={({ isActive }) =>
+        className={({ isActive: _ }) =>
           `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-            isActive
-              ? 'text-blue-300'
-              : 'text-slate-300 hover:text-white'
-          } ${
             isCollapsed ? 'justify-center' : ''
           }`
         }
         style={({ isActive }) => ({
-          backgroundColor: isActive ? 'rgba(49, 130, 206, 0.2)' : 'transparent'
+          backgroundColor: isActive ? 'rgba(28, 25, 23, 0.1)' : 'transparent',
+          color: isActive ? '#1c1917' : '#57534e'
         }) as any}
+        onMouseEnter={(e) => {
+          if (!(e.target as HTMLElement).closest('[aria-current="page"]')) {
+            (e.target as HTMLElement).style.color = '#1c1917';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!(e.target as HTMLElement).closest('[aria-current="page"]')) {
+            (e.target as HTMLElement).style.color = '#57534e';
+          }
+        }}
       >
         <link.icon className="h-5 w-5 flex-shrink-0" />
         {!isCollapsed && <span>{link.text}</span>}
@@ -85,7 +92,9 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
             <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>N</span>
           </div>
         ) : (
-          <Logo className="h-8 w-auto text-slate-200" />
+          <div style={{ color: '#1c1917' }}>
+            <Logo className="h-8 w-auto" />
+          </div>
         )}
       </div>
 
@@ -108,7 +117,7 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
             className={`w-full ${
               isCollapsed ? 'w-8 h-8 p-0' : 'justify-start'
             }`}
-            style={{ color: 'var(--color-text-secondary)', backgroundColor: 'transparent' }}
+            style={{ color: '#57534e', backgroundColor: 'transparent' }}
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />

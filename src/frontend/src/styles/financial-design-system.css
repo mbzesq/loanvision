@@ -9,7 +9,7 @@
   --color-background: #1e293b;     /* Slate-800 - Main background (cooler, modern) */
   --color-surface: #f5f1ec;        /* Warm gray - Card backgrounds */
   --color-surface-light: #475569;  /* Slate-600 - Elevated surfaces */
-  --color-sidebar: #f5f1ec;        /* Warm gray - Sidebar background */
+  --color-sidebar: #ede7de;        /* Warm taupe - Sidebar background for visual separation */
   --color-border: #475569;         /* Slate-600 - Better contrast borders */
   --color-text-primary: #f7fafc;   /* Near white - Primary text */
   --color-text-secondary: #cbd5e1; /* Slate-300 - Brighter secondary text */

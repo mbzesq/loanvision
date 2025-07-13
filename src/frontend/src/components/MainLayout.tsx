@@ -48,7 +48,7 @@ export function MainLayout() {
               isNavExpanded ? 'w-64' : 'w-16'
             } shadow-lg`} 
             style={{ 
-              backgroundColor: '#f5f1ec', 
+              backgroundColor: '#ede7de', 
               borderRight: '1px solid var(--color-border)' 
             }}
             onMouseEnter={() => {
@@ -103,7 +103,7 @@ export function MainLayout() {
 
         {/* Mobile Slide-out Menu */}
         <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetContent side="left" className="p-0 w-64" style={{ backgroundColor: '#f5f1ec' }}>
+          <SheetContent side="left" className="p-0 w-64" style={{ backgroundColor: '#ede7de' }}>
             <SideNav onLinkClick={() => setMobileMenuOpen(false)} />
           </SheetContent>
         </Sheet>
