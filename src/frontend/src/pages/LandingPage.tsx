@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/landing-page-warm.css';
 
 interface BetaRequest {
@@ -11,8 +12,14 @@ interface BetaRequest {
   additionalInfo: string;
 }
 
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState<BetaRequest>({
     fullName: '',
     email: '',
@@ -21,9 +28,16 @@ const LandingPage: React.FC = () => {
     portfolioSize: '',
     additionalInfo: ''
   });
+  const [loginData, setLoginData] = useState<LoginFormData>({
+    email: '',
+    password: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -31,6 +45,30 @@ const LandingPage: React.FC = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleLoginInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLoginData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (loginError) setLoginError(null);
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError(null);
+
+    try {
+      await login(loginData);
+      navigate('/today');
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,7 +115,7 @@ const LandingPage: React.FC = () => {
   };
 
   const handleLogin = () => {
-    navigate('/login');
+    setShowLoginForm(!showLoginForm);
   };
 
   return (
@@ -119,17 +157,16 @@ const LandingPage: React.FC = () => {
       <section className="hero-section">
         <div className="container">
           <div className="hero-content">
-            <h1 className="hero-title">Turn mortgage data into investment alpha</h1>
+            <h1 className="hero-title">From mortgage data to investment alpha</h1>
             <p className="hero-subtitle">
-              Sophisticated analytics platform for mortgage investors and fund managers. 
-              Maximize portfolio returns, minimize risk exposure, and make data-driven investment decisions.
+              Sophisticated analytics platform that helps mortgage investors and fund managers maximize portfolio returns, minimize risk exposure, and make data-driven investment decisions.
             </p>
             <div className="hero-actions">
               <button 
                 className="btn-primary-lg" 
-                onClick={() => scrollToSection('beta-access')}
+                onClick={() => window.open('https://nplvision.com/demo', '_blank')}
               >
-                Request Beta Access
+                View Live Demo
               </button>
               <button 
                 className="btn-secondary-lg" 
@@ -138,6 +175,56 @@ const LandingPage: React.FC = () => {
                 Learn More
               </button>
             </div>
+            
+            {/* Inline Login Form */}
+            {showLoginForm && (
+              <div className="inline-login-form">
+                <form onSubmit={handleLoginSubmit}>
+                  <div className="login-form-header">
+                    <h3>Sign In to Your Account</h3>
+                    <button 
+                      type="button" 
+                      className="close-login"
+                      onClick={() => setShowLoginForm(false)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="login-form-fields">
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Email address"
+                      value={loginData.email}
+                      onChange={handleLoginInputChange}
+                      required
+                      disabled={loginLoading}
+                    />
+                    <input
+                      type="password"
+                      name="password"
+                      placeholder="Password"
+                      value={loginData.password}
+                      onChange={handleLoginInputChange}
+                      required
+                      disabled={loginLoading}
+                    />
+                  </div>
+                  {loginError && (
+                    <div className="login-error">
+                      {loginError}
+                    </div>
+                  )}
+                  <button 
+                    type="submit" 
+                    className="btn-primary login-submit"
+                    disabled={loginLoading}
+                  >
+                    {loginLoading ? 'Signing In...' : 'Sign In'}
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
           <div className="hero-visual">
             <div className="dashboard-preview">
@@ -145,16 +232,24 @@ const LandingPage: React.FC = () => {
                 <div className="preview-header">Portfolio Dashboard</div>
                 <div className="preview-metrics">
                   <div className="metric">
-                    <span className="metric-value">$2.4B</span>
+                    <span className="metric-value">$4.7B</span>
                     <span className="metric-label">Assets Under Management</span>
                   </div>
                   <div className="metric">
-                    <span className="metric-value">12.8%</span>
+                    <span className="metric-value">18.3%</span>
                     <span className="metric-label">Portfolio IRR</span>
                   </div>
                   <div className="metric">
-                    <span className="metric-value">1,247</span>
+                    <span className="metric-value">2,847</span>
                     <span className="metric-label">Active Loans</span>
+                  </div>
+                  <div className="metric">
+                    <span className="metric-value">$287M</span>
+                    <span className="metric-label">YTD Recovery Value</span>
+                  </div>
+                  <div className="metric">
+                    <span className="metric-value">15.2%</span>
+                    <span className="metric-label">Alpha vs Benchmark</span>
                   </div>
                 </div>
               </div>
