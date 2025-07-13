@@ -154,7 +154,7 @@ function UploadPage() {
     <div className="global-warm-theme p-6 max-w-6xl mx-auto" style={{ minHeight: '100vh' }}>
       {/* Page Header */}
       <div className="mb-8">
-        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: 'var(--warm-text-primary)', marginBottom: '8px' }}>Import Data</h1>
+        <h1 style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', fontSize: '28px', fontWeight: '700', color: 'var(--warm-text-primary)', marginBottom: '8px' }}>Import Data</h1>
         <p style={{ fontSize: '16px', color: 'var(--warm-text-secondary)' }}>Upload files or connect to external data sources.</p>
       </div>
 
@@ -217,7 +217,7 @@ function UploadPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <UploadCloud className={`h-12 w-12 mx-auto ${isDragOver ? 'text-blue-600' : 'text-slate-400'}`} />
+                  <UploadCloud className={`h-12 w-12 mx-auto ${isDragOver ? 'text-slate-400' : 'text-slate-400'}`} style={isDragOver ? { color: '#1e40af' } : {}} />
                   <div className="space-y-1">
                     <p className="text-lg font-medium text-slate-900">
                       Drag and drop your file here

@@ -24,8 +24,8 @@
   --dashboard-shadow: 0 1px 3px rgba(28, 25, 23, 0.1);
   --dashboard-shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.06);
   
-  /* Typography */
-  --dashboard-font-serif: Georgia, 'Times New Roman', Times, serif;
+  /* Typography - Consistent Sans-Serif */
+  --dashboard-font-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --dashboard-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -37,31 +37,31 @@
   min-height: 100vh;
 }
 
-/* Typography Hierarchy */
+/* Typography Hierarchy - Clean Sans-Serif */
 .dashboard-warm-theme .page-title {
-  font-family: var(--dashboard-font-serif);
+  font-family: var(--dashboard-font-sans);
   font-size: 28px;
   font-weight: 700;
   color: var(--dashboard-text-primary);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
 .dashboard-warm-theme .section-title {
-  font-family: var(--dashboard-font-serif);
+  font-family: var(--dashboard-font-sans);
   font-size: 20px;
   font-weight: 600;
   color: var(--dashboard-text-primary);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
   line-height: 1.3;
 }
 
 .dashboard-warm-theme .metric-value {
-  font-family: var(--dashboard-font-serif);
+  font-family: var(--dashboard-font-sans);
   font-size: 18px;
   font-weight: 600;
   color: var(--dashboard-text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 /* Override financial card styles */
@@ -95,7 +95,7 @@
 }
 
 .dashboard-warm-theme .kpi-card-dense .kpi-value {
-  font-family: var(--dashboard-font-serif);
+  font-family: var(--dashboard-font-sans);
   font-size: 20px;
   font-weight: 600;
   color: var(--dashboard-text-primary);
@@ -279,7 +279,7 @@
 
 .dashboard-warm-theme .inbox-kpi-card .kpi-value,
 .dashboard-warm-theme .inbox-metric-card .metric-value {
-  font-family: var(--dashboard-font-serif);
+  font-family: var(--dashboard-font-sans);
   font-size: 18px;
   font-weight: 600;
   color: var(--dashboard-text-primary);

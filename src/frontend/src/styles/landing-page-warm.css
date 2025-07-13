@@ -31,8 +31,8 @@
   --warm-shadow-lg: 0 8px 16px rgba(28, 25, 23, 0.15);
   --warm-shadow-xl: 0 16px 32px rgba(28, 25, 23, 0.18);
   
-  /* Typography */
-  --font-serif: Georgia, 'Times New Roman', serif;
+  /* Typography - Consistent Sans-Serif */
+  --font-serif: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   
   /* Spacing and Layout */
@@ -80,9 +80,9 @@
 }
 
 .nav-brand .logo {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 28px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--warm-text-primary);
   margin: 0;
   letter-spacing: -0.02em;
@@ -268,9 +268,9 @@
 }
 
 .hero-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 52px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.1;
   color: var(--warm-text-primary);
   margin: 0 0 24px 0;
@@ -331,7 +331,7 @@
 }
 
 .preview-header {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 18px;
   font-weight: 600;
   color: var(--warm-text-primary);
@@ -398,7 +398,7 @@
 }
 
 .section-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 40px;
   font-weight: 600;
   text-align: center;
@@ -464,7 +464,7 @@
 }
 
 .feature-card h3 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 22px;
   font-weight: 600;
   color: var(--warm-text-primary);
@@ -500,7 +500,7 @@
 }
 
 .solution-card h3 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 24px;
   font-weight: 600;
   color: var(--warm-text-primary);
@@ -616,7 +616,7 @@
 }
 
 .success-message h3 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 28px;
   color: var(--warm-text-primary);
   margin: 0 0 16px 0;
@@ -643,7 +643,7 @@
 }
 
 .footer-brand h3 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 24px;
   color: var(--warm-cream-bg);
   margin: 0 0 12px 0;
@@ -866,7 +866,7 @@ html {
 }
 
 .login-form-header h3 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 20px;
   font-weight: 600;
   color: var(--warm-text-primary);

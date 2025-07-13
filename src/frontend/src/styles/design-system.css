@@ -2,10 +2,10 @@
 
 /* ===== CSS CUSTOM PROPERTIES ===== */
 :root {
-  /* Color Palette */
-  --primary-blue: #2563EB;
-  --primary-blue-light: #3B82F6;
-  --primary-blue-dark: #1D4ED8;
+  /* Color Palette - Standardized Navy Blue */
+  --primary-blue: #1e40af;
+  --primary-blue-light: #2563eb;
+  --primary-blue-dark: #1d4ed8;
   
   --success-green: #10B981;
   --success-green-light: #34D399;

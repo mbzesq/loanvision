@@ -115,7 +115,7 @@ const AlertSettingsPage: React.FC = () => {
         name: 'Portfolio Level',
         description: 'Portfolio-wide opportunities and risks',
         icon: Package,
-        color: 'text-blue-600',
+        color: 'text-blue-700',
         examples: ['Securitization opportunities', 'Portfolio-wide trends']
       },
       sol: {
@@ -149,7 +149,7 @@ const AlertSettingsPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Settings className="h-6 w-6 text-blue-600" />
+            <Settings className="h-6 w-6" style={{ color: '#1e40af' }} />
             Alert Settings
           </h1>
           <p className="text-slate-600 mt-1">
@@ -187,7 +187,7 @@ const AlertSettingsPage: React.FC = () => {
                     const isEnabled = settings.enabledCategories.includes(category);
                     
                     return (
-                      <div key={category} className={`border rounded-lg p-4 ${isEnabled ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'}`}>
+                      <div key={category} className={`border rounded-lg p-4 ${isEnabled ? 'bg-blue-50' : 'bg-gray-50'}`} style={isEnabled ? { borderColor: '#1e40af' } : {}}>
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3 flex-1">
                             <div className={info.color}>

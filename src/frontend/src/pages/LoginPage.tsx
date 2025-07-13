@@ -64,7 +64,7 @@ export default function LoginPage() {
     <div className="global-warm-theme min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center" style={{ fontFamily: 'Georgia, serif', color: 'var(--warm-text-primary)' }}>Welcome back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: '700', color: 'var(--warm-text-primary)' }}>Welcome back</CardTitle>
           <CardDescription className="text-center" style={{ color: 'var(--warm-text-secondary)' }}>
             Sign in to your NPLVision account
           </CardDescription>
@@ -105,7 +105,7 @@ export default function LoginPage() {
             {/* Temporarily hidden - Sign up functionality preserved for future restoration
             <p className="text-sm text-center text-gray-600">
               Don't have an account?{' '}
-              <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to="/register" className="font-medium" style={{ color: 'var(--warm-navy)' }}>
                 Sign up
               </Link>
             </p>
