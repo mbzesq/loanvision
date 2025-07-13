@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 import '../styles/landing-page-warm.css';
 
 interface BetaRequest {
@@ -35,9 +36,9 @@ const LandingPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showLoginForm, setShowLoginForm] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -56,20 +57,6 @@ const LandingPage: React.FC = () => {
     if (loginError) setLoginError(null);
   };
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginLoading(true);
-    setLoginError(null);
-
-    try {
-      await login(loginData);
-      navigate('/today');
-    } catch (error) {
-      setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
-    } finally {
-      setLoginLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,8 +101,19 @@ const LandingPage: React.FC = () => {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleLogin = () => {
-    setShowLoginForm(!showLoginForm);
+  const handleLoginSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setLoginLoading(true);
+    setLoginError(null);
+
+    try {
+      await login(loginData);
+      navigate('/today');
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   return (
@@ -132,8 +130,49 @@ const LandingPage: React.FC = () => {
             <a href="#beta-access" onClick={(e) => { e.preventDefault(); scrollToSection('beta-access'); }}>Beta Access</a>
           </nav>
           <div className="auth-actions">
-            <button className="btn-secondary" onClick={handleLogin}>Log In</button>
+            <div className="inline-login-fields">
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                className="login-input-field"
+                value={loginData.email}
+                onChange={handleLoginInputChange}
+                disabled={loginLoading}
+              />
+              <div className="password-input-container">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Password"
+                  className="login-input-field password-field"
+                  value={loginData.password}
+                  onChange={handleLoginInputChange}
+                  disabled={loginLoading}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <button 
+                className="btn-secondary login-btn" 
+                onClick={handleLoginSubmit}
+                disabled={loginLoading || !loginData.email || !loginData.password}
+              >
+                {loginLoading ? 'Signing In...' : 'Login'}
+              </button>
+            </div>
             <button className="btn-primary" onClick={() => scrollToSection('beta-access')}>Get Started</button>
+            {loginError && (
+              <div className="login-error-inline">
+                {loginError}
+              </div>
+            )}
           </div>
           <button 
             className="mobile-menu-button"
@@ -147,7 +186,43 @@ const LandingPage: React.FC = () => {
             <a href="#features" onClick={(e) => { e.preventDefault(); scrollToSection('features'); setIsMobileMenuOpen(false); }}>Features</a>
             <a href="#solutions" onClick={(e) => { e.preventDefault(); scrollToSection('solutions'); setIsMobileMenuOpen(false); }}>Solutions</a>
             <a href="#beta-access" onClick={(e) => { e.preventDefault(); scrollToSection('beta-access'); setIsMobileMenuOpen(false); }}>Beta Access</a>
-            <button className="btn-secondary" onClick={() => { handleLogin(); setIsMobileMenuOpen(false); }}>Log In</button>
+            <div className="mobile-login-fields">
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                className="login-input-field mobile"
+                value={loginData.email}
+                onChange={handleLoginInputChange}
+                disabled={loginLoading}
+              />
+              <div className="password-input-container">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Password"
+                  className="login-input-field password-field mobile"
+                  value={loginData.password}
+                  onChange={handleLoginInputChange}
+                  disabled={loginLoading}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <button 
+                className="btn-secondary login-btn" 
+                onClick={() => { handleLoginSubmit(); setIsMobileMenuOpen(false); }}
+                disabled={loginLoading || !loginData.email || !loginData.password}
+              >
+                {loginLoading ? 'Signing In...' : 'Login'}
+              </button>
+            </div>
             <button className="btn-primary" onClick={() => { scrollToSection('beta-access'); setIsMobileMenuOpen(false); }}>Get Started</button>
           </nav>
         </div>
@@ -176,55 +251,6 @@ const LandingPage: React.FC = () => {
               </button>
             </div>
             
-            {/* Inline Login Form */}
-            {showLoginForm && (
-              <div className="inline-login-form">
-                <form onSubmit={handleLoginSubmit}>
-                  <div className="login-form-header">
-                    <h3>Sign In to Your Account</h3>
-                    <button 
-                      type="button" 
-                      className="close-login"
-                      onClick={() => setShowLoginForm(false)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                  <div className="login-form-fields">
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Email address"
-                      value={loginData.email}
-                      onChange={handleLoginInputChange}
-                      required
-                      disabled={loginLoading}
-                    />
-                    <input
-                      type="password"
-                      name="password"
-                      placeholder="Password"
-                      value={loginData.password}
-                      onChange={handleLoginInputChange}
-                      required
-                      disabled={loginLoading}
-                    />
-                  </div>
-                  {loginError && (
-                    <div className="login-error">
-                      {loginError}
-                    </div>
-                  )}
-                  <button 
-                    type="submit" 
-                    className="btn-primary login-submit"
-                    disabled={loginLoading}
-                  >
-                    {loginLoading ? 'Signing In...' : 'Sign In'}
-                  </button>
-                </form>
-              </div>
-            )}
           </div>
           <div className="hero-visual">
             <div className="dashboard-preview">
