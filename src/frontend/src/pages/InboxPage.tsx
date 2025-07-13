@@ -727,7 +727,16 @@ function InboxPage() {
         </div>
 
         {/* Messages Section */}
-        <div className="section-label-serif" style={{ color: 'var(--color-text-secondary)', marginBottom: '8px', marginTop: '4px' }}>
+        <div style={{ 
+          color: 'var(--color-text-secondary)', 
+          marginBottom: '8px', 
+          marginTop: '4px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          fontSize: '12px',
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em'
+        }}>
           Messages
         </div>
         
@@ -769,7 +778,16 @@ function InboxPage() {
         ))}
 
         {/* Tasks Section */}
-        <div className="section-label-serif" style={{ color: 'var(--color-text-secondary)', marginTop: '20px', marginBottom: '8px' }}>
+        <div style={{ 
+          color: 'var(--color-text-secondary)', 
+          marginTop: '20px', 
+          marginBottom: '8px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          fontSize: '12px',
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em'
+        }}>
           Tasks
         </div>
         
@@ -811,7 +829,16 @@ function InboxPage() {
         ))}
 
         {/* Deleted Section */}
-        <div className="section-label-serif" style={{ color: 'var(--color-text-secondary)', marginTop: '20px', marginBottom: '8px' }}>
+        <div style={{ 
+          color: 'var(--color-text-secondary)', 
+          marginTop: '20px', 
+          marginBottom: '8px',
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+          fontSize: '12px',
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em'
+        }}>
           Deleted Items
         </div>
         
@@ -864,7 +891,13 @@ function InboxPage() {
           justifyContent: 'space-between'
         }}>
           <div>
-            <h2 className="page-title" style={{ margin: '0 0 8px 0' }}>
+            <h2 className="page-title" style={{ 
+              margin: '0 0 8px 0',
+              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+              fontSize: '28px',
+              fontWeight: '700',
+              color: '#1c1917'
+            }}>
               Inbox
             </h2>
             <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
@@ -1361,7 +1394,13 @@ function InboxPage() {
                 border: '1px solid var(--inbox-border)',
                 boxShadow: 'var(--inbox-shadow-sm)'
               }}>
-                <div className="section-label-serif" style={{ marginBottom: '12px' }}>
+                <div style={{ 
+                  marginBottom: '12px',
+                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: 'var(--color-text-primary)'
+                }}>
                   Quick Actions
                 </div>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -1397,7 +1436,13 @@ function InboxPage() {
                   border: '1px solid var(--inbox-border)',
                   boxShadow: 'var(--inbox-shadow-sm)'
                 }}>
-                  <div className="section-label-serif" style={{ marginBottom: '12px' }}>
+                  <div style={{ 
+                    marginBottom: '12px',
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    color: 'var(--color-text-primary)'
+                  }}>
                     Task Status
                   </div>
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -1452,7 +1497,13 @@ function InboxPage() {
                   border: '1px solid var(--inbox-border)',
                   boxShadow: 'var(--inbox-shadow-sm)'
                 }}>
-                  <div className="section-label-serif" style={{ marginBottom: '12px' }}>
+                  <div style={{ 
+                    marginBottom: '12px',
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    color: 'var(--color-text-primary)'
+                  }}>
                     Reply
                   </div>
                   <textarea

@@ -60,9 +60,9 @@
   --inbox-spacing-lg: 24px;   /* Was 16px */
   --inbox-spacing-xl: 36px;   /* Was 24px */
   
-  /* Typography System */
+  /* Typography System - Clean Sans-Serif for Data-Focused Interface */
   --inbox-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --inbox-font-family-serif: Georgia, 'Times New Roman', Times, serif;
+  --inbox-font-family-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
   /* Typography Sizes */
   --inbox-font-size-page-title: 28px;    /* Page titles like INBOX */
@@ -443,13 +443,13 @@
    CARTA-STYLE TYPOGRAPHY HIERARCHY
    ======================================== */
 
-/* Page Titles - Large Serif */
+/* Page Titles - Large Sans-Serif for Dashboard Consistency */
 .inbox-light-theme .page-title {
-  font-family: var(--inbox-font-family-serif);
+  font-family: var(--inbox-font-family);
   font-size: var(--inbox-font-size-page-title);
   font-weight: 700;
   color: var(--inbox-text-primary);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
@@ -463,9 +463,9 @@
   line-height: 1.3;
 }
 
-/* Message Subjects - Small Serif for Elegance */
+/* Message Subjects - Small Sans-Serif for Consistency */
 .inbox-light-theme .message-subject-serif {
-  font-family: var(--inbox-font-family-serif);
+  font-family: var(--inbox-font-family);
   font-size: var(--inbox-font-size-subject);
   font-weight: 500;
   color: var(--inbox-text-primary);
@@ -475,15 +475,15 @@
 
 /* Override H2 in inbox for page title styling */
 .inbox-light-theme h2.page-title {
-  font-family: var(--inbox-font-family-serif);
+  font-family: var(--inbox-font-family);
   font-size: var(--inbox-font-size-page-title);
   font-weight: 700;
   margin: 0;
 }
 
-/* Override section labels to use serif when marked */
+/* Override section labels to use consistent sans-serif */
 .inbox-light-theme .section-label-serif {
-  font-family: var(--inbox-font-family-serif);
+  font-family: var(--inbox-font-family);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
