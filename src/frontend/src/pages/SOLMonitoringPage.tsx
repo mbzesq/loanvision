@@ -5,6 +5,7 @@ import SOLMonitorCard from '../components/Dashboard/SOLMonitorCard';
 import SOLLoanDetailsModal from '../components/SOL/SOLLoanDetailsModal';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import '../styles/financial-design-system.css';
+import '../styles/global-warm-theme.css';
 
 interface SOLTrendData {
   month: string;
@@ -269,10 +270,9 @@ const SOLMonitoringPage: React.FC = () => {
     (trendData[trendData.length - 2].expired + trendData[trendData.length - 2].highRisk) : 0;
 
   return (
-    <div style={{ 
-      padding: '12px', 
-      minHeight: '100vh',
-      backgroundColor: 'var(--color-background)' 
+    <div className="global-warm-theme" style={{ 
+      padding: '12px',
+      minHeight: '100vh' 
     }}>
       {/* Header */}
       <div className="quick-stats" style={{ marginBottom: '16px' }}>

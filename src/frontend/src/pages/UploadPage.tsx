@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/use-toast';
 import CollateralUploader from '../components/CollateralUploader';
+import '../styles/global-warm-theme.css';
 
 interface UploadResponse {
   status: string;
@@ -150,11 +151,11 @@ function UploadPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="global-warm-theme p-6 max-w-6xl mx-auto" style={{ minHeight: '100vh' }}>
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Import Data</h1>
-        <p className="text-lg text-slate-600">Upload files or connect to external data sources.</p>
+        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: 'var(--warm-text-primary)', marginBottom: '8px' }}>Import Data</h1>
+        <p style={{ fontSize: '16px', color: 'var(--warm-text-secondary)' }}>Upload files or connect to external data sources.</p>
       </div>
 
       {/* Three Column Grid */}

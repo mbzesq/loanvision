@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AlertCircle, TrendingUp, Scale, FileText, DollarSign, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import '../styles/design-system.css';
+import '../styles/global-warm-theme.css';
 
 // Mock data structure for alerts
 interface Alert {
@@ -169,7 +170,7 @@ function TodayPage() {
   };
 
   return (
-    <div style={{ 
+    <div className="global-warm-theme" style={{ 
       padding: '12px', 
       minHeight: '100vh',
       backgroundColor: 'var(--color-background)'

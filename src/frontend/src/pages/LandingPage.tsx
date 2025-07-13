@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/landing-page.css';
+import '../styles/landing-page-warm.css';
 
 interface BetaRequest {
   fullName: string;

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { alertService, AlertSettings, AlertCategory, defaultAlertSettings } from '../services/alertService';
 import { useToast } from '../hooks/use-toast';
+import '../styles/global-warm-theme.css';
 
 const AlertSettingsPage: React.FC = () => {
   const [settings, setSettings] = useState<AlertSettings>(defaultAlertSettings);
@@ -143,7 +144,7 @@ const AlertSettingsPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="global-warm-theme p-6 space-y-6" style={{ minHeight: '100vh' }}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -6,6 +6,7 @@ import { LoanDetailModal } from '../components/LoanDetailModal';
 import { getOverallLoanStatus } from '../lib/timelineUtils';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import '../styles/financial-design-system.css';
+import '../styles/global-warm-theme.css';
 
 interface ForeclosureTrendData {
   month: string;
@@ -184,7 +185,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
   }
 
   return (
-    <div style={{ 
+    <div className="global-warm-theme" style={{ 
       padding: '12px', 
       minHeight: '100vh',
       backgroundColor: 'var(--color-background)'

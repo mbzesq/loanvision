@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '../hooks/use-toast';
 import { LoginRequest } from '../types/auth';
 import { useAuth } from '../contexts/AuthContext';
+import '../styles/global-warm-theme.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -60,11 +61,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="global-warm-theme min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl font-bold text-center" style={{ fontFamily: 'Georgia, serif', color: 'var(--warm-text-primary)' }}>Welcome back</CardTitle>
+          <CardDescription className="text-center" style={{ color: 'var(--warm-text-secondary)' }}>
             Sign in to your NPLVision account
           </CardDescription>
         </CardHeader>

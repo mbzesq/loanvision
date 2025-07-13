@@ -12,6 +12,7 @@ import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '../lib/states';
 import '../styles/financial-design-system.css';
+import '../styles/global-warm-theme.css';
 import {
   createColumnHelper,
   flexRender,
@@ -619,12 +620,11 @@ function LoanExplorerPage() {
 
   if (loading) {
     return (
-      <div style={{ 
+      <div className="global-warm-theme" style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        minHeight: '100vh',
-        backgroundColor: 'var(--color-background)' 
+        minHeight: '100vh'
       }}>
         <div style={{ 
           fontSize: '14px', 
@@ -638,12 +638,11 @@ function LoanExplorerPage() {
 
   if (error) {
     return (
-      <div style={{ 
+      <div className="global-warm-theme" style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        minHeight: '100vh',
-        backgroundColor: 'var(--color-background)' 
+        minHeight: '100vh'
       }}>
         <div style={{ 
           fontSize: '14px', 
@@ -654,10 +653,9 @@ function LoanExplorerPage() {
   }
 
   return (
-    <div style={{ 
+    <div className="global-warm-theme" style={{ 
       padding: '12px', 
-      minHeight: '100vh',
-      backgroundColor: 'var(--color-background)' 
+      minHeight: '100vh'
     }}>
       {/* Page Header */}
       <div className="quick-stats" style={{ marginBottom: '16px' }}>

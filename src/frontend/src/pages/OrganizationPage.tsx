@@ -5,6 +5,7 @@ import { Organization } from '../types/auth';
 import organizationService, { OrganizationUser, OrganizationInvitation } from '../services/organizationService';
 import { Users, Mail, Plus, Clock, ArrowRight, BookOpen } from 'lucide-react';
 import '../styles/financial-design-system.css';
+import '../styles/global-warm-theme.css';
 
 export default function OrganizationPage() {
   const { user } = useAuth();
@@ -163,7 +164,7 @@ export default function OrganizationPage() {
   const canManageUsers = user && ['admin', 'super_user'].includes(user.role);
 
   return (
-    <div style={{
+    <div className="global-warm-theme" style={{
       minHeight: '100vh',
       backgroundColor: 'var(--color-background)',
       color: 'var(--color-text-primary)'

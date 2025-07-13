@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../utils/axios';
 import '../styles/financial-design-system.css';
+import '../styles/global-warm-theme.css';
 import { useToast } from '../hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
@@ -180,7 +181,7 @@ const LoanDetailPage = () => {
     : null;
 
   return (
-    <div style={{ padding: '8px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div className="global-warm-theme" style={{ padding: '8px', maxWidth: '1400px', margin: '0 auto', minHeight: '100vh' }}>
       {/* Header Section - Very Compact */}
       <div style={{ 
         display: 'grid', 

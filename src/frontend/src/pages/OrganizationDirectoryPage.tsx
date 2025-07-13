@@ -17,6 +17,7 @@ import {
   List
 } from 'lucide-react';
 import '../styles/financial-design-system.css';
+import '../styles/global-warm-theme.css';
 
 type ViewMode = 'grid' | 'list' | 'hierarchy';
 
@@ -145,9 +146,8 @@ export default function OrganizationDirectoryPage() {
 
   if (loading) {
     return (
-      <div style={{
+      <div className="global-warm-theme" style={{
         minHeight: '100vh',
-        backgroundColor: 'var(--color-background)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'

@@ -1,0 +1,295 @@
+/* Global Warm Cream Theme for NPLVision Platform */
+/* Applies Carta-inspired design to all pages */
+
+:root {
+  /* Primary Color Palette - Warm Cream Base */
+  --warm-cream-bg: rgb(252, 248, 243);           /* Main background */
+  --warm-cream-secondary: #f5f1ec;               /* Secondary backgrounds */
+  --warm-cream-tertiary: #ede7de;                /* Sidebar and accents */
+  --warm-cream-border: #e7e2dc;                  /* Borders and dividers */
+  
+  /* Text Colors - Warm Tones */
+  --warm-text-primary: #1c1917;                  /* Primary text - warm black */
+  --warm-text-secondary: #78716c;                /* Secondary text - warm gray */
+  --warm-text-muted: #a8a29e;                    /* Muted text */
+  --warm-text-accent: #57534e;                   /* Inactive nav items */
+  
+  /* Action Colors - Professional */
+  --warm-navy: #1e40af;                          /* Primary buttons */
+  --warm-charcoal: #374151;                      /* Secondary buttons */
+  --warm-success: #065f46;                       /* Success states */
+  --warm-warning: #92400e;                       /* Warning states */
+  --warm-danger: #991b1b;                        /* Error states */
+  --warm-info: #1e40af;                          /* Info states */
+  
+  /* Card and Surface Colors */
+  --warm-card-bg: #ffffff;                       /* Card backgrounds */
+  --warm-card-hover: rgba(252, 248, 243, 0.6);  /* Hover states */
+  --warm-input-bg: #ffffff;                      /* Input backgrounds */
+  --warm-input-border: #e7e2dc;                  /* Input borders */
+  
+  /* Shadows - Subtle and Warm */
+  --warm-shadow-sm: 0 1px 3px rgba(28, 25, 23, 0.08);
+  --warm-shadow-md: 0 2px 6px rgba(28, 25, 23, 0.12);
+  --warm-shadow-lg: 0 4px 12px rgba(28, 25, 23, 0.15);
+  
+  /* Typography */
+  --warm-font-serif: Georgia, 'Times New Roman', serif;
+  --warm-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Global Theme Application */
+.global-warm-theme {
+  background-color: var(--warm-cream-bg) !important;
+  color: var(--warm-text-primary) !important;
+  font-family: var(--warm-font-sans) !important;
+}
+
+/* Page Headers and Titles */
+.global-warm-theme h1,
+.global-warm-theme h2,
+.global-warm-theme h3,
+.global-warm-theme .page-title {
+  font-family: var(--warm-font-serif) !important;
+  color: var(--warm-text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.global-warm-theme h1 { font-size: 28px !important; }
+.global-warm-theme h2 { font-size: 24px !important; }
+.global-warm-theme h3 { font-size: 20px !important; }
+
+/* Cards and Panels */
+.global-warm-theme .financial-card,
+.global-warm-theme .card,
+.global-warm-theme .panel {
+  background-color: var(--warm-card-bg) !important;
+  border: 1px solid var(--warm-cream-border) !important;
+  box-shadow: var(--warm-shadow-sm) !important;
+  border-radius: 8px !important;
+}
+
+/* Buttons */
+.global-warm-theme .btn-primary,
+.global-warm-theme button[class*="primary"] {
+  background-color: var(--warm-navy) !important;
+  border-color: var(--warm-navy) !important;
+  color: white !important;
+}
+
+.global-warm-theme .btn-secondary,
+.global-warm-theme button[class*="secondary"] {
+  background-color: var(--warm-charcoal) !important;
+  border-color: var(--warm-charcoal) !important;
+  color: white !important;
+}
+
+.global-warm-theme .btn-outline {
+  background-color: transparent !important;
+  border-color: var(--warm-cream-border) !important;
+  color: var(--warm-text-primary) !important;
+}
+
+.global-warm-theme .btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: var(--warm-shadow-md) !important;
+}
+
+/* Forms and Inputs */
+.global-warm-theme input,
+.global-warm-theme textarea,
+.global-warm-theme select {
+  background-color: var(--warm-input-bg) !important;
+  border: 1px solid var(--warm-input-border) !important;
+  color: var(--warm-text-primary) !important;
+  border-radius: 6px !important;
+}
+
+.global-warm-theme input:focus,
+.global-warm-theme textarea:focus,
+.global-warm-theme select:focus {
+  border-color: var(--warm-navy) !important;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1) !important;
+  outline: none !important;
+}
+
+/* Tables */
+.global-warm-theme .financial-table,
+.global-warm-theme table {
+  background-color: var(--warm-card-bg) !important;
+}
+
+.global-warm-theme .financial-table th,
+.global-warm-theme table th {
+  background-color: var(--warm-cream-secondary) !important;
+  color: var(--warm-text-primary) !important;
+  border-bottom: 1px solid var(--warm-cream-border) !important;
+  font-weight: 600 !important;
+}
+
+.global-warm-theme .financial-table td,
+.global-warm-theme table td {
+  border-bottom: 1px solid var(--warm-cream-border) !important;
+  color: var(--warm-text-primary) !important;
+}
+
+.global-warm-theme .financial-table tbody tr:hover,
+.global-warm-theme table tbody tr:hover {
+  background-color: var(--warm-card-hover) !important;
+}
+
+/* Quick Stats and KPI Cards */
+.global-warm-theme .quick-stats {
+  background: none !important;
+}
+
+.global-warm-theme .quick-stat {
+  background-color: var(--warm-card-bg) !important;
+  border: 1px solid var(--warm-cream-border) !important;
+  box-shadow: var(--warm-shadow-sm) !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+}
+
+.global-warm-theme .quick-stat .label {
+  color: var(--warm-text-secondary) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+.global-warm-theme .quick-stat .value {
+  color: var(--warm-text-primary) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+}
+
+/* Filter Panel */
+.global-warm-theme .filter-panel,
+.global-warm-theme .filter-section {
+  background-color: var(--warm-card-bg) !important;
+  border: 1px solid var(--warm-cream-border) !important;
+  box-shadow: var(--warm-shadow-sm) !important;
+}
+
+/* Data Toolbar */
+.global-warm-theme .data-toolbar {
+  background: none !important;
+  border-bottom: 1px solid var(--warm-cream-border) !important;
+}
+
+/* Loading and Error States */
+.global-warm-theme .loading-state,
+.global-warm-theme .error-state {
+  background-color: var(--warm-cream-bg) !important;
+  color: var(--warm-text-secondary) !important;
+}
+
+/* Charts and Visualizations */
+.global-warm-theme .chart-container {
+  background-color: var(--warm-card-bg) !important;
+  border: 1px solid var(--warm-cream-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--warm-shadow-sm) !important;
+}
+
+/* Upload Areas */
+.global-warm-theme .upload-area {
+  background-color: var(--warm-cream-secondary) !important;
+  border: 2px dashed var(--warm-cream-border) !important;
+  color: var(--warm-text-secondary) !important;
+  border-radius: 8px !important;
+}
+
+.global-warm-theme .upload-area:hover {
+  border-color: var(--warm-navy) !important;
+  background-color: rgba(30, 64, 175, 0.02) !important;
+}
+
+/* Modal Overlays */
+.global-warm-theme .modal-overlay {
+  background-color: rgba(28, 25, 23, 0.4) !important;
+}
+
+.global-warm-theme .modal-content {
+  background-color: var(--warm-card-bg) !important;
+  border: 1px solid var(--warm-cream-border) !important;
+  box-shadow: var(--warm-shadow-lg) !important;
+  border-radius: 12px !important;
+}
+
+/* Text Links */
+.global-warm-theme .financial-link,
+.global-warm-theme a {
+  color: var(--warm-navy) !important;
+}
+
+.global-warm-theme .financial-link:hover,
+.global-warm-theme a:hover {
+  color: var(--warm-charcoal) !important;
+}
+
+/* Status Indicators */
+.global-warm-theme .status-active { color: var(--warm-success) !important; }
+.global-warm-theme .status-warning { color: var(--warm-warning) !important; }
+.global-warm-theme .status-error { color: var(--warm-danger) !important; }
+.global-warm-theme .status-info { color: var(--warm-info) !important; }
+
+/* Scrollbars */
+.global-warm-theme ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.global-warm-theme ::-webkit-scrollbar-track {
+  background: var(--warm-cream-secondary) !important;
+}
+
+.global-warm-theme ::-webkit-scrollbar-thumb {
+  background: var(--warm-cream-border) !important;
+  border-radius: 4px !important;
+}
+
+.global-warm-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--warm-text-muted) !important;
+}
+
+/* Landing Page Specific */
+.global-warm-theme .hero-section {
+  background: linear-gradient(135deg, var(--warm-cream-bg) 0%, var(--warm-cream-secondary) 100%) !important;
+}
+
+.global-warm-theme .feature-card {
+  background-color: var(--warm-card-bg) !important;
+  border: 1px solid var(--warm-cream-border) !important;
+  box-shadow: var(--warm-shadow-md) !important;
+  transition: all 0.3s ease !important;
+}
+
+.global-warm-theme .feature-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--warm-shadow-lg) !important;
+}
+
+/* Login/Register Pages */
+.global-warm-theme .auth-container {
+  background-color: var(--warm-cream-bg) !important;
+}
+
+.global-warm-theme .auth-card {
+  background-color: var(--warm-card-bg) !important;
+  border: 1px solid var(--warm-cream-border) !important;
+  box-shadow: var(--warm-shadow-lg) !important;
+  border-radius: 12px !important;
+}
+
+/* Override any dark theme remnants */
+.global-warm-theme * {
+  background-color: inherit;
+}
+
+.global-warm-theme [class*="dark"],
+.global-warm-theme [class*="bg-gray"],
+.global-warm-theme [class*="bg-slate"] {
+  background-color: var(--warm-card-bg) !important;
+  color: var(--warm-text-primary) !important;
+}
