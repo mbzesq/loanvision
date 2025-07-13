@@ -7,9 +7,9 @@
   --color-primary-dark: #1e40af;   /* Strong Blue - Hover states */
   --color-secondary: #4299e1;      /* Lighter Blue - Secondary elements */
   --color-background: #1e293b;     /* Slate-800 - Main background (cooler, modern) */
-  --color-surface: #334155;        /* Slate-700 - Card backgrounds */
+  --color-surface: #f5f1ec;        /* Warm gray - Card backgrounds */
   --color-surface-light: #475569;  /* Slate-600 - Elevated surfaces */
-  --color-sidebar: #1a202c;        /* Gray-900 - Sidebar background */
+  --color-sidebar: #f5f1ec;        /* Warm gray - Sidebar background */
   --color-border: #475569;         /* Slate-600 - Better contrast borders */
   --color-text-primary: #f7fafc;   /* Near white - Primary text */
   --color-text-secondary: #cbd5e1; /* Slate-300 - Brighter secondary text */

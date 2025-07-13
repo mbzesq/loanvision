@@ -10,7 +10,7 @@ interface MobileHeaderProps {
 
 export function MobileHeader({ onMenuClick }: MobileHeaderProps) {
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:hidden">
+    <header className="flex h-14 items-center gap-4 border-b px-4 lg:hidden" style={{ backgroundColor: '#f5f1ec' }}>
       <Button
         variant="outline"
         size="icon"

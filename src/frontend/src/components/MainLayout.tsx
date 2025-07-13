@@ -48,7 +48,7 @@ export function MainLayout() {
               isNavExpanded ? 'w-64' : 'w-16'
             } shadow-lg`} 
             style={{ 
-              backgroundColor: 'var(--color-sidebar)', 
+              backgroundColor: '#f5f1ec', 
               borderRight: '1px solid var(--color-border)' 
             }}
             onMouseEnter={() => {
@@ -71,7 +71,7 @@ export function MainLayout() {
         <main className="flex-1 overflow-y-auto flex flex-col">
           {/* Header */}
           <header className="h-16 px-6 flex items-center justify-between" style={{ 
-            backgroundColor: 'var(--color-surface)', 
+            backgroundColor: '#f5f1ec', 
             borderBottom: '1px solid var(--color-border)' 
           }}>
             <div className="flex items-center gap-4">
@@ -103,7 +103,7 @@ export function MainLayout() {
 
         {/* Mobile Slide-out Menu */}
         <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetContent side="left" className="p-0 w-64" style={{ backgroundColor: 'var(--color-sidebar)' }}>
+          <SheetContent side="left" className="p-0 w-64" style={{ backgroundColor: '#f5f1ec' }}>
             <SideNav onLinkClick={() => setMobileMenuOpen(false)} />
           </SheetContent>
         </Sheet>
