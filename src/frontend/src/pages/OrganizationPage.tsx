@@ -181,7 +181,7 @@ export default function OrganizationPage() {
             fontWeight: '600',
             color: 'var(--color-text-primary)',
             marginBottom: '8px'
-          }}>Organization</h1>
+          }}>{organization.name}</h1>
           <p style={{ color: 'var(--color-text-secondary)' }}>View and manage your organization details</p>
         </div>
 
