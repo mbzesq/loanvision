@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
 import '../styles/financial-design-system.css';
+import '../styles/dashboard-warm-theme.css';
 
 interface PerformanceTrendData {
   date: string;
@@ -310,21 +311,17 @@ export const PerformanceTrendChart: React.FC = () => {
       </div>
       
       {/* Recent Transitions Summary */}
-      <div style={{ 
+      <div className="recent-transition-box" style={{ 
         marginTop: '12px',
         padding: '8px',
-        backgroundColor: 'var(--color-surface-light)',
         borderRadius: 'var(--radius-sm)'
       }}>
-        <div style={{ 
-          fontSize: '10px', 
-          fontWeight: '600', 
-          color: 'var(--color-text-secondary)',
-          marginBottom: '4px',
-          textTransform: 'uppercase'
+        <div className="section-label-serif" style={{ 
+          marginBottom: '4px'
         }}>
-          RECENT TRANSITIONS (7D)
+          Recent Transitions
         </div>
+        <span style={{ fontSize: '11px', color: 'var(--dashboard-text-secondary)' }}>(7 Days)</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {transitions.slice(-4).map((transition, index) => (
             <div key={index} style={{ 

@@ -114,12 +114,20 @@
   box-shadow: var(--dashboard-shadow-sm);
 }
 
-/* Quick stats bar */
+/* Quick stats bar - Force white background */
 .dashboard-warm-theme .quick-stats {
-  background-color: var(--dashboard-bg-card);
+  background-color: var(--dashboard-bg-card) !important;
   box-shadow: var(--dashboard-shadow-sm);
-  border: 1px solid var(--dashboard-border);
+  border: 1px solid var(--dashboard-border) !important;
   padding: calc(var(--spacing-sm) * 1.2) calc(var(--spacing-md) * 1.2);
+}
+
+/* Force styling for ANY quick-stats container */
+.dashboard-warm-theme [class*="quick-stats"],
+.dashboard-warm-theme [class*="quick-stat"] {
+  background-color: var(--dashboard-bg-card) !important;
+  color: var(--dashboard-text-primary) !important;
+  border-color: var(--dashboard-border) !important;
 }
 
 .dashboard-warm-theme .quick-stat .label {
@@ -252,6 +260,14 @@
   color: var(--dashboard-text-primary) !important;
 }
 
+/* Force override for any surface-light backgrounds */
+.dashboard-warm-theme [style*="backgroundColor: var(--color-surface-light)"],
+.dashboard-warm-theme [style*="background-color: var(--color-surface-light)"] {
+  background-color: var(--dashboard-bg-card) !important;
+  border: 1px solid var(--dashboard-border) !important;
+  box-shadow: var(--dashboard-shadow) !important;
+}
+
 /* Inbox Performance Metrics KPIs */
 .dashboard-warm-theme .inbox-kpi-card,
 .dashboard-warm-theme .inbox-metric-card {
@@ -305,4 +321,26 @@
   background-color: var(--dashboard-bg-card) !important;
   color: var(--dashboard-text-primary) !important;
   border-color: var(--dashboard-border) !important;
+}
+
+/* AGGRESSIVE OVERRIDES - For stubborn components */
+.dashboard-warm-theme * {
+  /* Override any inline background colors that might be dark */
+}
+
+.dashboard-warm-theme .quick-stats[style] {
+  background-color: var(--dashboard-bg-card) !important;
+  background: var(--dashboard-bg-card) !important;
+}
+
+/* Financial design system overrides when used within dashboard */
+.dashboard-warm-theme .financial-card,
+.dashboard-warm-theme .kpi-card-dense,
+.dashboard-warm-theme .quick-stats,
+.dashboard-warm-theme .market-data-widget {
+  background-color: var(--dashboard-bg-card) !important;
+  background: var(--dashboard-bg-card) !important;
+  border: 1px solid var(--dashboard-border) !important;
+  box-shadow: var(--dashboard-shadow) !important;
+  color: var(--dashboard-text-primary) !important;
 }
