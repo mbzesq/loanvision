@@ -2,6 +2,7 @@ import './config'; // This must be the absolute first line.
 console.log(`[STARTUP] DATABASE_URL seen by Node.js: ${process.env.DATABASE_URL}`);
 import express from 'express';
 import cors from 'cors';
+import { createServer } from 'http';
 import uploadRouter from './routes/upload';
 import loansRouter from './routes/loans';
 import portfolioRouter from './routes/portfolio';
@@ -17,9 +18,17 @@ import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
 import { initializeSOLScheduler } from './services/SOLScheduler';
+import { AlertEngine } from './services/alertEngine';
+import { WebSocketServer } from './services/websocketServer';
+import { createAlertsRouter } from './routes/alerts';
 
 const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 3000;
+
+// Initialize Alert Engine and WebSocket Server
+const alertEngine = new AlertEngine(pool);
+const wsServer = new WebSocketServer(server, alertEngine);
 
 // This entire block should be added right after const app = express();
 const allowedOrigins = [
@@ -101,6 +110,9 @@ app.use('/api/inbox', inboxRouter);
 import organizationRouter from './routes/organizationRoutes';
 app.use('/api/organizations', organizationRouter);
 
+// Alert Routes
+app.use('/api/alerts', createAlertsRouter(pool));
+
 
 // Add this entire async block right before app.listen
 
@@ -152,7 +164,16 @@ const startServer = async () => {
     console.error('[SOL] Failed to initialize scheduler:', error);
   }
 
-  app.listen(PORT, () => {
+  // Start Alert Engine
+  console.log('[Alerts] Starting Alert Engine...');
+  try {
+    alertEngine.start();
+    console.log('[Alerts] Alert Engine started successfully');
+  } catch (error) {
+    console.error('[Alerts] Failed to start Alert Engine:', error);
+  }
+
+  server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 };
