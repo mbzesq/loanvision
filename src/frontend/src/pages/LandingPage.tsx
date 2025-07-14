@@ -108,7 +108,7 @@ const LandingPage: React.FC = () => {
 
     try {
       await login(loginData);
-      navigate('/today');
+      navigate('/dashboard');
     } catch (error) {
       setLoginError(error instanceof Error ? error.message : 'Login failed. Please try again.');
     } finally {

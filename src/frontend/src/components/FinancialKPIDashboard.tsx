@@ -53,7 +53,7 @@ export const FinancialKPIDashboard: React.FC = () => {
   };
 
   const handleActiveAlertsClick = () => {
-    navigate('/today');
+    navigate('/inbox');
   };
 
   const handleRecoveryRateClick = () => {

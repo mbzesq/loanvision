@@ -20,7 +20,7 @@ export default function LoginPage() {
   });
   const [loading, setLoading] = useState(false);
 
-  const from = location.state?.from?.pathname || '/today';
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({

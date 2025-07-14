@@ -35,7 +35,7 @@ function App() {
                 <InboxPage />
               </ProtectedRoute>
             } />
-            <Route path="/today" element={<Navigate to="/inbox" replace />} />
+            <Route path="/today" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardPage />
