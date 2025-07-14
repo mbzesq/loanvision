@@ -112,7 +112,13 @@ export function UserProfile() {
           </>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout} className="group text-red-600 focus:text-red-600">
+        <DropdownMenuItem 
+          onClick={() => {
+            logout();
+            navigate('/');
+          }} 
+          className="group text-red-600 focus:text-red-600"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
