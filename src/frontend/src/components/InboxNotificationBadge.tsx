@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, BellRing } from 'lucide-react';
 import { useInboxNotifications } from '../hooks/useInboxNotifications';
@@ -16,9 +15,8 @@ export function InboxNotificationBadge() {
   const { notifications, stats, connected } = useInboxNotifications();
 
   const hasUnread = stats.unreadCount > 0;
-  const hasCritical = stats.criticalUnread > 0;
 
-  const handleNotificationClick = (inboxItemId: number, notificationId: number) => {
+  const handleNotificationClick = (inboxItemId: number) => {
     // Navigate to inbox with specific task selected
     navigate(`/inbox?task=${inboxItemId}`);
   };
@@ -118,7 +116,7 @@ export function InboxNotificationBadge() {
           notifications.slice(0, 10).map((notification) => (
             <DropdownMenuItem 
               key={notification.id}
-              onClick={() => handleNotificationClick(notification.inboxItemId, notification.id)}
+              onClick={() => handleNotificationClick(notification.inboxItemId)}
               className="cursor-pointer py-3 px-3 hover:bg-gray-50"
             >
               <div className="flex flex-col w-full">
