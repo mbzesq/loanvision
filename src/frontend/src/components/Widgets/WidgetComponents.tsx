@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ModernKPICard from '../Dashboard/ModernKPICard';
-import UniversalAlertsPanel from '../Alerts/UniversalAlertsPanel';
+// UniversalAlertsPanel removed - replaced with InboxNotificationBadge
 import SOLMonitorCard from '../Dashboard/SOLMonitorCard';
 import LoanStatusChart from '../Dashboard/LoanStatusChart';
 import GeographicalDistributionChart from '../Dashboard/GeographicalDistributionChart';
@@ -204,13 +204,18 @@ export const PerformanceWidget: React.FC = () => {
 // Chart Widget Components
 export const AlertsWidget: React.FC = () => {
   return (
-    <div className="h-full w-full overflow-hidden">
-      <UniversalAlertsPanel 
-        className="h-full w-full"
-        maxAlerts={6}
-        showSettings={false}
-        autoRefresh={true}
-      />
+    <div className="h-full w-full p-4 flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-lg font-semibold text-gray-700 mb-2">
+          Task Notifications
+        </div>
+        <div className="text-sm text-gray-500 mb-4">
+          Notifications are now integrated into the header bell icon.
+        </div>
+        <div className="text-xs text-gray-400">
+          Check your Inbox for actionable tasks.
+        </div>
+      </div>
     </div>
   );
 };
