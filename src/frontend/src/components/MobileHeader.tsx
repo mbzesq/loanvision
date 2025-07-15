@@ -2,6 +2,7 @@
 import { Button } from './ui/button';
 import { Menu } from 'lucide-react';
 import { UserProfile } from './UserProfile';
+import { InboxNotificationBadge } from './InboxNotificationBadge';
 import { Logo } from './Logo';
 
 interface MobileHeaderProps {
@@ -21,7 +22,10 @@ export function MobileHeader({ onMenuClick }: MobileHeaderProps) {
         <span className="sr-only">Toggle navigation menu</span>
       </Button>
       <Logo className="h-8 w-auto text-slate-800 flex-1" />
-      <UserProfile />
+      <div className="flex items-center gap-2">
+        <InboxNotificationBadge />
+        <UserProfile />
+      </div>
     </header>
   );
 }

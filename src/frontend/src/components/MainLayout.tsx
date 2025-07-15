@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { SideNav } from './SideNav';
 import { MobileHeader } from './MobileHeader';
 import { UserProfile } from './UserProfile';
+import { InboxNotificationBadge } from './InboxNotificationBadge';
 import { Sheet, SheetContent } from './ui/sheet';
 import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
@@ -86,7 +87,10 @@ export function MainLayout() {
                 <span className="text-sm font-medium">Menu</span>
               </Button>
             </div>
-            <UserProfile />
+            <div className="flex items-center gap-3">
+              <InboxNotificationBadge />
+              <UserProfile />
+            </div>
           </header>
           
           {/* Page Content */}
