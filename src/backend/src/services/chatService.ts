@@ -44,10 +44,8 @@ export class ChatService {
           LIMIT 1
         ) as last_message
       FROM chat_rooms cr
-      JOIN users u ON u.organization_id = cr.organization_id
       JOIN chat_participants cp ON cp.room_id = cr.id AND cp.user_id = $1
       LEFT JOIN chat_messages cm ON cm.room_id = cr.id AND cm.deleted_at IS NULL
-      WHERE u.id = $1
     `;
     
     const queryParams: any[] = [userId];
@@ -124,8 +122,6 @@ export class ChatService {
     // First verify user has access to the room
     const accessCheck = await pool.query(`
       SELECT 1 FROM chat_participants cp
-      JOIN chat_rooms cr ON cr.id = cp.room_id
-      JOIN users u ON u.organization_id = cr.organization_id
       WHERE cp.room_id = $1 AND cp.user_id = $2
     `, [filters.room_id, userId]);
     
@@ -326,8 +322,6 @@ export class ChatService {
     // Verify user has access to the room
     const accessCheck = await pool.query(`
       SELECT 1 FROM chat_participants cp
-      JOIN chat_rooms cr ON cr.id = cp.room_id
-      JOIN users u ON u.organization_id = cr.organization_id
       WHERE cp.room_id = $1 AND cp.user_id = $2
     `, [data.room_id, userId]);
     

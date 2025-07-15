@@ -20,7 +20,7 @@ export interface InboxTask {
   loanId?: string;
   documentId?: number;
   priority: 'low' | 'medium' | 'high' | 'critical';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'unread' | 'in_progress' | 'completed' | 'archived';
   assignedTo: number;
   metadata: any;
   createdAt: Date;
@@ -148,7 +148,7 @@ export class NotificationEngine extends EventEmitter {
             updated_at = CURRENT_TIMESTAMP,
             notes = 'Auto-completed: Required document was uploaded'
         WHERE task_type IN ('document_upload_required', 'title_report_upload_required')
-        AND status IN ('pending', 'in_progress')
+        AND status IN ('unread', 'in_progress')
         AND EXISTS (
           SELECT 1 FROM collateral_documents cd
           WHERE cd.loan_id = inbox_items.loan_id
@@ -172,11 +172,11 @@ export class NotificationEngine extends EventEmitter {
             updated_at = CURRENT_TIMESTAMP,
             notes = 'Auto-completed: Foreclosure sale has occurred'
         WHERE task_type IN ('foreclosure_action_scheduled', 'foreclosure_action_urgent')
-        AND status IN ('pending', 'in_progress')
+        AND status IN ('unread', 'in_progress')
         AND EXISTS (
           SELECT 1 FROM foreclosure_events fe
           WHERE fe.loan_id = inbox_items.loan_id
-          AND (fe.sale_held_date IS NOT NULL OR fe.real_estate_owned_date IS NOT NULL)
+          AND fe.sale_held_date IS NOT NULL
         )
       `);
 
