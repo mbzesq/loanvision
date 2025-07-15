@@ -109,6 +109,10 @@ app.use('/api/inbox', inboxRouter);
 import organizationRouter from './routes/organizationRoutes';
 app.use('/api/organizations', organizationRouter);
 
+// Chat Routes
+import chatRouter from './routes/chat';
+app.use('/api/chat', chatRouter);
+
 // Notifications will be handled via WebSocket and existing inbox routes
 
 
