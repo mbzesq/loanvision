@@ -41,7 +41,7 @@ export function useChatWebSocket({
     const connectSocket = () => {
       const socket = io(typeof window !== 'undefined' && import.meta.env.PROD
         ? window.location.origin 
-        : 'http://localhost:3001', {
+        : 'http://localhost:3000', {
         path: '/ws',
         auth: { token },
         transports: ['websocket', 'polling'],
