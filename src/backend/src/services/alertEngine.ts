@@ -169,12 +169,16 @@ export class AlertEngine extends EventEmitter {
     try {
       // Check for missing documents
       await this.db.query('SELECT check_missing_documents()');
+      logger.info('Missing documents check completed');
       
-      // Check for foreclosure milestones
+      // Check for foreclosure milestones that may have been missed
       await this.checkForeclosureMilestones();
       
       // Check for stale data
       await this.checkStaleData();
+      
+      // Auto-resolve old alerts that are no longer relevant
+      await this.cleanupOldAlerts();
       
     } catch (error) {
       logger.error('Error in scheduled checks:', error);
@@ -185,44 +189,43 @@ export class AlertEngine extends EventEmitter {
    * Check for foreclosure milestone alerts
    */
   private async checkForeclosureMilestones() {
+    // Check for upcoming foreclosure sales that need alerts
+    const { rows: upcomingSales } = await this.db.query(`
+      SELECT 
+        fe.*,
+        EXTRACT(DAY FROM fe.sale_scheduled_date - CURRENT_DATE) as days_until_sale
+      FROM foreclosure_events fe
+      WHERE fe.sale_scheduled_date IS NOT NULL
+      AND fe.sale_scheduled_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+      AND fe.sale_held_date IS NULL -- Sale hasn't happened yet
+    `);
+
     const { rows: rules } = await this.db.query(`
       SELECT * FROM alert_rules
       WHERE event_type = 'foreclosure_status_change'
       AND is_active = true
     `);
 
-    for (const rule of rules) {
-      // Check recent foreclosure events
-      const { rows: events } = await this.db.query(`
-        SELECT 
-          fe.*,
-          dmc.loan_id
-        FROM foreclosure_events fe
-        JOIN daily_metrics_current dmc ON fe.loan_number = dmc.loan_id
-        WHERE fe.updated_at > NOW() - INTERVAL '1 hour'
-      `);
+    for (const sale of upcomingSales) {
+      const eventData = {
+        loan_id: sale.loan_id,
+        new_status: 'sale_scheduled',
+        sale_date: sale.sale_scheduled_date,
+        days_until_sale: sale.days_until_sale
+      };
 
-      for (const event of events) {
-        const eventData = {
-          loan_id: event.loan_id,
-          new_status: event.foreclosure_status,
-          sale_date: event.sale_date,
-          days_until_sale: event.sale_date ? 
-            Math.floor((new Date(event.sale_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null
-        };
-
-        // Evaluate condition
+      for (const rule of rules) {
         const shouldTrigger = await this.evaluateCondition(rule.condition_json, eventData);
         
         if (shouldTrigger) {
-          // Check if alert already exists
+          // Check if alert already exists for this sale date
           const existing = await this.db.query(`
             SELECT id FROM alerts
             WHERE alert_rule_id = $1
             AND loan_id = $2
             AND status = 'active'
-            AND created_at > NOW() - INTERVAL '24 hours'
-          `, [rule.id, event.loan_id]);
+            AND metadata->>'sale_date' = $3
+          `, [rule.id, sale.loan_id, sale.sale_scheduled_date]);
 
           if (existing.rows.length === 0) {
             await this.createAlert(rule, eventData);
@@ -455,6 +458,54 @@ export class AlertEngine extends EventEmitter {
     `, params);
 
     return rows[0];
+  }
+
+  /**
+   * Clean up old or irrelevant alerts
+   */
+  private async cleanupOldAlerts() {
+    try {
+      // Auto-resolve missing document alerts where documents have been uploaded
+      await this.db.query(`
+        UPDATE alerts 
+        SET status = 'resolved', 
+            resolved_at = CURRENT_TIMESTAMP,
+            resolved_by = NULL
+        WHERE alert_rule_id IN (
+          SELECT id FROM alert_rules WHERE event_type = 'document_check'
+        )
+        AND status = 'active'
+        AND EXISTS (
+          SELECT 1 FROM collateral_documents cd
+          WHERE cd.loan_id = alerts.loan_id
+          AND (
+            LOWER(cd.document_type) = LOWER(alerts.metadata->>'document_type') OR
+            LOWER(cd.document_type) LIKE '%' || LOWER(alerts.metadata->>'document_type') || '%'
+          )
+        )
+      `);
+
+      // Auto-resolve foreclosure sale alerts where sale has occurred
+      await this.db.query(`
+        UPDATE alerts 
+        SET status = 'resolved', 
+            resolved_at = CURRENT_TIMESTAMP,
+            resolved_by = NULL
+        WHERE alert_rule_id IN (
+          SELECT id FROM alert_rules WHERE event_type = 'foreclosure_status_change'
+        )
+        AND status = 'active'
+        AND EXISTS (
+          SELECT 1 FROM foreclosure_events fe
+          WHERE fe.loan_id = alerts.loan_id
+          AND (fe.sale_held_date IS NOT NULL OR fe.real_estate_owned_date IS NOT NULL)
+        )
+      `);
+
+      logger.info('Old alerts cleanup completed');
+    } catch (error) {
+      logger.error('Error cleaning up old alerts:', error);
+    }
   }
 }
 

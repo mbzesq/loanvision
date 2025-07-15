@@ -200,6 +200,27 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
 
     const savedDocument = result.rows[0];
 
+    // Step 6.5: Also save to collateral_documents for alert triggers
+    try {
+      await pool.query(`
+        INSERT INTO collateral_documents (
+          loan_id, file_name, storage_path, document_type, 
+          confidence_score, user_id, file_size
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, [
+        loanId,
+        file.originalname,
+        s3Result?.key || `analysis_${savedDocument.id}`,
+        classification.documentType,
+        classification.confidence,
+        (req as any).user?.id,
+        file.size
+      ]);
+      console.log('Document saved to collateral_documents for alert triggers');
+    } catch (collateralError) {
+      console.warn('Failed to save to collateral_documents (non-critical):', collateralError);
+    }
+
     // Step 7: Flag low-confidence fields for QA
     await flagLowConfidenceFields(savedDocument.id, extractedFields);
 
