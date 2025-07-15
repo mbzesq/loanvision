@@ -18,17 +18,16 @@ import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
 import { initializeSOLScheduler } from './services/SOLScheduler';
-import { AlertEngine } from './services/alertEngine';
+import { NotificationEngine } from './services/notificationEngine';
 import { WebSocketServer } from './services/websocketServer';
-import { createAlertsRouter } from './routes/alerts';
 
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 3000;
 
-// Initialize Alert Engine and WebSocket Server
-const alertEngine = new AlertEngine(pool);
-const wsServer = new WebSocketServer(server, alertEngine);
+// Initialize Notification Engine and WebSocket Server
+const notificationEngine = new NotificationEngine(pool);
+const wsServer = new WebSocketServer(server, notificationEngine);
 
 // This entire block should be added right after const app = express();
 const allowedOrigins = [
@@ -110,8 +109,7 @@ app.use('/api/inbox', inboxRouter);
 import organizationRouter from './routes/organizationRoutes';
 app.use('/api/organizations', organizationRouter);
 
-// Alert Routes
-app.use('/api/alerts', createAlertsRouter(pool));
+// Notifications will be handled via WebSocket and existing inbox routes
 
 
 // Add this entire async block right before app.listen
@@ -164,13 +162,13 @@ const startServer = async () => {
     console.error('[SOL] Failed to initialize scheduler:', error);
   }
 
-  // Start Alert Engine
-  console.log('[Alerts] Starting Alert Engine...');
+  // Start Notification Engine
+  console.log('[Notifications] Starting Notification Engine...');
   try {
-    alertEngine.start();
-    console.log('[Alerts] Alert Engine started successfully');
+    notificationEngine.start();
+    console.log('[Notifications] Notification Engine started successfully');
   } catch (error) {
-    console.error('[Alerts] Failed to start Alert Engine:', error);
+    console.error('[Notifications] Failed to start Notification Engine:', error);
   }
 
   server.listen(PORT, () => {

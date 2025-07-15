@@ -2,7 +2,7 @@ import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import logger from '../config/logger';
-import { AlertEngine } from './alertEngine';
+import { NotificationEngine } from './notificationEngine';
 
 interface AuthenticatedSocket extends Socket {
   userId?: number;
@@ -11,11 +11,11 @@ interface AuthenticatedSocket extends Socket {
 
 export class WebSocketServer {
   private io: SocketIOServer;
-  private alertEngine: AlertEngine;
+  private notificationEngine: NotificationEngine;
   private userSockets: Map<number, Set<string>> = new Map();
 
-  constructor(httpServer: HttpServer, alertEngine: AlertEngine) {
-    this.alertEngine = alertEngine;
+  constructor(httpServer: HttpServer, notificationEngine: NotificationEngine) {
+    this.notificationEngine = notificationEngine;
     
     // Initialize Socket.IO with CORS configuration
     this.io = new SocketIOServer(httpServer, {
@@ -28,7 +28,7 @@ export class WebSocketServer {
 
     this.setupMiddleware();
     this.setupEventHandlers();
-    this.setupAlertEngineListeners();
+    this.setupNotificationEngineListeners();
   }
 
   /**
@@ -73,29 +73,16 @@ export class WebSocketServer {
       this.sendInitialData(socket);
       
       // Handle client events
-      socket.on('alerts:fetch', async () => {
-        await this.sendUserAlerts(socket);
+      socket.on('notifications:fetch', async () => {
+        await this.sendUserNotifications(socket);
       });
       
-      socket.on('alert:acknowledge', async (data) => {
-        await this.handleAcknowledgeAlert(socket, data);
+      socket.on('notifications:mark_read', async (data) => {
+        await this.handleMarkNotificationsRead(socket, data);
       });
       
-      socket.on('alert:resolve', async (data) => {
-        await this.handleResolveAlert(socket, data);
-      });
-      
-      socket.on('alert:dismiss', async (data) => {
-        await this.handleDismissAlert(socket, data);
-      });
-      
-      // Handle subscription management
-      socket.on('alerts:subscribe', async (data) => {
-        await this.handleSubscribe(socket, data);
-      });
-      
-      socket.on('alerts:unsubscribe', async (data) => {
-        await this.handleUnsubscribe(socket, data);
+      socket.on('inbox:fetch_stats', async () => {
+        await this.sendInboxStats(socket);
       });
       
       // Handle disconnection
@@ -109,27 +96,13 @@ export class WebSocketServer {
   }
 
   /**
-   * Set up listeners for Alert Engine events
+   * Set up listeners for Notification Engine events
    */
-  private setupAlertEngineListeners() {
-    // New alert created
-    this.alertEngine.on('alert:created', async (alert) => {
-      logger.info(`New alert created: ${alert.id}`);
-      await this.broadcastToSubscribedUsers(alert);
-    });
-    
-    // In-app delivery
-    this.alertEngine.on('alert:deliver:in_app', async ({ userId, alert }) => {
-      await this.sendAlertToUser(userId, alert);
-    });
-    
-    // Alert status changes
-    this.alertEngine.on('alert:acknowledged', async ({ alertId, userId }) => {
-      await this.broadcastAlertUpdate(alertId, 'acknowledged');
-    });
-    
-    this.alertEngine.on('alert:resolved', async ({ alertId, userId }) => {
-      await this.broadcastAlertUpdate(alertId, 'resolved');
+  private setupNotificationEngineListeners() {
+    // New inbox task created
+    this.notificationEngine.on('inbox:new_task', async (taskData) => {
+      logger.info(`New inbox task notification: ${taskData.message}`);
+      await this.sendTaskNotificationToUser(taskData.userId, taskData);
     });
   }
 
@@ -140,13 +113,13 @@ export class WebSocketServer {
     if (!socket.userId) return;
     
     try {
-      // Send active alerts
-      const alerts = await this.alertEngine.getActiveAlertsForUser(socket.userId);
-      socket.emit('alerts:initial', alerts);
+      // Send unread notifications
+      const notifications = await this.notificationEngine.getUnreadNotifications(socket.userId);
+      socket.emit('notifications:initial', notifications);
       
-      // Send alert statistics
-      const stats = await this.alertEngine.getAlertStats(socket.userId);
-      socket.emit('alerts:stats', stats);
+      // Send notification statistics
+      const stats = await this.notificationEngine.getNotificationStats(socket.userId);
+      socket.emit('inbox:stats', stats);
       
     } catch (error) {
       logger.error('Error sending initial data:', error);
@@ -154,131 +127,70 @@ export class WebSocketServer {
   }
 
   /**
-   * Send alerts to a specific user
+   * Send notifications to a specific user
    */
-  private async sendUserAlerts(socket: AuthenticatedSocket) {
+  private async sendUserNotifications(socket: AuthenticatedSocket) {
     if (!socket.userId) return;
     
     try {
-      const alerts = await this.alertEngine.getActiveAlertsForUser(socket.userId);
-      socket.emit('alerts:list', alerts);
+      const notifications = await this.notificationEngine.getUnreadNotifications(socket.userId);
+      socket.emit('notifications:list', notifications);
     } catch (error) {
-      logger.error('Error fetching alerts:', error);
-      socket.emit('error', { message: 'Failed to fetch alerts' });
+      logger.error('Error fetching notifications:', error);
+      socket.emit('error', { message: 'Failed to fetch notifications' });
     }
   }
 
   /**
-   * Handle alert acknowledgment
+   * Handle marking notifications as read
    */
-  private async handleAcknowledgeAlert(socket: AuthenticatedSocket, data: any) {
+  private async handleMarkNotificationsRead(socket: AuthenticatedSocket, data: any) {
     if (!socket.userId) return;
     
     try {
-      const { alertId, notes } = data;
-      await this.alertEngine.acknowledgeAlert(alertId, socket.userId, notes);
-      socket.emit('alert:acknowledged', { alertId });
+      const { notificationIds } = data;
+      await this.notificationEngine.markNotificationsAsRead(socket.userId, notificationIds);
+      socket.emit('notifications:marked_read', { notificationIds });
     } catch (error) {
-      logger.error('Error acknowledging alert:', error);
-      socket.emit('error', { message: 'Failed to acknowledge alert' });
+      logger.error('Error marking notifications as read:', error);
+      socket.emit('error', { message: 'Failed to mark notifications as read' });
     }
   }
 
   /**
-   * Handle alert resolution
+   * Send inbox stats to user
    */
-  private async handleResolveAlert(socket: AuthenticatedSocket, data: any) {
+  private async sendInboxStats(socket: AuthenticatedSocket) {
     if (!socket.userId) return;
     
     try {
-      const { alertId, notes } = data;
-      await this.alertEngine.resolveAlert(alertId, socket.userId, notes);
-      socket.emit('alert:resolved', { alertId });
+      const stats = await this.notificationEngine.getNotificationStats(socket.userId);
+      socket.emit('inbox:stats', stats);
     } catch (error) {
-      logger.error('Error resolving alert:', error);
-      socket.emit('error', { message: 'Failed to resolve alert' });
+      logger.error('Error fetching inbox stats:', error);
+      socket.emit('error', { message: 'Failed to fetch inbox stats' });
     }
   }
 
   /**
-   * Handle alert dismissal
+   * Send task notification to specific user
    */
-  private async handleDismissAlert(socket: AuthenticatedSocket, data: any) {
-    if (!socket.userId) return;
-    
-    try {
-      const { alertId, reason } = data;
-      // Dismissal is a type of resolution
-      await this.alertEngine.resolveAlert(alertId, socket.userId, `Dismissed: ${reason}`);
-      socket.emit('alert:dismissed', { alertId });
-    } catch (error) {
-      logger.error('Error dismissing alert:', error);
-      socket.emit('error', { message: 'Failed to dismiss alert' });
-    }
-  }
-
-  /**
-   * Handle subscription to alert rules
-   */
-  private async handleSubscribe(socket: AuthenticatedSocket, data: any) {
-    if (!socket.userId) return;
-    
-    try {
-      const { ruleId, deliveryMethod = 'in_app' } = data;
-      // Implementation would update alert_subscriptions table
-      socket.emit('alerts:subscribed', { ruleId });
-    } catch (error) {
-      logger.error('Error subscribing to alerts:', error);
-      socket.emit('error', { message: 'Failed to subscribe' });
-    }
-  }
-
-  /**
-   * Handle unsubscription from alert rules
-   */
-  private async handleUnsubscribe(socket: AuthenticatedSocket, data: any) {
-    if (!socket.userId) return;
-    
-    try {
-      const { ruleId } = data;
-      // Implementation would update alert_subscriptions table
-      socket.emit('alerts:unsubscribed', { ruleId });
-    } catch (error) {
-      logger.error('Error unsubscribing from alerts:', error);
-      socket.emit('error', { message: 'Failed to unsubscribe' });
-    }
-  }
-
-  /**
-   * Send alert to specific user
-   */
-  private async sendAlertToUser(userId: number, alert: any) {
+  private async sendTaskNotificationToUser(userId: number, taskData: any) {
     const socketIds = this.userSockets.get(userId);
     
     if (socketIds && socketIds.size > 0) {
       socketIds.forEach(socketId => {
-        this.io.to(socketId).emit('alert:new', alert);
+        this.io.to(socketId).emit('inbox:new_task', {
+          message: taskData.message,
+          taskType: taskData.taskType,
+          taskId: taskData.taskId,
+          task: taskData.task
+        });
       });
-      logger.info(`Alert ${alert.id} sent to user ${userId}`);
+      logger.info(`Task notification sent to user ${userId}: ${taskData.message}`);
     } else {
-      logger.info(`User ${userId} not connected, alert will be shown on next login`);
+      logger.info(`User ${userId} not connected, notification will be shown on next login`);
     }
-  }
-
-  /**
-   * Broadcast alert to all subscribed users
-   */
-  private async broadcastToSubscribedUsers(alert: any) {
-    // This would query alert_subscriptions to find all users
-    // For now, we'll emit to all connected users
-    this.io.emit('alert:new', alert);
-  }
-
-  /**
-   * Broadcast alert status update
-   */
-  private async broadcastAlertUpdate(alertId: number, newStatus: string) {
-    this.io.emit('alert:statusChanged', { alertId, newStatus });
   }
 
   /**
