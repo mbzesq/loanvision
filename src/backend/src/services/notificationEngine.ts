@@ -93,7 +93,7 @@ export class NotificationEngine extends EventEmitter {
           u.first_name || ' ' || u.last_name as assigned_user_name,
           u.email as assigned_user_email
         FROM inbox_items it
-        LEFT JOIN users u ON it.assigned_to = u.id
+        LEFT JOIN users u ON it.assigned_to_user_id = u.id
         WHERE it.id = $1
       `, [taskData.task_id]);
 
