@@ -5,7 +5,8 @@ import { SideNav } from './SideNav';
 import { MobileHeader } from './MobileHeader';
 import { UserProfile } from './UserProfile';
 import { InboxNotificationBadge } from './InboxNotificationBadge';
-import { ChatSidebar } from './chat/ChatSidebar';
+import { ChatModal } from './chat/ChatModal';
+import { ChatButton } from './chat/ChatButton';
 import { InternalChatProvider } from '../contexts/InternalChatContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Sheet, SheetContent } from './ui/sheet';
@@ -22,11 +23,7 @@ export function MainLayout() {
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [isHoveringNav, setIsHoveringNav] = useState(false);
-  const [isChatOpen, setChatOpen] = useState(() => {
-    // Check localStorage for chat sidebar state
-    const saved = localStorage.getItem('chatSidebarOpen');
-    return saved !== null ? JSON.parse(saved) : false;
-  });
+  const [isChatOpen, setChatOpen] = useState(false);
 
   // Apply financial theme class to body
   useEffect(() => {
@@ -43,9 +40,11 @@ export function MainLayout() {
   };
 
   const handleChatToggle = () => {
-    const newState = !isChatOpen;
-    setChatOpen(newState);
-    localStorage.setItem('chatSidebarOpen', JSON.stringify(newState));
+    setChatOpen(!isChatOpen);
+  };
+
+  const handleChatClose = () => {
+    setChatOpen(false);
   };
 
   const isNavExpanded = !isDesktopNavCollapsed || isHoveringNav;
@@ -95,13 +94,8 @@ export function MainLayout() {
             </div>
           </div>
           
-          {/* Main Content Area - Adjusts width based on chat sidebar */}
-          <main 
-            className="flex-1 overflow-y-auto flex flex-col transition-all duration-300 ease-in-out"
-            style={{ 
-              marginRight: isChatOpen ? '320px' : '48px' // Account for chat sidebar
-            }}
-          >
+          {/* Main Content Area */}
+          <main className="flex-1 overflow-y-auto flex flex-col">
             {/* Header */}
             <header className="h-16 px-6 flex items-center justify-between" style={{ 
               backgroundColor: 'var(--warm-cream-secondary)', 
@@ -121,6 +115,7 @@ export function MainLayout() {
               </div>
               <div className="flex items-center gap-3">
                 <InboxNotificationBadge />
+                <ChatButton onClick={handleChatToggle} unreadCount={3} />
                 <UserProfile />
               </div>
             </header>
@@ -131,17 +126,15 @@ export function MainLayout() {
             </div>
           </main>
 
-          {/* Chat Sidebar */}
-          <ChatSidebar 
-            isOpen={isChatOpen}
-            onToggle={handleChatToggle}
-          />
         </div>
 
         {/* Mobile Layout */}
         <div className="lg:hidden">
           {/* Mobile Header and Menu Trigger */}
-          <MobileHeader onMenuClick={() => setMobileMenuOpen(true)} />
+          <MobileHeader 
+            onMenuClick={() => setMobileMenuOpen(true)}
+            onChatClick={handleChatToggle}
+          />
 
           {/* Mobile Slide-out Menu */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -155,12 +148,13 @@ export function MainLayout() {
             <Outlet />
           </main>
 
-          {/* Mobile Chat Sidebar */}
-          <ChatSidebar 
-            isOpen={isChatOpen}
-            onToggle={handleChatToggle}
-          />
         </div>
+
+        {/* Chat Modal */}
+        <ChatModal 
+          isOpen={isChatOpen}
+          onClose={handleChatClose}
+        />
       </div>
     </InternalChatProvider>
   );
