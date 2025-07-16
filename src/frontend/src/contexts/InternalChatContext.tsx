@@ -407,6 +407,8 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
     }
   }, [token, loadRooms, loadUsers]);
 
+  // Removed temporary polling mechanism - WebSocket handles real-time updates now
+
   const contextValue: InternalChatContextType = {
     state,
     loadRooms,

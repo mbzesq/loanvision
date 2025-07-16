@@ -38,12 +38,6 @@ export function useChatWebSocket({
   useEffect(() => {
     console.log('useChatWebSocket: token check', { hasToken: !!token, tokenLength: token?.length });
     if (!token) return;
-    
-    // Re-enable WebSocket with proper protocol detection
-    // if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    //   console.log('Chat WebSocket disabled in production - using API only');
-    //   return;
-    // }
 
     const connectSocket = () => {
       // Determine the correct WebSocket URL with proper protocol
@@ -51,13 +45,10 @@ export function useChatWebSocket({
       
       let wsUrl;
       if (isProduction) {
-        // Check if backend is on the same domain or different
-        // If you're accessing the frontend from nplvision.com, try connecting to the same domain first
-        if (window.location.hostname === 'nplvision.com') {
-          wsUrl = window.location.origin; // Same origin
-        } else {
-          wsUrl = 'https://loanvision-backend.onrender.com';
-        }
+        // Use environment variable if available, otherwise use API base URL
+        wsUrl = import.meta.env.VITE_WS_URL || import.meta.env.VITE_API_BASE_URL || window.location.origin;
+        // If the API URL has /api suffix, remove it for WebSocket
+        wsUrl = wsUrl.replace(/\/api$/, '');
       } else {
         wsUrl = 'http://localhost:3000';
       }

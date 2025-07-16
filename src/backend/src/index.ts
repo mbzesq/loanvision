@@ -34,14 +34,20 @@ console.log('WebSocket server initialized successfully');
 
 // This entire block should be added right after const app = express();
 const allowedOrigins = [
-  'https://loanvision-frontend.onrender.com', 
   'https://nplvision.com',
+  'https://www.nplvision.com',
   'http://localhost:3001', // Development frontend
   'http://localhost:5173', // Vite development server
   'http://127.0.0.1:5173',  // Alternative localhost
   'http://localhost:3000', // Same-origin requests
   'http://127.0.0.1:3000'  // Alternative same-origin
 ];
+
+// Add any additional origins from environment variables
+if (process.env.ALLOWED_ORIGINS) {
+  const additionalOrigins = process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
+  allowedOrigins.push(...additionalOrigins);
+}
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {

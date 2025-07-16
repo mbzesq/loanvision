@@ -27,7 +27,7 @@ export class WebSocketServer {
     // Initialize Socket.IO with CORS configuration
     const allowedOrigins = [
       'https://nplvision.com',
-      'https://loanvision-frontend.onrender.com',
+      'https://www.nplvision.com',
       'http://localhost:5173', // Vite dev server
       'http://localhost:5174', // Alternative Vite dev server
       'http://localhost:3001', // Alternative dev server
@@ -36,6 +36,12 @@ export class WebSocketServer {
       'http://localhost:3000', // Same-origin requests
       'http://127.0.0.1:3000'  // Alternative same-origin
     ];
+    
+    // Add any additional origins from environment variables
+    if (process.env.ALLOWED_ORIGINS) {
+      const additionalOrigins = process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
+      allowedOrigins.push(...additionalOrigins);
+    }
 
     this.io = new SocketIOServer(httpServer, {
       cors: {
