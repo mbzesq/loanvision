@@ -86,6 +86,13 @@ export class WebSocketServer {
 
         const token = socket.handshake.auth.token;
         
+        logger.info('WebSocket authentication attempt', {
+          hasToken: !!token,
+          tokenLength: token ? token.length : 0,
+          tokenPrefix: token ? token.substring(0, 20) + '...' : null,
+          jwtSecret: process.env.JWT_SECRET ? 'SET' : 'NOT_SET'
+        });
+        
         if (!token) {
           logger.warn('WebSocket connection rejected: no token provided');
           return next(new Error('Authentication required'));
@@ -93,6 +100,13 @@ export class WebSocketServer {
 
         // Verify JWT token
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+        
+        logger.info('JWT verification successful', {
+          userId: decoded.userId,
+          email: decoded.email,
+          organizationId: decoded.organizationId,
+          exp: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : null
+        });
         
         socket.userId = decoded.userId;
         socket.userEmail = decoded.email;
@@ -109,7 +123,12 @@ export class WebSocketServer {
         next();
         
       } catch (error) {
-        logger.error('WebSocket authentication failed:', error);
+        logger.error('WebSocket authentication failed:', {
+          error: error.message,
+          tokenProvided: !!token,
+          errorName: error.name,
+          errorStack: error.stack
+        });
         next(new Error('Authentication failed'));
       }
     });
