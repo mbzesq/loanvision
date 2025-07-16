@@ -77,6 +77,8 @@ export class WebSocketServer {
    */
   private setupMiddleware() {
     this.io.use(async (socket: AuthenticatedSocket, next) => {
+      let token: string | undefined;
+      
       try {
         logger.info('WebSocket connection attempt', {
           origin: socket.handshake.headers.origin,
@@ -84,7 +86,7 @@ export class WebSocketServer {
           address: socket.handshake.address
         });
 
-        const token = socket.handshake.auth.token;
+        token = socket.handshake.auth.token;
         
         logger.info('WebSocket authentication attempt', {
           hasToken: !!token,
