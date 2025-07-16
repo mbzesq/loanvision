@@ -24,18 +24,52 @@ export class WebSocketServer {
     this.notificationEngine = notificationEngine;
     
     // Initialize Socket.IO with CORS configuration
+    const allowedOrigins = [
+      'https://nplvision.com',
+      'https://loanvision-frontend.onrender.com',
+      'http://localhost:5173', // Vite dev server
+      'http://localhost:3001', // Alternative dev server
+      'http://127.0.0.1:5173', // Alternative localhost
+      'http://localhost:3000', // Same-origin requests
+      'http://127.0.0.1:3000'  // Alternative same-origin
+    ];
+
     this.io = new SocketIOServer(httpServer, {
       cors: {
-        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-        credentials: true
+        origin: function (origin, callback) {
+          // Allow requests with no origin (like mobile apps or curl requests)
+          if (!origin) {
+            return callback(null, true);
+          }
+          
+          if (allowedOrigins.indexOf(origin) !== -1) {
+            console.log(`Socket.IO CORS allowed origin: ${origin}`);
+            return callback(null, true);
+          } else {
+            console.error(`Socket.IO CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
+            return callback(new Error('Not allowed by CORS'), false);
+          }
+        },
+        credentials: true,
+        methods: ['GET', 'POST']
       },
+      path: '/ws',
+      allowEIO3: true
+    });
+
+    logger.info('WebSocket server initialized', {
+      allowedOrigins,
       path: '/ws'
     });
 
     this.setupMiddleware();
     this.setupEventHandlers();
     this.setupNotificationEngineListeners();
-    this.setupChatNotificationListeners();
+    
+    // Setup chat notification listeners asynchronously
+    this.setupChatNotificationListeners().catch(error => {
+      logger.error('Failed to initialize chat notification listeners:', error);
+    });
   }
 
   /**
@@ -44,9 +78,16 @@ export class WebSocketServer {
   private setupMiddleware() {
     this.io.use(async (socket: AuthenticatedSocket, next) => {
       try {
+        logger.info('WebSocket connection attempt', {
+          origin: socket.handshake.headers.origin,
+          userAgent: socket.handshake.headers['user-agent'],
+          address: socket.handshake.address
+        });
+
         const token = socket.handshake.auth.token;
         
         if (!token) {
+          logger.warn('WebSocket connection rejected: no token provided');
           return next(new Error('Authentication required'));
         }
 
@@ -287,19 +328,37 @@ export class WebSocketServer {
   /**
    * Set up chat notification listeners from database
    */
-  private setupChatNotificationListeners() {
-    // Listen for new chat messages from database notifications
-    const client = pool.connect().then(client => {
+  private async setupChatNotificationListeners() {
+    try {
+      // Listen for new chat messages from database notifications
+      const client = await pool.connect();
+      
       client.on('notification', (msg) => {
-        if (msg.channel === 'chat_message' && msg.payload) {
-          const messageData = JSON.parse(msg.payload);
-          this.broadcastChatMessage(messageData);
+        try {
+          if (msg.channel === 'chat_message' && msg.payload) {
+            logger.info(`Received chat notification: ${msg.payload.substring(0, 100)}...`);
+            const messageData = JSON.parse(msg.payload);
+            this.broadcastChatMessage(messageData);
+          }
+        } catch (error) {
+          logger.error('Error parsing chat notification:', error);
+          logger.error('Raw payload:', msg.payload);
         }
       });
       
-      client.query('LISTEN chat_message');
-      logger.info('Chat WebSocket listening for database notifications');
-    });
+      client.on('error', (error) => {
+        logger.error('Database notification client error:', error);
+      });
+      
+      await client.query('LISTEN chat_message');
+      logger.info('Chat WebSocket successfully listening for database notifications');
+      
+      // Keep the client connection alive - don't release it
+      // The client will be released when the WebSocket server shuts down
+      
+    } catch (error) {
+      logger.error('Failed to setup chat notification listeners:', error);
+    }
   }
   
   /**
