@@ -39,9 +39,13 @@ export function useChatWebSocket({
     if (!token) return;
 
     const connectSocket = () => {
-      const socket = io(typeof window !== 'undefined' && import.meta.env.PROD
+      // Determine the correct WebSocket URL
+      const wsUrl = typeof window !== 'undefined' && import.meta.env.PROD
         ? window.location.origin 
-        : 'http://localhost:3000', {
+        : 'http://localhost:3000';
+      
+      console.log('Connecting to WebSocket at:', wsUrl);
+      const socket = io(wsUrl, {
         path: '/ws',
         auth: { token },
         transports: ['websocket', 'polling'],
@@ -104,6 +108,7 @@ export function useChatWebSocket({
 
   // Emit functions
   const joinRoom = useCallback((roomId: number) => {
+    console.log('Joining chat room:', roomId);
     socketRef.current?.emit('chat:join_room', { room_id: roomId });
   }, []);
 
