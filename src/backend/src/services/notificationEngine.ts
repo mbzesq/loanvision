@@ -194,7 +194,7 @@ export class NotificationEngine extends EventEmitter {
       SELECT 
         n.*,
         it.task_type,
-        it.title as task_title,
+        it.subject as task_title,
         it.priority as task_priority
       FROM notifications n
       JOIN inbox_items it ON n.inbox_item_id = it.id
