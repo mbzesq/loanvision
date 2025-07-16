@@ -51,8 +51,13 @@ export function useChatWebSocket({
       
       let wsUrl;
       if (isProduction) {
-        // Use the correct backend URL for production
-        wsUrl = 'https://loanvision-backend.onrender.com';
+        // Check if backend is on the same domain or different
+        // If you're accessing the frontend from nplvision.com, try connecting to the same domain first
+        if (window.location.hostname === 'nplvision.com') {
+          wsUrl = window.location.origin; // Same origin
+        } else {
+          wsUrl = 'https://loanvision-backend.onrender.com';
+        }
       } else {
         wsUrl = 'http://localhost:3000';
       }
@@ -64,16 +69,24 @@ export function useChatWebSocket({
         originalOrigin: typeof window !== 'undefined' ? window.location.origin : 'undefined',
         wsUrl
       });
-      console.log('Creating WebSocket connection with:', { wsUrl, hasToken: !!token, tokenLength: token?.length });
+      console.log('Creating WebSocket connection with:', { 
+        wsUrl, 
+        hasToken: !!token, 
+        tokenLength: token?.length,
+        isProduction,
+        currentOrigin: window.location.origin,
+        hostname: window.location.hostname
+      });
       
       const socket = io(wsUrl, {
         path: '/ws',
         auth: { token },
-        // Allow WebSocket and polling in both environments
-        transports: ['websocket', 'polling'],
-        upgrade: true, // Allow WebSocket upgrade
+        // Use polling first in production, then upgrade to WebSocket
+        transports: isProduction ? ['polling', 'websocket'] : ['websocket', 'polling'],
+        upgrade: true,
         timeout: 20000,
-        autoConnect: true
+        autoConnect: true,
+        forceNew: true
       });
 
       socketRef.current = socket;
