@@ -26,8 +26,11 @@ const server = createServer(app);
 const PORT = process.env.PORT || 3000;
 
 // Initialize Notification Engine and WebSocket Server
+console.log('Initializing Notification Engine...');
 const notificationEngine = new NotificationEngine(pool);
+console.log('Initializing WebSocket server...');
 const wsServer = new WebSocketServer(server, notificationEngine);
+console.log('WebSocket server initialized successfully');
 
 // This entire block should be added right after const app = express();
 const allowedOrigins = [
@@ -73,7 +76,13 @@ app.get('/api/health', async (req, res) => {
     res.json({
       message: "This is a temporary test endpoint.",
       loanId: "0000359811",
-      timelineData: timeline
+      timelineData: timeline,
+      websocket: {
+        enabled: true,
+        path: '/ws',
+        status: 'running'
+      },
+      environment: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
     console.error("Error in test endpoint:", error);
@@ -177,6 +186,7 @@ const startServer = async () => {
 
   server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`WebSocket server available at ws://localhost:${PORT}/ws`);
   });
 };
 

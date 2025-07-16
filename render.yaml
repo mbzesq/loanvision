@@ -1,0 +1,55 @@
+services:
+  - type: web
+    name: nplvision-backend
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: cd src/backend && npm install && npm run build
+    startCommand: cd src/backend && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nplvision-db
+          property: connectionString
+    autoDeploy: true
+    # Enable WebSocket support
+    headers:
+      - path: /ws/*
+        name: Upgrade
+        value: websocket
+      - path: /ws/*
+        name: Connection
+        value: upgrade
+
+  - type: web
+    name: nplvision-frontend
+    env: static
+    region: oregon
+    plan: starter
+    buildCommand: cd src/frontend && npm install && npm run build
+    staticPublishPath: src/frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: nplvision-backend
+          property: host
+    autoDeploy: true
+    # Custom headers for WebSocket support
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+
+databases:
+  - name: nplvision-db
+    databaseName: loanvision_db
+    user: postgres
+    region: oregon
+    plan: starter
