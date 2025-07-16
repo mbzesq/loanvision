@@ -104,22 +104,23 @@ export class WebSocketServer {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-me-in-production') as any;
         
         logger.info('JWT verification successful', {
+          id: decoded.id,
           userId: decoded.userId,
           email: decoded.email,
           organizationId: decoded.organizationId,
           exp: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : null
         });
         
-        socket.userId = decoded.userId;
+        socket.userId = decoded.id; // Use 'id' field from JWT, not 'userId'
         socket.userEmail = decoded.email;
         socket.organizationId = decoded.organizationId;
         socket.currentChatRooms = new Set();
         
         // Track user connection
-        this.addUserSocket(decoded.userId, socket.id);
+        this.addUserSocket(decoded.id, socket.id);
         
         // Update user presence to online
-        await ChatService.updateUserPresence(decoded.userId, 'online');
+        await ChatService.updateUserPresence(decoded.id, 'online');
         
         logger.info(`User ${decoded.email} connected via WebSocket`);
         next();
