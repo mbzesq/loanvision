@@ -37,6 +37,12 @@ export function useChatWebSocket({
   // Initialize socket connection
   useEffect(() => {
     if (!token) return;
+    
+    // Temporarily disable WebSocket in production to prevent connection loops
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      console.log('Chat WebSocket disabled in production - using API only');
+      return;
+    }
 
     const connectSocket = () => {
       // Determine the correct WebSocket URL
