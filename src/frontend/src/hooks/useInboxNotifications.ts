@@ -56,7 +56,16 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
   useEffect(() => {
     if (!isAuthenticated || !token) return;
 
-    const socket = io(import.meta.env.VITE_WS_URL || 'http://localhost:3000', {
+    // Determine the correct WebSocket URL (consistent with chat WebSocket)
+    const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+    const wsUrl = isProduction ? window.location.origin : 'http://localhost:3000';
+    
+    console.log('Inbox WebSocket environment detection:', {
+      hostname: typeof window !== 'undefined' ? window.location.hostname : 'undefined',
+      isProduction,
+      wsUrl
+    });
+    const socket = io(wsUrl, {
       path: '/ws',
       auth: { token },
       reconnection: true,

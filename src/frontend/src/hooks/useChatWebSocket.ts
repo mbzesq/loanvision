@@ -40,11 +40,14 @@ export function useChatWebSocket({
 
     const connectSocket = () => {
       // Determine the correct WebSocket URL
-      const wsUrl = typeof window !== 'undefined' && import.meta.env.PROD
-        ? window.location.origin 
-        : 'http://localhost:3000';
+      const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+      const wsUrl = isProduction ? window.location.origin : 'http://localhost:3000';
       
-      console.log('Connecting to WebSocket at:', wsUrl);
+      console.log('Environment detection:', {
+        hostname: typeof window !== 'undefined' ? window.location.hostname : 'undefined',
+        isProduction,
+        wsUrl
+      });
       const socket = io(wsUrl, {
         path: '/ws',
         auth: { token },
