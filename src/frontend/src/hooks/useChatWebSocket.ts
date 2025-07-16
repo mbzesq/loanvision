@@ -38,26 +38,40 @@ export function useChatWebSocket({
   useEffect(() => {
     if (!token) return;
     
-    // Temporarily disable WebSocket in production to prevent connection loops
-    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-      console.log('Chat WebSocket disabled in production - using API only');
-      return;
-    }
+    // Re-enable WebSocket with proper protocol detection
+    // if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    //   console.log('Chat WebSocket disabled in production - using API only');
+    //   return;
+    // }
 
     const connectSocket = () => {
-      // Determine the correct WebSocket URL
+      // Determine the correct WebSocket URL with proper protocol
       const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
-      const wsUrl = isProduction ? window.location.origin : 'http://localhost:3000';
+      
+      let wsUrl;
+      if (isProduction) {
+        // Force HTTPS protocol for WebSocket in production
+        const origin = window.location.origin.replace('http://', 'https://');
+        wsUrl = origin;
+      } else {
+        wsUrl = 'http://localhost:3000';
+      }
       
       console.log('Environment detection:', {
         hostname: typeof window !== 'undefined' ? window.location.hostname : 'undefined',
+        protocol: typeof window !== 'undefined' ? window.location.protocol : 'undefined',
         isProduction,
+        originalOrigin: typeof window !== 'undefined' ? window.location.origin : 'undefined',
         wsUrl
       });
       const socket = io(wsUrl, {
         path: '/ws',
         auth: { token },
         transports: ['websocket', 'polling'],
+        upgrade: true,
+        rememberUpgrade: false,
+        timeout: 20000,
+        forceNew: true
       });
 
       socketRef.current = socket;
