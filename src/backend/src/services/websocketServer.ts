@@ -120,10 +120,12 @@ export class WebSocketServer {
         socket.currentChatRooms = new Set();
         
         // Track user connection
-        this.addUserSocket(socket.userId, socket.id);
-        
-        // Update user presence to online
-        await ChatService.updateUserPresence(socket.userId, 'online');
+        if (socket.userId) {
+          this.addUserSocket(socket.userId, socket.id);
+          
+          // Update user presence to online
+          await ChatService.updateUserPresence(socket.userId, 'online');
+        }
         
         logger.info(`User ${decoded.email} connected via WebSocket`);
         next();
