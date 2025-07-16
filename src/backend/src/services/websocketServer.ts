@@ -101,7 +101,7 @@ export class WebSocketServer {
         }
 
         // Verify JWT token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-me-in-production') as any;
         
         logger.info('JWT verification successful', {
           userId: decoded.userId,
