@@ -50,8 +50,8 @@ export function useChatWebSocket({
       
       let wsUrl;
       if (isProduction) {
-        // Use the backend URL for production
-        wsUrl = 'https://loanvision.onrender.com';
+        // Use the correct backend URL for production
+        wsUrl = 'https://loanvision-backend.onrender.com';
       } else {
         wsUrl = 'http://localhost:3000';
       }
@@ -66,9 +66,9 @@ export function useChatWebSocket({
       const socket = io(wsUrl, {
         path: '/ws',
         auth: { token },
-        // Force polling in production, WebSocket in development
-        transports: isProduction ? ['polling'] : ['websocket', 'polling'],
-        upgrade: false, // Disable WebSocket upgrade in production
+        // Allow WebSocket and polling in both environments
+        transports: ['websocket', 'polling'],
+        upgrade: true, // Allow WebSocket upgrade
         timeout: 20000,
         autoConnect: true
       });
@@ -100,7 +100,12 @@ export function useChatWebSocket({
       });
 
       // Chat event listeners
-      socket.on('chat:message_received', onMessageReceived || (() => {}));
+      socket.on('chat:message_received', (data) => {
+        console.log('WebSocket received chat:message_received:', data);
+        if (onMessageReceived) {
+          onMessageReceived(data);
+        }
+      });
       socket.on('chat:message_sent', onMessageSent || (() => {}));
       socket.on('chat:user_typing', onUserTyping || (() => {}));
       socket.on('chat:user_stopped_typing', onUserStoppedTyping || (() => {}));

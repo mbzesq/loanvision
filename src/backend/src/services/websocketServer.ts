@@ -19,6 +19,7 @@ export class WebSocketServer {
   private userSockets: Map<number, Set<string>> = new Map();
   private chatRoomUsers: Map<number, Set<number>> = new Map(); // roomId -> Set of userIds
   private userTypingTimers: Map<string, NodeJS.Timeout> = new Map(); // userId-roomId -> timeout
+  private notificationClient: any = null; // Database notification client
 
   constructor(httpServer: HttpServer, notificationEngine: NotificationEngine) {
     this.notificationEngine = notificationEngine;
@@ -28,8 +29,10 @@ export class WebSocketServer {
       'https://nplvision.com',
       'https://loanvision-frontend.onrender.com',
       'http://localhost:5173', // Vite dev server
+      'http://localhost:5174', // Alternative Vite dev server
       'http://localhost:3001', // Alternative dev server
       'http://127.0.0.1:5173', // Alternative localhost
+      'http://127.0.0.1:5174', // Alternative localhost
       'http://localhost:3000', // Same-origin requests
       'http://127.0.0.1:3000'  // Alternative same-origin
     ];
@@ -111,16 +114,16 @@ export class WebSocketServer {
           exp: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : null
         });
         
-        socket.userId = decoded.id; // Use 'id' field from JWT, not 'userId'
+        socket.userId = decoded.userId || decoded.id; // Support both 'userId' and 'id' fields from JWT
         socket.userEmail = decoded.email;
         socket.organizationId = decoded.organizationId;
         socket.currentChatRooms = new Set();
         
         // Track user connection
-        this.addUserSocket(decoded.id, socket.id);
+        this.addUserSocket(socket.userId, socket.id);
         
         // Update user presence to online
-        await ChatService.updateUserPresence(decoded.id, 'online');
+        await ChatService.updateUserPresence(socket.userId, 'online');
         
         logger.info(`User ${decoded.email} connected via WebSocket`);
         next();
@@ -363,7 +366,9 @@ export class WebSocketServer {
         try {
           if (msg.channel === 'chat_message' && msg.payload) {
             logger.info(`Received chat notification: ${msg.payload.substring(0, 100)}...`);
+            logger.info(`Full payload: ${msg.payload}`);
             const messageData = JSON.parse(msg.payload);
+            logger.info(`Parsed message data:`, messageData);
             this.broadcastChatMessage(messageData);
           }
         } catch (error) {
@@ -374,16 +379,38 @@ export class WebSocketServer {
       
       client.on('error', (error) => {
         logger.error('Database notification client error:', error);
+        // Attempt to reconnect after error
+        setTimeout(() => {
+          this.setupChatNotificationListeners().catch(reconnectError => {
+            logger.error('Failed to reconnect database notification listener:', reconnectError);
+          });
+        }, 5000);
+      });
+      
+      client.on('end', () => {
+        logger.warn('Database notification client connection ended');
+        // Attempt to reconnect
+        setTimeout(() => {
+          this.setupChatNotificationListeners().catch(reconnectError => {
+            logger.error('Failed to reconnect database notification listener:', reconnectError);
+          });
+        }, 5000);
       });
       
       await client.query('LISTEN chat_message');
       logger.info('Chat WebSocket successfully listening for database notifications');
       
-      // Keep the client connection alive - don't release it
-      // The client will be released when the WebSocket server shuts down
+      // Store the client so we can clean it up later
+      this.notificationClient = client;
       
     } catch (error) {
       logger.error('Failed to setup chat notification listeners:', error);
+      // Retry after delay
+      setTimeout(() => {
+        this.setupChatNotificationListeners().catch(retryError => {
+          logger.error('Failed to retry database notification listener setup:', retryError);
+        });
+      }, 5000);
     }
   }
   
@@ -596,8 +623,7 @@ export class WebSocketServer {
   private broadcastChatMessage(messageData: any) {
     const roomId = messageData.room_id;
     
-    // Send to all users in the chat room
-    this.io.to(`chat:${roomId}`).emit('chat:message_received', {
+    const broadcastData = {
       id: messageData.message_id,
       room_id: messageData.room_id,
       user_id: messageData.user_id,
@@ -608,7 +634,12 @@ export class WebSocketServer {
         name: messageData.user_name
       },
       room_name: messageData.room_name
-    });
+    };
+    
+    logger.info(`Broadcasting to room ${roomId}:`, broadcastData);
+    
+    // Send to all users in the chat room
+    this.io.to(`chat:${roomId}`).emit('chat:message_received', broadcastData);
     
     logger.info(`Chat message broadcasted to room ${roomId}: ${messageData.content.substring(0, 50)}...`);
   }
@@ -626,6 +657,31 @@ export class WebSocketServer {
         connectionCount: sockets.size
       }))
     };
+  }
+
+  /**
+   * Clean up resources
+   */
+  async cleanup() {
+    if (this.notificationClient) {
+      try {
+        await this.notificationClient.query('UNLISTEN chat_message');
+        this.notificationClient.release();
+        this.notificationClient = null;
+        logger.info('Database notification client cleaned up');
+      } catch (error) {
+        logger.error('Error cleaning up notification client:', error);
+      }
+    }
+    
+    // Close all socket connections
+    this.io.close();
+    
+    // Clear all timers
+    this.userTypingTimers.forEach(timer => clearTimeout(timer));
+    this.userTypingTimers.clear();
+    
+    logger.info('WebSocket server cleaned up');
   }
 }
 
