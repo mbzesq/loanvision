@@ -19,7 +19,7 @@ export interface InboxTask {
   description: string;
   loanId?: string;
   documentId?: number;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: 'low' | 'normal' | 'high' | 'urgent';
   status: 'unread' | 'in_progress' | 'completed' | 'archived';
   assignedTo: number;
   metadata: any;
@@ -227,7 +227,7 @@ export class NotificationEngine extends EventEmitter {
     const { rows } = await this.db.query(`
       SELECT
         COUNT(*) FILTER (WHERE n.read_at IS NULL) as unread_count,
-        COUNT(*) FILTER (WHERE it.priority = 'critical' AND n.read_at IS NULL) as critical_unread,
+        COUNT(*) FILTER (WHERE it.priority = 'urgent' AND n.read_at IS NULL) as critical_unread,
         COUNT(*) FILTER (WHERE it.priority = 'high' AND n.read_at IS NULL) as high_unread,
         COUNT(*) FILTER (WHERE n.created_at > NOW() - INTERVAL '24 hours') as today_count
       FROM notifications n
