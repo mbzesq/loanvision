@@ -346,7 +346,7 @@ BEGIN
                     SELECT 1 FROM inbox_items
                     WHERE task_type = 'document_upload_required'
                     AND loan_id = loan.loan_id
-                    AND status IN ('pending', 'in_progress')
+                    AND status IN ('unread', 'in_progress')
                 ) THEN
                     PERFORM create_inbox_task_with_notification(
                         'document_upload_required',
@@ -378,7 +378,7 @@ BEGIN
                     SELECT 1 FROM inbox_items
                     WHERE task_type = 'title_report_upload_required'
                     AND loan_id = loan.loan_id
-                    AND status IN ('pending', 'in_progress')
+                    AND status IN ('unread', 'in_progress')
                 ) THEN
                     PERFORM create_inbox_task_with_notification(
                         'title_report_upload_required',

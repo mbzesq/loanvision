@@ -70,7 +70,7 @@ export function useChatWebSocket({
         transports: isProduction ? ['polling'] : ['websocket', 'polling'],
         upgrade: false, // Disable WebSocket upgrade in production
         timeout: 20000,
-        forceNew: true
+        autoConnect: true
       });
 
       socketRef.current = socket;

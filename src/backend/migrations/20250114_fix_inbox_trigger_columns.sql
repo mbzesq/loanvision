@@ -26,7 +26,7 @@ BEGIN
         type, source
     ) VALUES (
         task_type_param, title_param, description_param, loan_id_param, document_id_param,
-        priority_param, 'pending', assignee_id, metadata_param, 1,
+        priority_param, 'unread', assignee_id, metadata_param, 1,
         'task', 'system'
     ) RETURNING id INTO task_id;
     
