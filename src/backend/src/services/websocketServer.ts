@@ -57,12 +57,20 @@ export class WebSocketServer {
         methods: ['GET', 'POST']
       },
       path: '/ws',
-      allowEIO3: true
+      allowEIO3: true,
+      pingTimeout: 60000,
+      pingInterval: 25000,
+      connectTimeout: 45000
     });
 
     logger.info('WebSocket server initialized', {
       allowedOrigins,
       path: '/ws'
+    });
+
+    // Add engine-level error handling
+    this.io.engine.on('connection_error', (err: any) => {
+      logger.error('Socket.IO Engine connection error:', err);
     });
 
     this.setupMiddleware();
@@ -101,7 +109,11 @@ export class WebSocketServer {
         });
         
         if (!token) {
-          logger.warn('WebSocket connection rejected: no token provided');
+          logger.warn('WebSocket connection rejected: no token provided', {
+            authKeys: Object.keys(socket.handshake.auth),
+            query: socket.handshake.query,
+            hasQuery: !!socket.handshake.query
+          });
           return next(new Error('Authentication required'));
         }
 
