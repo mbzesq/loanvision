@@ -333,6 +333,7 @@ export class WebSocketServer {
   private setupChatEventHandlers(socket: AuthenticatedSocket) {
     // Join a chat room
     socket.on('chat:join_room', async (data: { room_id: number }) => {
+      logger.info(`WebSocket received chat:join_room event from user ${socket.userId} for room ${data.room_id}`);
       await this.joinRoom(socket, data.room_id);
     });
     

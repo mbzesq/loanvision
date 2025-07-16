@@ -138,8 +138,13 @@ export function useChatWebSocket({
 
   // Emit functions
   const joinRoom = useCallback((roomId: number) => {
-    console.log('Joining chat room:', roomId);
-    socketRef.current?.emit('chat:join_room', { room_id: roomId });
+    console.log('Joining chat room:', roomId, 'Socket connected:', socketRef.current?.connected);
+    if (socketRef.current?.connected) {
+      socketRef.current.emit('chat:join_room', { room_id: roomId });
+      console.log('Emitted chat:join_room event for room:', roomId);
+    } else {
+      console.warn('Cannot join room - socket not connected');
+    }
   }, []);
 
   const leaveRoom = useCallback((roomId: number) => {
