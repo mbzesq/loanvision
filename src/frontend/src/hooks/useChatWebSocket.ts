@@ -50,8 +50,8 @@ export function useChatWebSocket({
       
       let wsUrl;
       if (isProduction) {
-        // Use the same URL as the API (which we know works)
-        wsUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
+        // Use the backend URL for production
+        wsUrl = 'https://loanvision.onrender.com';
       } else {
         wsUrl = 'http://localhost:3000';
       }
