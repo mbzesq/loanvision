@@ -58,7 +58,9 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
 
     // Determine the correct WebSocket URL (consistent with chat WebSocket)
     const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
-    const wsUrl = isProduction ? window.location.origin : 'http://localhost:3000';
+    const wsUrl = isProduction 
+      ? (import.meta.env.VITE_API_BASE_URL || window.location.origin)
+      : 'http://localhost:3000';
     
     console.log('Inbox WebSocket environment detection:', {
       hostname: typeof window !== 'undefined' ? window.location.hostname : 'undefined',
@@ -68,6 +70,9 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
     const socket = io(wsUrl, {
       path: '/ws',
       auth: { token },
+      // Force polling in production, WebSocket in development
+      transports: isProduction ? ['polling'] : ['websocket', 'polling'],
+      upgrade: false, // Disable WebSocket upgrade in production
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

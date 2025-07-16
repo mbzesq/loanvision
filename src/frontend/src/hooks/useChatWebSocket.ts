@@ -50,9 +50,8 @@ export function useChatWebSocket({
       
       let wsUrl;
       if (isProduction) {
-        // Force HTTPS protocol for WebSocket in production
-        const origin = window.location.origin.replace('http://', 'https://');
-        wsUrl = origin;
+        // Use the same URL as the API (which we know works)
+        wsUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
       } else {
         wsUrl = 'http://localhost:3000';
       }
@@ -67,9 +66,9 @@ export function useChatWebSocket({
       const socket = io(wsUrl, {
         path: '/ws',
         auth: { token },
-        transports: ['websocket', 'polling'],
-        upgrade: true,
-        rememberUpgrade: false,
+        // Force polling in production, WebSocket in development
+        transports: isProduction ? ['polling'] : ['websocket', 'polling'],
+        upgrade: false, // Disable WebSocket upgrade in production
         timeout: 20000,
         forceNew: true
       });
