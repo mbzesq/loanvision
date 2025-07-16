@@ -123,11 +123,15 @@ export class WebSocketServer {
         next();
         
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorName = error instanceof Error ? error.name : 'UnknownError';
+        const errorStack = error instanceof Error ? error.stack : undefined;
+        
         logger.error('WebSocket authentication failed:', {
-          error: error.message,
+          error: errorMessage,
           tokenProvided: !!token,
-          errorName: error.name,
-          errorStack: error.stack
+          errorName: errorName,
+          errorStack: errorStack
         });
         next(new Error('Authentication failed'));
       }
