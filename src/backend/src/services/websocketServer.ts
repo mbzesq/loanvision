@@ -86,7 +86,8 @@ export class WebSocketServer {
         logger.info('WebSocket connection attempt', {
           origin: socket.handshake.headers.origin,
           userAgent: socket.handshake.headers['user-agent'],
-          address: socket.handshake.address
+          address: socket.handshake.address,
+          auth: socket.handshake.auth
         });
 
         token = socket.handshake.auth.token;
@@ -95,7 +96,8 @@ export class WebSocketServer {
           hasToken: !!token,
           tokenLength: token ? token.length : 0,
           tokenPrefix: token ? token.substring(0, 20) + '...' : null,
-          jwtSecret: process.env.JWT_SECRET ? 'SET' : 'NOT_SET'
+          jwtSecret: process.env.JWT_SECRET ? 'SET' : 'NOT_SET',
+          authKeys: Object.keys(socket.handshake.auth)
         });
         
         if (!token) {

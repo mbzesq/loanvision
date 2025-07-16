@@ -36,6 +36,7 @@ export function useChatWebSocket({
 
   // Initialize socket connection
   useEffect(() => {
+    console.log('useChatWebSocket: token check', { hasToken: !!token, tokenLength: token?.length });
     if (!token) return;
     
     // Re-enable WebSocket with proper protocol detection
@@ -63,6 +64,8 @@ export function useChatWebSocket({
         originalOrigin: typeof window !== 'undefined' ? window.location.origin : 'undefined',
         wsUrl
       });
+      console.log('Creating WebSocket connection with:', { wsUrl, hasToken: !!token, tokenLength: token?.length });
+      
       const socket = io(wsUrl, {
         path: '/ws',
         auth: { token },
