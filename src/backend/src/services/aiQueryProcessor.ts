@@ -217,22 +217,28 @@ export class AIQueryProcessor {
     userContext: UserContext,
     request: AIQueryRequest
   ): Promise<LoanQueryContext> {
-    // Get loans the user has access to
+    // Get loans the user's organization has access to via organization_loan_access table
     const loanQuery = `
-      SELECT loan_id, borrower_name, co_borrower_name, property_address, 
-             current_balance, credit_score, payment_status, loan_type,
-             property_state, property_city, property_zip,
-             original_balance, interest_rate, monthly_payment,
-             delinquency_status, days_delinquent, last_payment_date
+      SELECT DISTINCT dmc.loan_id, dmc.borrower_name, dmc.co_borrower_name, dmc.property_address, 
+             dmc.current_balance, dmc.credit_score, dmc.payment_status, dmc.loan_type,
+             dmc.property_state, dmc.property_city, dmc.property_zip,
+             dmc.original_balance, dmc.interest_rate, dmc.monthly_payment,
+             dmc.delinquency_status, dmc.days_delinquent, dmc.last_payment_date
       FROM daily_metrics_current dmc
-      JOIN users u ON u.organization_id = dmc.organization_id
-      WHERE u.id = $1
-      ${userContext.permissions.includes('view_all_loans') ? '' : 'AND dmc.assigned_user_id = $1'}
+      JOIN organization_loan_access ola ON dmc.loan_id = ola.loan_id
+      WHERE ola.organization_id = $1 
+      AND ola.is_active = true 
+      AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
+      ${userContext.permissions.includes('view_all_loans') ? '' : 'AND dmc.assigned_user_id = $2'}
       ORDER BY dmc.created_at DESC
       ${request.maxResults ? `LIMIT ${request.maxResults}` : 'LIMIT 1000'}
     `;
 
-    const loanResult = await this.pool.query(loanQuery, [userContext.userId]);
+    const queryParams = userContext.permissions.includes('view_all_loans') 
+      ? [userContext.organizationId] 
+      : [userContext.organizationId, userContext.userId];
+    
+    const loanResult = await this.pool.query(loanQuery, queryParams);
     const loans = loanResult.rows;
 
     // Get available fields from the first loan
