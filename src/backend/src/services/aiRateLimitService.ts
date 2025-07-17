@@ -168,8 +168,18 @@ export class AIRateLimitService {
     const result = await this.pool.query(`
       INSERT INTO ai_rate_limits (user_id, date, queries_used, tokens_used)
       VALUES ($1, $2, 0, 0)
+      ON CONFLICT (user_id, date) 
+      DO NOTHING
       RETURNING *
     `, [userId, date]);
+
+    // If no rows returned due to conflict, fetch the existing record
+    if (result.rows.length === 0) {
+      const existingResult = await this.pool.query(`
+        SELECT * FROM ai_rate_limits WHERE user_id = $1 AND date = $2
+      `, [userId, date]);
+      return existingResult.rows[0];
+    }
 
     return result.rows[0];
   }
