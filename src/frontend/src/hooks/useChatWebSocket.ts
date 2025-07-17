@@ -72,19 +72,28 @@ export function useChatWebSocket({
       const socket = io(wsUrl, {
         path: '/ws',
         auth: { token },
-        // Use polling first in production, then upgrade to WebSocket
-        transports: isProduction ? ['polling', 'websocket'] : ['websocket', 'polling'],
-        upgrade: true,
-        timeout: 20000,
+        // Start with polling only in production for stability
+        transports: isProduction ? ['polling'] : ['websocket', 'polling'],
+        upgrade: false, // Disable transport upgrade in production
+        timeout: 30000,
         autoConnect: true,
-        forceNew: true
+        forceNew: true,
+        // Add retry configuration
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000
       });
 
       socketRef.current = socket;
 
       // Connection events
       socket.on('connect', () => {
-        console.log('Chat WebSocket connected with ID:', socket.id);
+        console.log('✅ Chat WebSocket connected!', {
+          id: socket.id,
+          transport: socket.io.engine.transport.name,
+          url: wsUrl
+        });
         // Clear any reconnection timeout
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
@@ -93,17 +102,33 @@ export function useChatWebSocket({
       });
 
       socket.on('disconnect', (reason) => {
-        console.log('Chat WebSocket disconnected:', reason);
+        console.log('❌ Chat WebSocket disconnected:', reason);
         // Auto-reconnect after 3 seconds if not manually disconnected
         if (reason !== 'io client disconnect') {
+          console.log('🔄 Auto-reconnecting in 3 seconds...');
           reconnectTimeoutRef.current = window.setTimeout(connectSocket, 3000);
         }
       });
 
       socket.on('connect_error', (error) => {
-        console.error('Chat WebSocket connection error:', error);
+        console.error('🚨 Chat WebSocket connection error:', {
+          error: error.message,
+          type: error.type,
+          description: error.description,
+          wsUrl
+        });
         // Retry connection after 5 seconds
+        console.log('🔄 Retrying connection in 5 seconds...');
         reconnectTimeoutRef.current = window.setTimeout(connectSocket, 5000);
+      });
+
+      // Add transport change logging
+      socket.io.on('upgrade', () => {
+        console.log('🚀 Transport upgraded to:', socket.io.engine.transport.name);
+      });
+
+      socket.io.on('upgradeError', (error) => {
+        console.warn('⚠️ Transport upgrade failed:', error);
       });
 
       // Chat event listeners

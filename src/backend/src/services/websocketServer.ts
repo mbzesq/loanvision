@@ -64,9 +64,15 @@ export class WebSocketServer {
       },
       path: '/ws',
       allowEIO3: true,
-      pingTimeout: 60000,
-      pingInterval: 25000,
-      connectTimeout: 45000
+      // Increase timeouts for production stability
+      pingTimeout: 120000, // 2 minutes
+      pingInterval: 30000,  // 30 seconds
+      connectTimeout: 60000, // 1 minute
+      // Explicitly allow both transports
+      transports: ['polling', 'websocket'],
+      // Add more lenient settings for production
+      serveClient: false,
+      allowUpgrades: true
     });
 
     logger.info('WebSocket server initialized', {
