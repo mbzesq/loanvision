@@ -88,7 +88,12 @@ export function ChatMessageList({ messages = [], currentUser }: ChatMessageListP
                   ) : (
                     /* Regular text messages */
                     <div className="text-sm whitespace-pre-wrap">
-                      {message.content}
+                      {(() => {
+                        if (message.thread_count === 0) {
+                          console.log('Zero thread_count found on message:', message.id, message.content);
+                        }
+                        return message.content;
+                      })()}
                     </div>
                   )}
 
@@ -117,19 +122,25 @@ export function ChatMessageList({ messages = [], currentUser }: ChatMessageListP
                 </div>
 
                 {/* Message reactions */}
-                {message.reactions && message.reactions.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {message.reactions.map((reaction, reactionIndex) => (
-                      <button
-                        key={reactionIndex}
-                        className="bg-gray-100 hover:bg-gray-200 rounded-full px-2 py-1 text-xs flex items-center space-x-1 transition-colors"
-                      >
-                        <span>{reaction.emoji}</span>
-                        <span className="text-gray-600">1</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {(() => {
+                  if (message.reactions && message.reactions.length > 0) {
+                    console.log('Message has reactions:', message.id, message.reactions);
+                    return (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {message.reactions.map((reaction, reactionIndex) => (
+                          <button
+                            key={reactionIndex}
+                            className="bg-gray-100 hover:bg-gray-200 rounded-full px-2 py-1 text-xs flex items-center space-x-1 transition-colors"
+                          >
+                            <span>{reaction.emoji}</span>
+                            <span className="text-gray-600">1</span>
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 {/* Grouped message time - show only time for grouped messages */}
                 {isGrouped && (

@@ -71,7 +71,7 @@ export function UserStatusSelector({
           />
           
           {/* Dropdown */}
-          <div className="absolute bottom-full left-0 right-0 mb-1 z-50 bg-white border border-gray-200 rounded-md shadow-lg py-1">
+          <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white border border-gray-200 rounded-md shadow-lg py-1">
             {statusOptions.map((option) => (
               <button
                 key={option.value}
