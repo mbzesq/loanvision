@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import axiosInstance from '../utils/axios';
 
 export interface AIQueryRequest {
   query: string;
@@ -69,15 +68,7 @@ class AIAssistantAPI {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = `${API_BASE_URL}/api/ai`;
-  }
-
-  private getAuthHeaders() {
-    const token = localStorage.getItem('token');
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
+    this.baseURL = '/api/ai';
   }
 
   /**
@@ -85,9 +76,7 @@ class AIAssistantAPI {
    */
   async sendQuery(request: AIQueryRequest): Promise<AIQueryResponse> {
     try {
-      const response = await axios.post(`${this.baseURL}/query`, request, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await axiosInstance.post(`${this.baseURL}/query`, request);
 
       if (response.data.success) {
         return {
@@ -114,9 +103,7 @@ class AIAssistantAPI {
    */
   async getConversations(): Promise<AIConversation[]> {
     try {
-      const response = await axios.get(`${this.baseURL}/conversations`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await axiosInstance.get(`${this.baseURL}/conversations`);
 
       if (response.data.success) {
         return response.data.data.conversations.map((conv: any) => ({
@@ -141,9 +128,7 @@ class AIAssistantAPI {
    */
   async getConversationMessages(conversationId: string): Promise<AIMessage[]> {
     try {
-      const response = await axios.get(`${this.baseURL}/conversations/${conversationId}/messages`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await axiosInstance.get(`${this.baseURL}/conversations/${conversationId}/messages`);
 
       if (response.data.success) {
         return response.data.data.messages.map((msg: any) => ({
@@ -167,9 +152,7 @@ class AIAssistantAPI {
    */
   async deleteConversation(conversationId: string): Promise<void> {
     try {
-      const response = await axios.delete(`${this.baseURL}/conversations/${conversationId}`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await axiosInstance.delete(`${this.baseURL}/conversations/${conversationId}`);
 
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to delete conversation');
@@ -188,9 +171,7 @@ class AIAssistantAPI {
    */
   async getRateLimitStatus(): Promise<RateLimitStatus> {
     try {
-      const response = await axios.get(`${this.baseURL}/rate-limit`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await axiosInstance.get(`${this.baseURL}/rate-limit`);
 
       if (response.data.success) {
         return {
@@ -222,9 +203,7 @@ class AIAssistantAPI {
     }>;
   }> {
     try {
-      const response = await axios.get(`${this.baseURL}/rate-limit/history`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await axiosInstance.get(`${this.baseURL}/rate-limit/history`);
 
       if (response.data.success) {
         return {
@@ -254,9 +233,7 @@ class AIAssistantAPI {
    */
   async getStats(): Promise<AIStats> {
     try {
-      const response = await axios.get(`${this.baseURL}/stats`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await axiosInstance.get(`${this.baseURL}/stats`);
 
       if (response.data.success) {
         return response.data.data;
@@ -282,9 +259,7 @@ class AIAssistantAPI {
     error?: string;
   }> {
     try {
-      const response = await axios.post(`${this.baseURL}/test`, {}, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await axiosInstance.post(`${this.baseURL}/test`, {});
 
       if (response.data.success) {
         return response.data.data;
