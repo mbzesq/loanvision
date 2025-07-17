@@ -18,7 +18,7 @@ export function Avatar({ user, size = 'md', showOnlineStatus = false, className 
 
   const getInitials = (user: ChatUser) => {
     if (!user.first_name && !user.last_name) {
-      return user.email.charAt(0).toUpperCase();
+      return user.email?.charAt(0)?.toUpperCase() || 'U';
     }
     return `${user.first_name?.charAt(0) || ''}${user.last_name?.charAt(0) || ''}`.toUpperCase();
   };
@@ -84,7 +84,7 @@ export function Avatar({ user, size = 'md', showOnlineStatus = false, className 
         <div
           className={`
             ${sizeClasses[size]} rounded-full flex items-center justify-center text-white font-medium
-            ${getBackgroundColor(user.email)}
+            ${getBackgroundColor(user.email || 'default@email.com')}
           `}
         >
           {getInitials(user)}

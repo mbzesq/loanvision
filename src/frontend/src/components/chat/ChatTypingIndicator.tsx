@@ -5,13 +5,16 @@ interface ChatTypingIndicatorProps {
 }
 
 export function ChatTypingIndicator({ typingUsers }: ChatTypingIndicatorProps) {
-  if (typingUsers.length === 0) return null;
+  if (!typingUsers || typingUsers.length === 0) return null;
 
   const getTypingText = () => {
     if (typingUsers.length === 1) {
-      return `${typingUsers[0].user_email.split('@')[0]} is typing...`;
+      const username = typingUsers[0]?.user_email?.split('@')[0] || 'Someone';
+      return `${username} is typing...`;
     } else if (typingUsers.length === 2) {
-      return `${typingUsers[0].user_email.split('@')[0]} and ${typingUsers[1].user_email.split('@')[0]} are typing...`;
+      const user1 = typingUsers[0]?.user_email?.split('@')[0] || 'Someone';
+      const user2 = typingUsers[1]?.user_email?.split('@')[0] || 'Someone';
+      return `${user1} and ${user2} are typing...`;
     } else {
       return `${typingUsers.length} people are typing...`;
     }

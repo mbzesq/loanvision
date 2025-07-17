@@ -12,7 +12,7 @@ export function ChatMessageArea() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const selectedRoom = state.selectedRoomId 
-    ? state.rooms.find(room => room.id === state.selectedRoomId)
+    ? (state.rooms || []).find(room => room.id === state.selectedRoomId)
     : null;
 
   const messages = state.selectedRoomId 

@@ -10,7 +10,7 @@ export function InternalChatContainer() {
   const { state, updateCurrentUserStatus } = useInternalChat();
 
   // Loading state
-  if (state.isLoading && state.rooms.length === 0) {
+  if (state.isLoading && (!state.rooms || state.rooms.length === 0)) {
     return (
       <div className="h-full flex flex-col">
         {/* Header with internal chat branding */}

@@ -16,8 +16,8 @@ export function ChatUserList() {
     .filter(user => user.id !== state.currentUser?.id) // Exclude current user
     .filter(user => {
       if (!searchTerm) return true;
-      const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
-      const email = user.email.toLowerCase();
+      const fullName = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
+      const email = (user.email || '').toLowerCase();
       const search = searchTerm.toLowerCase();
       return fullName.includes(search) || email.includes(search);
     })
@@ -29,7 +29,7 @@ export function ChatUserList() {
       
       if (aPriority !== bPriority) return aPriority - bPriority;
       
-      return `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`);
+      return `${a.first_name || ''} ${a.last_name || ''}`.localeCompare(`${b.first_name || ''} ${b.last_name || ''}`);
     });
 
   const displayUsers = isExpanded ? filteredUsers : filteredUsers.slice(0, 5);

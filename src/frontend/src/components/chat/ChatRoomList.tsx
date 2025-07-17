@@ -68,7 +68,7 @@ export function ChatRoomList() {
 
   // Show back button if a room is selected
   if (state.selectedRoomId) {
-    const selectedRoom = state.rooms.find(room => room.id === state.selectedRoomId);
+    const selectedRoom = (state.rooms || []).find(room => room.id === state.selectedRoomId);
     
     return (
       <div className="p-3 border-b border-gray-200">
@@ -112,7 +112,7 @@ export function ChatRoomList() {
 
       {/* Room List */}
       <div className="divide-y divide-gray-100">
-        {state.rooms.length === 0 ? (
+        {(!state.rooms || state.rooms.length === 0) ? (
           <div className="p-4 text-center text-gray-500">
             <Hash className="h-8 w-8 mx-auto mb-2 text-gray-300" />
             <p className="text-sm">No chat rooms available</p>
@@ -121,7 +121,7 @@ export function ChatRoomList() {
             </p>
           </div>
         ) : (
-          state.rooms.map((room) => {
+          (state.rooms || []).map((room) => {
             const unreadCount = state.unreadCounts[room.id] || 0;
             
             return (
