@@ -237,13 +237,19 @@ export class AIQueryProcessor {
     const coreLoanData = await this.getCoreLoanData(accessibleLoanIds, request.maxResults);
     const loanStats = await this.getLoanStatistics(accessibleLoanIds);
     
+    // For portfolio-level questions, provide all accessible loan data
+    const shouldIncludeAllLoans = request.includeContext && accessibleLoanIds.length <= 5000;
+    const fullLoanData = shouldIncludeAllLoans ? 
+      await this.getCoreLoanData(accessibleLoanIds) : // No limit for full dataset
+      coreLoanData;
+    
     // Build comprehensive context including data source information
     const context: LoanQueryContext = {
       totalLoans: accessibleLoanIds.length, // Use total accessible loans, not just sample
       availableFields: coreLoanData.length > 0 ? Object.keys(coreLoanData[0]) : [],
       sampleLoan: {},
       userPermissions: userContext.permissions,
-      filteredLoans: request.includeContext ? coreLoanData : undefined,
+      filteredLoans: request.includeContext ? fullLoanData : undefined,
       dataSourceInfo: this.getDataSourceInfo(),
       loanStatistics: loanStats // Add aggregated statistics
     };
@@ -284,7 +290,7 @@ export class AIQueryProcessor {
       FROM daily_metrics_current dmc
       WHERE dmc.loan_id = ANY($1)
       ORDER BY dmc.created_at DESC
-      ${maxResults ? `LIMIT ${maxResults}` : 'LIMIT 1000'}
+      ${maxResults ? `LIMIT ${maxResults}` : ''}
     `;
 
     const result = await this.pool.query(query, [loanIds]);

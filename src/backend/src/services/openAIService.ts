@@ -106,12 +106,13 @@ ${JSON.stringify(context.sampleLoan, null, 2)}
 
 RESPONSE GUIDELINES:
 1. Be concise and professional
-2. Use specific data when available
-3. Provide actionable insights
-4. Format numbers appropriately (currency, percentages)
-5. If you need more data, ask specific questions
-6. Always use anonymized placeholders in responses
-7. Focus on portfolio analysis, risk assessment, and loan performance
+2. For loan counts and portfolio statistics, use the PORTFOLIO STATISTICS section above (not the loan data array)
+3. Use specific data when available
+4. Provide actionable insights
+5. Format numbers appropriately (currency, percentages)
+6. If you need more data, ask specific questions
+7. Always use anonymized placeholders in responses
+8. Focus on portfolio analysis, risk assessment, and loan performance
 
 EXAMPLE INTERACTIONS:
 User: "What's the average credit score?"
