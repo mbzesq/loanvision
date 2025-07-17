@@ -80,7 +80,7 @@ export function ChatUserList() {
       </div>
 
       {/* User List */}
-      <div className="max-h-48 overflow-y-auto">
+      <div className="overflow-y-auto">
         {displayUsers.length === 0 ? (
           <div className="p-3 text-center text-gray-500">
             <p className="text-xs">

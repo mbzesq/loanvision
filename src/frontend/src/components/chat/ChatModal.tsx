@@ -125,7 +125,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
             {/* Chat Content */}
             <div className="flex-1 overflow-hidden bg-white rounded-b-lg" style={{ height: 'calc(100% - 120px)' }}>
               {activeTab === 'internal' && (
-                <div className="h-full border-l-4 border-blue-500">
+                <div className="h-full">
                   <ChatErrorBoundary>
                     <InternalChatContainer />
                   </ChatErrorBoundary>
@@ -133,7 +133,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
               )}
               
               {activeTab === 'industry' && isIndustryFeatureEnabled && (
-                <div className="h-full border-l-4 border-green-500 p-6">
+                <div className="h-full p-6">
                   <div className="text-center text-gray-500">
                     <Globe className="h-16 w-16 mx-auto mb-4 text-green-500" />
                     <h3 className="text-xl font-medium text-gray-900 mb-3">Industry Network</h3>

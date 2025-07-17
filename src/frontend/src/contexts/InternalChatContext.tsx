@@ -405,13 +405,22 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
 
   const startDirectMessage = useCallback(async (userId: number) => {
     try {
+      // Backend function handles checking for existing DM rooms and returns existing one if found
       const room = await chatApi.startDirectMessage({ target_user_id: userId });
-      dispatch({ type: 'ADD_ROOM', payload: room });
+      
+      // Check if this room is already in our state
+      const roomExists = state.rooms.some(r => r.id === room.id);
+      if (!roomExists) {
+        dispatch({ type: 'ADD_ROOM', payload: room });
+        // Reload rooms to ensure we have the most up-to-date list
+        loadRooms();
+      }
+      
       selectRoom(room.id);
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to start direct message' });
     }
-  }, [selectRoom]);
+  }, [selectRoom, state.rooms, loadRooms]);
 
   const toggleSidebar = useCallback(() => {
     dispatch({ type: 'TOGGLE_SIDEBAR' });
