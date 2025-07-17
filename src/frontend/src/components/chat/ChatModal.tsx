@@ -3,6 +3,7 @@ import { X, MessageCircle, Building2, Globe, Minimize2, Maximize2 } from 'lucide
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { InternalChatContainer } from './InternalChatContainer';
+import { ChatErrorBoundary } from './ChatErrorBoundary';
 import { ChatSystemType } from '../../types/chat';
 
 interface ChatModalProps {
@@ -125,7 +126,9 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
             <div className="flex-1 overflow-hidden bg-white rounded-b-lg" style={{ height: 'calc(100% - 120px)' }}>
               {activeTab === 'internal' && (
                 <div className="h-full border-l-4 border-blue-500">
-                  <InternalChatContainer />
+                  <ChatErrorBoundary>
+                    <InternalChatContainer />
+                  </ChatErrorBoundary>
                 </div>
               )}
               

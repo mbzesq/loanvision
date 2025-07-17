@@ -319,10 +319,11 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await chatApi.getChatRooms();
-      dispatch({ type: 'SET_ROOMS', payload: response.rooms });
+      const rooms = response.rooms || [];
+      dispatch({ type: 'SET_ROOMS', payload: rooms });
       
       // Set unread counts
-      response.rooms.forEach(room => {
+      rooms.forEach(room => {
         if (room.unread_count) {
           dispatch({ 
             type: 'SET_UNREAD_COUNT', 
@@ -331,6 +332,9 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
         }
       });
     } catch (error) {
+      console.error('Failed to load chat rooms:', error);
+      // Initialize empty rooms array even on error to prevent undefined access
+      dispatch({ type: 'SET_ROOMS', payload: [] });
       dispatch({ type: 'SET_ERROR', payload: 'Failed to load chat rooms' });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -340,8 +344,11 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
   const loadMessages = useCallback(async (roomId: number) => {
     try {
       const response = await chatApi.getMessages(roomId, { limit: 50 });
-      dispatch({ type: 'SET_MESSAGES', payload: { roomId, messages: response.messages } });
+      dispatch({ type: 'SET_MESSAGES', payload: { roomId, messages: response.messages || [] } });
     } catch (error) {
+      console.error('Failed to load messages for room', roomId, error);
+      // Initialize empty messages array even on error to prevent undefined access
+      dispatch({ type: 'SET_MESSAGES', payload: { roomId, messages: [] } });
       dispatch({ type: 'SET_ERROR', payload: 'Failed to load messages' });
     }
   }, []);
@@ -349,8 +356,11 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
   const loadUsers = useCallback(async () => {
     try {
       const response = await chatApi.getOrganizationUsers();
-      dispatch({ type: 'SET_USERS', payload: response.users });
+      dispatch({ type: 'SET_USERS', payload: response.users || [] });
     } catch (error) {
+      console.error('Failed to load users:', error);
+      // Initialize empty users array even on error to prevent undefined access
+      dispatch({ type: 'SET_USERS', payload: [] });
       dispatch({ type: 'SET_ERROR', payload: 'Failed to load users' });
     }
   }, []);

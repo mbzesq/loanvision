@@ -12,7 +12,7 @@ export function ChatUserList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const filteredUsers = state.users
+  const filteredUsers = (state.users || [])
     .filter(user => user.id !== state.currentUser?.id) // Exclude current user
     .filter(user => {
       if (!searchTerm) return true;
@@ -35,14 +35,14 @@ export function ChatUserList() {
   const displayUsers = isExpanded ? filteredUsers : filteredUsers.slice(0, 5);
   
   // Calculate status counts
-  const statusCounts = state.users.reduce((acc, user) => {
+  const statusCounts = (state.users || []).reduce((acc, user) => {
     const status = user.presence_status || 'offline';
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
   const onlineCount = statusCounts.online || 0;
-  const totalUsers = state.users.length;
+  const totalUsers = (state.users || []).length;
 
   const handleStartDM = async (user: ChatUser) => {
     try {

@@ -7,7 +7,7 @@ interface ChatMessageListProps {
   currentUser: ChatUser | null;
 }
 
-export function ChatMessageList({ messages, currentUser }: ChatMessageListProps) {
+export function ChatMessageList({ messages = [], currentUser }: ChatMessageListProps) {
   const formatMessageTime = (date: Date) => {
     if (isToday(date)) {
       return format(date, 'h:mm a');
@@ -28,7 +28,7 @@ export function ChatMessageList({ messages, currentUser }: ChatMessageListProps)
 
   return (
     <div className="p-4 space-y-4">
-      {messages.map((message, index) => {
+      {(messages || []).map((message, index) => {
         const previousMessage = index > 0 ? messages[index - 1] : null;
         const isGrouped = shouldGroupMessage(message, previousMessage);
         const isOwnMessage = currentUser?.id === message.user_id;
