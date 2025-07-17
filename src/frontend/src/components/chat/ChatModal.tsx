@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X, MessageCircle, Lock, Globe, Minimize2, Maximize2 } from 'lucide-react';
+import { X, MessageCircle, Lock, Globe, Brain, Minimize2, Maximize2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { InternalChatContainer } from './InternalChatContainer';
+import { MorganAIContainer } from './MorganAIContainer';
 import { ChatErrorBoundary } from './ChatErrorBoundary';
 import { ChatSystemType } from '../../types/chat';
 
@@ -17,6 +18,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 
   // Future feature flag - set to false for now
   const isIndustryFeatureEnabled = false;
+  const isAIAssistantEnabled = true;
 
   const toggleMinimized = () => {
     setIsMinimized(!isMinimized);
@@ -98,6 +100,23 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
                 </Badge>
               </button>
 
+              {/* Morgan AI Assistant Tab */}
+              {isAIAssistantEnabled && (
+                <button
+                  onClick={() => setActiveTab('ai_assistant')}
+                  className={`
+                    flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium transition-colors
+                    ${activeTab === 'ai_assistant'
+                      ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }
+                  `}
+                >
+                  <Brain className="h-4 w-4 mr-2" />
+                  Morgan AI
+                </button>
+              )}
+
               {/* Industry Chat Tab - Future feature */}
               {isIndustryFeatureEnabled && (
                 <button
@@ -128,6 +147,14 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
                 <div className="h-full">
                   <ChatErrorBoundary>
                     <InternalChatContainer />
+                  </ChatErrorBoundary>
+                </div>
+              )}
+
+              {activeTab === 'ai_assistant' && isAIAssistantEnabled && (
+                <div className="h-full">
+                  <ChatErrorBoundary>
+                    <MorganAIContainer />
                   </ChatErrorBoundary>
                 </div>
               )}

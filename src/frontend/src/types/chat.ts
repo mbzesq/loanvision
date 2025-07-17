@@ -5,7 +5,7 @@ export type ChatMessageType = 'text' | 'file' | 'system' | 'emoji_only';
 export type ChatUserStatus = 'online' | 'away' | 'busy' | 'offline';
 
 // Chat system category for architectural separation
-export type ChatSystemType = 'internal' | 'industry';
+export type ChatSystemType = 'internal' | 'industry' | 'ai_assistant';
 
 export interface ChatRoom {
   id: number;
