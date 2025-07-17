@@ -265,14 +265,11 @@ export class AIQueryProcessor {
       LEFT JOIN foreclosure_events fe ON dmc.loan_id = fe.loan_id
       
       WHERE dmc.loan_id = ANY($1)
-      ${userContext.permissions.includes('view_all_loans') ? '' : 'AND dmc.assigned_user_id = $2'}
       ORDER BY dmc.created_at DESC
       ${request.maxResults ? `LIMIT ${request.maxResults}` : 'LIMIT 1000'}
     `;
 
-    const queryParams = userContext.permissions.includes('view_all_loans') 
-      ? [accessibleLoanIds] 
-      : [accessibleLoanIds, userContext.userId];
+    const queryParams = [accessibleLoanIds];
     
     const loanResult = await this.pool.query(loanContextQuery, queryParams);
     const loans = loanResult.rows;
