@@ -32,7 +32,7 @@ export class AIRateLimitService {
     
     this.config = {
       maxQueriesPerDay: parseInt(process.env.AI_MAX_QUERIES_PER_DAY || '50'),
-      maxTokensPerDay: parseInt(process.env.AI_MAX_TOKENS_PER_DAY || '100000'),
+      maxTokensPerDay: parseInt(process.env.AI_MAX_TOKENS_PER_DAY || '999999999'), // Temporarily unlimited for testing
       resetHour: parseInt(process.env.AI_RESET_HOUR || '0'), // Midnight UTC
       ...config
     };
