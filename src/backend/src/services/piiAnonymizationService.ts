@@ -92,7 +92,7 @@ export class PIIAnonymizationService {
         id, original_value_hash, anonymized_value, field_type, 
         created_at, expires_at
       ) VALUES ($1, $2, $3, $4, NOW(), $5)
-      ON CONFLICT (original_value_hash) DO UPDATE SET
+      ON CONFLICT (original_value_hash, field_type) DO UPDATE SET
         expires_at = EXCLUDED.expires_at
       RETURNING *
     `, [
