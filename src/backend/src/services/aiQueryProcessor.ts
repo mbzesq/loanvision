@@ -18,6 +18,7 @@ interface LoanQueryContext {
   userPermissions: string[];
   filteredLoans?: any[];
   dataSourceInfo?: any;
+  loanStatistics?: any;
 }
 
 interface AIQueryRequest {
@@ -232,17 +233,19 @@ export class AIQueryProcessor {
       };
     }
 
-    // Get core loan data
+    // Get core loan data and aggregated statistics
     const coreLoanData = await this.getCoreLoanData(accessibleLoanIds, request.maxResults);
+    const loanStats = await this.getLoanStatistics(accessibleLoanIds);
     
     // Build comprehensive context including data source information
     const context: LoanQueryContext = {
-      totalLoans: coreLoanData.length,
+      totalLoans: accessibleLoanIds.length, // Use total accessible loans, not just sample
       availableFields: coreLoanData.length > 0 ? Object.keys(coreLoanData[0]) : [],
       sampleLoan: {},
       userPermissions: userContext.permissions,
       filteredLoans: request.includeContext ? coreLoanData : undefined,
-      dataSourceInfo: this.getDataSourceInfo()
+      dataSourceInfo: this.getDataSourceInfo(),
+      loanStatistics: loanStats // Add aggregated statistics
     };
 
     // Create a sample loan for context (anonymized)
@@ -289,6 +292,33 @@ export class AIQueryProcessor {
   }
 
   /**
+   * Get aggregated loan statistics for the AI context
+   */
+  private async getLoanStatistics(loanIds: string[]): Promise<any> {
+    if (loanIds.length === 0) return {};
+    
+    const statsQuery = `
+      SELECT 
+        COUNT(*) as total_loans,
+        COUNT(CASE WHEN state = 'NY' THEN 1 END) as loans_in_ny,
+        COUNT(CASE WHEN state = 'CA' THEN 1 END) as loans_in_ca,
+        COUNT(CASE WHEN state = 'FL' THEN 1 END) as loans_in_fl,
+        COUNT(CASE WHEN state = 'TX' THEN 1 END) as loans_in_tx,
+        COUNT(CASE WHEN state = 'PA' THEN 1 END) as loans_in_pa,
+        AVG(prin_bal) as avg_current_balance,
+        SUM(prin_bal) as total_principal_balance,
+        COUNT(CASE WHEN legal_status = 'Foreclosure' THEN 1 END) as foreclosure_loans,
+        COUNT(DISTINCT investor_name) as unique_investors,
+        COUNT(DISTINCT state) as states_represented
+      FROM daily_metrics_current 
+      WHERE loan_id = ANY($1)
+    `;
+    
+    const result = await this.pool.query(statsQuery, [loanIds]);
+    return result.rows[0];
+  }
+
+  /**
    * Get information about available data sources
    */
   private getDataSourceInfo(): any {
@@ -319,33 +349,6 @@ export class AIQueryProcessor {
    * Get list of loan IDs that the user's organization has access to
    */
   private async getAccessibleLoanIds(userContext: UserContext): Promise<string[]> {
-    // Debug: Let's see what we're working with
-    console.log(`🔍 DEBUG: Getting accessible loans for organization ${userContext.organizationId}`);
-    
-    // First, check total loans in system
-    const totalLoansResult = await this.pool.query(`
-      SELECT COUNT(*) as total_loans,
-             COUNT(CASE WHEN state = 'NY' THEN 1 END) as ny_loans
-      FROM daily_metrics_current
-    `);
-    console.log(`🔍 DEBUG: Total loans in system: ${totalLoansResult.rows[0].total_loans}, NY loans: ${totalLoansResult.rows[0].ny_loans}`);
-    
-    // Check organization investors
-    const orgInvestorsResult = await this.pool.query(`
-      SELECT investor_name, is_active 
-      FROM organization_investors 
-      WHERE organization_id = $1
-    `, [userContext.organizationId]);
-    console.log(`🔍 DEBUG: Organization investors:`, orgInvestorsResult.rows);
-    
-    // Check organization loan access
-    const orgLoanAccessResult = await this.pool.query(`
-      SELECT COUNT(*) as explicit_grants 
-      FROM organization_loan_access 
-      WHERE organization_id = $1 AND is_active = true
-    `, [userContext.organizationId]);
-    console.log(`🔍 DEBUG: Explicit loan grants: ${orgLoanAccessResult.rows[0].explicit_grants}`);
-    
     const accessQuery = `
       SELECT DISTINCT dmc.loan_id
       FROM daily_metrics_current dmc
@@ -378,8 +381,6 @@ export class AIQueryProcessor {
     `;
 
     const result = await this.pool.query(accessQuery, [userContext.organizationId]);
-    console.log(`🔍 DEBUG: Accessible loans found: ${result.rows.length}`);
-    
     return result.rows.map(row => row.loan_id);
   }
 

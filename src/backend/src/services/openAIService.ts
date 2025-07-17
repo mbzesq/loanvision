@@ -31,6 +31,7 @@ interface LoanContext {
   sampleLoan: Record<string, any>;
   userPermissions: string[];
   dataSourceInfo?: any;
+  loanStatistics?: any;
 }
 
 export class OpenAIService {
@@ -78,6 +79,19 @@ PORTFOLIO CONTEXT:
 - Total loans in portfolio: ${context.totalLoans}
 - Available data fields: ${context.availableFields.join(', ')}
 - User permissions: ${context.userPermissions.join(', ')}
+${context.loanStatistics ? `
+PORTFOLIO STATISTICS:
+- Loans in New York: ${context.loanStatistics.loans_in_ny || 0}
+- Loans in California: ${context.loanStatistics.loans_in_ca || 0}
+- Loans in Florida: ${context.loanStatistics.loans_in_fl || 0}
+- Loans in Texas: ${context.loanStatistics.loans_in_tx || 0}
+- Loans in Pennsylvania: ${context.loanStatistics.loans_in_pa || 0}
+- Average Current Balance: $${context.loanStatistics.avg_current_balance ? Math.round(context.loanStatistics.avg_current_balance).toLocaleString() : 'N/A'}
+- Total Principal Balance: $${context.loanStatistics.total_principal_balance ? Math.round(context.loanStatistics.total_principal_balance).toLocaleString() : 'N/A'}
+- Loans in Foreclosure: ${context.loanStatistics.foreclosure_loans || 0}
+- Unique Investors: ${context.loanStatistics.unique_investors || 0}
+- States Represented: ${context.loanStatistics.states_represented || 0}
+` : ''}
 ${context.dataSourceInfo ? `
 AVAILABLE DATA SOURCES:
 ${Object.entries(context.dataSourceInfo.availableTables).map(([table, description]) => 
