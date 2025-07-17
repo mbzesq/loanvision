@@ -4,7 +4,7 @@ import { ChatMessageArea } from './ChatMessageArea';
 import { ChatUserList } from './ChatUserList';
 import { UserStatusSelector } from './UserStatusSelector';
 import { Avatar } from './Avatar';
-import { Building2, AlertCircle } from 'lucide-react';
+import { Lock, AlertCircle } from 'lucide-react';
 
 export function InternalChatContainer() {
   const { state, updateCurrentUserStatus } = useInternalChat();
@@ -13,15 +13,11 @@ export function InternalChatContainer() {
   if (state.isLoading && (!state.rooms || state.rooms.length === 0)) {
     return (
       <div className="h-full flex flex-col">
-        {/* Header with internal chat branding */}
+        {/* Header with security indicator */}
         <div className="p-3 bg-blue-50 border-b border-blue-200">
           <div className="flex items-center space-x-2">
-            <Building2 className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-900">Internal Communications</span>
+            <Lock className="h-4 w-4 text-blue-600" />
           </div>
-          <p className="text-xs text-blue-700 mt-1">
-            🔒 Secure organization-only conversations
-          </p>
         </div>
 
         {/* Loading content */}
@@ -42,8 +38,7 @@ export function InternalChatContainer() {
         {/* Header */}
         <div className="p-3 bg-blue-50 border-b border-blue-200">
           <div className="flex items-center space-x-2">
-            <Building2 className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-900">Internal Communications</span>
+            <Lock className="h-4 w-4 text-blue-600" />
           </div>
         </div>
 
@@ -68,12 +63,11 @@ export function InternalChatContainer() {
   // Main chat interface
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Header with internal chat branding */}
+      {/* Header with security indicator and user status */}
       <div className="p-3 bg-blue-50 border-b border-blue-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Building2 className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-900">Internal Communications</span>
+            <Lock className="h-4 w-4 text-blue-600" />
           </div>
           
           {/* Current user status */}
@@ -94,9 +88,6 @@ export function InternalChatContainer() {
             </div>
           )}
         </div>
-        <p className="text-xs text-blue-700 mt-1">
-          🔒 Secure conversations within your organization
-        </p>
       </div>
 
       {/* Chat content area */}

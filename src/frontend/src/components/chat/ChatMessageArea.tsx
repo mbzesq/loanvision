@@ -46,22 +46,17 @@ export function ChatMessageArea() {
   const getRoomDescription = () => {
     if (!selectedRoom) return '';
     
+    // For direct messages, don't show redundant description
     if (selectedRoom.type === 'direct_message') {
-      return 'Direct message';
+      return '';
     }
+    
+    // Only show custom descriptions, not verbose defaults
     if (selectedRoom.description) {
       return selectedRoom.description;
     }
-    switch (selectedRoom.type) {
-      case 'general':
-        return 'General discussion for the organization';
-      case 'department':
-        return 'Department-specific conversations';
-      case 'project':
-        return 'Project-related discussions';
-      default:
-        return '';
-    }
+    
+    return '';
   };
 
   if (!selectedRoom) {
@@ -111,9 +106,11 @@ export function ChatMessageArea() {
               <h3 className="text-sm font-medium text-gray-900 truncate">
                 {selectedRoom?.name || 'Unknown Room'}
               </h3>
-              <p className="text-xs text-gray-500 truncate">
-                {getRoomDescription()}
-              </p>
+              {getRoomDescription() && (
+                <p className="text-xs text-gray-500 truncate">
+                  {getRoomDescription()}
+                </p>
+              )}
             </div>
           </div>
 

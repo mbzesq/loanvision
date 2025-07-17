@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, MessageCircle, Building2, Globe, Minimize2, Maximize2 } from 'lucide-react';
+import { X, MessageCircle, Lock, Globe, Minimize2, Maximize2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { InternalChatContainer } from './InternalChatContainer';
@@ -47,7 +47,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
           <div className="flex items-center space-x-3">
             <MessageCircle className="h-5 w-5 text-blue-600" />
             <h2 className="text-lg font-semibold text-gray-900">
-              {isMinimized ? 'Chat' : 'Team Communication'}
+              Chat
             </h2>
           </div>
           
@@ -87,8 +87,8 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
                   }
                 `}
               >
-                <Building2 className="h-4 w-4 mr-2" />
-                Internal Communications
+                <Lock className="h-4 w-4 mr-2" />
+                Secure Chat
                 {/* Unread badge placeholder */}
                 <Badge 
                   variant="secondary" 
