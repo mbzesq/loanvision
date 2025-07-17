@@ -217,7 +217,9 @@ export class AIQueryProcessor {
     userContext: UserContext,
     request: AIQueryRequest
   ): Promise<LoanQueryContext> {
-    // Get loans the user's organization has access to via organization_loan_access table
+    // Get loans the user's organization has access to via hybrid approach:
+    // 1. Primary access via investor name mapping
+    // 2. Override access via organization_loan_access table
     const loanQuery = `
       SELECT DISTINCT dmc.loan_id, dmc.borrower_name, dmc.co_borrower_name, dmc.property_address, 
              dmc.current_balance, dmc.credit_score, dmc.payment_status, dmc.loan_type,
@@ -225,10 +227,32 @@ export class AIQueryProcessor {
              dmc.original_balance, dmc.interest_rate, dmc.monthly_payment,
              dmc.delinquency_status, dmc.days_delinquent, dmc.last_payment_date
       FROM daily_metrics_current dmc
-      JOIN organization_loan_access ola ON dmc.loan_id = ola.loan_id
-      WHERE ola.organization_id = $1 
-      AND ola.is_active = true 
-      AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
+      WHERE (
+        -- Primary access: via investor name mapping
+        EXISTS (
+          SELECT 1 FROM organization_investors oi 
+          WHERE oi.organization_id = $1 
+          AND oi.investor_name = dmc.investor_name 
+          AND oi.is_active = true
+        )
+        -- Additional access: explicit loan grants
+        OR EXISTS (
+          SELECT 1 FROM organization_loan_access ola 
+          WHERE ola.organization_id = $1 
+          AND ola.loan_id = dmc.loan_id 
+          AND ola.is_active = true 
+          AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
+        )
+      )
+      -- Exclude loans that are explicitly denied (use is_active = false for revocations)
+      AND NOT EXISTS (
+        SELECT 1 FROM organization_loan_access ola 
+        WHERE ola.organization_id = $1 
+        AND ola.loan_id = dmc.loan_id 
+        AND ola.is_active = false 
+        AND ola.access_type IN ('owner', 'servicer', 'viewer', 'collaborator')
+        AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
+      )
       ${userContext.permissions.includes('view_all_loans') ? '' : 'AND dmc.assigned_user_id = $2'}
       ORDER BY dmc.created_at DESC
       ${request.maxResults ? `LIMIT ${request.maxResults}` : 'LIMIT 1000'}
