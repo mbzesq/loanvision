@@ -88,11 +88,7 @@ export function ChatMessageList({ messages = [], currentUser }: ChatMessageListP
                   ) : (
                     /* Regular text messages */
                     <div className="text-sm whitespace-pre-wrap">
-                      {(() => {
-                        console.log('Rendering message content:', JSON.stringify(message.content));
-                        console.log('Message object:', message);
-                        return message.content;
-                      })()}
+                      {message.content}
                     </div>
                   )}
 
@@ -111,21 +107,13 @@ export function ChatMessageList({ messages = [], currentUser }: ChatMessageListP
                   )}
 
                   {/* Thread replies indicator */}
-                  {(() => {
-                    console.log('Thread count check:', message.thread_count, 'Type:', typeof message.thread_count);
-                    console.log('Should show thread?', message.thread_count && message.thread_count > 0);
-                    if (message.thread_count && message.thread_count > 0) {
-                      console.log('SHOWING THREAD COUNT:', message.thread_count);
-                      return (
-                        <div className="mt-2 pt-2 border-t border-opacity-20 border-current">
-                          <button className="text-xs underline hover:no-underline">
-                            {message.thread_count} {message.thread_count === 1 ? 'reply' : 'replies'}
-                          </button>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
+                  {message.thread_count && message.thread_count > 0 && (
+                    <div className="mt-2 pt-2 border-t border-opacity-20 border-current">
+                      <button className="text-xs underline hover:no-underline">
+                        {message.thread_count} {message.thread_count === 1 ? 'reply' : 'replies'}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Message reactions */}
