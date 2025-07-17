@@ -81,15 +81,26 @@ export function ChatMessageArea() {
       {/* Room Header */}
       <div className="flex-shrink-0 p-3 border-b border-gray-200 bg-white">
         <div className="flex items-center space-x-3">
-          {/* Back button - visible on mobile */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => selectRoom(null)}
-            className="lg:hidden p-1 h-8 w-8 text-gray-500 hover:text-gray-700"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          {/* Back button - always visible with optional label for direct messages */}
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => selectRoom(null)}
+              className="p-1 h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              title="Back to chat rooms"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            {selectedRoom.type === 'direct_message' && (
+              <span 
+                className="hidden sm:block text-xs text-gray-500 ml-1 cursor-pointer hover:text-gray-700"
+                onClick={() => selectRoom(null)}
+              >
+                Back
+              </span>
+            )}
+          </div>
           
           {/* Room info */}
           <div className="flex items-center space-x-2 flex-1 min-w-0">
