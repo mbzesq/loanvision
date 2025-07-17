@@ -221,11 +221,12 @@ export class AIQueryProcessor {
     // 1. Primary access via investor name mapping
     // 2. Override access via organization_loan_access table
     const loanQuery = `
-      SELECT DISTINCT dmc.loan_id, dmc.borrower_name, dmc.co_borrower_name, dmc.property_address, 
-             dmc.current_balance, dmc.credit_score, dmc.payment_status, dmc.loan_type,
-             dmc.property_state, dmc.property_city, dmc.property_zip,
-             dmc.original_balance, dmc.interest_rate, dmc.monthly_payment,
-             dmc.delinquency_status, dmc.days_delinquent, dmc.last_payment_date
+      SELECT DISTINCT dmc.loan_id, 
+             CONCAT(COALESCE(dmc.first_name, ''), ' ', COALESCE(dmc.last_name, '')) as borrower_name,
+             dmc.address as property_address, dmc.city as property_city, dmc.state as property_state, dmc.zip as property_zip,
+             dmc.prin_bal as current_balance, dmc.org_amount as original_balance, dmc.int_rate as interest_rate, 
+             dmc.pi_pmt as monthly_payment, dmc.last_pymt_received as last_payment_date,
+             dmc.investor_name, dmc.payment_status, dmc.delinquency_status, dmc.days_delinquent
       FROM daily_metrics_current dmc
       WHERE (
         -- Primary access: via investor name mapping
