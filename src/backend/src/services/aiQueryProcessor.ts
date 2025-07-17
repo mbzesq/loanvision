@@ -230,7 +230,8 @@ export class AIQueryProcessor {
       };
     }
 
-    // Build comprehensive loan context with access to all loan-related tables
+    // Build core loan context - only essential data for basic queries
+    // The AI can request additional context if needed for specific questions
     const loanContextQuery = `
       SELECT 
         -- Core loan information
@@ -253,71 +254,15 @@ export class AIQueryProcessor {
         dmc.maturity_date,
         dmc.lien_pos as lien_position,
         
-        -- Foreclosure information
+        -- Basic foreclosure status (if available)
         fe.fc_status as foreclosure_status,
-        fe.fc_jurisdiction,
-        fe.fc_start_date,
-        fe.current_attorney,
-        fe.referral_date,
-        fe.title_ordered_date,
-        fe.title_received_date,
-        fe.complaint_filed_date,
-        fe.service_completed_date,
-        fe.judgment_date,
-        fe.sale_scheduled_date,
-        fe.sale_held_date,
-        fe.real_estate_owned_date,
-        
-        -- SOL information
-        lsc.sol_state,
-        lsc.sol_days_remaining,
-        lsc.sol_expiration_date,
-        lsc.sol_status,
-        lsc.days_until_expiration,
-        lsc.recommended_actions,
-        
-        -- Property data
-        pdc.property_type,
-        pdc.bedrooms,
-        pdc.bathrooms,
-        pdc.square_feet,
-        pdc.year_built,
-        pdc.estimated_value,
-        pdc.last_sale_date,
-        pdc.last_sale_price,
-        
-        -- Collateral status
-        lcs.collateral_status,
-        lcs.collateral_score,
-        lcs.collateral_notes,
-        
-        -- Document counts
-        doc_counts.total_documents,
-        doc_counts.document_types
+        fe.fc_start_date as foreclosure_start_date,
+        fe.sale_scheduled_date as foreclosure_sale_date
         
       FROM daily_metrics_current dmc
       
-      -- Join foreclosure events
+      -- Only join foreclosure for basic status
       LEFT JOIN foreclosure_events fe ON dmc.loan_id = fe.loan_id
-      
-      -- Join SOL calculations
-      LEFT JOIN loan_sol_calculations lsc ON dmc.loan_id = lsc.loan_id
-      
-      -- Join property data
-      LEFT JOIN property_data_current pdc ON dmc.loan_id = pdc.loan_id
-      
-      -- Join collateral status
-      LEFT JOIN loan_collateral_status lcs ON dmc.loan_id = lcs.loan_id
-      
-      -- Join document counts
-      LEFT JOIN (
-        SELECT 
-          loan_id,
-          COUNT(*) as total_documents,
-          STRING_AGG(DISTINCT document_type, ', ') as document_types
-        FROM collateral_documents 
-        GROUP BY loan_id
-      ) doc_counts ON dmc.loan_id = doc_counts.loan_id
       
       WHERE dmc.loan_id = ANY($1)
       ${userContext.permissions.includes('view_all_loans') ? '' : 'AND dmc.assigned_user_id = $2'}
