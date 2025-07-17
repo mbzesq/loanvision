@@ -88,12 +88,7 @@ export function ChatMessageList({ messages = [], currentUser }: ChatMessageListP
                   ) : (
                     /* Regular text messages */
                     <div className="text-sm whitespace-pre-wrap">
-                      {(() => {
-                        if (message.thread_count === 0) {
-                          console.log('Zero thread_count found on message:', message.id, message.content);
-                        }
-                        return message.content;
-                      })()}
+                      {message.content}
                     </div>
                   )}
 
@@ -112,13 +107,18 @@ export function ChatMessageList({ messages = [], currentUser }: ChatMessageListP
                   )}
 
                   {/* Thread replies indicator */}
-                  {message.thread_count && message.thread_count > 0 && (
-                    <div className="mt-2 pt-2 border-t border-opacity-20 border-current">
-                      <button className="text-xs underline hover:no-underline">
-                        {message.thread_count} {message.thread_count === 1 ? 'reply' : 'replies'}
-                      </button>
-                    </div>
-                  )}
+                  {(() => {
+                    if (message.thread_count && message.thread_count > 0) {
+                      return (
+                        <div className="mt-2 pt-2 border-t border-opacity-20 border-current">
+                          <button className="text-xs underline hover:no-underline">
+                            {message.thread_count} {message.thread_count === 1 ? 'reply' : 'replies'}
+                          </button>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 {/* Message reactions */}
