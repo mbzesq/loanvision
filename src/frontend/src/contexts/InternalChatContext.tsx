@@ -346,6 +346,11 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
   const loadMessages = useCallback(async (roomId: number) => {
     try {
       const response = await chatApi.getMessages(roomId, { limit: 50 });
+      console.log('LoadMessages API response:', response);
+      console.log('Messages array:', response.messages);
+      response.messages?.forEach((msg, index) => {
+        console.log(`Message ${index}:`, JSON.stringify(msg.content), 'Raw:', msg);
+      });
       dispatch({ type: 'SET_MESSAGES', payload: { roomId, messages: response.messages || [] } });
     } catch (error) {
       console.error('Failed to load messages for room', roomId, error);

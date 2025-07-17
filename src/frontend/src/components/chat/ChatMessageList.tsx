@@ -111,13 +111,21 @@ export function ChatMessageList({ messages = [], currentUser }: ChatMessageListP
                   )}
 
                   {/* Thread replies indicator */}
-                  {message.thread_count && message.thread_count > 0 && (
-                    <div className="mt-2 pt-2 border-t border-opacity-20 border-current">
-                      <button className="text-xs underline hover:no-underline">
-                        {message.thread_count} {message.thread_count === 1 ? 'reply' : 'replies'}
-                      </button>
-                    </div>
-                  )}
+                  {(() => {
+                    console.log('Thread count check:', message.thread_count, 'Type:', typeof message.thread_count);
+                    console.log('Should show thread?', message.thread_count && message.thread_count > 0);
+                    if (message.thread_count && message.thread_count > 0) {
+                      console.log('SHOWING THREAD COUNT:', message.thread_count);
+                      return (
+                        <div className="mt-2 pt-2 border-t border-opacity-20 border-current">
+                          <button className="text-xs underline hover:no-underline">
+                            {message.thread_count} {message.thread_count === 1 ? 'reply' : 'replies'}
+                          </button>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 {/* Message reactions */}
