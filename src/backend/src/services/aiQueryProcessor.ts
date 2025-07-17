@@ -498,7 +498,7 @@ export class AIQueryProcessor {
         assistantResponse,
         anonymizedResponse,
         tokenUsage.totalTokens,
-        'gpt-4o-mini',
+        'gpt-4.1-nano',
         JSON.stringify(piiMappingIds)
       ]);
 
