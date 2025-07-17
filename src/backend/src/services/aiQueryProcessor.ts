@@ -217,53 +217,119 @@ export class AIQueryProcessor {
     userContext: UserContext,
     request: AIQueryRequest
   ): Promise<LoanQueryContext> {
-    // Get loans the user's organization has access to via hybrid approach:
-    // 1. Primary access via investor name mapping
-    // 2. Override access via organization_loan_access table
-    const loanQuery = `
-      SELECT DISTINCT dmc.loan_id, 
-             CONCAT(COALESCE(dmc.first_name, ''), ' ', COALESCE(dmc.last_name, '')) as borrower_name,
-             dmc.address as property_address, dmc.city as property_city, dmc.state as property_state, dmc.zip as property_zip,
-             dmc.prin_bal as current_balance, dmc.org_amount as original_balance, dmc.int_rate as interest_rate, 
-             dmc.pi_pmt as monthly_payment, dmc.last_pymt_received as last_payment_date,
-             dmc.investor_name, dmc.payment_status, dmc.delinquency_status, dmc.days_delinquent
+    // Get list of accessible loan IDs first
+    const accessibleLoanIds = await this.getAccessibleLoanIds(userContext);
+    
+    if (accessibleLoanIds.length === 0) {
+      return {
+        totalLoans: 0,
+        availableFields: [],
+        sampleLoan: {},
+        userPermissions: userContext.permissions,
+        filteredLoans: undefined
+      };
+    }
+
+    // Build comprehensive loan context with access to all loan-related tables
+    const loanContextQuery = `
+      SELECT 
+        -- Core loan information
+        dmc.loan_id,
+        CONCAT(COALESCE(dmc.first_name, ''), ' ', COALESCE(dmc.last_name, '')) as borrower_name,
+        dmc.address as property_address, 
+        dmc.city as property_city, 
+        dmc.state as property_state, 
+        dmc.zip as property_zip,
+        dmc.prin_bal as current_balance,
+        dmc.org_amount as original_balance,
+        dmc.int_rate as interest_rate,
+        dmc.pi_pmt as monthly_payment,
+        dmc.last_pymt_received as last_payment_date,
+        dmc.next_pymt_due,
+        dmc.investor_name,
+        dmc.legal_status,
+        dmc.loan_type,
+        dmc.origination_date,
+        dmc.maturity_date,
+        dmc.lien_pos as lien_position,
+        
+        -- Foreclosure information
+        fe.fc_status as foreclosure_status,
+        fe.fc_jurisdiction,
+        fe.fc_start_date,
+        fe.current_attorney,
+        fe.referral_date,
+        fe.title_ordered_date,
+        fe.title_received_date,
+        fe.complaint_filed_date,
+        fe.service_completed_date,
+        fe.judgment_date,
+        fe.sale_scheduled_date,
+        fe.sale_held_date,
+        fe.real_estate_owned_date,
+        
+        -- SOL information
+        lsc.sol_state,
+        lsc.sol_days_remaining,
+        lsc.sol_expiration_date,
+        lsc.sol_status,
+        lsc.days_until_expiration,
+        lsc.recommended_actions,
+        
+        -- Property data
+        pdc.property_type,
+        pdc.bedrooms,
+        pdc.bathrooms,
+        pdc.square_feet,
+        pdc.year_built,
+        pdc.estimated_value,
+        pdc.last_sale_date,
+        pdc.last_sale_price,
+        
+        -- Collateral status
+        lcs.collateral_status,
+        lcs.collateral_score,
+        lcs.collateral_notes,
+        
+        -- Document counts
+        doc_counts.total_documents,
+        doc_counts.document_types
+        
       FROM daily_metrics_current dmc
-      WHERE (
-        -- Primary access: via investor name mapping
-        EXISTS (
-          SELECT 1 FROM organization_investors oi 
-          WHERE oi.organization_id = $1 
-          AND oi.investor_name = dmc.investor_name 
-          AND oi.is_active = true
-        )
-        -- Additional access: explicit loan grants
-        OR EXISTS (
-          SELECT 1 FROM organization_loan_access ola 
-          WHERE ola.organization_id = $1 
-          AND ola.loan_id = dmc.loan_id 
-          AND ola.is_active = true 
-          AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
-        )
-      )
-      -- Exclude loans that are explicitly denied (use is_active = false for revocations)
-      AND NOT EXISTS (
-        SELECT 1 FROM organization_loan_access ola 
-        WHERE ola.organization_id = $1 
-        AND ola.loan_id = dmc.loan_id 
-        AND ola.is_active = false 
-        AND ola.access_type IN ('owner', 'servicer', 'viewer', 'collaborator')
-        AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
-      )
+      
+      -- Join foreclosure events
+      LEFT JOIN foreclosure_events fe ON dmc.loan_id = fe.loan_id
+      
+      -- Join SOL calculations
+      LEFT JOIN loan_sol_calculations lsc ON dmc.loan_id = lsc.loan_id
+      
+      -- Join property data
+      LEFT JOIN property_data_current pdc ON dmc.loan_id = pdc.loan_id
+      
+      -- Join collateral status
+      LEFT JOIN loan_collateral_status lcs ON dmc.loan_id = lcs.loan_id
+      
+      -- Join document counts
+      LEFT JOIN (
+        SELECT 
+          loan_id,
+          COUNT(*) as total_documents,
+          STRING_AGG(DISTINCT document_type, ', ') as document_types
+        FROM collateral_documents 
+        GROUP BY loan_id
+      ) doc_counts ON dmc.loan_id = doc_counts.loan_id
+      
+      WHERE dmc.loan_id = ANY($1)
       ${userContext.permissions.includes('view_all_loans') ? '' : 'AND dmc.assigned_user_id = $2'}
       ORDER BY dmc.created_at DESC
       ${request.maxResults ? `LIMIT ${request.maxResults}` : 'LIMIT 1000'}
     `;
 
     const queryParams = userContext.permissions.includes('view_all_loans') 
-      ? [userContext.organizationId] 
-      : [userContext.organizationId, userContext.userId];
+      ? [accessibleLoanIds] 
+      : [accessibleLoanIds, userContext.userId];
     
-    const loanResult = await this.pool.query(loanQuery, queryParams);
+    const loanResult = await this.pool.query(loanContextQuery, queryParams);
     const loans = loanResult.rows;
 
     // Get available fields from the first loan
@@ -283,6 +349,45 @@ export class AIQueryProcessor {
       userPermissions: userContext.permissions,
       filteredLoans: request.includeContext ? loans : undefined
     };
+  }
+
+  /**
+   * Get list of loan IDs that the user's organization has access to
+   */
+  private async getAccessibleLoanIds(userContext: UserContext): Promise<string[]> {
+    const accessQuery = `
+      SELECT DISTINCT dmc.loan_id
+      FROM daily_metrics_current dmc
+      WHERE (
+        -- Primary access: via investor name mapping
+        EXISTS (
+          SELECT 1 FROM organization_investors oi 
+          WHERE oi.organization_id = $1 
+          AND oi.investor_name = dmc.investor_name 
+          AND oi.is_active = true
+        )
+        -- Additional access: explicit loan grants
+        OR EXISTS (
+          SELECT 1 FROM organization_loan_access ola 
+          WHERE ola.organization_id = $1 
+          AND ola.loan_id = dmc.loan_id 
+          AND ola.is_active = true 
+          AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
+        )
+      )
+      -- Exclude loans that are explicitly denied
+      AND NOT EXISTS (
+        SELECT 1 FROM organization_loan_access ola 
+        WHERE ola.organization_id = $1 
+        AND ola.loan_id = dmc.loan_id 
+        AND ola.is_active = false 
+        AND ola.access_type IN ('owner', 'servicer', 'viewer', 'collaborator')
+        AND (ola.expires_at IS NULL OR ola.expires_at > NOW())
+      )
+    `;
+
+    const result = await this.pool.query(accessQuery, [userContext.organizationId]);
+    return result.rows.map(row => row.loan_id);
   }
 
   /**
