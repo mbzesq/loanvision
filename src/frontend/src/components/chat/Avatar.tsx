@@ -44,7 +44,33 @@ export function Avatar({ user, size = 'md', showOnlineStatus = false, className 
     return colors[Math.abs(hash) % colors.length];
   };
 
-  const isOnline = user?.presence_status === 'online';
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'online':
+        return 'bg-green-500';
+      case 'away':
+        return 'bg-yellow-500';
+      case 'busy':
+        return 'bg-red-500';
+      case 'offline':
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
+  const getStatusLabel = (status?: string) => {
+    switch (status) {
+      case 'online':
+        return 'Online';
+      case 'away':
+        return 'Away';
+      case 'busy':
+        return 'Busy';
+      case 'offline':
+      default:
+        return 'Offline';
+    }
+  };
 
   return (
     <div className={`relative ${className}`}>
@@ -73,14 +99,16 @@ export function Avatar({ user, size = 'md', showOnlineStatus = false, className 
         </div>
       )}
 
-      {/* Online status indicator */}
+      {/* Status indicator */}
       {showOnlineStatus && (
         <div
           className={`
             absolute -bottom-0.5 -right-0.5 rounded-full border-2 border-white
             ${size === 'xs' ? 'h-2 w-2' : size === 'sm' ? 'h-2.5 w-2.5' : 'h-3 w-3'}
-            ${isOnline ? 'bg-green-500' : 'bg-gray-400'}
+            ${getStatusColor(user?.presence_status)}
+            transition-colors duration-200
           `}
+          title={getStatusLabel(user?.presence_status)}
         />
       )}
     </div>

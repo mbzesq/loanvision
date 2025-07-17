@@ -2,10 +2,12 @@ import { useInternalChat } from '../../contexts/InternalChatContext';
 import { ChatRoomList } from './ChatRoomList';
 import { ChatMessageArea } from './ChatMessageArea';
 import { ChatUserList } from './ChatUserList';
+import { UserStatusSelector } from './UserStatusSelector';
+import { Avatar } from './Avatar';
 import { Building2, AlertCircle } from 'lucide-react';
 
 export function InternalChatContainer() {
-  const { state } = useInternalChat();
+  const { state, updateCurrentUserStatus } = useInternalChat();
 
   // Loading state
   if (state.isLoading && state.rooms.length === 0) {
@@ -68,9 +70,29 @@ export function InternalChatContainer() {
     <div className="h-full flex flex-col bg-white">
       {/* Header with internal chat branding */}
       <div className="p-3 bg-blue-50 border-b border-blue-200">
-        <div className="flex items-center space-x-2">
-          <Building2 className="h-4 w-4 text-blue-600" />
-          <span className="text-sm font-medium text-blue-900">Internal Communications</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Building2 className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-900">Internal Communications</span>
+          </div>
+          
+          {/* Current user status */}
+          {state.currentUser && (
+            <div className="flex items-center space-x-2">
+              <Avatar 
+                user={state.currentUser} 
+                size="xs" 
+                showOnlineStatus={true}
+              />
+              <div className="min-w-0">
+                <UserStatusSelector 
+                  currentStatus={state.currentUser.presence_status}
+                  onStatusChange={updateCurrentUserStatus}
+                  className="w-20"
+                />
+              </div>
+            </div>
+          )}
         </div>
         <p className="text-xs text-blue-700 mt-1">
           🔒 Secure conversations within your organization

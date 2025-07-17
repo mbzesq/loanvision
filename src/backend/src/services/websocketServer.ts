@@ -674,6 +674,25 @@ export class WebSocketServer {
   }
 
   /**
+   * Broadcast presence update to organization users
+   */
+  broadcastPresenceUpdate(userId: number, status: string, organizationId?: number) {
+    // Broadcast to all connected users in the same organization
+    this.userSockets.forEach((sockets, connectedUserId) => {
+      if (connectedUserId !== userId) {
+        sockets.forEach(socketId => {
+          this.io.to(socketId).emit('chat:presence_updated', {
+            user_id: userId,
+            status: status
+          });
+        });
+      }
+    });
+    
+    logger.info(`Presence update broadcasted for user ${userId}: ${status}`);
+  }
+
+  /**
    * Get connection statistics
    */
   getConnectionStats() {

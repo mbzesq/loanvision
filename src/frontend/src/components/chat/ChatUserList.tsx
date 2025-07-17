@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useInternalChat } from '../../contexts/InternalChatContext';
 import { Avatar } from './Avatar';
+import { UserStatusIndicator } from './UserStatusIndicator';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Search, MessageSquare } from 'lucide-react';
@@ -21,18 +22,27 @@ export function ChatUserList() {
       return fullName.includes(search) || email.includes(search);
     })
     .sort((a, b) => {
-      // Sort by online status first, then by name
-      const aOnline = a.presence_status === 'online';
-      const bOnline = b.presence_status === 'online';
+      // Sort by presence status priority: online -> away -> busy -> offline
+      const statusPriority = { online: 0, away: 1, busy: 2, offline: 3 };
+      const aPriority = statusPriority[a.presence_status || 'offline'];
+      const bPriority = statusPriority[b.presence_status || 'offline'];
       
-      if (aOnline && !bOnline) return -1;
-      if (!aOnline && bOnline) return 1;
+      if (aPriority !== bPriority) return aPriority - bPriority;
       
       return `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`);
     });
 
   const displayUsers = isExpanded ? filteredUsers : filteredUsers.slice(0, 5);
-  const onlineCount = state.users.filter(user => user.presence_status === 'online').length;
+  
+  // Calculate status counts
+  const statusCounts = state.users.reduce((acc, user) => {
+    const status = user.presence_status || 'offline';
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const onlineCount = statusCounts.online || 0;
+  const totalUsers = state.users.length;
 
   const handleStartDM = async (user: ChatUser) => {
     try {
@@ -48,9 +58,12 @@ export function ChatUserList() {
       <div className="p-3 border-b border-gray-200">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-medium text-gray-700">Team Members</h3>
-          <span className="text-xs text-green-600">
-            {onlineCount} online
-          </span>
+          <div className="flex items-center space-x-2">
+            <UserStatusIndicator status="online" size="xs" />
+            <span className="text-xs text-gray-600">
+              {onlineCount}/{totalUsers} online
+            </span>
+          </div>
         </div>
         
         {/* Search */}
@@ -88,9 +101,15 @@ export function ChatUserList() {
                   showOnlineStatus={true}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-gray-900 truncate">
-                    {user.first_name} {user.last_name}
-                  </p>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-xs font-medium text-gray-900 truncate">
+                      {user.first_name} {user.last_name}
+                    </p>
+                    <UserStatusIndicator 
+                      status={user.presence_status} 
+                      size="xs"
+                    />
+                  </div>
                   <p className="text-xs text-gray-500 truncate">
                     {user.job_title || user.email}
                   </p>

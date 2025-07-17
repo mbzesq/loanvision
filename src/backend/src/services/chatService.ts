@@ -1,4 +1,5 @@
 import pool from '../db';
+import { getWSServerInstance } from './wsServerInstance';
 import { 
   ChatRoom, 
   ChatMessage, 
@@ -402,6 +403,12 @@ export class ChatService {
         last_seen_at = EXCLUDED.last_seen_at,
         updated_at = EXCLUDED.updated_at
     `, [userId, status]);
+    
+    // Broadcast presence update to other users
+    const wsServer = getWSServerInstance();
+    if (wsServer) {
+      wsServer.broadcastPresenceUpdate(userId, status);
+    }
   }
   
   // Mark messages as read

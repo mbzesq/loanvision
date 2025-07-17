@@ -220,6 +220,7 @@ interface InternalChatContextType {
   setSidebarCollapsed: (collapsed: boolean) => void;
   startDirectMessage: (userId: number) => Promise<void>;
   markRoomAsRead: (roomId: number) => Promise<void>;
+  updateCurrentUserStatus: (status: ChatUserStatus) => void;
   
   // WebSocket functions
   wsActions: {
@@ -288,6 +289,15 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
   const handlePresenceUpdated = useCallback((data: { user_id: number; status: ChatUserStatus }) => {
     dispatch({ type: 'UPDATE_USER_PRESENCE', payload: { userId: data.user_id, status: data.status } });
   }, []);
+
+  const updateCurrentUserStatus = useCallback((status: ChatUserStatus) => {
+    if (state.currentUser) {
+      dispatch({ 
+        type: 'UPDATE_USER_PRESENCE', 
+        payload: { userId: state.currentUser.id, status } 
+      });
+    }
+  }, [state.currentUser]);
 
   const handleMarkedRead = useCallback((data: { room_id: number }) => {
     dispatch({ type: 'MARK_ROOM_AS_READ', payload: data.room_id });
@@ -423,6 +433,7 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
     setSidebarCollapsed,
     startDirectMessage,
     markRoomAsRead,
+    updateCurrentUserStatus,
     wsActions,
   };
 

@@ -20,6 +20,7 @@ import { seedSuperUser } from './scripts/createSuperUser';
 import { initializeSOLScheduler } from './services/SOLScheduler';
 import { NotificationEngine } from './services/notificationEngine';
 import { WebSocketServer } from './services/websocketServer';
+import { setWSServerInstance } from './services/wsServerInstance';
 
 const app = express();
 const server = createServer(app);
@@ -30,6 +31,7 @@ console.log('Initializing Notification Engine...');
 const notificationEngine = new NotificationEngine(pool);
 console.log('Initializing WebSocket server...');
 const wsServer = new WebSocketServer(server, notificationEngine);
+setWSServerInstance(wsServer);
 console.log('WebSocket server initialized successfully');
 
 // This entire block should be added right after const app = express();
