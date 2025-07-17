@@ -182,9 +182,9 @@ export class AIQueryProcessor {
    * Validate user has permission to use AI assistant
    */
   private async validateUserAccess(userContext: UserContext): Promise<void> {
-    // Check if user exists and is active
+    // Check if user exists
     const userResult = await this.pool.query(`
-      SELECT id, organization_id, is_active 
+      SELECT id, organization_id 
       FROM users 
       WHERE id = $1
     `, [userContext.userId]);
@@ -194,10 +194,6 @@ export class AIQueryProcessor {
     }
 
     const user = userResult.rows[0];
-    if (!user.is_active) {
-      throw new Error('User account is not active');
-    }
-
     if (user.organization_id !== userContext.organizationId) {
       throw new Error('Organization mismatch');
     }
