@@ -110,25 +110,16 @@ export function useChatWebSocket({
         }
       });
 
-      socket.on('connect_error', (error) => {
+      socket.on('connect_error', (error: any) => {
         console.error('🚨 Chat WebSocket connection error:', {
           error: error.message,
-          type: error.type,
-          description: error.description,
+          type: error.type || 'unknown',
+          description: error.description || 'No description',
           wsUrl
         });
         // Retry connection after 5 seconds
         console.log('🔄 Retrying connection in 5 seconds...');
         reconnectTimeoutRef.current = window.setTimeout(connectSocket, 5000);
-      });
-
-      // Add transport change logging
-      socket.io.on('upgrade', () => {
-        console.log('🚀 Transport upgraded to:', socket.io.engine.transport.name);
-      });
-
-      socket.io.on('upgradeError', (error) => {
-        console.warn('⚠️ Transport upgrade failed:', error);
       });
 
       // Chat event listeners

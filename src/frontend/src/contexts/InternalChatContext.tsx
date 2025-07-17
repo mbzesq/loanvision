@@ -345,6 +345,15 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
     }
   }, []);
 
+  const markRoomAsRead = useCallback(async (roomId: number) => {
+    try {
+      await chatApi.markMessagesAsRead(roomId);
+      wsActions.markRead(roomId);
+    } catch (error) {
+      console.error('Failed to mark room as read:', error);
+    }
+  }, [wsActions]);
+
   const selectRoom = useCallback((roomId: number | null) => {
     // Leave previous room
     if (state.selectedRoomId) {
@@ -384,15 +393,6 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
       dispatch({ type: 'SET_ERROR', payload: 'Failed to start direct message' });
     }
   }, [selectRoom]);
-
-  const markRoomAsRead = useCallback(async (roomId: number) => {
-    try {
-      await chatApi.markMessagesAsRead(roomId);
-      wsActions.markRead(roomId);
-    } catch (error) {
-      console.error('Failed to mark room as read:', error);
-    }
-  }, [wsActions]);
 
   const toggleSidebar = useCallback(() => {
     dispatch({ type: 'TOGGLE_SIDEBAR' });
