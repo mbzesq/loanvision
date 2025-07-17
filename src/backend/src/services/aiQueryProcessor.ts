@@ -17,6 +17,7 @@ interface LoanQueryContext {
   sampleLoan: Record<string, any>;
   userPermissions: string[];
   filteredLoans?: any[];
+  dataSourceInfo?: any;
 }
 
 interface AIQueryRequest {
@@ -226,15 +227,39 @@ export class AIQueryProcessor {
         availableFields: [],
         sampleLoan: {},
         userPermissions: userContext.permissions,
-        filteredLoans: undefined
+        filteredLoans: undefined,
+        dataSourceInfo: this.getDataSourceInfo()
       };
     }
 
-    // Build core loan context - only essential data for basic queries
-    // The AI can request additional context if needed for specific questions
-    const loanContextQuery = `
+    // Get core loan data
+    const coreLoanData = await this.getCoreLoanData(accessibleLoanIds, request.maxResults);
+    
+    // Build comprehensive context including data source information
+    const context: LoanQueryContext = {
+      totalLoans: coreLoanData.length,
+      availableFields: coreLoanData.length > 0 ? Object.keys(coreLoanData[0]) : [],
+      sampleLoan: {},
+      userPermissions: userContext.permissions,
+      filteredLoans: request.includeContext ? coreLoanData : undefined,
+      dataSourceInfo: this.getDataSourceInfo()
+    };
+
+    // Create a sample loan for context (anonymized)
+    if (coreLoanData.length > 0) {
+      const { anonymizedData } = await this.piiService.anonymizeLoanData([coreLoanData[0]]);
+      context.sampleLoan = anonymizedData[0] || {};
+    }
+
+    return context;
+  }
+
+  /**
+   * Get core loan data from daily_metrics_current
+   */
+  private async getCoreLoanData(loanIds: string[], maxResults?: number): Promise<any[]> {
+    const query = `
       SELECT 
-        -- Core loan information
         dmc.loan_id,
         CONCAT(COALESCE(dmc.first_name, ''), ' ', COALESCE(dmc.last_name, '')) as borrower_name,
         dmc.address as property_address, 
@@ -252,44 +277,41 @@ export class AIQueryProcessor {
         dmc.loan_type,
         dmc.origination_date,
         dmc.maturity_date,
-        dmc.lien_pos as lien_position,
-        
-        -- Basic foreclosure status (if available)
-        fe.fc_status as foreclosure_status,
-        fe.fc_start_date as foreclosure_start_date,
-        fe.sale_scheduled_date as foreclosure_sale_date
-        
+        dmc.lien_pos as lien_position
       FROM daily_metrics_current dmc
-      
-      -- Only join foreclosure for basic status
-      LEFT JOIN foreclosure_events fe ON dmc.loan_id = fe.loan_id
-      
       WHERE dmc.loan_id = ANY($1)
       ORDER BY dmc.created_at DESC
-      ${request.maxResults ? `LIMIT ${request.maxResults}` : 'LIMIT 1000'}
+      ${maxResults ? `LIMIT ${maxResults}` : 'LIMIT 1000'}
     `;
 
-    const queryParams = [accessibleLoanIds];
-    
-    const loanResult = await this.pool.query(loanContextQuery, queryParams);
-    const loans = loanResult.rows;
+    const result = await this.pool.query(query, [loanIds]);
+    return result.rows;
+  }
 
-    // Get available fields from the first loan
-    const availableFields = loans.length > 0 ? Object.keys(loans[0]) : [];
-
-    // Create a sample loan for context (anonymized)
-    let sampleLoan = {};
-    if (loans.length > 0) {
-      const { anonymizedData } = await this.piiService.anonymizeLoanData([loans[0]]);
-      sampleLoan = anonymizedData[0] || {};
-    }
-
+  /**
+   * Get information about available data sources
+   */
+  private getDataSourceInfo(): any {
     return {
-      totalLoans: loans.length,
-      availableFields,
-      sampleLoan,
-      userPermissions: userContext.permissions,
-      filteredLoans: request.includeContext ? loans : undefined
+      availableTables: {
+        daily_metrics_current: "Core loan information: borrower, property, balances, payment history",
+        foreclosure_events: "Foreclosure status, timeline, attorney info, key dates",
+        loan_sol_calculations: "Statute of limitations analysis, expiration dates, risk levels",
+        property_data_current: "Property details: type, bedrooms, bathrooms, square feet, estimated value",
+        loan_collateral_status: "Collateral analysis, scores, and notes",
+        collateral_documents: "Uploaded documents by loan",
+        document_analysis: "AI analysis of uploaded documents",
+        monthly_cashflow_data: "Monthly payment and cash flow history",
+        enrichments: "Third-party data enrichments",
+        chain_of_title: "Property ownership history"
+      },
+      queryExamples: {
+        "Basic loan info": "SELECT * FROM daily_metrics_current WHERE state = 'NY'",
+        "Foreclosure data": "SELECT * FROM foreclosure_events WHERE fc_status = 'Active'",
+        "SOL analysis": "SELECT * FROM loan_sol_calculations WHERE days_until_expiration < 90",
+        "Property details": "SELECT * FROM property_data_current WHERE estimated_value > 500000",
+        "Document status": "SELECT loan_id, COUNT(*) FROM collateral_documents GROUP BY loan_id"
+      }
     };
   }
 

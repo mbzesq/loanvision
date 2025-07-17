@@ -30,6 +30,7 @@ interface LoanContext {
   availableFields: string[];
   sampleLoan: Record<string, any>;
   userPermissions: string[];
+  dataSourceInfo?: any;
 }
 
 export class OpenAIService {
@@ -77,6 +78,14 @@ PORTFOLIO CONTEXT:
 - Total loans in portfolio: ${context.totalLoans}
 - Available data fields: ${context.availableFields.join(', ')}
 - User permissions: ${context.userPermissions.join(', ')}
+${context.dataSourceInfo ? `
+AVAILABLE DATA SOURCES:
+${Object.entries(context.dataSourceInfo.availableTables).map(([table, description]) => 
+  `- ${table}: ${description}`
+).join('\n')}
+
+Note: Currently showing basic loan data from daily_metrics_current. For questions about foreclosure details, SOL analysis, property details, or other specific data, I can explain what information would be available from those specialized tables.
+` : ''}
 
 SAMPLE LOAN DATA STRUCTURE:
 ${JSON.stringify(context.sampleLoan, null, 2)}
