@@ -131,6 +131,10 @@ app.use('/api/organizations', organizationRouter);
 import chatRouter from './routes/chat';
 app.use('/api/chat', chatRouter);
 
+// AI Assistant Routes
+import aiAssistantRouter from './routes/aiAssistant';
+app.use('/api/ai', aiAssistantRouter);
+
 // Notifications will be handled via WebSocket and existing inbox routes
 
 
