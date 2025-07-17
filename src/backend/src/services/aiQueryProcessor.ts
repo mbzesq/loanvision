@@ -319,6 +319,33 @@ export class AIQueryProcessor {
    * Get list of loan IDs that the user's organization has access to
    */
   private async getAccessibleLoanIds(userContext: UserContext): Promise<string[]> {
+    // Debug: Let's see what we're working with
+    console.log(`🔍 DEBUG: Getting accessible loans for organization ${userContext.organizationId}`);
+    
+    // First, check total loans in system
+    const totalLoansResult = await this.pool.query(`
+      SELECT COUNT(*) as total_loans,
+             COUNT(CASE WHEN state = 'NY' THEN 1 END) as ny_loans
+      FROM daily_metrics_current
+    `);
+    console.log(`🔍 DEBUG: Total loans in system: ${totalLoansResult.rows[0].total_loans}, NY loans: ${totalLoansResult.rows[0].ny_loans}`);
+    
+    // Check organization investors
+    const orgInvestorsResult = await this.pool.query(`
+      SELECT investor_name, is_active 
+      FROM organization_investors 
+      WHERE organization_id = $1
+    `, [userContext.organizationId]);
+    console.log(`🔍 DEBUG: Organization investors:`, orgInvestorsResult.rows);
+    
+    // Check organization loan access
+    const orgLoanAccessResult = await this.pool.query(`
+      SELECT COUNT(*) as explicit_grants 
+      FROM organization_loan_access 
+      WHERE organization_id = $1 AND is_active = true
+    `, [userContext.organizationId]);
+    console.log(`🔍 DEBUG: Explicit loan grants: ${orgLoanAccessResult.rows[0].explicit_grants}`);
+    
     const accessQuery = `
       SELECT DISTINCT dmc.loan_id
       FROM daily_metrics_current dmc
@@ -351,6 +378,8 @@ export class AIQueryProcessor {
     `;
 
     const result = await this.pool.query(accessQuery, [userContext.organizationId]);
+    console.log(`🔍 DEBUG: Accessible loans found: ${result.rows.length}`);
+    
     return result.rows.map(row => row.loan_id);
   }
 
