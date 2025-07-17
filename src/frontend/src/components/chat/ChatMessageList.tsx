@@ -88,7 +88,11 @@ export function ChatMessageList({ messages = [], currentUser }: ChatMessageListP
                   ) : (
                     /* Regular text messages */
                     <div className="text-sm whitespace-pre-wrap">
-                      {message.content}
+                      {(() => {
+                        console.log('Rendering message content:', JSON.stringify(message.content));
+                        console.log('Message object:', message);
+                        return message.content;
+                      })()}
                     </div>
                   )}
 
