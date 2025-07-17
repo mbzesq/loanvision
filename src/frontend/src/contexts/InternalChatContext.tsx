@@ -355,11 +355,14 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
     
     // Join new room and mark as read
     if (roomId) {
-      wsActions.joinRoom(roomId);
+      // Add a small delay to ensure WebSocket is ready
+      setTimeout(() => {
+        wsActions.joinRoom(roomId);
+      }, 100);
       loadMessages(roomId);
       markRoomAsRead(roomId);
     }
-  }, [state.selectedRoomId, wsActions, loadMessages]);
+  }, [state.selectedRoomId, wsActions.joinRoom, wsActions.leaveRoom, loadMessages, markRoomAsRead]);
 
   const sendMessage = useCallback(async (content: string, roomId?: number) => {
     const targetRoomId = roomId || state.selectedRoomId;

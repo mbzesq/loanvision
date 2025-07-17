@@ -84,7 +84,7 @@ export function useChatWebSocket({
 
       // Connection events
       socket.on('connect', () => {
-        console.log('Chat WebSocket connected');
+        console.log('Chat WebSocket connected with ID:', socket.id);
         // Clear any reconnection timeout
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
@@ -136,18 +136,25 @@ export function useChatWebSocket({
         socketRef.current = null;
       }
     };
-  }, [token, onMessageReceived, onMessageSent, onUserTyping, onUserStoppedTyping, 
-      onUserJoined, onUserLeft, onPresenceUpdated, onReactionAdded, onReactionRemoved, 
-      onMarkedRead, onError]);
+  }, [token]); // Only reconnect when token changes, not on every render
 
   // Emit functions
   const joinRoom = useCallback((roomId: number) => {
-    console.log('Joining chat room:', roomId, 'Socket connected:', socketRef.current?.connected);
+    console.log('Joining chat room:', roomId, 'Socket connected:', socketRef.current?.connected, 'Socket ID:', socketRef.current?.id);
     if (socketRef.current?.connected) {
       socketRef.current.emit('chat:join_room', { room_id: roomId });
       console.log('Emitted chat:join_room event for room:', roomId);
     } else {
-      console.warn('Cannot join room - socket not connected');
+      console.warn('Cannot join room - socket not connected. Will retry in 1 second...');
+      // Retry joining room after a short delay
+      setTimeout(() => {
+        if (socketRef.current?.connected) {
+          console.log('Retrying room join for room:', roomId);
+          socketRef.current.emit('chat:join_room', { room_id: roomId });
+        } else {
+          console.warn('Socket still not connected after retry');
+        }
+      }, 1000);
     }
   }, []);
 
