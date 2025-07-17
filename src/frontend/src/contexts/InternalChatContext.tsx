@@ -257,6 +257,8 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
   // WebSocket event handlers
   const handleMessageReceived = useCallback((message: ChatMessage) => {
     console.log('Received chat message:', message);
+    console.log('Message content raw:', JSON.stringify(message.content));
+    console.log('Message content length:', message.content?.length);
     dispatch({ type: 'ADD_MESSAGE', payload: message });
     
     // Update unread count if not in the room
