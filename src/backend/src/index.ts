@@ -18,6 +18,7 @@ import pool from './db';
 import { getForeclosureTimeline } from './services/foreclosureService';
 import { seedSuperUser } from './scripts/createSuperUser';
 import { initializeSOLScheduler } from './services/SOLScheduler';
+import { initializeChatRetentionService } from './services/chatRetentionService';
 import { NotificationEngine } from './services/notificationEngine';
 import { WebSocketServer } from './services/websocketServer';
 import { setWSServerInstance } from './services/wsServerInstance';
@@ -181,6 +182,18 @@ const startServer = async () => {
     console.log('[SOL] Scheduler initialized successfully');
   } catch (error) {
     console.error('[SOL] Failed to initialize scheduler:', error);
+  }
+
+  // Initialize Chat Retention Service
+  console.log('[Chat] Initializing chat message retention service...');
+  try {
+    initializeChatRetentionService(pool, {
+      retentionHours: 24, // 24-hour retention policy
+      cleanupIntervalHours: 1 // Check every hour
+    });
+    console.log('[Chat] Retention service initialized successfully (24-hour policy)');
+  } catch (error) {
+    console.error('[Chat] Failed to initialize retention service:', error);
   }
 
   // Start Notification Engine
