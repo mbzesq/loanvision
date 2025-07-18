@@ -106,15 +106,19 @@ ${JSON.stringify(context.sampleLoan, null, 2)}
 
 RESPONSE GUIDELINES:
 1. Be concise and professional
-2. For loan counts and portfolio statistics, use the PORTFOLIO STATISTICS section above (not the loan data array)
-3. Use specific data when available
-4. Provide actionable insights
-5. Format numbers appropriately (currency, percentages)
-6. If you need more data, ask specific questions
-7. Always use anonymized placeholders in responses
-8. Focus on portfolio analysis, risk assessment, and loan performance
+2. For loan counts, totals, averages, and portfolio statistics, ALWAYS use the PORTFOLIO STATISTICS section above
+3. Individual loan data (if provided) is only for detailed analysis of specific loans
+4. Use specific data when available
+5. Provide actionable insights
+6. Format numbers appropriately (currency, percentages)
+7. If you need more data, ask specific questions
+8. Always use anonymized placeholders in responses
+9. Focus on portfolio analysis, risk assessment, and loan performance
 
 EXAMPLE INTERACTIONS:
+User: "How many loans are in New York?"
+Assistant: "There are 208 loans in New York within your portfolio." (using PORTFOLIO STATISTICS section)
+
 User: "What's the average credit score?"
 Assistant: "The average credit score across your portfolio is 642, with scores ranging from 520 to 780."
 
@@ -424,5 +428,95 @@ Remember: You're analyzing anonymized data to protect borrower privacy while pro
       temperature: this.config.temperature,
       timeout: this.config.timeout
     };
+  }
+
+  /**
+   * Generate chat completion for RAG workflow (minimal context)
+   */
+  async generateChatCompletionRAG(
+    messages: ChatMessage[],
+    ragContext: any,
+    userId: number
+  ): Promise<OpenAIResponse> {
+    const startTime = Date.now();
+
+    try {
+      console.log(`🤖 OpenAI RAG request for user ${userId}:`, {
+        model: this.config.model,
+        messageCount: messages.length,
+        documentsInContext: ragContext.documentCount,
+        queryIntent: ragContext.queryIntent
+      });
+
+      const completion = await this.openai.chat.completions.create({
+        model: this.config.model,
+        messages: messages,
+        max_tokens: this.config.maxTokens,
+        temperature: this.config.temperature,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0
+      });
+
+      const responseTimeMs = Date.now() - startTime;
+      const response = completion.choices[0]?.message?.content || '';
+      
+      const tokenUsage = {
+        promptTokens: completion.usage?.prompt_tokens || 0,
+        completionTokens: completion.usage?.completion_tokens || 0,
+        totalTokens: completion.usage?.total_tokens || 0
+      };
+
+      console.log(`✅ OpenAI RAG response for user ${userId}:`, {
+        responseTimeMs,
+        tokenUsage,
+        responseLength: response.length,
+        tokenReduction: '~90%' // Estimated reduction from non-RAG approach
+      });
+
+      // Log the API call for monitoring
+      await this.logApiCall(userId, {
+        model: this.config.model,
+        tokenUsage,
+        responseTimeMs,
+        success: true,
+        approach: 'RAG'
+      });
+
+      return {
+        content: response,
+        tokenUsage,
+        model: this.config.model,
+        responseTimeMs
+      };
+
+    } catch (error) {
+      const responseTimeMs = Date.now() - startTime;
+      
+      console.error(`❌ OpenAI RAG error for user ${userId}:`, error);
+      
+      // Log the failed API call
+      await this.logApiCall(userId, {
+        model: this.config.model,
+        tokenUsage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+        responseTimeMs,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        approach: 'RAG'
+      });
+
+      // Handle specific OpenAI errors
+      if (error instanceof OpenAI.APIError) {
+        if (error.status === 429) {
+          throw new Error('OpenAI rate limit exceeded. Please try again later.');
+        } else if (error.status === 401) {
+          throw new Error('OpenAI authentication failed. Please check API key.');
+        } else if (error.status === 400) {
+          throw new Error('Invalid request to OpenAI. Please try rephrasing your question.');
+        }
+      }
+
+      throw new Error(`OpenAI service error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 }

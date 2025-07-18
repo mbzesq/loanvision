@@ -133,7 +133,22 @@ app.use('/api/chat', chatRouter);
 
 // AI Assistant Routes
 import aiAssistantRouter from './routes/aiAssistant';
-app.use('/api/ai', aiAssistantRouter);
+import { createAIAssistantRAGRouter } from './routes/aiAssistantRAG';
+import { loadAIConfig, getAIMode } from './config/aiConfig';
+
+// Load AI configuration
+const aiConfig = loadAIConfig();
+console.log(`🤖 AI Assistant mode: ${getAIMode()}`);
+
+if (aiConfig.useRAG) {
+  // Use RAG-based AI assistant for efficient token usage
+  app.use('/api/ai', createAIAssistantRAGRouter(pool));
+  console.log('✅ RAG-based AI Assistant enabled');
+} else {
+  // Use traditional AI assistant
+  app.use('/api/ai', aiAssistantRouter);
+  console.log('📊 Traditional AI Assistant enabled');
+}
 
 // Notifications will be handled via WebSocket and existing inbox routes
 

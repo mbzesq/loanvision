@@ -77,7 +77,7 @@ export function MorganAIContainer() {
         query: userMessage,
         conversationId: selectedConversationId || undefined,
         includeContext: true,
-        maxResults: 100
+        maxResults: 10 // Reduced from 100 - most queries don't need many individual loans
       });
 
       // Update rate limit status

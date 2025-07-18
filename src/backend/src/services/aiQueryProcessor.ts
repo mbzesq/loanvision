@@ -237,11 +237,9 @@ export class AIQueryProcessor {
     const coreLoanData = await this.getCoreLoanData(accessibleLoanIds, request.maxResults);
     const loanStats = await this.getLoanStatistics(accessibleLoanIds);
     
-    // For portfolio-level questions, provide all accessible loan data
-    const shouldIncludeAllLoans = request.includeContext && accessibleLoanIds.length <= 5000;
-    const fullLoanData = shouldIncludeAllLoans ? 
-      await this.getCoreLoanData(accessibleLoanIds) : // No limit for full dataset
-      coreLoanData;
+    // Determine if we need detailed loan data or just statistics
+    const isStatisticalQuery = this.isStatisticalQuery(request.query);
+    const shouldIncludeLoanData = request.includeContext && !isStatisticalQuery;
     
     // Build comprehensive context including data source information
     const context: LoanQueryContext = {
@@ -249,9 +247,9 @@ export class AIQueryProcessor {
       availableFields: coreLoanData.length > 0 ? Object.keys(coreLoanData[0]) : [],
       sampleLoan: {},
       userPermissions: userContext.permissions,
-      filteredLoans: request.includeContext ? fullLoanData : undefined,
+      filteredLoans: shouldIncludeLoanData ? coreLoanData : undefined, // Only include loan data when needed
       dataSourceInfo: this.getDataSourceInfo(),
-      loanStatistics: loanStats // Add aggregated statistics
+      loanStatistics: loanStats // Always include aggregated statistics
     };
 
     // Create a sample loan for context (anonymized)
@@ -295,6 +293,41 @@ export class AIQueryProcessor {
 
     const result = await this.pool.query(query, [loanIds]);
     return result.rows;
+  }
+
+  /**
+   * Determine if query is asking for statistics/counts vs detailed loan analysis
+   */
+  private isStatisticalQuery(query: string): boolean {
+    const lowerQuery = query.toLowerCase();
+    
+    // Keywords that indicate statistical/counting queries
+    const statisticalKeywords = [
+      'how many', 'count', 'total', 'number of', 'average', 'sum', 'mean',
+      'percentage', 'percent', 'ratio', 'distribution', 'breakdown',
+      'statistics', 'stats', 'overview', 'summary'
+    ];
+    
+    // Keywords that indicate detailed analysis (need full data)
+    const detailedKeywords = [
+      'show me', 'list', 'details', 'specific', 'individual', 'particular',
+      'which loans', 'tell me about', 'analyze', 'compare loans'
+    ];
+    
+    // Check for statistical keywords
+    const hasStatisticalKeywords = statisticalKeywords.some(keyword => 
+      lowerQuery.includes(keyword)
+    );
+    
+    // Check for detailed analysis keywords
+    const hasDetailedKeywords = detailedKeywords.some(keyword => 
+      lowerQuery.includes(keyword)
+    );
+    
+    // If both types of keywords, prefer detailed analysis
+    if (hasDetailedKeywords) return false;
+    
+    return hasStatisticalKeywords;
   }
 
   /**
