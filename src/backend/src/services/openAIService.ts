@@ -284,6 +284,7 @@ Remember: You're analyzing anonymized data to protect borrower privacy while pro
     responseTimeMs: number;
     success: boolean;
     error?: string;
+    approach?: string;
   }): Promise<void> {
     try {
       await this.pool.query(`

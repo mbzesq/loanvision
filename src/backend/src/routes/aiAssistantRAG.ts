@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import { Pool } from 'pg';
 import { AIQueryProcessorRAG } from '../services/aiQueryProcessorRAG';
-import { authenticate } from '../middleware/auth';
+import { authenticateToken, AuthRequest } from '../middleware/authMiddleware';
 import { RAGIndexingJob } from '../jobs/ragIndexingJob';
 
 const router = Router();
 let aiProcessor: AIQueryProcessorRAG;
 let ragIndexingJob: RAGIndexingJob;
 
-export function createAIAssistantRAGRouter(pool: Pool): Router {
-  aiProcessor = new AIQueryProcessorRAG(pool);
-  ragIndexingJob = new RAGIndexingJob(pool);
+export function createAIAssistantRAGRouter(dbPool: Pool): Router {
+  aiProcessor = new AIQueryProcessorRAG(dbPool);
+  ragIndexingJob = new RAGIndexingJob(dbPool);
   
   // Start the indexing job
   ragIndexingJob.start();
@@ -19,7 +19,7 @@ export function createAIAssistantRAGRouter(pool: Pool): Router {
    * Send a query to the AI assistant (RAG mode)
    * POST /api/ai/rag/query
    */
-  router.post('/query', authenticate, async (req, res) => {
+  router.post('/query', authenticateToken, async (req: AuthRequest, res) => {
     try {
       const { query, conversationId, includeContext, maxResults } = req.body;
       const user = req.user!;
@@ -73,11 +73,14 @@ export function createAIAssistantRAGRouter(pool: Pool): Router {
    * Get RAG indexing status
    * GET /api/ai/rag/index/status
    */
-  router.get('/index/status', authenticate, async (req, res) => {
+  router.get('/index/status', authenticateToken, async (req: AuthRequest, res) => {
     try {
       const jobStatus = ragIndexingJob.getStatus();
-      const indexHealth = await aiProcessor['ragRetrievalService']['ragIndexingService'].healthCheck();
-      const indexStats = await aiProcessor['ragRetrievalService']['ragIndexingService'].getIndexStats();
+      // Create indexing service instance to check health
+      const { RAGIndexingService } = await import('../services/ragIndexingService');
+      const indexingService = new RAGIndexingService(dbPool);
+      const indexHealth = await indexingService.healthCheck();
+      const indexStats = await indexingService.getIndexStats();
 
       res.json({
         success: true,
@@ -98,7 +101,7 @@ export function createAIAssistantRAGRouter(pool: Pool): Router {
    * Trigger manual RAG indexing (admin only)
    * POST /api/ai/rag/index/rebuild
    */
-  router.post('/index/rebuild', authenticate, async (req, res) => {
+  router.post('/index/rebuild', authenticateToken, async (req: AuthRequest, res) => {
     try {
       const user = req.user!;
       
@@ -132,7 +135,7 @@ export function createAIAssistantRAGRouter(pool: Pool): Router {
    * Get retrieval statistics
    * GET /api/ai/rag/stats
    */
-  router.get('/stats', authenticate, async (req, res) => {
+  router.get('/stats', authenticateToken, async (req: AuthRequest, res) => {
     try {
       const days = parseInt(req.query.days as string) || 7;
       const stats = await aiProcessor['ragRetrievalService'].getRetrievalStats(days);
@@ -155,9 +158,8 @@ export function createAIAssistantRAGRouter(pool: Pool): Router {
    * Compare token usage between RAG and non-RAG
    * GET /api/ai/rag/comparison
    */
-  router.get('/comparison', authenticate, async (req, res) => {
+  router.get('/comparison', authenticateToken, async (req: AuthRequest, res) => {
     try {
-      const pool = aiProcessor['pool'];
       
       const comparisonQuery = `
         SELECT 
@@ -176,7 +178,7 @@ export function createAIAssistantRAGRouter(pool: Pool): Router {
         GROUP BY approach
       `;
 
-      const result = await pool.query(comparisonQuery);
+      const result = await dbPool.query(comparisonQuery);
       
       const comparison = {
         rag: result.rows.find(r => r.approach === 'RAG') || { 
