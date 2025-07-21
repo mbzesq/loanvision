@@ -145,10 +145,9 @@ export class RAGIndexingService {
       SELECT 
         fe.loan_id,
         fe.fc_status,
-        fe.fc_file_date,
-        fe.fc_sale_date,
-        fe.attorney_name,
-        fe.attorney_phone,
+        fe.complaint_filed_date,
+        fe.sale_scheduled_date,
+        fe.current_attorney,
         dmc.state,
         dmc.investor_name,
         dmc.prin_bal
@@ -333,8 +332,8 @@ Last payment: ${loan.last_pymt_received}, Next due: ${loan.next_pymt_due}.`;
    */
   private formatForeclosureDocument(fc: any): string {
     return `Foreclosure case for loan ${fc.loan_id} in ${fc.state}. 
-Status: ${fc.fc_status}, Filed: ${fc.fc_file_date}, Sale date: ${fc.fc_sale_date || 'Not scheduled'}. 
-Attorney: ${fc.attorney_name} (${fc.attorney_phone}). 
+Status: ${fc.fc_status}, Filed: ${fc.complaint_filed_date || 'Not filed'}, Sale date: ${fc.sale_scheduled_date || 'Not scheduled'}. 
+Attorney: ${fc.current_attorney || 'Not assigned'}. 
 Current balance: $${fc.prin_bal?.toLocaleString() || 'N/A'}, Investor: ${fc.investor_name}.`;
   }
 
