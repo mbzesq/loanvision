@@ -217,5 +217,97 @@ export function createAIAssistantRAGRouter(dbPool: Pool): Router {
     }
   });
 
+  /**
+   * GET /api/ai/conversations
+   * Get user's AI conversations
+   */
+  router.get('/conversations', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const conversations = await aiProcessor.getUserConversations(req.user!.id);
+      
+      res.json({
+        success: true,
+        data: { conversations }
+      });
+
+    } catch (error) {
+      console.error('Get conversations error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to retrieve conversations'
+      });
+    }
+  });
+
+  /**
+   * GET /api/ai/conversations/:id/messages
+   * Get messages for a specific conversation
+   */
+  router.get('/conversations/:id/messages', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const conversationId = req.params.id;
+      const messages = await aiProcessor.getConversationMessages(conversationId, req.user!.id);
+      
+      res.json({
+        success: true,
+        data: { messages }
+      });
+
+    } catch (error) {
+      console.error('Get conversation messages error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to retrieve conversation messages'
+      });
+    }
+  });
+
+  /**
+   * DELETE /api/ai/conversations/:id
+   * Delete a conversation
+   */
+  router.delete('/conversations/:id', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const conversationId = req.params.id;
+      await aiProcessor.deleteConversation(conversationId, req.user!.id);
+      
+      res.json({
+        success: true,
+        message: 'Conversation deleted successfully'
+      });
+
+    } catch (error) {
+      console.error('Delete conversation error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to delete conversation'
+      });
+    }
+  });
+
+  /**
+   * GET /api/ai/rate-limit
+   * Get current user's rate limit status
+   */
+  router.get('/rate-limit', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { AIRateLimitService } = await import('../services/aiRateLimitService');
+      const rateLimitService = new AIRateLimitService(dbPool);
+      const status = await rateLimitService.checkRateLimit(req.user!.id);
+      
+      res.json({
+        success: true,
+        data: status
+      });
+
+    } catch (error) {
+      console.error('Rate limit check error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to check rate limit'
+      });
+    }
+  });
+
   return router;
 }

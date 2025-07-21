@@ -536,5 +536,84 @@ INSTRUCTIONS:
     }
   }
 
-  // ... Additional methods for conversations, etc. (same as original)
+  /**
+   * Get user's conversations
+   */
+  async getUserConversations(userId: number): Promise<Array<{
+    id: string;
+    title: string;
+    createdAt: Date;
+    updatedAt: Date;
+    messageCount: number;
+    lastMessage?: string;
+  }>> {
+    const result = await this.pool.query(`
+      SELECT 
+        c.id, c.conversation_title, c.created_at, c.updated_at,
+        COUNT(m.id) as message_count,
+        (
+          SELECT content FROM ai_messages 
+          WHERE conversation_id = c.id 
+          ORDER BY created_at DESC 
+          LIMIT 1
+        ) as last_message
+      FROM ai_conversations c
+      LEFT JOIN ai_messages m ON m.conversation_id = c.id
+      WHERE c.user_id = $1 AND c.is_archived = false
+      GROUP BY c.id, c.conversation_title, c.created_at, c.updated_at
+      ORDER BY c.updated_at DESC
+    `, [userId]);
+
+    return result.rows.map(row => ({
+      id: row.id,
+      title: row.conversation_title,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      messageCount: parseInt(row.message_count),
+      lastMessage: row.last_message
+    }));
+  }
+
+  /**
+   * Get conversation messages
+   */
+  async getConversationMessages(
+    conversationId: string,
+    userId: number
+  ): Promise<Array<{
+    id: string;
+    type: 'user' | 'assistant';
+    content: string;
+    tokenCount: number;
+    createdAt: Date;
+  }>> {
+    const result = await this.pool.query(`
+      SELECT id, message_type, content, token_count, created_at
+      FROM ai_messages
+      WHERE conversation_id = $1
+      AND conversation_id IN (
+        SELECT id FROM ai_conversations WHERE user_id = $2
+      )
+      ORDER BY created_at ASC
+    `, [conversationId, userId]);
+
+    return result.rows.map(row => ({
+      id: row.id,
+      type: row.message_type,
+      content: row.content,
+      tokenCount: row.token_count || 0,
+      createdAt: row.created_at
+    }));
+  }
+
+  /**
+   * Delete conversation
+   */
+  async deleteConversation(conversationId: string, userId: number): Promise<void> {
+    await this.pool.query(`
+      UPDATE ai_conversations 
+      SET is_archived = true 
+      WHERE id = $1 AND user_id = $2
+    `, [conversationId, userId]);
+  }
 }
