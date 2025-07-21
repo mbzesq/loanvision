@@ -51,7 +51,7 @@ export function createAIAssistantRAGRouter(dbPool: Pool): Router {
 
       res.json({
         success: true,
-        ...response
+        data: response
       });
 
     } catch (error) {
