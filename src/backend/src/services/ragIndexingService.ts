@@ -187,12 +187,8 @@ export class RAGIndexingService {
     const query = `
       SELECT 
         pdc.loan_id,
-        pdc.property_type,
-        pdc.bedrooms,
-        pdc.bathrooms,
-        pdc.square_feet,
-        pdc.estimated_value,
-        pdc.year_built,
+        pdc.property_data,
+        pdc.source,
         dmc.address,
         dmc.city,
         dmc.state,
@@ -201,6 +197,7 @@ export class RAGIndexingService {
         dmc.prin_bal
       FROM property_data_current pdc
       JOIN daily_metrics_current dmc ON pdc.loan_id = dmc.loan_id
+      WHERE pdc.property_data IS NOT NULL
     `;
 
     const result = await this.pool.query(query);
@@ -341,10 +338,19 @@ Current balance: $${fc.prin_bal?.toLocaleString() || 'N/A'}, Investor: ${fc.inve
    * Format property document for embedding
    */
   private formatPropertyDocument(prop: any): string {
+    // Extract property details from JSONB data
+    const propertyData = prop.property_data || {};
+    const propertyType = propertyData.property_type || propertyData.type || 'Unknown';
+    const bedrooms = propertyData.bedrooms || propertyData.beds || 'N/A';
+    const bathrooms = propertyData.bathrooms || propertyData.baths || 'N/A';
+    const squareFeet = propertyData.square_feet || propertyData.sqft || propertyData.size || 'N/A';
+    const yearBuilt = propertyData.year_built || propertyData.built || 'N/A';
+    const estimatedValue = propertyData.estimated_value || propertyData.value || propertyData.appraisal;
+    
     return `Property for loan ${prop.loan_id} at ${prop.address}, ${prop.city}, ${prop.state} ${prop.zip}. 
-Type: ${prop.property_type}, ${prop.bedrooms} bedrooms, ${prop.bathrooms} bathrooms, ${prop.square_feet} sq ft. 
-Built: ${prop.year_built}, Estimated value: $${prop.estimated_value?.toLocaleString() || 'N/A'}. 
-Current loan balance: $${prop.prin_bal?.toLocaleString() || 'N/A'}, Investor: ${prop.investor_name}.`;
+Type: ${propertyType}, ${bedrooms} bedrooms, ${bathrooms} bathrooms, ${squareFeet} sq ft. 
+Built: ${yearBuilt}, Estimated value: $${estimatedValue ? estimatedValue.toLocaleString() : 'N/A'}. 
+Data source: ${prop.source || 'Manual'}, Current loan balance: $${prop.prin_bal?.toLocaleString() || 'N/A'}, Investor: ${prop.investor_name}.`;
   }
 
   /**
