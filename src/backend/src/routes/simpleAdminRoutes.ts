@@ -1,7 +1,7 @@
 import express from 'express';
-import { Pool } from 'pg';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import pool from '../db'; // Use shared database pool
 
 const router = express.Router();
 
@@ -17,11 +17,6 @@ const checkAdminKey = (req: express.Request, res: express.Response, next: expres
   
   next();
 };
-
-// Database pool - use same config as main app
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
 
 /**
  * GET /api/simple-admin/test

@@ -1,17 +1,13 @@
 import express from 'express';
-import { Pool } from 'pg';
 import { SOLCalculationService } from '../services/SOLCalculationService';
 import { SOLEventService } from '../services/SOLEventService';
 import { authenticateToken } from '../middleware/authMiddleware';
 import organizationAccessService from '../services/organizationAccessService';
+import pool from '../db'; // Use shared database pool
 
 const router = express.Router();
 
-// Initialize services - use same database config as main app
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
+// Initialize services with shared database pool
 const solCalculationService = new SOLCalculationService(pool);
 const solEventService = new SOLEventService(pool);
 

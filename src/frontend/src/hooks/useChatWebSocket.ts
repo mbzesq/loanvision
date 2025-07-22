@@ -77,8 +77,8 @@ export function useChatWebSocket({
         upgrade: false, // Disable transport upgrade in production
         timeout: 30000,
         autoConnect: true,
-        forceNew: true,
-        // Add retry configuration
+        forceNew: false, // Allow connection reuse to prevent excessive connections
+        // Built-in Socket.IO reconnection (no manual reconnection needed)
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
@@ -103,11 +103,7 @@ export function useChatWebSocket({
 
       socket.on('disconnect', (reason) => {
         console.log('❌ Chat WebSocket disconnected:', reason);
-        // Auto-reconnect after 3 seconds if not manually disconnected
-        if (reason !== 'io client disconnect') {
-          console.log('🔄 Auto-reconnecting in 3 seconds...');
-          reconnectTimeoutRef.current = window.setTimeout(connectSocket, 3000);
-        }
+        // Let Socket.IO handle reconnection automatically - no manual reconnection needed
       });
 
       socket.on('connect_error', (error: any) => {
@@ -117,9 +113,7 @@ export function useChatWebSocket({
           description: error.description || 'No description',
           wsUrl
         });
-        // Retry connection after 5 seconds
-        console.log('🔄 Retrying connection in 5 seconds...');
-        reconnectTimeoutRef.current = window.setTimeout(connectSocket, 5000);
+        // Socket.IO will handle reconnection automatically
       });
 
       // Chat event listeners
@@ -161,16 +155,8 @@ export function useChatWebSocket({
       socketRef.current.emit('chat:join_room', { room_id: roomId });
       console.log('Emitted chat:join_room event for room:', roomId);
     } else {
-      console.warn('Cannot join room - socket not connected. Will retry in 1 second...');
-      // Retry joining room after a short delay
-      setTimeout(() => {
-        if (socketRef.current?.connected) {
-          console.log('Retrying room join for room:', roomId);
-          socketRef.current.emit('chat:join_room', { room_id: roomId });
-        } else {
-          console.warn('Socket still not connected after retry');
-        }
-      }, 1000);
+      console.warn('Cannot join room - socket not connected. Waiting for Socket.IO to reconnect automatically.');
+      // No manual retry - let Socket.IO handle reconnection and the caller can retry if needed
     }
   }, []);
 

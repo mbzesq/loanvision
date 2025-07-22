@@ -2,6 +2,7 @@ import express from 'express';
 import { runSOLMigration } from '../scripts/runSOLMigration';
 import { importSOLData } from '../scripts/importSOLData';
 import { sessionService } from '../services/sessionService';
+import pool from '../db'; // Use shared database pool
 
 const router = express.Router();
 
@@ -76,10 +77,7 @@ router.post('/sol/import-data', checkAdminKey, async (req, res) => {
  */
 router.get('/sol/status', checkAdminKey, async (req, res) => {
   try {
-    const { Pool } = await import('pg');
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-    });
+    // Use shared database pool instead of creating a new one
 
     // Check if SOL tables exist
     const tablesResult = await pool.query(`
@@ -163,10 +161,7 @@ router.post('/setup-investor-mapping', checkAdminKey, async (req, res) => {
   try {
     console.log('🔧 Admin endpoint: Setting up investor mapping...');
     
-    const { Pool } = await import('pg');
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-    });
+    // Use shared database pool instead of creating a new one
 
     // Run the migration script
     const fs = await import('fs');

@@ -67,12 +67,14 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
       isProduction,
       wsUrl
     });
+    // TODO: Consolidate with chat WebSocket to avoid multiple connections per user
     const socket = io(wsUrl, {
       path: '/ws',
       auth: { token },
       // Force polling in production, WebSocket in development
       transports: isProduction ? ['polling'] : ['websocket', 'polling'],
       upgrade: false, // Disable WebSocket upgrade in production
+      forceNew: false, // Allow connection reuse to prevent excessive connections
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

@@ -1,15 +1,10 @@
 import express from 'express';
-import { Pool } from 'pg';
 import { getForeclosureTimeline } from '../services/foreclosureService';
 import { authenticateToken } from '../middleware/authMiddleware';
 import organizationAccessService from '../services/organizationAccessService';
+import pool from '../db'; // Use shared database pool
 
 const router = express.Router();
-
-// Initialize database pool - use same database config as main app
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
 
 /**
  * GET /api/foreclosure/summary
