@@ -380,17 +380,53 @@ export class RAGRetrievalService {
     const filters: Partial<RetrievalQuery['filters']> = {};
     const lowerQuery = query.toLowerCase();
 
-    // Extract state
-    const stateMatch = query.match(/\b(in |from )?(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/i);
-    if (stateMatch) {
-      filters.state = stateMatch[2].toUpperCase();
+    // Extract state names and codes more accurately
+    const stateMap: Record<string, string> = {
+      'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR', 
+      'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+      'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+      'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+      'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+      'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+      'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+      'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+      'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+      'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+      'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+      'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+      'wisconsin': 'WI', 'wyoming': 'WY'
+    };
+
+    // Check for full state names first
+    for (const [stateName, stateCode] of Object.entries(stateMap)) {
+      if (lowerQuery.includes(stateName)) {
+        filters.state = stateCode;
+        console.log(`🔍 [DEBUG] Extracted state: ${stateName} -> ${stateCode}`);
+        break;
+      }
     }
 
-    // Extract legal status
-    if (lowerQuery.includes('foreclosure')) filters.legalStatus = 'Foreclosure';
-    if (lowerQuery.includes('current')) filters.legalStatus = 'Current';
-    if (lowerQuery.includes('delinquent')) filters.legalStatus = 'Delinquent';
+    // If no full name found, try state codes (but be more careful)
+    if (!filters.state) {
+      const stateCodeMatch = query.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/);
+      if (stateCodeMatch) {
+        filters.state = stateCodeMatch[1].toUpperCase();
+        console.log(`🔍 [DEBUG] Extracted state code: ${stateCodeMatch[1]}`);
+      }
+    }
 
+    // Only set legal status if the query is specifically asking for loans with that status
+    // Don't filter by foreclosure status just because the word appears in context
+    if (lowerQuery.includes('current loans') || lowerQuery.includes('performing loans')) {
+      filters.legalStatus = 'Current';
+    } else if (lowerQuery.includes('delinquent loans')) {
+      filters.legalStatus = 'Delinquent';
+    } else if (lowerQuery.includes('foreclosed loans') || lowerQuery.includes('loans in foreclosure')) {
+      filters.legalStatus = 'Foreclosure';
+    }
+    // Don't set legal status for queries about "foreclosure timeline" or "foreclosure status"
+
+    console.log(`🔍 [DEBUG] Extracted filters:`, filters);
     return filters;
   }
 
