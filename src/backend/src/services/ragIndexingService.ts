@@ -232,8 +232,10 @@ export class RAGIndexingService {
         lsc.loan_id,
         lsc.sol_expiration_date,
         lsc.days_until_expiration,
-        lsc.risk_level,
-        lsc.recommended_action,
+        lsc.sol_risk_level,
+        lsc.sol_risk_score,
+        lsc.risk_factors,
+        lsc.is_expired,
         dmc.state,
         dmc.investor_name,
         dmc.prin_bal,
@@ -357,9 +359,12 @@ Data source: ${prop.source || 'Manual'}, Current loan balance: $${prop.prin_bal?
    * Format SOL document for embedding
    */
   private formatSOLDocument(sol: any): string {
+    const riskFactors = sol.risk_factors ? Object.keys(sol.risk_factors).join(', ') : 'None identified';
+    const statusText = sol.is_expired ? 'EXPIRED' : `${sol.days_until_expiration} days remaining`;
+    
     return `Statute of limitations analysis for loan ${sol.loan_id} in ${sol.state}. 
-SOL expires: ${sol.sol_expiration_date}, Days remaining: ${sol.days_until_expiration}, Risk level: ${sol.risk_level}. 
-Recommended action: ${sol.recommended_action}. Last payment: ${sol.last_pymt_received}. 
+SOL expires: ${sol.sol_expiration_date}, Status: ${statusText}, Risk level: ${sol.sol_risk_level}, Risk score: ${sol.sol_risk_score}. 
+Risk factors: ${riskFactors}. Last payment: ${sol.last_pymt_received}. 
 Current balance: $${sol.prin_bal?.toLocaleString() || 'N/A'}, Investor: ${sol.investor_name}.`;
   }
 
