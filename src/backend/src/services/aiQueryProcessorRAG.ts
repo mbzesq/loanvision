@@ -3,6 +3,7 @@ import { PIIAnonymizationService } from './piiAnonymizationService';
 import { OpenAIService } from './openAIService';
 import { AIRateLimitService } from './aiRateLimitService';
 import { RAGRetrievalService } from './ragRetrievalService';
+import { loadAIConfig } from '../config/aiConfig';
 
 interface UserContext {
   userId: number;
@@ -497,7 +498,7 @@ INSTRUCTIONS:
         assistantResponse,
         anonymizedResponse,
         tokenUsage.totalTokens,
-        'gpt-4.1-nano',
+        loadAIConfig().shared.model,
         JSON.stringify(piiMappingIds)
       ]);
 

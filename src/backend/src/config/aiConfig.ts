@@ -92,7 +92,7 @@ export const defaultAIConfig: AIConfig = {
   },
   
   shared: {
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model: process.env.OPENAI_MODEL || 'gpt-4o',
     temperature: 0.1,
     maxResponseTokens: 2048,
     maxQueriesPerDay: 50,

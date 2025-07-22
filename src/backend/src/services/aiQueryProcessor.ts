@@ -567,7 +567,7 @@ export class AIQueryProcessor {
         assistantResponse,
         anonymizedResponse,
         tokenUsage.totalTokens,
-        'gpt-4.1-nano',
+        this.openaiService.getModel(),
         JSON.stringify(piiMappingIds)
       ]);
 
