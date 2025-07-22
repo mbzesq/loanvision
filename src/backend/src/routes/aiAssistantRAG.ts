@@ -30,6 +30,13 @@ export function createAIAssistantRAGRouter(dbPool: Pool): Router {
         });
       }
 
+      console.log(`🔍 [DEBUG] User JWT payload:`, {
+        id: user.id,
+        email: user.email,
+        organizationId: user.organizationId,
+        role: user.role
+      });
+
       const userContext = {
         userId: user.id,
         organizationId: user.organizationId || 0,
@@ -37,6 +44,8 @@ export function createAIAssistantRAGRouter(dbPool: Pool): Router {
         firstName: '', // TODO: Get from user profile
         lastName: '' // TODO: Get from user profile
       };
+
+      console.log(`🔍 [DEBUG] User context being passed:`, userContext);
 
       const request = {
         query: query.trim(),

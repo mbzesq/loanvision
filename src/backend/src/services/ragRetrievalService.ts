@@ -255,6 +255,8 @@ export class RAGRetrievalService {
     }
 
     // Add organization access control
+    console.log(`🔍 [DEBUG] Organization access filter - organizationId: ${request.organizationId}`);
+    
     query += ` AND loan_id IN (
       SELECT DISTINCT dmc.loan_id
       FROM daily_metrics_current dmc
@@ -267,6 +269,9 @@ export class RAGRetrievalService {
     )`;
     params.push(request.organizationId);
     paramCount++;
+    
+    console.log(`🔍 [DEBUG] Final metadata query:`, query);
+    console.log(`🔍 [DEBUG] Query params:`, params);
 
     query += ` LIMIT ${request.maxResults || 20}`;
 
