@@ -28,7 +28,7 @@ async function runMigration() {
       console.log('  - organization_loan_access table');
       console.log('  - organization_invitations table');
       console.log('  - Added organization_id to users table');
-      console.log('  - Created default "System Organization"');
+      console.log('  - Created default "Shelton Partners, LLC"');
     } else if (action === 'down') {
       await down(pool);
       console.log('[OrganizationsMigration] ✅ Rollback completed successfully');

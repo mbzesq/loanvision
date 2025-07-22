@@ -100,7 +100,7 @@ export const up = async (pool: Pool): Promise<void> => {
 
     -- Create default "System" organization for existing users
     INSERT INTO organizations (name, slug, type, description, is_active) 
-    VALUES ('System Organization', 'system', 'other', 'Default organization for existing users', true);
+    VALUES ('Shelton Partners, LLC', 'system', 'other', 'Default organization for existing users', true);
 
     -- Assign all existing users to the system organization
     UPDATE users SET organization_id = (SELECT id FROM organizations WHERE slug = 'system');

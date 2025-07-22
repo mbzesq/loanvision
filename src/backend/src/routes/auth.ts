@@ -33,7 +33,7 @@ router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Resp
     // Hash password
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // Insert new user with default 'user' role and assign to System Organization
+    // Insert new user with default 'user' role and assign to Shelton Partners, LLC
     const systemOrgResult = await pool.query('SELECT id FROM organizations WHERE slug = $1', ['system']);
     const systemOrgId = systemOrgResult.rows[0]?.id;
     

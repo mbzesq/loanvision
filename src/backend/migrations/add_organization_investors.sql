@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS organization_investors (
 CREATE INDEX IF NOT EXISTS idx_organization_investors_name ON organization_investors(investor_name);
 CREATE INDEX IF NOT EXISTS idx_organization_investors_org_active ON organization_investors(organization_id, is_active);
 
--- Insert all investor names for System Organization (assuming organization_id = 1)
--- If System Organization has a different ID, update accordingly
+-- Insert all investor names for Shelton Partners, LLC (assuming organization_id = 1)
+-- If Shelton Partners, LLC has a different ID, update accordingly
 INSERT INTO organization_investors (organization_id, investor_name, investor_type) VALUES
 (1, 'ATC2021 Trust', 'trust'),
 (1, 'ATC2021 Trust - Tracking', 'trust'),
