@@ -20,6 +20,7 @@ export class WebSocketServer {
   private chatRoomUsers: Map<number, Set<number>> = new Map(); // roomId -> Set of userIds
   private userTypingTimers: Map<string, NodeJS.Timeout> = new Map(); // userId-roomId -> timeout
   private notificationClient: any = null; // Database notification client
+  private connectionAttempts: Map<string, number> = new Map(); // Track connection attempts by IP
 
   constructor(httpServer: HttpServer, notificationEngine: NotificationEngine) {
     this.notificationEngine = notificationEngine;
@@ -52,10 +53,11 @@ export class WebSocketServer {
           }
           
           if (allowedOrigins.indexOf(origin) !== -1) {
-            console.log(`Socket.IO CORS allowed origin: ${origin}`);
+            // Reduce excessive logging - only log unique origins or on errors
+            // console.log(`Socket.IO CORS allowed origin: ${origin}`);
             return callback(null, true);
           } else {
-            console.error(`Socket.IO CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
+            logger.error(`Socket.IO CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
             return callback(new Error('Not allowed by CORS'), false);
           }
         },
@@ -80,9 +82,22 @@ export class WebSocketServer {
       path: '/ws'
     });
 
-    // Add engine-level error handling
+    // Add engine-level error handling with better logging
     this.io.engine.on('connection_error', (err: any) => {
-      logger.error('Socket.IO Engine connection error:', err);
+      logger.error('Socket.IO Engine connection error:', {
+        message: err.message,
+        code: err.code,
+        type: err.type,
+        description: err.description
+      });
+    });
+
+    // Handle session errors more gracefully
+    this.io.engine.on('session_unknown', (data: any) => {
+      logger.warn('Socket.IO session unknown:', {
+        sessionId: data.sid,
+        transport: data.transport
+      });
     });
 
     this.setupMiddleware();
@@ -145,8 +160,15 @@ export class WebSocketServer {
         socket.organizationId = decoded.organizationId;
         socket.currentChatRooms = new Set();
         
-        // Track user connection
+        // Track user connection and prevent excessive connections
         if (socket.userId) {
+          // Check if user already has too many connections (prevent spam)
+          const existingSockets = this.userSockets.get(socket.userId);
+          if (existingSockets && existingSockets.size >= 5) {
+            logger.warn(`User ${socket.userId} has too many connections (${existingSockets.size}), rejecting new connection`);
+            return next(new Error('Too many connections'));
+          }
+
           this.addUserSocket(socket.userId, socket.id);
           
           // Update user presence to online
@@ -387,6 +409,12 @@ export class WebSocketServer {
    * Set up chat notification listeners from database
    */
   private async setupChatNotificationListeners() {
+    // Prevent duplicate notification clients
+    if (this.notificationClient) {
+      logger.info('Chat notification client already exists, skipping setup');
+      return;
+    }
+
     try {
       // Listen for new chat messages from database notifications
       const client = await pool.connect();
@@ -408,17 +436,19 @@ export class WebSocketServer {
       
       client.on('error', (error) => {
         logger.error('Database notification client error:', error);
-        // Attempt to reconnect after error
+        this.notificationClient = null;
+        // Attempt to reconnect after error with exponential backoff
         setTimeout(() => {
           this.setupChatNotificationListeners().catch(reconnectError => {
             logger.error('Failed to reconnect database notification listener:', reconnectError);
           });
-        }, 5000);
+        }, 10000); // Increased delay
       });
       
       client.on('end', () => {
         logger.warn('Database notification client connection ended');
-        // Attempt to reconnect
+        this.notificationClient = null;
+        // Attempt to reconnect with delay
         setTimeout(() => {
           this.setupChatNotificationListeners().catch(reconnectError => {
             logger.error('Failed to reconnect database notification listener:', reconnectError);

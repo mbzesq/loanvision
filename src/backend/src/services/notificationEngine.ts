@@ -29,6 +29,7 @@ export interface InboxTask {
 export class NotificationEngine extends EventEmitter {
   private db: Pool;
   private checkInterval: NodeJS.Timeout | null = null;
+  private dbClient: any = null; // Database listener client
 
   constructor(db: Pool) {
     super();
@@ -56,11 +57,24 @@ export class NotificationEngine extends EventEmitter {
   /**
    * Stop the notification engine
    */
-  stop() {
+  async stop() {
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
     }
+
+    // Clean up database client
+    if (this.dbClient) {
+      try {
+        await this.dbClient.query('UNLISTEN new_inbox_task');
+        this.dbClient.release();
+        this.dbClient = null;
+        logger.info('NotificationEngine database client cleaned up');
+      } catch (error) {
+        logger.error('Error cleaning up NotificationEngine database client:', error);
+      }
+    }
+
     logger.info('Notification Engine stopped');
   }
 
@@ -68,17 +82,61 @@ export class NotificationEngine extends EventEmitter {
    * Set up PostgreSQL LISTEN for real-time notifications
    */
   private async setupDatabaseListeners() {
-    const client = await this.db.connect();
-    
-    client.on('notification', async (msg) => {
-      if (msg.channel === 'new_inbox_task' && msg.payload) {
-        const taskData = JSON.parse(msg.payload);
-        await this.processNewInboxTask(taskData);
-      }
-    });
-    
-    await client.query('LISTEN new_inbox_task');
-    logger.info('Notification Engine listening for database notifications');
+    // Prevent duplicate listeners
+    if (this.dbClient) {
+      logger.info('Database listener already exists for NotificationEngine');
+      return;
+    }
+
+    try {
+      const client = await this.db.connect();
+      this.dbClient = client;
+      
+      client.on('notification', async (msg) => {
+        try {
+          if (msg.channel === 'new_inbox_task' && msg.payload) {
+            const taskData = JSON.parse(msg.payload);
+            await this.processNewInboxTask(taskData);
+          }
+        } catch (error) {
+          logger.error('Error processing inbox task notification:', error);
+        }
+      });
+
+      client.on('error', (error) => {
+        logger.error('NotificationEngine database client error:', error);
+        this.dbClient = null;
+        // Reconnect after delay
+        setTimeout(() => {
+          this.setupDatabaseListeners().catch(reconnectError => {
+            logger.error('Failed to reconnect NotificationEngine database listener:', reconnectError);
+          });
+        }, 5000);
+      });
+
+      client.on('end', () => {
+        logger.warn('NotificationEngine database client connection ended');
+        this.dbClient = null;
+        // Reconnect after delay  
+        setTimeout(() => {
+          this.setupDatabaseListeners().catch(reconnectError => {
+            logger.error('Failed to reconnect NotificationEngine database listener:', reconnectError);
+          });
+        }, 5000);
+      });
+      
+      await client.query('LISTEN new_inbox_task');
+      logger.info('Notification Engine listening for database notifications');
+    } catch (error) {
+      logger.error('Failed to setup database listeners for NotificationEngine:', error);
+      this.dbClient = null;
+      // Retry after delay
+      setTimeout(() => {
+        this.setupDatabaseListeners().catch(retryError => {
+          logger.error('Failed to retry database listener setup for NotificationEngine:', retryError);
+        });
+      }, 10000);
+    }
   }
 
   /**
