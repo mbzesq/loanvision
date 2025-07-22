@@ -117,11 +117,24 @@ export class RAGRetrievalService {
   private async classifyQueryIntent(query: string): Promise<QueryIntent> {
     const lowerQuery = query.toLowerCase();
 
+    // Check for contextual queries first (e.g., "How many of those...")
+    const isContextualQuery = this.containsAny(lowerQuery, [
+      'of those', 'of these', 'of them', 'those are', 'these are'
+    ]);
+
     // Statistical queries
     if (this.containsAny(lowerQuery, [
       'how many', 'count', 'total', 'number of', 'average', 'sum', 
       'percentage', 'percent', 'ratio', 'distribution', 'breakdown'
     ])) {
+      // If it's a contextual statistical query about foreclosure, prioritize foreclosure intent
+      if (isContextualQuery && (lowerQuery.includes('foreclosure') || lowerQuery.includes('foreclosed'))) {
+        return 'foreclosure';
+      }
+      // Also check for foreclosure in any statistical query
+      if (lowerQuery.includes('foreclosure') || lowerQuery.includes('foreclosed')) {
+        return 'foreclosure';
+      }
       return 'statistical';
     }
 
@@ -189,6 +202,9 @@ export class RAGRetrievalService {
         return 'metadata';
       
       case 'foreclosure':
+        // Foreclosure queries work best with metadata filtering
+        return 'metadata';
+      
       case 'property':
       case 'sol_analysis':
         // Domain-specific queries benefit from hybrid approach
@@ -418,16 +434,26 @@ export class RAGRetrievalService {
       }
     }
 
-    // Only set legal status if the query is specifically asking for loans with that status
-    // Don't filter by foreclosure status just because the word appears in context
-    if (lowerQuery.includes('current loans') || lowerQuery.includes('performing loans')) {
+    // Enhanced foreclosure detection - look for various ways users ask about foreclosure
+    if (lowerQuery.includes('foreclosure') || 
+        lowerQuery.includes('foreclosed') ||
+        lowerQuery.includes('in foreclosure') ||
+        lowerQuery.includes('fc status') ||
+        lowerQuery.includes('those are in foreclosure') ||
+        lowerQuery.includes('of those are in foreclosure') ||
+        lowerQuery.includes('how many are in foreclosure')) {
+      // Check if it's asking about loans IN foreclosure vs just mentioning foreclosure
+      if (lowerQuery.includes('are in foreclosure') || 
+          lowerQuery.includes('in foreclosure') ||
+          lowerQuery.includes('foreclosed')) {
+        filters.legalStatus = 'Foreclosure';
+        console.log(`🔍 [DEBUG] Detected foreclosure status filter`);
+      }
+    } else if (lowerQuery.includes('current loans') || lowerQuery.includes('performing loans')) {
       filters.legalStatus = 'Current';
     } else if (lowerQuery.includes('delinquent loans')) {
       filters.legalStatus = 'Delinquent';
-    } else if (lowerQuery.includes('foreclosed loans') || lowerQuery.includes('loans in foreclosure')) {
-      filters.legalStatus = 'Foreclosure';
     }
-    // Don't set legal status for queries about "foreclosure timeline" or "foreclosure status"
 
     console.log(`🔍 [DEBUG] Extracted filters:`, filters);
     return filters;
