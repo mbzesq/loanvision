@@ -342,7 +342,9 @@ INSTRUCTIONS:
 3. Be specific and reference the actual data from the documents
 4. Use the portfolio statistics for counts and aggregates
 5. Format numbers appropriately (currency, percentages)
-6. Keep responses concise and focused`
+6. Keep responses concise and focused
+7. IMPORTANT: When listing loans, ensure each loan appears only ONCE in your response. If you find the same loan_id in multiple documents, consolidate the information into a single entry.
+8. For "top N" requests, provide exactly N unique loans, not duplicates that fill the list`
     });
 
     // Add conversation history

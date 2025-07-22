@@ -277,6 +277,9 @@ export class RAGRetrievalService {
 
     const result = await this.pool.query(query, params);
     
+    console.log(`🔍 [DEBUG] Retrieved ${result.rows.length} documents`);
+    console.log(`🔍 [DEBUG] Document types:`, result.rows.map(row => `${row.loan_id}:${row.metadata?.type}`));
+    
     return result.rows.map(row => ({
       id: row.id,
       loan_id: row.loan_id,
@@ -479,6 +482,30 @@ export class RAGRetrievalService {
       const scoreB = b.similarity_score || 0;
       return scoreB - scoreA;
     });
+
+    // For statistical or ranking queries, prioritize one document per loan to avoid duplication
+    const queryLower = request.query.toLowerCase();
+    const isRankingQuery = queryLower.includes('top ') || queryLower.includes('list ') || 
+                          queryLower.includes('order by') || queryLower.includes('highest') || 
+                          queryLower.includes('lowest');
+
+    if (isRankingQuery) {
+      console.log(`🔍 [DEBUG] Ranking query detected, deduplicating by loan_id`);
+      
+      // Keep only the highest-scoring document per loan
+      const loanMap = new Map<string, RetrievedDocument>();
+      
+      for (const doc of documents) {
+        const existingDoc = loanMap.get(doc.loan_id);
+        if (!existingDoc || (doc.similarity_score || 0) > (existingDoc.similarity_score || 0)) {
+          loanMap.set(doc.loan_id, doc);
+        }
+      }
+      
+      const deduplicatedDocs = Array.from(loanMap.values());
+      console.log(`🔍 [DEBUG] Deduplicated from ${documents.length} to ${deduplicatedDocs.length} documents`);
+      documents = deduplicatedDocs;
+    }
 
     // Limit results
     const maxResults = request.maxResults || 10;
