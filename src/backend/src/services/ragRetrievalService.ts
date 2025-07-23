@@ -265,9 +265,14 @@ export class RAGRetrievalService {
     }
 
     if (filters.legalStatus) {
-      query += ` AND metadata->>'legal_status' = $${paramCount}`;
-      params.push(filters.legalStatus);
-      paramCount++;
+      if (filters.legalStatus === 'Foreclosure') {
+        // For foreclosure queries, look for actual foreclosure statuses
+        query += ` AND (metadata->>'legal_status' IN ('ACTIVE', 'HOLD', 'PENDING') OR metadata->>'type' = 'foreclosure')`;
+      } else {
+        query += ` AND metadata->>'legal_status' = $${paramCount}`;
+        params.push(filters.legalStatus);
+        paramCount++;
+      }
     }
 
     // Add organization access control
