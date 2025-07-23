@@ -6,14 +6,81 @@ interface LoanDocument {
   loan_id: string;
   content: string;
   metadata: {
-    type: 'loan_summary' | 'foreclosure' | 'property' | 'sol_analysis' | 'financial';
+    type: 'loan_summary' | 'foreclosure' | 'property' | 'sol_analysis' | 'financial' | 'payment_history' | 'chain_of_title' | 'collateral';
     state?: string;
     investor_name?: string;
     legal_status?: string;
     current_balance?: number;
     last_updated: Date;
+    // Additional standardized fields
+    fc_status?: string; // Original foreclosure status
+    payment_status?: string; // Current/Delinquent/Default
+    sol_status?: string; // Active/Expired/Near_Expiration
   };
   embedding?: number[];
+}
+
+/**
+ * Metadata Standardization Mappings
+ */
+class MetadataStandardizer {
+  /**
+   * Standardize legal status values for consistent querying
+   */
+  static standardizeLegalStatus(rawStatus: string, documentType: string): string {
+    if (!rawStatus) return 'Unknown';
+    
+    const status = rawStatus.toUpperCase();
+    
+    // Foreclosure document statuses
+    if (documentType === 'foreclosure') {
+      if (['ACTIVE', 'HOLD', 'PENDING'].includes(status)) {
+        return 'Foreclosure';
+      }
+      if (status === 'CLOSED') {
+        return 'Foreclosure_Closed';
+      }
+    }
+    
+    // Daily metrics statuses
+    if (['CURRENT', 'PERFORMING'].includes(status)) {
+      return 'Current';
+    }
+    if (['DELINQUENT', 'DELINQ'].includes(status)) {
+      return 'Delinquent';
+    }
+    if (status.startsWith('BK')) {
+      return 'Bankruptcy';
+    }
+    if (['DEFAULT', 'CHARGED_OFF'].includes(status)) {
+      return 'Default';
+    }
+    
+    return rawStatus; // Keep original if no mapping found
+  }
+  
+  /**
+   * Standardize state field (handle property_state vs state)
+   */
+  static standardizeState(stateValue: string): string {
+    if (!stateValue) return '';
+    return stateValue.toUpperCase().trim();
+  }
+  
+  /**
+   * Determine payment status from multiple sources
+   */
+  static determinePaymentStatus(legalStatus: string, daysPastDue?: number): string {
+    if (!legalStatus) return 'Unknown';
+    
+    const status = legalStatus.toUpperCase();
+    if (status === 'CURRENT' || status === 'PERFORMING') return 'Current';
+    if (status === 'DELINQUENT' || (daysPastDue && daysPastDue > 0)) return 'Delinquent';
+    if (status.startsWith('BK')) return 'Bankruptcy';
+    if (['DEFAULT', 'CHARGED_OFF'].includes(status)) return 'Default';
+    
+    return 'Unknown';
+  }
 }
 
 interface IndexStats {
@@ -57,13 +124,21 @@ export class RAGIndexingService {
       const propertyDocuments = await this.generatePropertyDocuments();
       const solDocuments = await this.generateSOLDocuments();
       const financialDocuments = await this.generateFinancialDocuments();
+      
+      // New comprehensive document types
+      const paymentHistoryDocuments = await this.generatePaymentHistoryDocuments();
+      const chainOfTitleDocuments = await this.generateChainOfTitleDocuments();
+      const collateralDocuments = await this.generateCollateralDocuments();
 
       const allDocuments = [
         ...loanSummaries,
         ...foreclosureDocuments,
         ...propertyDocuments,
         ...solDocuments,
-        ...financialDocuments
+        ...financialDocuments,
+        ...paymentHistoryDocuments,
+        ...chainOfTitleDocuments,
+        ...collateralDocuments
       ];
 
       console.log(`📊 Generated ${allDocuments.length} documents for indexing`);
@@ -79,7 +154,10 @@ export class RAGIndexingService {
           foreclosure: foreclosureDocuments.length,
           property: propertyDocuments.length,
           sol_analysis: solDocuments.length,
-          financial: financialDocuments.length
+          financial: financialDocuments.length,
+          payment_history: paymentHistoryDocuments.length,
+          chain_of_title: chainOfTitleDocuments.length,
+          collateral: collateralDocuments.length
         }
       };
 
@@ -125,9 +203,10 @@ export class RAGIndexingService {
         content,
         metadata: {
           type: 'loan_summary',
-          state: loan.state,
+          state: MetadataStandardizer.standardizeState(loan.state),
           investor_name: loan.investor_name,
-          legal_status: loan.legal_status,
+          legal_status: MetadataStandardizer.standardizeLegalStatus(loan.legal_status, 'loan_summary'),
+          payment_status: MetadataStandardizer.determinePaymentStatus(loan.legal_status),
           current_balance: loan.prin_bal,
           last_updated: new Date()
         }
@@ -168,9 +247,9 @@ export class RAGIndexingService {
         content,
         metadata: {
           type: 'foreclosure',
-          state: fc.state,
+          state: MetadataStandardizer.standardizeState(fc.state),
           investor_name: fc.investor_name,
-          legal_status: 'Foreclosure', // Standardize to match filter expectations
+          legal_status: MetadataStandardizer.standardizeLegalStatus(fc.fc_status, 'foreclosure'),
           fc_status: fc.fc_status, // Keep original status too
           current_balance: fc.prin_bal,
           last_updated: new Date()
@@ -316,6 +395,160 @@ export class RAGIndexingService {
   }
 
   /**
+   * Generate payment history documents
+   */
+  private async generatePaymentHistoryDocuments(): Promise<LoanDocument[]> {
+    const query = `
+      SELECT 
+        mcd.loan_id,
+        mcd.month_year,
+        mcd.payment_amount,
+        mcd.principal_paid,
+        mcd.interest_paid,
+        mcd.fees_paid,
+        mcd.ending_balance,
+        mcd.payment_status,
+        dmc.state,
+        dmc.investor_name,
+        dmc.prin_bal
+      FROM monthly_cashflow_data mcd
+      JOIN daily_metrics_current dmc ON mcd.loan_id = dmc.loan_id
+      WHERE mcd.payment_amount IS NOT NULL OR mcd.payment_status IS NOT NULL
+      ORDER BY mcd.loan_id, mcd.month_year DESC
+    `;
+
+    const result = await this.pool.query(query);
+    const documents: LoanDocument[] = [];
+    
+    // Group by loan_id and create summary documents
+    const loanPaymentMap = new Map<string, any[]>();
+    result.rows.forEach(row => {
+      if (!loanPaymentMap.has(row.loan_id)) {
+        loanPaymentMap.set(row.loan_id, []);
+      }
+      loanPaymentMap.get(row.loan_id)!.push(row);
+    });
+
+    for (const [loanId, payments] of loanPaymentMap) {
+      const recentPayments = payments.slice(0, 12); // Last 12 months
+      const content = this.formatPaymentHistoryDocument(loanId, recentPayments);
+      
+      documents.push({
+        id: `payment_history_${loanId}`,
+        loan_id: loanId,
+        content,
+        metadata: {
+          type: 'payment_history',
+          state: MetadataStandardizer.standardizeState(recentPayments[0]?.state),
+          investor_name: recentPayments[0]?.investor_name,
+          payment_status: MetadataStandardizer.determinePaymentStatus(recentPayments[0]?.payment_status),
+          current_balance: recentPayments[0]?.prin_bal,
+          last_updated: new Date()
+        }
+      });
+    }
+
+    return documents;
+  }
+
+  /**
+   * Generate chain of title documents
+   */
+  private async generateChainOfTitleDocuments(): Promise<LoanDocument[]> {
+    const query = `
+      SELECT 
+        cot.loan_id,
+        cot.transfer_date,
+        cot.from_entity,
+        cot.to_entity,
+        cot.transfer_type,
+        cot.recording_info,
+        cot.document_type,
+        dmc.state,
+        dmc.investor_name,
+        dmc.prin_bal
+      FROM chain_of_title cot
+      JOIN daily_metrics_current dmc ON cot.loan_id = dmc.loan_id
+      ORDER BY cot.loan_id, cot.transfer_date DESC
+    `;
+
+    const result = await this.pool.query(query);
+    const documents: LoanDocument[] = [];
+    
+    // Group by loan_id
+    const loanTitleMap = new Map<string, any[]>();
+    result.rows.forEach(row => {
+      if (!loanTitleMap.has(row.loan_id)) {
+        loanTitleMap.set(row.loan_id, []);
+      }
+      loanTitleMap.get(row.loan_id)!.push(row);
+    });
+
+    for (const [loanId, titleHistory] of loanTitleMap) {
+      const content = this.formatChainOfTitleDocument(loanId, titleHistory);
+      
+      documents.push({
+        id: `chain_of_title_${loanId}`,
+        loan_id: loanId,
+        content,
+        metadata: {
+          type: 'chain_of_title',
+          state: MetadataStandardizer.standardizeState(titleHistory[0]?.state),
+          investor_name: titleHistory[0]?.investor_name,
+          current_balance: titleHistory[0]?.prin_bal,
+          last_updated: new Date()
+        }
+      });
+    }
+
+    return documents;
+  }
+
+  /**
+   * Generate collateral status documents
+   */
+  private async generateCollateralDocuments(): Promise<LoanDocument[]> {
+    const query = `
+      SELECT 
+        lcs.loan_id,
+        lcs.collateral_type,
+        lcs.collateral_status,
+        lcs.valuation_date,
+        lcs.current_value,
+        lcs.original_value,
+        lcs.valuation_method,
+        lcs.notes,
+        dmc.state,
+        dmc.investor_name,
+        dmc.prin_bal
+      FROM loan_collateral_status lcs
+      JOIN daily_metrics_current dmc ON lcs.loan_id = dmc.loan_id
+    `;
+
+    const result = await this.pool.query(query);
+    const documents: LoanDocument[] = [];
+
+    for (const collateral of result.rows) {
+      const content = this.formatCollateralDocument(collateral);
+      
+      documents.push({
+        id: `collateral_${collateral.loan_id}`,
+        loan_id: collateral.loan_id,
+        content,
+        metadata: {
+          type: 'collateral',
+          state: MetadataStandardizer.standardizeState(collateral.state),
+          investor_name: collateral.investor_name,
+          current_balance: collateral.prin_bal,
+          last_updated: new Date()
+        }
+      });
+    }
+
+    return documents;
+  }
+
+  /**
    * Format loan summary for embedding
    */
   private formatLoanSummary(loan: any): string {
@@ -383,6 +616,61 @@ Monthly payment: $${financial.pi_pmt?.toLocaleString() || 'N/A'}, Interest rate:
 Payment status: ${paymentStatus}, Unapplied balance: $${financial.unapplied_bal?.toLocaleString() || '0'}. 
 Remaining term: ${financial.remg_term} months, Next payment due: ${financial.next_pymt_due}. 
 State: ${financial.state}, Investor: ${financial.investor_name}.`;
+  }
+
+  /**
+   * Format payment history document for embedding
+   */
+  private formatPaymentHistoryDocument(loanId: string, payments: any[]): string {
+    if (payments.length === 0) {
+      return `Payment history for loan ${loanId}: No payment records available.`;
+    }
+
+    const totalPayments = payments.length;
+    const totalAmount = payments.reduce((sum, p) => sum + (p.payment_amount || 0), 0);
+    const avgPayment = totalAmount / totalPayments;
+    const recentPayment = payments[0];
+    const missedPayments = payments.filter(p => p.payment_status === 'MISSED').length;
+
+    return `Payment history for loan ${loanId} over last ${totalPayments} months. 
+Total payments: $${totalAmount.toLocaleString()}, Average: $${avgPayment.toLocaleString()}, 
+Missed payments: ${missedPayments}. Recent payment (${recentPayment.month_year}): $${recentPayment.payment_amount?.toLocaleString() || '0'}, 
+Status: ${recentPayment.payment_status}, Ending balance: $${recentPayment.ending_balance?.toLocaleString() || 'N/A'}. 
+State: ${recentPayment.state}, Investor: ${recentPayment.investor_name}.`;
+  }
+
+  /**
+   * Format chain of title document for embedding
+   */
+  private formatChainOfTitleDocument(loanId: string, titleHistory: any[]): string {
+    if (titleHistory.length === 0) {
+      return `Chain of title for loan ${loanId}: No title transfer records available.`;
+    }
+
+    const transfers = titleHistory.length;
+    const currentOwner = titleHistory[0];
+    const originalOwner = titleHistory[titleHistory.length - 1];
+    const transferTypes = [...new Set(titleHistory.map(t => t.transfer_type))].join(', ');
+
+    return `Chain of title for loan ${loanId} with ${transfers} transfers. 
+Current owner: ${currentOwner.to_entity}, Original owner: ${originalOwner.from_entity}. 
+Transfer types: ${transferTypes}. Most recent transfer: ${currentOwner.transfer_date} 
+from ${currentOwner.from_entity} to ${currentOwner.to_entity} (${currentOwner.transfer_type}). 
+State: ${currentOwner.state}, Investor: ${currentOwner.investor_name}.`;
+  }
+
+  /**
+   * Format collateral document for embedding
+   */
+  private formatCollateralDocument(collateral: any): string {
+    const valueChange = collateral.current_value && collateral.original_value ? 
+      ((collateral.current_value - collateral.original_value) / collateral.original_value * 100).toFixed(1) : 'N/A';
+    
+    return `Collateral for loan ${collateral.loan_id}: ${collateral.collateral_type}, 
+Status: ${collateral.collateral_status}. Original value: $${collateral.original_value?.toLocaleString() || 'N/A'}, 
+Current value: $${collateral.current_value?.toLocaleString() || 'N/A'} (${valueChange}% change). 
+Valuation date: ${collateral.valuation_date}, Method: ${collateral.valuation_method}. 
+Notes: ${collateral.notes || 'None'}. State: ${collateral.state}, Investor: ${collateral.investor_name}.`;
   }
 
   /**

@@ -170,12 +170,36 @@ export class RAGRetrievalService {
       return 'sol_analysis';
     }
 
-    // Financial queries
+    // Payment-specific queries
     if (this.containsAny(lowerQuery, [
-      'payment', 'balance', 'principal', 'interest', 'monthly payment',
-      'payment history', 'delinquent', 'current', 'performing'
+      'payment history', 'payments made', 'payment performance', 'missed payments',
+      'payment schedule', 'payment status', 'payment trend'
+    ])) {
+      return 'payment';
+    }
+
+    // Financial queries (broader than payments)
+    if (this.containsAny(lowerQuery, [
+      'balance', 'principal', 'interest', 'monthly payment', 'financial',
+      'delinquent', 'current', 'performing', 'rate'
     ])) {
       return 'financial';
+    }
+
+    // Chain of title queries
+    if (this.containsAny(lowerQuery, [
+      'chain of title', 'title transfer', 'ownership', 'owner', 'transfer',
+      'title history', 'who owns', 'owned by'
+    ])) {
+      return 'title';
+    }
+
+    // Collateral queries
+    if (this.containsAny(lowerQuery, [
+      'collateral', 'collateral value', 'asset', 'security', 'ltv',
+      'loan to value', 'appraisal', 'valuation'
+    ])) {
+      return 'collateral';
     }
 
     // Comparison queries
@@ -472,21 +496,27 @@ export class RAGRetrievalService {
   private getDocumentTypesForIntent(intent: QueryIntent): string[] {
     switch (intent) {
       case 'statistical':
-        return ['loan_summary', 'financial'];
+        return ['loan_summary', 'financial', 'payment_history'];
       case 'specific_loan':
-        return ['loan_summary'];
+        return ['loan_summary', 'payment_history', 'collateral'];
       case 'foreclosure':
-        return ['foreclosure', 'loan_summary'];
+        return ['foreclosure', 'loan_summary', 'chain_of_title'];
       case 'property':
-        return ['property', 'loan_summary'];
+        return ['property', 'loan_summary', 'collateral'];
       case 'sol_analysis':
         return ['sol_analysis', 'loan_summary'];
       case 'financial':
-        return ['financial', 'loan_summary'];
+        return ['financial', 'loan_summary', 'payment_history'];
+      case 'payment':
+        return ['payment_history', 'financial', 'loan_summary'];
+      case 'title':
+        return ['chain_of_title', 'loan_summary'];
+      case 'collateral':
+        return ['collateral', 'property', 'loan_summary'];
       case 'comparison':
-        return ['loan_summary', 'financial'];
+        return ['loan_summary', 'financial', 'payment_history'];
       default:
-        return [];
+        return ['loan_summary']; // Default to loan summary instead of empty
     }
   }
 
