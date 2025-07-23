@@ -170,7 +170,8 @@ export class RAGIndexingService {
           type: 'foreclosure',
           state: fc.state,
           investor_name: fc.investor_name,
-          legal_status: fc.fc_status,
+          legal_status: 'Foreclosure', // Standardize to match filter expectations
+          fc_status: fc.fc_status, // Keep original status too
           current_balance: fc.prin_bal,
           last_updated: new Date()
         }

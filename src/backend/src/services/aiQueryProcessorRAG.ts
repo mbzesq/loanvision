@@ -263,27 +263,32 @@ export class AIQueryProcessorRAG {
       };
     }
 
-    // Get aggregated statistics
+    // Get aggregated statistics with foreclosure data
     const statsQuery = `
       SELECT 
-        COUNT(*) as total_loans,
-        COUNT(CASE WHEN state = 'NY' THEN 1 END) as loans_in_ny,
-        COUNT(CASE WHEN state = 'CA' THEN 1 END) as loans_in_ca,
-        COUNT(CASE WHEN state = 'FL' THEN 1 END) as loans_in_fl,
-        COUNT(CASE WHEN state = 'TX' THEN 1 END) as loans_in_tx,
-        COUNT(CASE WHEN state = 'PA' THEN 1 END) as loans_in_pa,
-        COUNT(DISTINCT state) as states_represented,
-        COUNT(DISTINCT investor_name) as unique_investors,
-        AVG(prin_bal) as avg_current_balance,
-        SUM(prin_bal) as total_principal_balance,
-        COUNT(CASE WHEN legal_status = 'Current' THEN 1 END) as current_loans,
-        COUNT(CASE WHEN legal_status = 'Delinquent' THEN 1 END) as delinquent_loans,
-        COUNT(CASE WHEN legal_status = 'Foreclosure' THEN 1 END) as foreclosure_loans,
-        AVG(int_rate) as avg_interest_rate,
-        MIN(int_rate) as min_interest_rate,
-        MAX(int_rate) as max_interest_rate
-      FROM daily_metrics_current 
-      WHERE loan_id = ANY($1)
+        COUNT(DISTINCT dmc.loan_id) as total_loans,
+        COUNT(DISTINCT CASE WHEN dmc.state = 'NY' THEN dmc.loan_id END) as loans_in_ny,
+        COUNT(DISTINCT CASE WHEN dmc.state = 'CA' THEN dmc.loan_id END) as loans_in_ca,
+        COUNT(DISTINCT CASE WHEN dmc.state = 'FL' THEN dmc.loan_id END) as loans_in_fl,
+        COUNT(DISTINCT CASE WHEN dmc.state = 'TX' THEN dmc.loan_id END) as loans_in_tx,
+        COUNT(DISTINCT CASE WHEN dmc.state = 'PA' THEN dmc.loan_id END) as loans_in_pa,
+        COUNT(DISTINCT dmc.state) as states_represented,
+        COUNT(DISTINCT dmc.investor_name) as unique_investors,
+        AVG(dmc.prin_bal) as avg_current_balance,
+        SUM(dmc.prin_bal) as total_principal_balance,
+        COUNT(DISTINCT CASE WHEN dmc.legal_status = 'Current' THEN dmc.loan_id END) as current_loans,
+        COUNT(DISTINCT CASE WHEN dmc.legal_status = 'Delinquent' THEN dmc.loan_id END) as delinquent_loans,
+        COUNT(DISTINCT CASE WHEN dmc.legal_status = 'Foreclosure' THEN dmc.loan_id END) as foreclosure_loans,
+        -- Additional foreclosure statistics
+        COUNT(DISTINCT CASE WHEN fe.loan_id IS NOT NULL THEN fe.loan_id END) as loans_with_foreclosure_events,
+        COUNT(DISTINCT CASE WHEN dmc.state = 'NY' AND fe.loan_id IS NOT NULL THEN fe.loan_id END) as ny_loans_with_foreclosure,
+        COUNT(DISTINCT CASE WHEN dmc.state = 'NY' AND fe.loan_id IS NOT NULL AND fe.fc_status IN ('ACTIVE', 'HOLD', 'PENDING') THEN fe.loan_id END) as ny_loans_in_foreclosure_status,
+        AVG(dmc.int_rate) as avg_interest_rate,
+        MIN(dmc.int_rate) as min_interest_rate,
+        MAX(dmc.int_rate) as max_interest_rate
+      FROM daily_metrics_current dmc
+      LEFT JOIN foreclosure_events fe ON dmc.loan_id = fe.loan_id
+      WHERE dmc.loan_id = ANY($1)
     `;
     
     const statsResult = await this.pool.query(statsQuery, [loanIds]);
@@ -335,7 +340,10 @@ PORTFOLIO STATISTICS:
 - Total portfolio balance: $${ragContext.portfolioStats.total_principal_balance ? Math.round(ragContext.portfolioStats.total_principal_balance).toLocaleString() : 'N/A'}
 - Current loans: ${ragContext.portfolioStats.current_loans || 0}
 - Delinquent loans: ${ragContext.portfolioStats.delinquent_loans || 0}
-- Foreclosure loans: ${ragContext.portfolioStats.foreclosure_loans || 0}
+- Foreclosure loans (by legal status): ${ragContext.portfolioStats.foreclosure_loans || 0}
+- Loans with foreclosure events: ${ragContext.portfolioStats.loans_with_foreclosure_events || 0}
+- NY loans in foreclosure: ${ragContext.portfolioStats.ny_loans_in_foreclosure_status || 0}
+- NY loans with foreclosure events: ${ragContext.portfolioStats.ny_loans_with_foreclosure || 0}
 
 INSTRUCTIONS:
 1. Answer based on the retrieved documents and portfolio statistics provided

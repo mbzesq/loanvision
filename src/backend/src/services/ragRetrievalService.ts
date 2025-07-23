@@ -294,7 +294,9 @@ export class RAGRetrievalService {
     console.log(`🔍 [DEBUG] Final metadata query:`, query);
     console.log(`🔍 [DEBUG] Query params:`, params);
 
-    query += ` LIMIT ${request.maxResults || 20}`;
+    // Use higher limit for foreclosure queries to ensure we get all relevant documents
+    const limit = intent === 'foreclosure' ? (request.maxResults || 50) : (request.maxResults || 20);
+    query += ` LIMIT ${limit}`;
 
     const result = await this.pool.query(query, params);
     
