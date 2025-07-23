@@ -12,6 +12,18 @@ interface RetrievalQuery {
     legalStatus?: string;
     documentType?: string;
   };
+  conversationContext?: ConversationContext;
+}
+
+interface ConversationContext {
+  previousQuery?: string;
+  previousFilters?: {
+    state?: string;
+    investor?: string;
+    legalStatus?: string;
+  };
+  previousIntent?: string;
+  timestamp: Date;
 }
 
 interface RetrievedDocument {
@@ -38,6 +50,9 @@ type QueryIntent =
   | 'property'         // Property details and valuations
   | 'sol_analysis'     // Statute of limitations queries
   | 'financial'        // Payment history, balances
+  | 'payment'          // Payment-specific queries
+  | 'title'            // Chain of title queries
+  | 'collateral'       // Collateral and asset queries
   | 'comparison'       // Comparing multiple loans
   | 'general';         // Broad portfolio questions
 
@@ -49,6 +64,7 @@ export class RAGRetrievalService {
   private pool: Pool;
   private openai: OpenAI;
   private embeddingModel = 'text-embedding-3-small';
+  private conversationContexts = new Map<number, ConversationContext>(); // userId -> context
 
   constructor(pool: Pool) {
     this.pool = pool;
@@ -66,11 +82,16 @@ export class RAGRetrievalService {
     const startTime = Date.now();
 
     try {
-      // 1. Classify query intent
+      // 1. Get or inject conversation context
+      if (!request.conversationContext) {
+        request.conversationContext = this.getConversationContext(request.userId);
+      }
+
+      // 2. Classify query intent
       const queryIntent = await this.classifyQueryIntent(request.query);
       console.log(`📋 Query intent: ${queryIntent}`);
 
-      // 2. Determine retrieval strategy based on intent
+      // 3. Determine retrieval strategy based on intent
       const strategy = this.determineStrategy(queryIntent);
 
       // 3. Execute retrieval based on strategy
@@ -96,6 +117,11 @@ export class RAGRetrievalService {
 
       // 6. Log the retrieval for analytics
       await this.logRetrieval(request, documents, strategy, queryIntent, Date.now() - startTime);
+
+      // 7. Store conversation context for follow-up queries
+      const extractedFilters = this.extractFiltersFromQuery(request.query, request.conversationContext);
+      const finalFilters = { ...extractedFilters, ...request.filters };
+      this.storeConversationContext(request.userId, request.query, finalFilters, queryIntent);
 
       return {
         documents,
@@ -252,8 +278,8 @@ export class RAGRetrievalService {
     request: RetrievalQuery, 
     intent: QueryIntent
   ): Promise<RetrievedDocument[]> {
-    // Extract metadata filters from query
-    const extractedFilters = this.extractFiltersFromQuery(request.query);
+    // Extract metadata filters from query with conversation context
+    const extractedFilters = this.extractFiltersFromQuery(request.query, request.conversationContext);
     const filters = { ...extractedFilters, ...request.filters };
 
     // Determine document types to search based on intent
@@ -426,9 +452,27 @@ export class RAGRetrievalService {
   /**
    * Extract filters from natural language query
    */
-  private extractFiltersFromQuery(query: string): Partial<RetrievalQuery['filters']> {
+  private extractFiltersFromQuery(query: string, context?: ConversationContext): Partial<RetrievalQuery['filters']> {
     const filters: Partial<RetrievalQuery['filters']> = {};
     const lowerQuery = query.toLowerCase();
+    
+    // Check for contextual references (e.g., "those", "them", "these")
+    const isContextualQuery = this.containsAny(lowerQuery, [
+      'of those', 'of these', 'of them', 'those are', 'these are', 'and of those'
+    ]);
+    
+    // If this is a contextual query and we have previous context, inherit filters
+    if (isContextualQuery && context && context.previousFilters) {
+      // Inherit state and investor from previous query
+      if (context.previousFilters.state) {
+        filters.state = context.previousFilters.state;
+        console.log(`🔍 [DEBUG] Inherited state from context: ${filters.state}`);
+      }
+      if (context.previousFilters.investor) {
+        filters.investor = context.previousFilters.investor;
+        console.log(`🔍 [DEBUG] Inherited investor from context: ${filters.investor}`);
+      }
+    }
 
     // Extract state names and codes more accurately
     const stateMap: Record<string, string> = {
@@ -621,6 +665,43 @@ export class RAGRetrievalService {
    */
   private containsAny(text: string, keywords: string[]): boolean {
     return keywords.some(keyword => text.includes(keyword));
+  }
+
+  /**
+   * Store conversation context for a user
+   */
+  private storeConversationContext(userId: number, query: string, filters: any, intent: string): void {
+    this.conversationContexts.set(userId, {
+      previousQuery: query,
+      previousFilters: {
+        state: filters.state,
+        investor: filters.investor,
+        legalStatus: filters.legalStatus
+      },
+      previousIntent: intent,
+      timestamp: new Date()
+    });
+    
+    console.log(`💭 [DEBUG] Stored context for user ${userId}:`, {
+      query: query.substring(0, 50),
+      filters,
+      intent
+    });
+  }
+
+  /**
+   * Get conversation context for a user
+   */
+  private getConversationContext(userId: number): ConversationContext | undefined {
+    const context = this.conversationContexts.get(userId);
+    
+    // Clear context if it's more than 30 minutes old
+    if (context && (Date.now() - context.timestamp.getTime()) > 30 * 60 * 1000) {
+      this.conversationContexts.delete(userId);
+      return undefined;
+    }
+    
+    return context;
   }
 
   /**
