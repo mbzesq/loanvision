@@ -144,27 +144,33 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       processingCost = doctlyResult.cost;
       pageCount = doctlyResult.pageCount;
 
-      // Log cost tracking data
-      await pool.query(`
-        INSERT INTO document_processing_costs (
-          loan_id, file_name, precision_cost, ultra_cost, total_cost, 
-          page_count, processing_mode, initial_confidence, final_confidence, 
-          confidence_improvement, processing_time_ms, retry_attempted
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      `, [
-        loanId,
-        file.originalname,
-        doctlyResult.mode === 'precision' ? doctlyResult.cost : (doctlyResult.attempts > 1 ? 0.02 * pageCount : 0),
-        doctlyResult.mode === 'ultra' || doctlyResult.attempts > 1 ? (doctlyResult.mode === 'ultra' ? doctlyResult.cost : 0.05 * pageCount) : 0,
-        doctlyResult.cost,
-        pageCount,
-        doctlyResult.attempts > 1 ? 'both' : doctlyResult.mode,
-        doctlyResult.attempts > 1 ? (doctlyResult.finalConfidence - (doctlyResult.cost > 0.02 * pageCount ? 0.1 : 0)) : doctlyResult.finalConfidence, // Estimate initial confidence
-        doctlyResult.finalConfidence,
-        doctlyResult.attempts > 1 ? (doctlyResult.cost > 0.02 * pageCount ? 0.1 : 0) : 0, // Estimate improvement
-        doctlyResult.processingTime,
-        doctlyResult.attempts > 1
-      ]);
+      // Log cost tracking data (optional - don't fail if table doesn't exist)
+      try {
+        await pool.query(`
+          INSERT INTO document_processing_costs (
+            loan_id, file_name, precision_cost, ultra_cost, total_cost, 
+            page_count, processing_mode, initial_confidence, final_confidence, 
+            confidence_improvement, processing_time_ms, retry_attempted
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        `, [
+          loanId,
+          file.originalname,
+          doctlyResult.mode === 'precision' ? doctlyResult.cost : (doctlyResult.attempts > 1 ? 0.02 * pageCount : 0),
+          doctlyResult.mode === 'ultra' || doctlyResult.attempts > 1 ? (doctlyResult.mode === 'ultra' ? doctlyResult.cost : 0.05 * pageCount) : 0,
+          doctlyResult.cost,
+          pageCount,
+          doctlyResult.attempts > 1 ? 'both' : doctlyResult.mode,
+          doctlyResult.attempts > 1 ? (doctlyResult.finalConfidence - (doctlyResult.cost > 0.02 * pageCount ? 0.1 : 0)) : doctlyResult.finalConfidence, // Estimate initial confidence
+          doctlyResult.finalConfidence,
+          doctlyResult.attempts > 1 ? (doctlyResult.cost > 0.02 * pageCount ? 0.1 : 0) : 0, // Estimate improvement
+          doctlyResult.processingTime,
+          doctlyResult.attempts > 1
+        ]);
+        console.log('Cost tracking data saved successfully');
+      } catch (costTrackingError) {
+        console.warn('Failed to save cost tracking data (non-critical):', costTrackingError instanceof Error ? costTrackingError.message : costTrackingError);
+        // Continue processing - don't fail the entire document analysis for this
+      }
 
     } else {
       // Fallback to Azure processing

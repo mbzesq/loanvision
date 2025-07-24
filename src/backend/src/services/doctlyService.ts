@@ -189,14 +189,33 @@ export class DoctlyService {
         };
 
         if (data.status === 'COMPLETED' || data.status === 'SUCCESS') {
-          const markdownContent = data.markdown || data.content || data.text || '';
-          if (markdownContent) {
+          // Check for direct markdown content first
+          const directContent = data.markdown || data.content || data.text || '';
+          if (directContent) {
             console.log(`[DoctlyAI] Document processing completed successfully after ${attempt} polls`);
-            return markdownContent;
-          } else {
-            console.warn(`[DoctlyAI] Document marked as complete but no content received:`, data);
-            return '';
+            return directContent;
           }
+          
+          // If no direct content, fetch from download_url
+          const downloadUrl = (data as any).download_url || (data as any).output_file_url;
+          if (downloadUrl) {
+            console.log(`[DoctlyAI] Fetching markdown content from download URL`);
+            try {
+              const downloadResponse = await axios.get(downloadUrl, {
+                timeout: 30000,
+                responseType: 'text'
+              });
+              const markdownContent = downloadResponse.data as string;
+              console.log(`[DoctlyAI] Successfully downloaded markdown content (${markdownContent.length} characters)`);
+              return markdownContent;
+            } catch (downloadError) {
+              console.error(`[DoctlyAI] Failed to download markdown content:`, downloadError);
+              throw new Error(`Failed to download processed document: ${downloadError instanceof Error ? downloadError.message : 'Unknown error'}`);
+            }
+          }
+          
+          console.warn(`[DoctlyAI] Document marked as complete but no content or download URL received:`, data);
+          return '';
         }
         
         if (data.status === 'FAILED' || data.status === 'ERROR') {
