@@ -29,7 +29,7 @@ export class DoctlyService {
 
     this.config = {
       apiKey,
-      baseUrl: 'https://api.doctly.ai/v1', // Update with actual API endpoint
+      baseUrl: 'https://api.doctly.ai',
       defaultMode: 'precision',
       confidenceThreshold: 0.75,
       retryWithUltra: true
@@ -55,11 +55,19 @@ export class DoctlyService {
         filename: fileName,
         contentType: 'application/pdf'
       });
-      formData.append('mode', mode);
       
-      // Make API request
+      // Map our internal mode to Doctly's accuracy parameter
+      if (mode === 'ultra') {
+        formData.append('accuracy', 'ultra');
+      }
+      // Precision mode is default, so no need to specify it
+      
+      // Use the correct Doctly API endpoint
+      const endpoint = `${this.config.baseUrl}/api/v1/documents/`;
+      
+      console.log(`[DoctlyAI] Calling endpoint: ${endpoint}`);
       const response = await axios.post(
-        `${this.config.baseUrl}/convert`,
+        endpoint,
         formData,
         {
           headers: {
@@ -74,11 +82,24 @@ export class DoctlyService {
       const pageCount = this.estimatePageCount(pdfBuffer.length);
       const cost = this.calculateCost(pageCount, mode);
 
-      console.log(`[DoctlyAI] Conversion completed in ${processingTime}ms. Pages: ${pageCount}, Cost: $${cost.toFixed(2)}`);
+      console.log(`[DoctlyAI] Conversion completed in ${processingTime}ms. Pages: ${pageCount}, Cost: $${cost.toFixed(4)}`);
 
-      const responseData = response.data as { markdown?: string; content?: string };
+      // Handle Doctly API response format
+      const responseData = response.data as { 
+        markdown?: string; 
+        content?: string; 
+        text?: string;
+        message?: string;
+      };
+      
+      const markdownContent = responseData.markdown || responseData.content || responseData.text || '';
+      
+      if (!markdownContent) {
+        console.warn('[DoctlyAI] No markdown content received. Response:', responseData);
+      }
+
       return {
-        markdown: responseData.markdown || responseData.content || '',
+        markdown: markdownContent,
         pageCount,
         processingTime,
         mode,
@@ -95,23 +116,27 @@ export class DoctlyService {
       
       if (isAxiosError(error)) {
         if (error.response?.status === 401) {
-          throw new Error('DoctlyAI authentication failed. Please check your API key.');
+          throw new Error('Doctly authentication failed. Please check your API key.');
+        }
+        if (error.response?.status === 404) {
+          throw new Error('Doctly API endpoint not found. Please verify the service is available.');
         }
         if (error.response?.status === 413) {
-          throw new Error('PDF file too large for DoctlyAI processing.');
+          throw new Error('PDF file too large for Doctly processing.');
         }
         if (error.response?.status === 422) {
           throw new Error('Invalid PDF format or corrupted file.');
         }
-        const errorData = error.response?.data as { message?: string };
-        throw new Error(`DoctlyAI API error: ${errorData?.message || error.message}`);
+        const errorData = error.response?.data as { message?: string; error?: string; detail?: string };
+        const errorMessage = errorData?.message || errorData?.error || errorData?.detail || error.message;
+        throw new Error(`Doctly API error: ${errorMessage}`);
       }
       
       if (error instanceof Error) {
-        throw new Error(`DoctlyAI processing failed: ${error.message}`);
+        throw new Error(`Doctly processing failed: ${error.message}`);
       }
       
-      throw new Error('Failed to convert PDF to markdown');
+      throw new Error('Failed to convert PDF to markdown with Doctly');
     }
   }
 
