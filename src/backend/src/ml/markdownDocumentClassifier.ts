@@ -132,10 +132,18 @@ export class MarkdownDocumentClassifier {
     let maxScore = 0;
     let predictedType = DocumentType.OTHER;
 
+    // Debug logging
+    console.log(`[MarkdownClassifier] Analyzing markdown content (${markdown.length} characters)`);
+    console.log(`[MarkdownClassifier] First 500 characters:`, markdown.substring(0, 500));
+
     // Parse markdown structure
     const sections = this.parseMarkdownSections(markdown);
     const tables = this.extractTables(markdown);
     const cleanText = this.stripMarkdown(markdown).toLowerCase();
+    
+    console.log(`[MarkdownClassifier] Parsed ${sections.length} sections, ${tables.length} tables`);
+    console.log(`[MarkdownClassifier] Clean text length: ${cleanText.length} characters`);
+    console.log(`[MarkdownClassifier] First 300 chars of clean text:`, cleanText.substring(0, 300));
 
     // Score each document type
     for (const [docType, pattern] of Object.entries(this.patterns)) {
@@ -148,6 +156,7 @@ export class MarkdownDocumentClassifier {
         docType as DocumentType
       );
       scores.set(docType as DocumentType, score);
+      console.log(`[MarkdownClassifier] ${docType} score: ${score.toFixed(3)}`);
       
       if (score > maxScore) {
         maxScore = score;
@@ -256,6 +265,9 @@ export class MarkdownDocumentClassifier {
   ): number {
     let score = 0;
     const wordCount = cleanText.split(/\s+/).length;
+    const matchedKeywords: string[] = [];
+    
+    console.log(`[MarkdownClassifier] Scoring ${docType} (${wordCount} words)`);
     
     // Header matching (highest weight - 40 points)
     if (pattern.headerPatterns?.some(p => p.test(markdown))) {
@@ -286,6 +298,7 @@ export class MarkdownDocumentClassifier {
     for (const keyword of pattern.highWeightKeywords) {
       if (cleanText.includes(keyword)) {
         score += 25;
+        matchedKeywords.push(`HIGH: ${keyword}`);
       }
     }
 
@@ -293,7 +306,12 @@ export class MarkdownDocumentClassifier {
     for (const keyword of pattern.mediumWeightKeywords) {
       if (cleanText.includes(keyword)) {
         score += 10;
+        matchedKeywords.push(`MED: ${keyword}`);
       }
+    }
+    
+    if (matchedKeywords.length > 0) {
+      console.log(`[MarkdownClassifier] ${docType} matched keywords:`, matchedKeywords);
     }
 
     // Apply negative keyword penalties

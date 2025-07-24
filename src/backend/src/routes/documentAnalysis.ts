@@ -240,15 +240,9 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
         ocr_text_blob,
         extraction_metadata,
         processing_time_ms,
-        file_size_bytes,
-        processing_provider,
-        processing_mode,
-        processing_cost,
-        page_count,
-        has_embedded_allonges,
-        allonge_count
+        file_size_bytes
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
       RETURNING *;
     `;
 
@@ -286,13 +280,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       processingProvider === 'azure' && ocrResult ? ocrResult.text : '', // Store text for debugging (empty for DoctlyAI to save space)
       JSON.stringify(extractionMetadata),
       processingTime,
-      file.size,
-      processingProvider,
-      processingMode,
-      processingCost,
-      pageCount,
-      classification.hasEmbeddedAllonges || false,
-      classification.allongeCount || 0
+      file.size
     ]);
 
     const savedDocument = result.rows[0];
