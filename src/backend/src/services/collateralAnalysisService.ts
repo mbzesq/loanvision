@@ -473,7 +473,7 @@ export class CollateralAnalysisService {
     // 1. No note exists (not applicable), OR
     // 2. Note exists and ownership is clear (specific endorsement or blank endorsed)
     const noteOwnershipComplete = !noteOwnership?.hasNote || 
-      (noteOwnership.hasNote && (noteOwnership.isBlankEndorsed || noteOwnership.currentOwner));
+      (noteOwnership.hasNote && (noteOwnership.isBlankEndorsed || !!noteOwnership.currentOwner));
     
     return requiredDocsPresent && chainComplete && noteOwnershipComplete;
   }

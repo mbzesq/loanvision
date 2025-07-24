@@ -66,8 +66,6 @@ export class DoctlyService {
             ...formData.getHeaders(),
             'Authorization': `Bearer ${this.config.apiKey}`,
           },
-          maxContentLength: Infinity,
-          maxBodyLength: Infinity,
           timeout: 300000 // 5 minute timeout
         }
       );
@@ -78,18 +76,24 @@ export class DoctlyService {
 
       console.log(`[DoctlyAI] Conversion completed in ${processingTime}ms. Pages: ${pageCount}, Cost: $${cost.toFixed(2)}`);
 
+      const responseData = response.data as { markdown?: string; content?: string };
       return {
-        markdown: response.data.markdown || response.data.content,
+        markdown: responseData.markdown || responseData.content || '',
         pageCount,
         processingTime,
         mode,
         cost
       };
 
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('[DoctlyAI] Conversion failed:', error);
       
-      if (axios.isAxiosError(error)) {
+      // Type guard for axios errors
+      const isAxiosError = (err: unknown): err is { response?: { status?: number; data?: any }; message: string } => {
+        return typeof err === 'object' && err !== null && 'response' in err;
+      };
+      
+      if (isAxiosError(error)) {
         if (error.response?.status === 401) {
           throw new Error('DoctlyAI authentication failed. Please check your API key.');
         }
@@ -99,7 +103,12 @@ export class DoctlyService {
         if (error.response?.status === 422) {
           throw new Error('Invalid PDF format or corrupted file.');
         }
-        throw new Error(`DoctlyAI API error: ${error.response?.data?.message || error.message}`);
+        const errorData = error.response?.data as { message?: string };
+        throw new Error(`DoctlyAI API error: ${errorData?.message || error.message}`);
+      }
+      
+      if (error instanceof Error) {
+        throw new Error(`DoctlyAI processing failed: ${error.message}`);
       }
       
       throw new Error('Failed to convert PDF to markdown');
@@ -157,7 +166,7 @@ export class DoctlyService {
    */
   private shouldRetryWithUltra(confidence: number, documentType: string): boolean {
     // Document-specific thresholds
-    const thresholds = {
+    const thresholds: Record<string, number> = {
       'Assignment': 0.80,    // Higher threshold for assignments (name accuracy critical)
       'Note': 0.70,         // Standard threshold for notes
       'Security Instrument': 0.70,  // Standard threshold for mortgages

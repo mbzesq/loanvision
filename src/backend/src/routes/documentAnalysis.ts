@@ -105,6 +105,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
     let processingMode: string | undefined;
     let processingCost = 0;
     let pageCount = 1;
+    let ocrResult: any = null;
 
     if (USE_DOCTLY) {
       console.log('Step 2: Processing with DoctlyAI...');
@@ -193,7 +194,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
 
       // Step 3: OCR with Azure Document Intelligence
       console.log('Step 3: Running OCR with Azure Document Intelligence...');
-      const ocrResult = await getAzureService().analyzeDocument(processBuffer);
+      ocrResult = await getAzureService().analyzeDocument(processBuffer);
       console.log(`OCR completed. Extracted ${ocrResult.text.length} characters with ${ocrResult.keyValuePairs.size} key-value pairs`);
 
       // Step 4: Classify document type
@@ -249,8 +250,8 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
     const extractionMetadata = {
       fieldConfidence: Object.fromEntries(extractedFields.fieldConfidence),
       classificationScores: Object.fromEntries(classification.scores),
-      ocrConfidence: processingProvider === 'azure' ? ocrResult?.confidence : undefined,
-      keyValuePairCount: processingProvider === 'azure' ? ocrResult?.keyValuePairs?.size : undefined,
+      ocrConfidence: processingProvider === 'azure' && ocrResult ? ocrResult.confidence : undefined,
+      keyValuePairCount: processingProvider === 'azure' && ocrResult ? ocrResult.keyValuePairs?.size : undefined,
       processingTime,
       processingProvider,
       processingMode,
@@ -276,7 +277,7 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       extractedFields.assignmentDate,
       extractedFields.recordingDate,
       extractedFields.instrumentNumber,
-      processingProvider === 'azure' ? ocrResult?.text : '', // Store text for debugging (empty for DoctlyAI to save space)
+      processingProvider === 'azure' && ocrResult ? ocrResult.text : '', // Store text for debugging (empty for DoctlyAI to save space)
       JSON.stringify(extractionMetadata),
       processingTime,
       file.size,
