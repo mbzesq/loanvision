@@ -1,4 +1,21 @@
-import { DocumentType, ClassificationResult } from './documentClassifier';
+import { DocumentType } from './documentClassifier';
+
+export interface EnhancedClassificationResult {
+  documentType: DocumentType;
+  confidence: number;
+  scores: Map<DocumentType, number>;
+  hasEmbeddedAllonges?: boolean;
+  allongeCount?: number;
+  allongeChain?: AllongeEndorsement[];
+}
+
+export interface AllongeEndorsement {
+  sequenceNumber: number;
+  endorser?: string; // "From" party (may be blank for the first endorsement)
+  endorsee?: string; // "To" party ("blank" if endorsed in blank)
+  endorsementType: 'specific' | 'blank'; // specific to named party or blank
+  endorsementText: string; // Raw text of the endorsement
+}
 
 interface MarkdownPattern {
   headerPatterns: RegExp[];
@@ -110,7 +127,7 @@ export class MarkdownDocumentClassifier {
     }
   };
 
-  async classify(markdown: string): Promise<ClassificationResult> {
+  async classify(markdown: string): Promise<EnhancedClassificationResult> {
     const scores = new Map<DocumentType, number>();
     let maxScore = 0;
     let predictedType = DocumentType.OTHER;
@@ -147,11 +164,86 @@ export class MarkdownDocumentClassifier {
       predictedType = DocumentType.OTHER;
     }
 
+    // Detect embedded allonges (especially in Notes)
+    const allongeAnalysis = this.detectEmbeddedAllonges(markdown, predictedType);
+
     return {
       documentType: predictedType,
       confidence,
       scores,
+      hasEmbeddedAllonges: allongeAnalysis.hasAllonges,
+      allongeCount: allongeAnalysis.count,
+      allongeChain: allongeAnalysis.chain
     };
+  }
+
+  private detectEmbeddedAllonges(markdown: string, documentType: DocumentType): {
+    hasAllonges: boolean;
+    count: number;
+    chain: AllongeEndorsement[];
+  } {
+    // Only look for embedded allonges in Notes and standalone Allonges
+    if (documentType !== DocumentType.NOTE && documentType !== DocumentType.ALLONGE) {
+      return { hasAllonges: false, count: 0, chain: [] };
+    }
+
+    const allongeChain: AllongeEndorsement[] = [];
+    const cleanText = this.stripMarkdown(markdown);
+    
+    // Pattern to find "Pay to the Order Of" endorsements
+    const payToOrderPattern = /PAY TO THE ORDER OF\s*([^\n]*?)(?:\s*WITHOUT RECOURSE\s*([^\n]*?))?(?=\n|$)/gi;
+    
+    let match;
+    let sequenceNumber = 1;
+    
+    while ((match = payToOrderPattern.exec(cleanText)) !== null) {
+      const endorsementText = match[0].trim();
+      const endorseeText = match[1].trim();
+      
+      // Determine if this is a blank endorsement or specific endorsement
+      const isBlank = !endorseeText || endorseeText === '' || endorseeText.toLowerCase().includes('blank');
+      
+      allongeChain.push({
+        sequenceNumber,
+        endorser: sequenceNumber === 1 ? this.extractOriginalPayee(cleanText) : allongeChain[sequenceNumber - 2]?.endorsee,
+        endorsee: isBlank ? 'BLANK' : this.cleanCompanyName(endorseeText),
+        endorsementType: isBlank ? 'blank' : 'specific',
+        endorsementText
+      });
+      
+      sequenceNumber++;
+    }
+
+    return {
+      hasAllonges: allongeChain.length > 0,
+      count: allongeChain.length,
+      chain: allongeChain
+    };
+  }
+
+  private extractOriginalPayee(text: string): string | undefined {
+    // Try to find the original payee from the note text
+    const payeePatterns = [
+      /payable to[:\s]+([^,\n]+)/i,
+      /pay to[:\s]+([^,\n]+)/i,
+      /promises to pay[^,]*to[:\s]+([^,\n]+)/i
+    ];
+
+    for (const pattern of payeePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        return this.cleanCompanyName(match[1]);
+      }
+    }
+
+    return undefined;
+  }
+
+  private cleanCompanyName(name: string): string {
+    return name
+      .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc|Corp|Corporation|Company|Co\.?|N\.A\.)\s*$/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   private calculateMarkdownScore(

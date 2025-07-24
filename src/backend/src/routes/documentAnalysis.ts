@@ -128,6 +128,11 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       // Classify document from markdown
       console.log('Step 3: Classifying document from markdown...');
       classification = await markdownDocumentClassifier.classify(doctlyResult.markdown);
+      
+      // Log allonge detection
+      if (classification.hasEmbeddedAllonges) {
+        console.log(`Detected ${classification.allongeCount} embedded allonges in ${classification.documentType}`);
+      }
 
       // Extract fields from markdown
       console.log('Step 4: Extracting fields from markdown...');
@@ -232,9 +237,11 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
         processing_provider,
         processing_mode,
         processing_cost,
-        page_count
+        page_count,
+        has_embedded_allonges,
+        allonge_count
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)
       RETURNING *;
     `;
 
@@ -276,12 +283,38 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       processingProvider,
       processingMode,
       processingCost,
-      pageCount
+      pageCount,
+      classification.hasEmbeddedAllonges || false,
+      classification.allongeCount || 0
     ]);
 
     const savedDocument = result.rows[0];
 
-    // Step 6.5: Also save to collateral_documents for alert triggers
+    // Step 6.5: Store allonge chain if present
+    if (classification.hasEmbeddedAllonges && classification.allongeChain) {
+      console.log(`Storing ${classification.allongeChain.length} allonge endorsements...`);
+      
+      for (const endorsement of classification.allongeChain) {
+        await pool.query(`
+          INSERT INTO note_allonge_chains (
+            document_analysis_id, loan_id, sequence_number, endorser, endorsee, 
+            endorsement_type, endorsement_text
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [
+          savedDocument.id,
+          loanId,
+          endorsement.sequenceNumber,
+          endorsement.endorser,
+          endorsement.endorsee,
+          endorsement.endorsementType,
+          endorsement.endorsementText
+        ]);
+      }
+      
+      console.log(`Allonge chain stored successfully for document ${savedDocument.id}`);
+    }
+
+    // Step 6.6: Also save to collateral_documents for alert triggers
     try {
       await pool.query(`
         INSERT INTO collateral_documents (
@@ -552,6 +585,70 @@ router.get('/:loanId/collateral-status', authenticateToken, async (req, res) => 
     console.error('Failed to fetch collateral status:', error);
     res.status(500).json({
       error: 'Failed to fetch collateral status',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// GET /api/v2/loans/:loanId/note-ownership
+// Returns current note ownership based on allonge chain analysis
+router.get('/:loanId/note-ownership', authenticateToken, async (req, res) => {
+  const { loanId } = req.params;
+
+  try {
+    console.log(`Fetching note ownership analysis for loan: ${loanId}`);
+    
+    // Get current note ownership
+    const ownershipQuery = `
+      SELECT * FROM note_current_ownership 
+      WHERE loan_id = $1
+      ORDER BY note_analysis_date DESC
+      LIMIT 1
+    `;
+    
+    const ownershipResult = await pool.query(ownershipQuery, [loanId]);
+    
+    if (ownershipResult.rows.length === 0) {
+      return res.json({
+        success: true,
+        loanId,
+        hasNote: false,
+        message: 'No note found for this loan'
+      });
+    }
+
+    const ownership = ownershipResult.rows[0];
+    
+    // Get complete allonge chain if available
+    const chainQuery = `
+      SELECT * FROM allonge_chain_analysis 
+      WHERE loan_id = $1 AND document_analysis_id = $2
+    `;
+    
+    const chainResult = await pool.query(chainQuery, [loanId, ownership.document_analysis_id]);
+    
+    res.json({
+      success: true,
+      loanId,
+      hasNote: true,
+      currentOwner: ownership.current_owner,
+      isBlankEndorsed: ownership.is_blank_endorsed,
+      totalEndorsements: ownership.total_endorsements,
+      noteAnalysisDate: ownership.note_analysis_date,
+      borrowerName: ownership.borrower_name,
+      fileName: ownership.file_name,
+      allongeChain: chainResult.rows.length > 0 ? chainResult.rows[0].endorsement_chain : null,
+      chainAnalysis: chainResult.rows.length > 0 ? {
+        chainLength: chainResult.rows[0].chain_length,
+        hasBlankEndorsement: chainResult.rows[0].has_blank_endorsement,
+        blankEndorsementPosition: chainResult.rows[0].blank_endorsement_position
+      } : null
+    });
+
+  } catch (error: unknown) {
+    console.error('Failed to fetch note ownership:', error);
+    res.status(500).json({
+      error: 'Failed to fetch note ownership',
       details: error instanceof Error ? error.message : 'Unknown error',
     });
   }

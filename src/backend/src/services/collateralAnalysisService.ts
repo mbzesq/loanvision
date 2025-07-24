@@ -12,7 +12,17 @@ export interface CollateralStatus {
   assignmentChainComplete: boolean;
   chainGaps: string[];
   validationErrors: ValidationError[];
+  noteOwnership?: NoteOwnershipStatus;
   lastUpdated: Date;
+}
+
+export interface NoteOwnershipStatus {
+  hasNote: boolean;
+  currentOwner?: string;
+  isBlankEndorsed: boolean;
+  allongeChainComplete: boolean;
+  totalEndorsements: number;
+  ownershipValidated: boolean;
 }
 
 export interface DocumentRequirement {
@@ -163,15 +173,19 @@ export class CollateralAnalysisService {
     // Get validation errors
     const validationErrors = await this.getValidationErrors(loanId);
 
+    // Get note ownership status
+    const noteOwnership = await this.getNoteOwnershipStatus(loanId);
+
     return {
       loanId,
       completenessScore: row.completeness_score || 0,
-      isComplete: this.calculateIsComplete(requiredDocuments, row.assignment_chain_complete),
+      isComplete: this.calculateIsComplete(requiredDocuments, row.assignment_chain_complete, noteOwnership),
       requiredDocuments,
       missingDocuments: row.missing_documents || [],
       assignmentChainComplete: row.assignment_chain_complete || false,
       chainGaps: this.extractChainGaps(chainLinks),
       validationErrors,
+      noteOwnership,
       lastUpdated: row.last_updated
     };
   }
@@ -446,12 +460,64 @@ export class CollateralAnalysisService {
     return parseInt(result.rows[0].error_count) === 0;
   }
 
-  private calculateIsComplete(requiredDocuments: DocumentRequirement[], chainComplete: boolean): boolean {
+  private calculateIsComplete(
+    requiredDocuments: DocumentRequirement[], 
+    chainComplete: boolean, 
+    noteOwnership?: NoteOwnershipStatus
+  ): boolean {
     const requiredDocsPresent = requiredDocuments
       .filter(doc => doc.required)
       .every(doc => doc.present && doc.validated);
     
-    return requiredDocsPresent && chainComplete;
+    // For note ownership, it's complete if:
+    // 1. No note exists (not applicable), OR
+    // 2. Note exists and ownership is clear (specific endorsement or blank endorsed)
+    const noteOwnershipComplete = !noteOwnership?.hasNote || 
+      (noteOwnership.hasNote && (noteOwnership.isBlankEndorsed || noteOwnership.currentOwner));
+    
+    return requiredDocsPresent && chainComplete && noteOwnershipComplete;
+  }
+
+  /**
+   * Get note ownership status including allonge chain analysis
+   */
+  private async getNoteOwnershipStatus(loanId: string): Promise<NoteOwnershipStatus> {
+    const query = `
+      SELECT 
+        nco.current_owner,
+        nco.is_blank_endorsed,
+        nco.total_endorsements,
+        CASE 
+          WHEN nco.current_owner IS NOT NULL OR nco.is_blank_endorsed = true THEN true 
+          ELSE false 
+        END as ownership_validated
+      FROM note_current_ownership nco
+      WHERE nco.loan_id = $1
+      ORDER BY nco.note_analysis_date DESC
+      LIMIT 1
+    `;
+
+    const result = await pool.query(query, [loanId]);
+
+    if (result.rows.length === 0) {
+      return {
+        hasNote: false,
+        isBlankEndorsed: false,
+        allongeChainComplete: true, // Not applicable
+        totalEndorsements: 0,
+        ownershipValidated: true // Not applicable
+      };
+    }
+
+    const row = result.rows[0];
+    return {
+      hasNote: true,
+      currentOwner: row.current_owner === 'HOLDER_IN_DUE_COURSE' ? undefined : row.current_owner,
+      isBlankEndorsed: row.is_blank_endorsed || false,
+      allongeChainComplete: true, // For now, assume complete if we can parse it
+      totalEndorsements: row.total_endorsements || 0,
+      ownershipValidated: row.ownership_validated || false
+    };
   }
 
   private extractChainGaps(chainLinks: ChainLink[]): string[] {
