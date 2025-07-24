@@ -151,7 +151,7 @@ export class RAGRetrievalService {
     // Statistical queries
     if (this.containsAny(lowerQuery, [
       'how many', 'count', 'total', 'number of', 'average', 'sum', 
-      'percentage', 'percent', 'ratio', 'distribution', 'breakdown'
+      'percentage', 'percent', 'ratio', 'distribution', 'breakdown', 'which'
     ])) {
       // If it's a contextual statistical query about foreclosure, prioritize foreclosure intent
       if (isContextualQuery && (lowerQuery.includes('foreclosure') || lowerQuery.includes('foreclosed'))) {
@@ -160,6 +160,13 @@ export class RAGRetrievalService {
       // Also check for foreclosure in any statistical query
       if (lowerQuery.includes('foreclosure') || lowerQuery.includes('foreclosed')) {
         return 'foreclosure';
+      }
+      // Check for SOL in any statistical query
+      if (this.containsAny(lowerQuery, [
+        'statute of limitations', 'sol', 'expiration', 'expire', 'risk level',
+        'days until', 'limitation period'
+      ])) {
+        return 'sol_analysis';
       }
       return 'statistical';
     }

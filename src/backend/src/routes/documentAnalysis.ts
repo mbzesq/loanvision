@@ -5,6 +5,9 @@ import { authenticateToken } from '../middleware/authMiddleware';
 import { AzureDocumentService } from '../ocr/azureDocumentClient';
 import { DocumentClassifier } from '../ml/documentClassifier';
 import { FieldExtractor } from '../extraction/fieldExtractor';
+import { MarkdownDocumentClassifier } from '../ml/markdownDocumentClassifier';
+import { MarkdownFieldExtractor } from '../extraction/markdownFieldExtractor';
+import { doctlyService } from '../services/doctlyService';
 import { s3Service } from '../services/s3Service';
 import { ocrEnhancementService } from '../services/ocrEnhancementService';
 import { collateralAnalysisService } from '../services/collateralAnalysisService';
@@ -30,6 +33,8 @@ const upload = multer({
 let azureDocumentService: AzureDocumentService | null = null;
 const documentClassifier = new DocumentClassifier();
 const fieldExtractor = new FieldExtractor();
+const markdownDocumentClassifier = new MarkdownDocumentClassifier();
+const markdownFieldExtractor = new MarkdownFieldExtractor();
 
 // Helper to get Azure service with lazy initialization
 const getAzureService = () => {
@@ -92,45 +97,110 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
     );
     console.log(`Document uploaded to S3 for processing: ${s3Result.key}`);
 
-    // Step 2: Enhance PDF for better OCR (if available)
-    console.log('Step 2: Enhancing PDF for OCR...');
-    let processBuffer = file.buffer;
-    
-    // Temporary: Disable OCR enhancement to test if original PDFs work with Textract
-    const DISABLE_OCR_ENHANCEMENT = process.env.DISABLE_OCR_ENHANCEMENT === 'true';
-    
-    if (DISABLE_OCR_ENHANCEMENT) {
-      console.log('OCR enhancement disabled via environment variable, using original PDF');
-    } else {
-      try {
-        const isEnhancementAvailable = await ocrEnhancementService.isEnhancementAvailable();
-        if (isEnhancementAvailable) {
-          const enhancedBuffer = await ocrEnhancementService.enhancePDF(file.buffer, file.originalname);
-          processBuffer = enhancedBuffer;
-          console.log('PDF enhancement completed successfully');
-        } else {
-          console.log('OCR enhancement not available, using original PDF');
+    // Step 2: Choose processing method (DoctlyAI vs Azure)
+    const USE_DOCTLY = process.env.USE_DOCTLY !== 'false'; // Default to DoctlyAI
+    let classification: any;
+    let extractedFields: any;
+    let processingProvider = 'azure';
+    let processingMode: string | undefined;
+    let processingCost = 0;
+    let pageCount = 1;
+
+    if (USE_DOCTLY) {
+      console.log('Step 2: Processing with DoctlyAI...');
+      processingProvider = 'doctly';
+
+      // Process with intelligent mode selection
+      const doctlyResult = await doctlyService.processDocumentWithConfidence(
+        file.buffer,
+        file.originalname,
+        async (markdown: string) => {
+          const tempClassification = await markdownDocumentClassifier.classify(markdown);
+          return {
+            confidence: tempClassification.confidence,
+            documentType: tempClassification.documentType
+          };
         }
-      } catch (enhancementError) {
-        console.warn('OCR enhancement failed, using original PDF:', enhancementError);
-        // Continue with original buffer
+      );
+
+      console.log(`DoctlyAI processing completed. Mode: ${doctlyResult.mode}, Cost: $${doctlyResult.cost.toFixed(4)}, Confidence: ${doctlyResult.finalConfidence.toFixed(4)}`);
+
+      // Classify document from markdown
+      console.log('Step 3: Classifying document from markdown...');
+      classification = await markdownDocumentClassifier.classify(doctlyResult.markdown);
+
+      // Extract fields from markdown
+      console.log('Step 4: Extracting fields from markdown...');
+      extractedFields = await markdownFieldExtractor.extractFields(doctlyResult.markdown, classification.documentType);
+
+      // Store processing metadata
+      processingMode = doctlyResult.mode;
+      processingCost = doctlyResult.cost;
+      pageCount = doctlyResult.pageCount;
+
+      // Log cost tracking data
+      await pool.query(`
+        INSERT INTO document_processing_costs (
+          loan_id, file_name, precision_cost, ultra_cost, total_cost, 
+          page_count, processing_mode, initial_confidence, final_confidence, 
+          confidence_improvement, processing_time_ms, retry_attempted
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      `, [
+        loanId,
+        file.originalname,
+        doctlyResult.mode === 'precision' ? doctlyResult.cost : (doctlyResult.attempts > 1 ? 0.02 * pageCount : 0),
+        doctlyResult.mode === 'ultra' || doctlyResult.attempts > 1 ? (doctlyResult.mode === 'ultra' ? doctlyResult.cost : 0.05 * pageCount) : 0,
+        doctlyResult.cost,
+        pageCount,
+        doctlyResult.attempts > 1 ? 'both' : doctlyResult.mode,
+        doctlyResult.attempts > 1 ? (doctlyResult.finalConfidence - (doctlyResult.cost > 0.02 * pageCount ? 0.1 : 0)) : doctlyResult.finalConfidence, // Estimate initial confidence
+        doctlyResult.finalConfidence,
+        doctlyResult.attempts > 1 ? (doctlyResult.cost > 0.02 * pageCount ? 0.1 : 0) : 0, // Estimate improvement
+        doctlyResult.processingTime,
+        doctlyResult.attempts > 1
+      ]);
+
+    } else {
+      // Fallback to Azure processing
+      console.log('Step 2: Enhancing PDF for OCR...');
+      let processBuffer = file.buffer;
+      
+      // Temporary: Disable OCR enhancement to test if original PDFs work with Textract
+      const DISABLE_OCR_ENHANCEMENT = process.env.DISABLE_OCR_ENHANCEMENT === 'true';
+      
+      if (DISABLE_OCR_ENHANCEMENT) {
+        console.log('OCR enhancement disabled via environment variable, using original PDF');
+      } else {
+        try {
+          const isEnhancementAvailable = await ocrEnhancementService.isEnhancementAvailable();
+          if (isEnhancementAvailable) {
+            const enhancedBuffer = await ocrEnhancementService.enhancePDF(file.buffer, file.originalname);
+            processBuffer = enhancedBuffer;
+            console.log('PDF enhancement completed successfully');
+          } else {
+            console.log('OCR enhancement not available, using original PDF');
+          }
+        } catch (enhancementError) {
+          console.warn('OCR enhancement failed, using original PDF:', enhancementError);
+          // Continue with original buffer
+        }
       }
+
+      // Step 3: OCR with Azure Document Intelligence
+      console.log('Step 3: Running OCR with Azure Document Intelligence...');
+      const ocrResult = await getAzureService().analyzeDocument(processBuffer);
+      console.log(`OCR completed. Extracted ${ocrResult.text.length} characters with ${ocrResult.keyValuePairs.size} key-value pairs`);
+
+      // Step 4: Classify document type
+      console.log('Step 4: Classifying document...');
+      classification = await documentClassifier.classify(ocrResult);
+      console.log(`Document classified as ${classification.documentType} with confidence ${classification.confidence.toFixed(4)}`);
+
+      // Step 5: Extract fields based on document type
+      console.log('Step 5: Extracting fields...');
+      extractedFields = await fieldExtractor.extractFields(ocrResult, classification.documentType);
+      console.log(`Extracted ${extractedFields.fieldConfidence.size} fields`);
     }
-
-    // Step 3: OCR with Azure Document Intelligence
-    console.log('Step 3: Running OCR with Azure Document Intelligence...');
-    const ocrResult = await getAzureService().analyzeDocument(processBuffer);
-    console.log(`OCR completed. Extracted ${ocrResult.text.length} characters with ${ocrResult.keyValuePairs.size} key-value pairs`);
-
-    // Step 4: Classify document type
-    console.log('Step 4: Classifying document...');
-    const classification = await documentClassifier.classify(ocrResult);
-    console.log(`Document classified as ${classification.documentType} with confidence ${classification.confidence.toFixed(4)}`);
-
-    // Step 5: Extract fields based on document type
-    console.log('Step 5: Extracting fields...');
-    const extractedFields = await fieldExtractor.extractFields(ocrResult, classification.documentType);
-    console.log(`Extracted ${extractedFields.fieldConfidence.size} fields`);
 
     // Step 6: Save to database
     const processingTime = Date.now() - startTime;
@@ -158,9 +228,13 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
         ocr_text_blob,
         extraction_metadata,
         processing_time_ms,
-        file_size_bytes
+        file_size_bytes,
+        processing_provider,
+        processing_mode,
+        processing_cost,
+        page_count
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
       RETURNING *;
     `;
 
@@ -168,9 +242,12 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
     const extractionMetadata = {
       fieldConfidence: Object.fromEntries(extractedFields.fieldConfidence),
       classificationScores: Object.fromEntries(classification.scores),
-      ocrConfidence: ocrResult.confidence,
-      keyValuePairCount: ocrResult.keyValuePairs.size,
+      ocrConfidence: processingProvider === 'azure' ? ocrResult?.confidence : undefined,
+      keyValuePairCount: processingProvider === 'azure' ? ocrResult?.keyValuePairs?.size : undefined,
       processingTime,
+      processingProvider,
+      processingMode,
+      processingCost
     };
 
     const result = await pool.query(insertQuery, [
@@ -192,10 +269,14 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       extractedFields.assignmentDate,
       extractedFields.recordingDate,
       extractedFields.instrumentNumber,
-      ocrResult.text, // Store full OCR text for debugging
+      processingProvider === 'azure' ? ocrResult?.text : '', // Store text for debugging (empty for DoctlyAI to save space)
       JSON.stringify(extractionMetadata),
       processingTime,
       file.size,
+      processingProvider,
+      processingMode,
+      processingCost,
+      pageCount
     ]);
 
     const savedDocument = result.rows[0];

@@ -108,6 +108,34 @@ export class RAGIndexingService {
   }
 
   /**
+   * Check which tables are available for document generation
+   */
+  private async checkAvailableTables(): Promise<string[]> {
+    const tablesToCheck = [
+      'daily_metrics_current',
+      'foreclosure_events', 
+      'property_data_current',
+      'loan_sol_calculations',
+      'monthly_cashflow_data',
+      'chain_of_title',
+      'loan_collateral_status'
+    ];
+
+    const availableTables: string[] = [];
+    
+    for (const table of tablesToCheck) {
+      try {
+        await this.pool.query(`SELECT 1 FROM ${table} LIMIT 1`);
+        availableTables.push(table);
+      } catch (error) {
+        console.log(`⚠️ Table ${table} not available`);
+      }
+    }
+
+    return availableTables;
+  }
+
+  /**
    * Main indexing pipeline - runs daily via cron job
    */
   async rebuildIndex(): Promise<IndexStats> {
@@ -118,17 +146,37 @@ export class RAGIndexingService {
       // Clear existing index
       await this.clearIndex();
 
-      // Generate documents for each data type
+      // Check which tables exist before generating documents
+      const availableTables = await this.checkAvailableTables();
+      console.log('📋 Available tables for indexing:', availableTables);
+
+      // Generate documents for each available data type
       const loanSummaries = await this.generateLoanSummaryDocuments();
       const foreclosureDocuments = await this.generateForeclosureDocuments();
       const propertyDocuments = await this.generatePropertyDocuments();
       const solDocuments = await this.generateSOLDocuments();
       const financialDocuments = await this.generateFinancialDocuments();
       
-      // New comprehensive document types
-      const paymentHistoryDocuments = await this.generatePaymentHistoryDocuments();
-      const chainOfTitleDocuments = await this.generateChainOfTitleDocuments();
-      const collateralDocuments = await this.generateCollateralDocuments();
+      // New comprehensive document types (only if tables exist)
+      const paymentHistoryDocuments = availableTables.includes('monthly_cashflow_data') 
+        ? await this.generatePaymentHistoryDocuments() 
+        : [];
+      const chainOfTitleDocuments = availableTables.includes('chain_of_title')
+        ? await this.generateChainOfTitleDocuments()
+        : [];
+      const collateralDocuments = availableTables.includes('loan_collateral_status')
+        ? await this.generateCollateralDocuments()
+        : [];
+
+      if (paymentHistoryDocuments.length === 0) {
+        console.log('⚠️ Skipping payment history documents - table monthly_cashflow_data not found');
+      }
+      if (chainOfTitleDocuments.length === 0) {
+        console.log('⚠️ Skipping chain of title documents - table chain_of_title not found');
+      }
+      if (collateralDocuments.length === 0) {
+        console.log('⚠️ Skipping collateral documents - table loan_collateral_status not found');
+      }
 
       const allDocuments = [
         ...loanSummaries,
