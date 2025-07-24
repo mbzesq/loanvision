@@ -27,10 +27,10 @@ export interface ExtractedFields {
 
 export class MarkdownFieldExtractor {
   // Common patterns
-  private readonly addressPattern = /(\\d+\\s+[A-Za-z\\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl))\\s*,?\\s*([A-Za-z\\s]+)\\s*,?\\s*([A-Z]{2})\\s*(\\d{5}(?:-\\d{4})?)/i;
-  private readonly datePattern = /(\\d{1,2})[\\\/\\-](\\d{1,2})[\\\/\\-](\\d{2,4})/;
-  private readonly currencyPattern = /\\$[\\d,]+(?:\\.\\d{2})?/;
-  private readonly namePattern = /([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)/;
+  private readonly addressPattern = /(\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl))\s*,?\s*([A-Za-z\s]+)\s*,?\s*([A-Z]{2})\s*(\d{5}(?:-\d{4})?)/i;
+  private readonly datePattern = /(\d{1,2})[\\/\-](\d{1,2})[\\/\-](\d{2,4})/;
+  private readonly currencyPattern = /\$[\d,]+(?:\.\d{2})?/;
+  private readonly namePattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/;
 
   async extractFields(
     markdown: string, 
@@ -168,8 +168,8 @@ export class MarkdownFieldExtractor {
     // Fallback to pattern matching in full text
     const fullText = this.stripMarkdown(markdown);
     const borrowerPatterns = [
-      /(?:borrower|mortgagor|grantor|trustor)[:\\s]+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)/i,
-      /between\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*(?:\\s+and\\s+[A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)?)/i
+      /(?:borrower|mortgagor|grantor|trustor)[:\s]+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i,
+      /between\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+and\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)?)/i
     ];
 
     for (const pattern of borrowerPatterns) {
@@ -212,10 +212,10 @@ export class MarkdownFieldExtractor {
     // Pattern matching in full text
     const fullText = this.stripMarkdown(markdown);
     const amountPatterns = [
-      /principal amount[\\s\\w]*\\$(\\d[\\d,]*(?:\\.\\d{2})?)/i,
-      /loan amount[\\s\\w]*\\$(\\d[\\d,]*(?:\\.\\d{2})?)/i,
-      /sum of[\\s\\w]*\\$(\\d[\\d,]*(?:\\.\\d{2})?)/i,
-      /maximum principal amount[\\s\\w]*\\$(\\d[\\d,]*(?:\\.\\d{2})?)/i
+      /principal amount[\s\w]*\$(\d[\d,]*(?:\.\d{2})?)/i,
+      /loan amount[\s\w]*\$(\d[\d,]*(?:\.\d{2})?)/i,
+      /sum of[\s\w]*\$(\d[\d,]*(?:\.\d{2})?)/i,
+      /maximum principal amount[\s\w]*\$(\d[\d,]*(?:\.\d{2})?)/i
     ];
 
     for (const pattern of amountPatterns) {
@@ -254,8 +254,8 @@ export class MarkdownFieldExtractor {
     // Pattern matching for common date formats in mortgage documents
     const fullText = this.stripMarkdown(markdown);
     const datePatterns = [
-      /this mortgage dated\\s+([^,]+)/i,
-      /dated\\s+([^,\\n]+)/i
+      /this mortgage dated\s+([^,]+)/i,
+      /dated\s+([^,\n]+)/i
     ];
 
     for (const pattern of datePatterns) {
@@ -275,8 +275,8 @@ export class MarkdownFieldExtractor {
     // Pattern matching for lender identification
     const fullText = this.stripMarkdown(markdown);
     const lenderPatterns = [
-      /(?:lender|mortgagee|beneficiary)[:\\s]+([A-Z][A-Za-z\\s&,.]+?)(?:,|\\n|whose)/i,
-      /and\\s+([A-Z][A-Za-z\\s&,.]+?)\\s*\\(referred to.*as.*lender\\)/i
+      /(?:lender|mortgagee|beneficiary)[:\s]+([A-Z][A-Za-z\s&,.]+?)(?:,|\n|whose)/i,
+      /and\s+([A-Z][A-Za-z\s&,.]+?)\s*\(referred to.*as.*lender\)/i
     ];
 
     for (const pattern of lenderPatterns) {
@@ -318,9 +318,9 @@ export class MarkdownFieldExtractor {
     // Pattern matching for assignment parties
     if (!fields.assignor || !fields.assignee) {
       const assignmentPatterns = [
-        /assigns?\\s+to\\s+([A-Z][A-Za-z\\s&,.]+?)\\s*(?:,|\\n|all)/i,
-        /assignor[:\\s]+([A-Z][A-Za-z\\s&,.]+?)\\s*(?:,|\\n)/i,
-        /assignee[:\\s]+([A-Z][A-Za-z\\s&,.]+?)\\s*(?:,|\\n)/i
+        /assigns?\s+to\s+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n|all)/i,
+        /assignor[:\s]+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n)/i,
+        /assignee[:\s]+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n)/i
       ];
 
       for (const pattern of assignmentPatterns) {
@@ -337,9 +337,9 @@ export class MarkdownFieldExtractor {
 
     // Extract dates
     const datePatterns = [
-      /assignment date[:\\s]+([^\\n,]+)/i,
-      /recorded[:\\s]+([^\\n,]+)/i,
-      /recording date[:\\s]+([^\\n,]+)/i
+      /assignment date[:\s]+([^\n,]+)/i,
+      /recorded[:\s]+([^\n,]+)/i,
+      /recording date[:\s]+([^\n,]+)/i
     ];
 
     for (const pattern of datePatterns) {
@@ -361,7 +361,7 @@ export class MarkdownFieldExtractor {
 
   private extractEndorsementFields(markdown: string, fields: ExtractedFields): void {
     const fullText = this.stripMarkdown(markdown);
-    const endorsementPattern = /pay to the order of\\s+([A-Za-z\\s,.'&]+?)(?:\\n|without)/i;
+    const endorsementPattern = /pay to the order of\s+([A-Za-z\s,.'&]+?)(?:\n|without)/i;
     const match = fullText.match(endorsementPattern);
     
     if (match) {
@@ -373,11 +373,11 @@ export class MarkdownFieldExtractor {
   // Helper methods
   private parseMarkdownSections(markdown: string): any[] {
     const sections: any[] = [];
-    const lines = markdown.split('\\n');
+    const lines = markdown.split('\n');
     let currentSection: any = null;
 
     for (const line of lines) {
-      const headerMatch = line.match(/^(#+)\\s+(.+)$/);
+      const headerMatch = line.match(/^(#+)\s+(.+)$/);
       if (headerMatch) {
         if (currentSection) {
           sections.push(currentSection);
@@ -388,7 +388,7 @@ export class MarkdownFieldExtractor {
           content: ''
         };
       } else if (currentSection) {
-        currentSection.content += line + '\\n';
+        currentSection.content += line + '\n';
       }
     }
 
@@ -401,12 +401,12 @@ export class MarkdownFieldExtractor {
 
   private extractMarkdownTables(markdown: string): any[] {
     const tables: any[] = [];
-    const tableRegex = /\\|(.+)\\|[\\r\\n]+\\|[-:\\s|]+\\|[\\r\\n]+((?:\\|.+\\|[\\r\\n]*)+)/g;
+    const tableRegex = /\|(.+)\|[\r\n]+\|[-:\s|]+\|[\r\n]+((?:\|.+\|[\r\n]*)+)/g;
     
     let match;
     while ((match = tableRegex.exec(markdown)) !== null) {
       const headerLine = match[1];
-      const bodyLines = match[2].trim().split('\\n');
+      const bodyLines = match[2].trim().split('\n');
       
       const headers = headerLine.split('|').map(h => h.trim()).filter(h => h);
       const rows = bodyLines.map(line => 
@@ -421,16 +421,16 @@ export class MarkdownFieldExtractor {
 
   private stripMarkdown(markdown: string): string {
     return markdown
-      .replace(/^#+\\s+/gm, '') // Remove headers
-      .replace(/\\*\\*([^*]+)\\*\\*/g, '$1') // Remove bold
-      .replace(/\\*([^*]+)\\*/g, '$1') // Remove italic
-      .replace(/\\[([^\\]]+)\\]\\([^)]+\\)/g, '$1') // Remove links
-      .replace(/!\\[([^\\]]*)\\]\\([^)]+\\)/g, '') // Remove images
+      .replace(/^#+\s+/gm, '') // Remove headers
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold
+      .replace(/\*([^*]+)\*/g, '$1') // Remove italic
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, '') // Remove images
       .replace(/```[^`]+```/g, '') // Remove code blocks
       .replace(/`([^`]+)`/g, '$1') // Remove inline code
-      .replace(/\\|[^|]+\\|/g, ' ') // Remove tables
+      .replace(/\|[^|]+\|/g, ' ') // Remove tables
       .replace(/^[-*_]{3,}$/gm, '') // Remove horizontal rules
-      .replace(/\\s+/g, ' ') // Clean up whitespace
+      .replace(/\s+/g, ' ') // Clean up whitespace
       .trim();
   }
 
@@ -448,7 +448,7 @@ export class MarkdownFieldExtractor {
   }
 
   private extractNamesFromValue(value: string): string[] {
-    const names = value.split(/\\s+and\\s+|\\s*,\\s*|\\s*&\\s*/i)
+    const names = value.split(/\s+and\s+|\s*,\s*|\s*&\s*/i)
       .map(n => n.trim())
       .filter(n => n.length > 0 && this.namePattern.test(n));
     
@@ -467,9 +467,9 @@ export class MarkdownFieldExtractor {
     
     // Try standard formats
     const formats = [
-      /^(\\d{1,2})[\\\/\\-](\\d{1,2})[\\\/\\-](\\d{2,4})$/, // MM/dd/yyyy
-      /^([A-Za-z]+)\\s+(\\d{1,2}),?\\s+(\\d{4})$/, // Month dd, yyyy
-      /^(\\d{1,2})\\s+([A-Za-z]+)\\s+(\\d{4})$/ // dd Month yyyy
+      /^(\d{1,2})[\\/\-](\d{1,2})[\\/\-](\d{2,4})$/, // MM/dd/yyyy
+      /^([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})$/, // Month dd, yyyy
+      /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/ // dd Month yyyy
     ];
 
     for (const format of formats) {
@@ -513,8 +513,8 @@ export class MarkdownFieldExtractor {
 
   private cleanCompanyName(name: string): string {
     return name
-      .replace(/[,.]?\\s*(LLC|L\\.L\\.C\\.|Inc|Corp|Corporation|Company|Co\\.?)\\s*$/i, '')
-      .replace(/\\s+/g, ' ')
+      .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc|Corp|Corporation|Company|Co\.?)\s*$/i, '')
+      .replace(/\s+/g, ' ')
       .trim();
   }
 }
