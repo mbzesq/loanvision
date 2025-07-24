@@ -82,26 +82,45 @@ export class DoctlyService {
       const pageCount = this.estimatePageCount(pdfBuffer.length);
       const cost = this.calculateCost(pageCount, mode);
 
-      console.log(`[DoctlyAI] Conversion completed in ${processingTime}ms. Pages: ${pageCount}, Cost: $${cost.toFixed(4)}`);
-
-      // Handle Doctly API response format
+      // Handle Doctly API response format - check if processing is complete
       const responseData = response.data as { 
+        id?: string;
+        status?: string;
         markdown?: string; 
         content?: string; 
         text?: string;
         message?: string;
+        page_count?: number;
+        file_size?: number;
       };
+
+      // If status is PENDING, we need to poll for results
+      if (responseData.status === 'PENDING' && responseData.id) {
+        console.log(`[DoctlyAI] Document processing is pending. Polling for results with ID: ${responseData.id}`);
+        const pollResult = await this.pollForResults(responseData.id, mode);
+        
+        const finalProcessingTime = Date.now() - startTime;
+        console.log(`[DoctlyAI] Conversion completed in ${finalProcessingTime}ms. Pages: ${pageCount}, Cost: $${cost.toFixed(4)}`);
+        
+        return {
+          markdown: pollResult,
+          pageCount: responseData.page_count || pageCount,
+          processingTime: finalProcessingTime,
+          mode,
+          cost
+        };
+      }
       
+      // Handle immediate response (shouldn't happen with current Doctly API)
       const markdownContent = responseData.markdown || responseData.content || responseData.text || '';
       
-      if (!markdownContent) {
-        console.warn('[DoctlyAI] No markdown content received. Response:', responseData);
-      }
+      const finalProcessingTime = Date.now() - startTime;
+      console.log(`[DoctlyAI] Conversion completed in ${finalProcessingTime}ms. Pages: ${pageCount}, Cost: $${cost.toFixed(4)}`);
 
       return {
         markdown: markdownContent,
-        pageCount,
-        processingTime,
+        pageCount: responseData.page_count || pageCount,
+        processingTime: finalProcessingTime,
         mode,
         cost
       };
@@ -138,6 +157,91 @@ export class DoctlyService {
       
       throw new Error('Failed to convert PDF to markdown with Doctly');
     }
+  }
+
+  /**
+   * Poll for document processing results
+   */
+  private async pollForResults(documentId: string, mode: 'precision' | 'ultra'): Promise<string> {
+    const maxAttempts = 30; // 5 minutes max (10 second intervals)
+    const pollInterval = 10000; // 10 seconds
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        console.log(`[DoctlyAI] Polling attempt ${attempt}/${maxAttempts} for document ${documentId}`);
+        
+        const response = await axios.get(
+          `${this.config.baseUrl}/api/v1/documents/${documentId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${this.config.apiKey}`,
+            },
+            timeout: 30000 // 30 second timeout for polling
+          }
+        );
+
+        const data = response.data as {
+          status?: string;
+          markdown?: string;
+          content?: string;
+          text?: string;
+          error?: string;
+        };
+
+        if (data.status === 'COMPLETED' || data.status === 'SUCCESS') {
+          const markdownContent = data.markdown || data.content || data.text || '';
+          if (markdownContent) {
+            console.log(`[DoctlyAI] Document processing completed successfully after ${attempt} polls`);
+            return markdownContent;
+          } else {
+            console.warn(`[DoctlyAI] Document marked as complete but no content received:`, data);
+            return '';
+          }
+        }
+        
+        if (data.status === 'FAILED' || data.status === 'ERROR') {
+          throw new Error(`Document processing failed: ${data.error || 'Unknown error'}`);
+        }
+        
+        if (data.status === 'PENDING' || data.status === 'PROCESSING') {
+          if (attempt < maxAttempts) {
+            console.log(`[DoctlyAI] Document still processing (${data.status}), waiting ${pollInterval/1000}s before next poll...`);
+            await this.delay(pollInterval);
+            continue;
+          }
+        }
+        
+        // Unknown status or final attempt
+        if (attempt === maxAttempts) {
+          throw new Error(`Document processing timed out after ${maxAttempts} attempts. Last status: ${data.status}`);
+        }
+
+      } catch (error: unknown) {
+        const isAxiosError = (err: unknown): err is { response?: { status?: number; data?: any }; message: string } => {
+          return typeof err === 'object' && err !== null && 'response' in err;
+        };
+        
+        if (isAxiosError(error) && error.response?.status === 404) {
+          throw new Error(`Document ${documentId} not found. It may have expired or been deleted.`);
+        }
+        
+        if (attempt === maxAttempts) {
+          throw error;
+        }
+        
+        console.warn(`[DoctlyAI] Polling attempt ${attempt} failed, retrying:`, error instanceof Error ? error.message : error);
+        await this.delay(pollInterval);
+      }
+    }
+    
+    throw new Error('Document processing polling failed after maximum attempts');
+  }
+
+  /**
+   * Utility function for delays
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
