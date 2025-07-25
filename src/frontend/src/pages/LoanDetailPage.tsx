@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../utils/axios';
-import '../styles/financial-design-system.css';
-import '../styles/global-warm-theme.css';
+// Using modern SaaS design system from index.css
 import { useToast } from '../hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
@@ -182,34 +181,14 @@ const LoanDetailPage = () => {
     : null;
 
   return (
-    <div className="global-warm-theme" style={{ padding: '8px', maxWidth: '1400px', margin: '0 auto', minHeight: '100vh' }}>
-      {/* Header Section - Very Compact */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr auto auto', 
-        gap: '16px', 
-        marginBottom: '12px',
-        padding: '12px',
-        backgroundColor: 'var(--color-surface)',
-        borderRadius: '6px',
-        border: '1px solid var(--color-border)'
-      }}>
+    <div className="container mx-auto p-4 min-h-screen bg-background">
+      {/* Header Section - Clean & Modern */}
+      <div className="card grid grid-cols-3 gap-4 mb-6 p-6">
         <div>
-          <h1 style={{ 
-            fontSize: '18px', 
-            fontWeight: '700', 
-            color: 'var(--color-text)',
-            margin: '0 0 4px 0'
-          }}>
+          <h1 className="text-xl font-bold text-foreground mb-1">
             Loan {loanId}
           </h1>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px', 
-            fontSize: '11px', 
-            color: 'var(--color-text-muted)' 
-          }}>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span>{formatValue(loan.first_name)} {formatValue(loan.last_name)}</span>
             <span>•</span>
             <span>{formatValue(loan.city)}, {formatValue(loan.state)}</span>
@@ -218,98 +197,84 @@ const LoanDetailPage = () => {
           </div>
         </div>
         
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--color-text)' }}>
+        <div className="text-right">
+          <div className="text-2xl font-bold text-foreground">
             {formatCurrency(loan.prin_bal)}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
+          <div className="text-xs text-muted-foreground">
             Principal Balance
           </div>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '16px', fontWeight: '600', color: propertyData?.property_data?.price ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+        <div className="text-right">
+          <div className={`text-lg font-semibold ${propertyData?.property_data?.price ? 'text-success' : 'text-muted-foreground'}`}>
             {propertyData?.property_data?.price ? formatCurrency(propertyData.property_data.price) : 'N/A'}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
+          <div className="text-xs text-muted-foreground">
             Property Value {ltv && `(LTV: ${ltv}%)`}
           </div>
         </div>
       </div>
 
-      {/* Main Content Grid - Restructured for better space allocation */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1.2fr 1fr 1fr', 
-        gap: '12px',
-        marginBottom: '12px'
-      }}>
+      {/* Main Content Grid - Modern Layout */}
+      <div className="grid grid-cols-4 gap-6 mb-6">
         
         {/* Column 1: Financial Summary */}
-        <div className="financial-card" style={{ padding: '12px' }}>
-          <h3 style={{ 
-            fontSize: '11px', 
-            fontWeight: '600', 
-            textTransform: 'uppercase',
-            margin: '0 0 8px 0',
-            borderBottom: '1px solid var(--color-border)',
-            paddingBottom: '4px'
-          }}>
+        <div className="card p-6">
+          <h3 className="text-xs font-semibold uppercase mb-3 pb-2 border-b border-border text-muted-foreground">
             FINANCIALS
           </h3>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
-              <span className="label" style={{ fontSize: '9px' }}>ORIGINAL AMOUNT</span>
-              <span className="value" style={{ fontSize: '12px', fontWeight: '600' }}>
+          <div className="flex flex-col gap-3">
+            <div className="py-2">
+              <div className="text-xs font-medium text-muted-foreground mb-1">ORIGINAL AMOUNT</div>
+              <div className="text-sm font-semibold text-foreground">
                 {formatCurrency(loan.org_amount)}
-              </span>
+              </div>
             </div>
             
-            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
-              <span className="label" style={{ fontSize: '9px' }}>INTEREST RATE</span>
-              <span className="value" style={{ fontSize: '12px' }}>
+            <div className="py-2">
+              <div className="text-xs font-medium text-muted-foreground mb-1">INTEREST RATE</div>
+              <div className="text-sm text-foreground">
                 {loan.int_rate ? `${parseFloat(loan.int_rate).toFixed(2)}%` : 'N/A'}
-              </span>
+              </div>
             </div>
             
-            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
-              <span className="label" style={{ fontSize: '9px' }}>MATURITY DATE</span>
-              <span className="value" style={{ fontSize: '12px' }}>
+            <div className="py-2">
+              <div className="text-xs font-medium text-muted-foreground mb-1">MATURITY DATE</div>
+              <div className="text-sm text-foreground">
                 {formatDate(loan.maturity_date)}
-              </span>
+              </div>
             </div>
             
-            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
-              <span className="label" style={{ fontSize: '9px' }}>LEGAL BALANCE</span>
-              <span className="value" style={{ fontSize: '12px', fontWeight: '600' }}>
+            <div className="py-2">
+              <div className="text-xs font-medium text-muted-foreground mb-1">LEGAL BALANCE</div>
+              <div className="text-sm font-semibold text-foreground">
                 {legalBalance ? formatCurrency(legalBalance.toString()) : 'N/A'}
-              </span>
+              </div>
             </div>
             
-            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
-              <span className="label" style={{ fontSize: '9px' }}>ESTIMATED EQUITY</span>
-              <span className="value" style={{ 
-                fontSize: '12px', 
-                fontWeight: '600',
-                color: estimatedEquity ? (estimatedEquity > 0 ? 'var(--color-success)' : 'var(--color-danger)') : 'var(--color-text)'
-              }}>
+            <div className="py-2">
+              <div className="text-xs font-medium text-muted-foreground mb-1">ESTIMATED EQUITY</div>
+              <div className={`text-sm font-semibold ${
+                estimatedEquity ? (estimatedEquity > 0 ? 'text-success' : 'text-danger') : 'text-foreground'
+              }`}>
                 {estimatedEquity ? formatCurrency(estimatedEquity.toString()) : 'N/A'}
-              </span>
+              </div>
             </div>
             
-            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
-              <span className="label" style={{ fontSize: '9px' }}>NPV (EST.)</span>
-              <span className="value" style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+            <div className="py-2">
+              <div className="text-xs font-medium text-muted-foreground mb-1">NPV (EST.)</div>
+              <div className="text-sm text-muted-foreground">
                 TBD
-              </span>
+              </div>
             </div>
             
-            <div className="financial-detail-item" style={{ padding: '4px 0' }}>
-              <span className="label" style={{ fontSize: '9px' }}>IRR (EST.)</span>
-              <span className="value" style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+            <div className="py-2">
+              <div className="text-xs font-medium text-muted-foreground mb-1">IRR (EST.)</div>
+              <div className="text-sm text-muted-foreground">
                 TBD
-              </span>
+              </div>
             </div>
           </div>
         </div>

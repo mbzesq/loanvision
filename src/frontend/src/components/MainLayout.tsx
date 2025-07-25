@@ -3,16 +3,16 @@ import { useEffect } from 'react';
 import { InternalChatProvider } from '../contexts/InternalChatContext';
 import { useAuth } from '../contexts/AuthContext';
 import { MainLayoutContent } from './MainLayoutContent';
-import '../styles/financial-design-system.css';
 
 export function MainLayout() {
   const { user, token } = useAuth();
 
-  // Apply financial theme class to body
+  // Apply modern theme class to body
   useEffect(() => {
-    document.body.classList.add('financial-theme');
+    document.body.classList.add('modern-saas-theme');
+    document.body.classList.remove('financial-theme', 'global-warm-theme');
     return () => {
-      document.body.classList.remove('financial-theme');
+      document.body.classList.remove('modern-saas-theme');
     };
   }, []);
 
