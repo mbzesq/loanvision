@@ -77,10 +77,11 @@ export class CollateralAnalysisService {
       // 1. Validate document against loan reference data
       await this.validateDocumentFields(loanId, documentAnalysisId, extractedFields, documentType);
 
-      // 2. Update assignment chain if this is an assignment or allonge
-      if (documentType === DocumentType.ASSIGNMENT || documentType === DocumentType.ALLONGE) {
+      // 2. Update assignment chain if this is an assignment
+      if (documentType === DocumentType.ASSIGNMENT) {
         await this.updateAssignmentChain(loanId, documentAnalysisId, extractedFields, documentType);
       }
+      // NOTE: ALLONGE documents are now classified as Notes with endorsements
 
       // 3. Recalculate collateral completeness
       await this.updateCollateralStatus(loanId);
@@ -161,13 +162,7 @@ export class CollateralAnalysisService {
         validated: row.assignment_chain_complete,
         count: row.assignment_count || 0
       },
-      {
-        type: DocumentType.ALLONGE,
-        required: false,
-        present: row.has_allonges,
-        validated: true, // Allonges are optional
-        count: row.allonge_count || 0
-      }
+      // NOTE: ALLONGE documents are now classified as Notes with endorsements
     ];
 
     // Get validation errors

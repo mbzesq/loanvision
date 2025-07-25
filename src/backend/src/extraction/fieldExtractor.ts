@@ -54,10 +54,7 @@ export class FieldExtractor {
       case DocumentType.ASSIGNMENT:
         this.extractAssignmentFields(ocrResult, fields);
         break;
-      case DocumentType.ALLONGE:
-        // Allonge typically just has endorsement info
-        this.extractEndorsementFields(ocrResult, fields);
-        break;
+      // NOTE: ALLONGE documents are now classified as Notes with endorsements
     }
 
     return fields;

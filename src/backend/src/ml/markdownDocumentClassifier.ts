@@ -42,7 +42,6 @@ const MIN_CONFIDENCE = {
   [DocumentType.NOTE]: 0.4, // Lower threshold for notes - they're common
   [DocumentType.SECURITY_INSTRUMENT]: 0.6,
   [DocumentType.ASSIGNMENT]: 0.75,
-  [DocumentType.ALLONGE]: 0.75,
   [DocumentType.OTHER]: 0.3,
 };
 
@@ -97,22 +96,6 @@ export class MarkdownDocumentClassifier {
       sectionHeaders: ['DEFINITIONS', 'TRANSFER OF RIGHTS', 'BORROWER COVENANTS', 'GRANT OF MORTGAGE'],
       tableHeaders: ['Property Address', 'Legal Description', 'Tax ID'],
       negativeKeywords: ['assignment of mortgage', 'allonge']
-    },
-    [DocumentType.ALLONGE]: {
-      headerPatterns: [
-        /^#+\s*(ALLONGE)/im,
-        /^\*\*(ALLONGE)\*\*/im,
-        /^(ALLONGE)$/im
-      ],
-      highWeightKeywords: [
-        'allonge', 'endorsement', 'indorsement', 'pay to the order of', 
-        'without recourse', 'with recourse', 'blank endorsement', 
-        'special endorsement', 'attached hereto', 'affixed'
-      ],
-      mediumWeightKeywords: [
-        'transfer', 'negotiate', 'bearer', 'holder'
-      ],
-      negativeKeywords: []
     },
     [DocumentType.ASSIGNMENT]: {
       headerPatterns: [
@@ -203,8 +186,8 @@ export class MarkdownDocumentClassifier {
     count: number;
     chain: AllongeEndorsement[];
   } {
-    // Only look for embedded allonges in Notes and standalone Allonges
-    if (documentType !== DocumentType.NOTE && documentType !== DocumentType.ALLONGE) {
+    // Only look for embedded allonges in Notes
+    if (documentType !== DocumentType.NOTE) {
       return { hasAllonges: false, count: 0, chain: [] };
     }
 
@@ -336,9 +319,7 @@ export class MarkdownDocumentClassifier {
     }
 
     // Structural analysis based on document type
-    if (docType === DocumentType.ALLONGE && wordCount < 350) {
-      score *= 1.5; // Allonges are typically short
-    }
+    // NOTE: ALLONGE documents are now classified as Notes with endorsements
     
     if (docType === DocumentType.NOTE && wordCount < 300) {
       score *= 0.7; // Notes should have some substance

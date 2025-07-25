@@ -1,0 +1,352 @@
+[
+  {
+    "file": "0240610110_NOTE.pdf",
+    "expectedType": "Note",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 0.7649999999999999,
+    "newPrediction": "Other",
+    "newConfidence": 0.44,
+    "oldCorrect": false,
+    "newCorrect": false
+  },
+  {
+    "file": "03_Mortgages__Deeds_of_Trust_10K_060904.pdf",
+    "expectedType": "Security Instrument",
+    "oldPrediction": "Note",
+    "oldConfidence": 0.7539325842696629,
+    "newPrediction": "Security Instrument",
+    "newConfidence": 1,
+    "oldCorrect": false,
+    "newCorrect": true
+  },
+  {
+    "file": "100011939Note_Allonge_to_ATC.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "100011939_Hakani_Note.pdf",
+    "expectedType": "Note",
+    "oldPrediction": "Note",
+    "oldConfidence": 0.8473684210526315,
+    "newPrediction": "Note",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "100011939_Hakani_Recorded_Mortgage.pdf",
+    "expectedType": "Security Instrument",
+    "oldPrediction": "Note",
+    "oldConfidence": 0.7337078651685393,
+    "newPrediction": "Security Instrument",
+    "newConfidence": 1,
+    "oldCorrect": false,
+    "newCorrect": true
+  },
+  {
+    "file": "100011939_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Assignment",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1004716870_Gately_Recorded_AOM_ETrade_Bank_to_NS182_LLC.PDF",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Assignment",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1005188261Note_Allonge_to_ATC.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 0.86,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1005188261_Passamondi_Recorded_Warranty_Deed.PDF",
+    "expectedType": "Other",
+    "oldPrediction": "Other",
+    "oldConfidence": 0.683235294117647,
+    "newPrediction": "Assignment",
+    "newConfidence": 0.59,
+    "oldCorrect": true,
+    "newCorrect": false
+  },
+  {
+    "file": "1005188261_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Assignment",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1005345774Note_Allonge_to_ATC.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1005345774_Lemieux_AOM_MERS_to_NS181_LLC.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Assignment",
+    "newConfidence": 0.97,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1005345774_Lemieux_Note.pdf",
+    "expectedType": "Note",
+    "oldPrediction": "Note",
+    "oldConfidence": 1,
+    "newPrediction": "Note",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1005345774_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Assignment",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1005855303ALLONGE.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 0.73,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006344415ALLONGE.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006344787ALLONGE.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006344787Note_Allonge_to_ATC.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006344787_Abernathy_Recorded_AOM_MERS_to_SRP (1).pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Note",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": false
+  },
+  {
+    "file": "1006344787_Abernathy_Recorded_AOM_MERS_to_SRP.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Note",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": false
+  },
+  {
+    "file": "1006344787_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Note",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": false
+  },
+  {
+    "file": "1006344978ALLONGE.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 0.79,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006344978Note_Allonge_to_ATC.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006344978_Piller_AOM_MERS_to_SRP_20134_LLC.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Assignment",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006344978_Piller_Note__Allonges.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 0.768,
+    "newPrediction": "Allonge",
+    "newConfidence": 0.59,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006344978_Piller_Recorded_Mortgage.pdf",
+    "expectedType": "Security Instrument",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Other",
+    "newConfidence": 0.11,
+    "oldCorrect": false,
+    "newCorrect": false
+  },
+  {
+    "file": "1006344978_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Assignment",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006346264ALLONGE.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006346471ALLONGE.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 0.79,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1006346471_Palmieri_Recorded_Sheriffs_Deed.pdf",
+    "expectedType": "Other",
+    "oldPrediction": "Security Instrument",
+    "oldConfidence": 0.7976744186046512,
+    "newPrediction": "Assignment",
+    "newConfidence": 1,
+    "oldCorrect": false,
+    "newCorrect": false
+  },
+  {
+    "file": "1098805Note_Allonge_to_ATC.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1098805Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "oldPrediction": "Assignment",
+    "oldConfidence": 1,
+    "newPrediction": "Assignment",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1098805_Alvarez_Allonge_to_NS162_LLC.pdf",
+    "expectedType": "Allonge",
+    "oldPrediction": "Allonge",
+    "oldConfidence": 1,
+    "newPrediction": "Allonge",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1098805_Mortgage_Recorded_Mortgage_10541__1162014__7074412_02042015_45424598.PDF",
+    "expectedType": "Security Instrument",
+    "oldPrediction": "Security Instrument",
+    "oldConfidence": 1,
+    "newPrediction": "Security Instrument",
+    "newConfidence": 1,
+    "oldCorrect": true,
+    "newCorrect": true
+  },
+  {
+    "file": "1098805_Mortgage_Rider_Servicing_File_02042015_45424590.PDF",
+    "expectedType": "Security Instrument",
+    "oldPrediction": "Note",
+    "oldConfidence": 0.8153846153846154,
+    "newPrediction": "Note",
+    "newConfidence": 1,
+    "oldCorrect": false,
+    "newCorrect": false
+  }
+]

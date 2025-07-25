@@ -57,9 +57,7 @@ export class MarkdownFieldExtractor {
       case DocumentType.ASSIGNMENT:
         this.extractAssignmentFields(markdown, sections, tables, fields);
         break;
-      case DocumentType.ALLONGE:
-        this.extractEndorsementFields(markdown, fields);
-        break;
+      // NOTE: ALLONGE documents are now classified as Notes with endorsements
     }
 
     return fields;
