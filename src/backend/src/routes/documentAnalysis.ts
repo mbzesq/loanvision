@@ -585,6 +585,139 @@ router.get('/:loanId/collateral-status', authenticateToken, async (req, res) => 
   }
 });
 
+// GET /api/v2/loans/:loanId/chain-analysis
+// Returns comprehensive chain analysis including endorsement and assignment chains
+router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
+  const { loanId } = req.params;
+
+  try {
+    console.log(`🔗 Fetching comprehensive chain analysis for loan: ${loanId}`);
+    
+    // Get document presence summary
+    const documentQuery = `
+      SELECT 
+        COUNT(CASE WHEN document_type = 'Note' THEN 1 END) as note_count,
+        COUNT(CASE WHEN document_type = 'Security Instrument' THEN 1 END) as security_instrument_count,
+        COUNT(CASE WHEN document_type = 'Assignment' THEN 1 END) as assignment_count
+      FROM document_analysis 
+      WHERE loan_id = $1
+    `;
+    
+    const documentResult = await pool.query(documentQuery, [loanId]);
+    const docCounts = documentResult.rows[0];
+    
+    // Get endorsement chain data from notes
+    const endorsementQuery = `
+      SELECT 
+        da.id as document_analysis_id,
+        da.file_name,
+        da.confidence_score,
+        da.has_endorsements,
+        da.endorsement_count,
+        da.endorsement_chain,
+        da.ends_with_current_investor,
+        da.ends_in_blank
+      FROM document_analysis da
+      WHERE da.loan_id = $1 
+        AND da.document_type = 'Note'
+        AND da.has_endorsements = true
+      ORDER BY da.created_at DESC
+      LIMIT 1
+    `;
+    
+    const endorsementResult = await pool.query(endorsementQuery, [loanId]);
+    
+    // Get assignment chain data 
+    const assignmentQuery = `
+      SELECT 
+        da.id as document_analysis_id,
+        da.file_name,
+        da.confidence_score,
+        da.has_assignment_chain,
+        da.assignment_count,
+        da.assignment_chain,
+        da.assignment_ends_with_current_investor
+      FROM document_analysis da
+      WHERE da.loan_id = $1 
+        AND da.document_type = 'Assignment'
+        AND da.has_assignment_chain = true
+      ORDER BY da.created_at DESC
+      LIMIT 1
+    `;
+    
+    const assignmentResult = await pool.query(assignmentQuery, [loanId]);
+    
+    // Get legacy assignment chain status for backward compatibility
+    const legacyChainQuery = `
+      SELECT assignment_chain_complete, chain_gap_details
+      FROM loan_collateral_status
+      WHERE loan_id = $1
+    `;
+    
+    const legacyResult = await pool.query(legacyChainQuery, [loanId]);
+    
+    // Build comprehensive response
+    const endorsementData = endorsementResult.rows[0];
+    const assignmentData = assignmentResult.rows[0];
+    const legacyData = legacyResult.rows[0];
+    
+    const response = {
+      success: true,
+      loanId,
+      timestamp: new Date().toISOString(),
+      
+      // Document presence
+      documentPresence: {
+        hasNote: parseInt(docCounts.note_count) > 0,
+        hasSecurityInstrument: parseInt(docCounts.security_instrument_count) > 0,
+        noteCount: parseInt(docCounts.note_count),
+        securityInstrumentCount: parseInt(docCounts.security_instrument_count),
+        assignmentCount: parseInt(docCounts.assignment_count)
+      },
+      
+      // Endorsement chain analysis
+      endorsementChain: {
+        hasEndorsements: endorsementData?.has_endorsements || false,
+        endorsementCount: endorsementData?.endorsement_count || 0,
+        endorsementChain: endorsementData?.endorsement_chain || [],
+        endsWithCurrentInvestor: endorsementData?.ends_with_current_investor || false,
+        endsInBlank: endorsementData?.ends_in_blank || false,
+        sourceDocument: endorsementData ? {
+          fileName: endorsementData.file_name,
+          confidence: endorsementData.confidence_score
+        } : null
+      },
+      
+      // Assignment chain analysis
+      assignmentChain: {
+        hasAssignmentChain: assignmentData?.has_assignment_chain || false,
+        assignmentCount: assignmentData?.assignment_count || 0,
+        assignmentChain: assignmentData?.assignment_chain || [],
+        assignmentEndsWithCurrentInvestor: assignmentData?.assignment_ends_with_current_investor || false,
+        sourceDocument: assignmentData ? {
+          fileName: assignmentData.file_name,
+          confidence: assignmentData.confidence_score
+        } : null
+      },
+      
+      // Legacy compatibility
+      legacy: {
+        assignmentChainComplete: legacyData?.assignment_chain_complete || false,
+        chainGaps: legacyData?.chain_gap_details ? [legacyData.chain_gap_details] : []
+      }
+    };
+    
+    res.json(response);
+    
+  } catch (error: unknown) {
+    console.error('Failed to fetch chain analysis:', error);
+    res.status(500).json({
+      error: 'Failed to fetch chain analysis',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 // GET /api/v2/loans/:loanId/note-ownership
 // Returns current note ownership based on allonge chain analysis
 router.get('/:loanId/note-ownership', authenticateToken, async (req, res) => {

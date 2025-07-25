@@ -9,6 +9,7 @@ import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
 import SOLInfoCard from '../components/SOL/SOLInfoCard';
 import UnifiedCollateralCard from '../components/UnifiedCollateralCard';
+import EnhancedCollateralStatusCard from '../components/EnhancedCollateralStatusCard';
 
 // Enhanced interface for detailed loan data
 interface LoanDetail extends Loan {
@@ -434,10 +435,13 @@ const LoanDetailPage = () => {
         </div>
       </div>
 
-      {/* Second Row - Unified Collateral */}
+      {/* Second Row - Enhanced Chain Analysis */}
+      <EnhancedCollateralStatusCard loanId={loanId!} />
+
+      {/* Third Row - Unified Collateral (Upload & Document Management) */}
       <UnifiedCollateralCard loanId={loanId!} />
 
-      {/* Third Row - Foreclosure Timeline (if exists) */}
+      {/* Fourth Row - Foreclosure Timeline (if exists) */}
       {milestones.length > 0 && (
         <div className="financial-card" style={{ padding: '12px', marginBottom: '12px' }}>
           <h3 style={{ 
