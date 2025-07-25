@@ -15,16 +15,29 @@ export interface EndorsementChain {
   endorsementText: string;
 }
 
+export interface AssignmentChain {
+  sequenceNumber: number;
+  assignor?: string;
+  assignee?: string;
+  assignmentText: string;
+  recordingInfo?: string;
+}
+
 export interface ClassificationResult {
   documentType: DocumentType;
   confidence: number;
   scores: Map<DocumentType, number>;
-  // Enhanced endorsement analysis
+  // Enhanced endorsement analysis (for Notes)
   hasEndorsements?: boolean;
   endorsementCount?: number;
   endorsementChain?: EndorsementChain[];
   endsWithCurrentInvestor?: boolean;
   endsInBlank?: boolean;
+  // Assignment chain analysis (for Assignments)
+  hasAssignmentChain?: boolean;
+  assignmentCount?: number;
+  assignmentChain?: AssignmentChain[];
+  assignmentEndsWithCurrentInvestor?: boolean;
 }
 
 interface DocumentPattern {

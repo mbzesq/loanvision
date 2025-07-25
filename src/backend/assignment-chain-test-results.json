@@ -1,0 +1,90 @@
+[
+  {
+    "file": "100011939_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "prediction": "Other",
+    "confidence": 0,
+    "correct": false,
+    "hasAssignmentChain": false,
+    "assignmentCount": 0,
+    "endsWithCurrentInvestor": false,
+    "chainDetails": []
+  },
+  {
+    "file": "1004716870_Gately_Recorded_AOM_ETrade_Bank_to_NS182_LLC.PDF",
+    "expectedType": "Assignment",
+    "prediction": "Other",
+    "confidence": 0,
+    "correct": false,
+    "hasAssignmentChain": false,
+    "assignmentCount": 0,
+    "endsWithCurrentInvestor": false,
+    "chainDetails": []
+  },
+  {
+    "file": "1005188261_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "prediction": "Other",
+    "confidence": 0,
+    "correct": false,
+    "hasAssignmentChain": false,
+    "assignmentCount": 0,
+    "endsWithCurrentInvestor": false,
+    "chainDetails": []
+  },
+  {
+    "file": "1005345774_Lemieux_AOM_MERS_to_NS181_LLC.pdf",
+    "expectedType": "Assignment",
+    "prediction": "Other",
+    "confidence": 0,
+    "correct": false,
+    "hasAssignmentChain": false,
+    "assignmentCount": 0,
+    "endsWithCurrentInvestor": false,
+    "chainDetails": []
+  },
+  {
+    "file": "1005345774_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "prediction": "Other",
+    "confidence": 0,
+    "correct": false,
+    "hasAssignmentChain": false,
+    "assignmentCount": 0,
+    "endsWithCurrentInvestor": false,
+    "chainDetails": []
+  },
+  {
+    "file": "1006344787_Abernathy_Recorded_AOM_MERS_to_SRP (1).pdf",
+    "expectedType": "Assignment",
+    "prediction": "Other",
+    "confidence": 0,
+    "correct": false,
+    "hasAssignmentChain": false,
+    "assignmentCount": 0,
+    "endsWithCurrentInvestor": false,
+    "chainDetails": []
+  },
+  {
+    "file": "1006344787_Abernathy_Recorded_AOM_MERS_to_SRP.pdf",
+    "expectedType": "Assignment",
+    "prediction": "Other",
+    "confidence": 0,
+    "correct": false,
+    "hasAssignmentChain": false,
+    "assignmentCount": 0,
+    "endsWithCurrentInvestor": false,
+    "chainDetails": []
+  },
+  {
+    "file": "1006344787_Recorded_Assignment_to_ATC.pdf",
+    "expectedType": "Assignment",
+    "prediction": "Other",
+    "confidence": 0,
+    "correct": false,
+    "hasAssignmentChain": false,
+    "assignmentCount": 0,
+    "endsWithCurrentInvestor": false,
+    "chainDetails": []
+  }
+]

@@ -1,4 +1,4 @@
-import { DocumentType, EndorsementChain, ClassificationResult } from './documentClassifier';
+import { DocumentType, EndorsementChain, AssignmentChain, ClassificationResult } from './documentClassifier';
 
 interface MarkdownPattern {
   headerPatterns: RegExp[];
@@ -133,7 +133,7 @@ export class MarkdownDocumentClassifierNew {
       scores.set(docType, score);
     }
 
-    return this.calculateConfidenceAndEndorsements(markdown, scores);
+    return this.calculateConfidenceAndChainAnalysis(markdown, scores);
   }
 
   private calculateMarkdownScore(
@@ -246,7 +246,7 @@ export class MarkdownDocumentClassifierNew {
     return baseScore;
   }
   
-  private calculateConfidenceAndEndorsements(markdown: string, scores: Map<DocumentType, number>): ClassificationResult {
+  private calculateConfidenceAndChainAnalysis(markdown: string, scores: Map<DocumentType, number>): ClassificationResult {
     let predictedType = DocumentType.OTHER;
     let maxScore = -1;
 
@@ -279,23 +279,35 @@ export class MarkdownDocumentClassifierNew {
       predictedType = DocumentType.OTHER;
     }
 
-    // Enhanced endorsement analysis for all document types
+    // Enhanced endorsement analysis for Notes
     const endorsementAnalysis = this.analyzeEndorsementChain(markdown);
+    
+    // Assignment chain analysis for Assignments
+    const assignmentAnalysis = this.analyzeAssignmentChain(markdown, predictedType);
     
     console.log(`[NewClassifier] Final prediction: ${predictedType} with confidence ${confidence.toFixed(3)}`);
     if (endorsementAnalysis.hasEndorsements) {
       console.log(`[NewClassifier] Found ${endorsementAnalysis.count} endorsements, ends with: ${endorsementAnalysis.endsInBlank ? 'BLANK' : endorsementAnalysis.endsWithCurrentInvestor ? 'CURRENT INVESTOR' : 'OTHER'}`);
+    }
+    if (assignmentAnalysis.hasAssignmentChain) {
+      console.log(`[NewClassifier] Found ${assignmentAnalysis.count} assignments, ends with: ${assignmentAnalysis.endsWithCurrentInvestor ? 'CURRENT INVESTOR' : 'OTHER'}`);
     }
     
     return {
       documentType: predictedType,
       confidence: parseFloat(confidence.toFixed(2)),
       scores,
+      // Endorsement analysis (for Notes)
       hasEndorsements: endorsementAnalysis.hasEndorsements,
       endorsementCount: endorsementAnalysis.count,
       endorsementChain: endorsementAnalysis.chain,
       endsWithCurrentInvestor: endorsementAnalysis.endsWithCurrentInvestor,
-      endsInBlank: endorsementAnalysis.endsInBlank
+      endsInBlank: endorsementAnalysis.endsInBlank,
+      // Assignment chain analysis (for Assignments)
+      hasAssignmentChain: assignmentAnalysis.hasAssignmentChain,
+      assignmentCount: assignmentAnalysis.count,
+      assignmentChain: assignmentAnalysis.chain,
+      assignmentEndsWithCurrentInvestor: assignmentAnalysis.endsWithCurrentInvestor
     };
   }
 
@@ -358,13 +370,151 @@ export class MarkdownDocumentClassifierNew {
     };
   }
 
+  private analyzeAssignmentChain(markdown: string, documentType: DocumentType): {
+    hasAssignmentChain: boolean;
+    count: number;
+    chain: AssignmentChain[];
+    endsWithCurrentInvestor: boolean;
+  } {
+    // Only analyze assignment chains for Assignment documents
+    if (documentType !== DocumentType.ASSIGNMENT) {
+      return { hasAssignmentChain: false, count: 0, chain: [], endsWithCurrentInvestor: false };
+    }
+
+    const assignmentChain: AssignmentChain[] = [];
+    const cleanText = this.stripMarkdown(markdown);
+    
+    // Enhanced patterns for assignment detection - look for assignment language
+    const assignmentPatterns = [
+      // Direct assignor/assignee format in documents (most reliable)
+      /assignor[:\s]*([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?|MERS))[^.]*?assignee[:\s]*([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?))/gi,
+      
+      // Standard assignment language with clear party identification
+      /([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?|Bank|MERS))\s+(?:hereby\s+)?assigns?\s+(?:and\s+transfers?\s+)?(?:to\s+)?([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?))\s+all\s+right,?\s+title\s+and\s+interest/gi,
+      
+      // "From X to Y" explicit format  
+      /(?:assignment|aom)[^.]*?from\s+([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?|Bank|MERS))\s+to\s+([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?))/gi,
+      
+      // Recording format with clear parties
+      /([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?|Bank|MERS))[^.]*?assigns?\s+(?:to\s+)?([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?))/gi
+    ];
+    
+    let sequenceNumber = 1;
+    
+    for (const pattern of assignmentPatterns) {
+      let match;
+      pattern.lastIndex = 0; // Reset regex
+      
+      while ((match = pattern.exec(cleanText)) !== null) {
+        let assignor: string | undefined;
+        let assignee: string | undefined;
+        
+        // All new patterns have two capture groups: assignor and assignee
+        assignor = match[1]?.trim();
+        assignee = match[2]?.trim();
+        
+        if (assignor && assignee && assignor.length > 2 && assignee.length > 2) {
+          const cleanAssignor = this.cleanCompanyName(assignor);
+          const cleanAssignee = this.cleanCompanyName(assignee);
+          
+          // Avoid duplicates
+          const isDuplicate = assignmentChain.some(existing => 
+            existing.assignor === cleanAssignor && existing.assignee === cleanAssignee
+          );
+          
+          if (!isDuplicate) {
+            assignmentChain.push({
+              sequenceNumber,
+              assignor: cleanAssignor,
+              assignee: cleanAssignee,
+              assignmentText: match[0].trim(),
+              recordingInfo: this.extractRecordingInfo(cleanText, match.index || 0)
+            });
+            
+            sequenceNumber++;
+          }
+        }
+      }
+    }
+
+    // Determine if chain ends with current investor
+    const lastAssignment = assignmentChain.length > 0 ? assignmentChain[assignmentChain.length - 1] : null;
+    const endsWithCurrentInvestor = lastAssignment ? 
+      this.isCurrentInvestor(lastAssignment.assignee || '') : false;
+
+    return {
+      hasAssignmentChain: assignmentChain.length > 0,
+      count: assignmentChain.length,
+      chain: assignmentChain,
+      endsWithCurrentInvestor
+    };
+  }
+
+  private extractAssignorFromContext(text: string, matchIndex: number): string | undefined {
+    // Look backwards from the match to find assignor information
+    const beforeMatch = text.substring(Math.max(0, matchIndex - 300), matchIndex);
+    
+    const assignorPatterns = [
+      // Look for explicit assignor labels
+      /assignor[:\s]*([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?))/i,
+      // Look for company names before "hereby assigns"
+      /([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?))[^.]*?(?:hereby\s+)?assigns?/i,
+      // Look for "from X" patterns
+      /from\s+([A-Z][A-Za-z\s&,.']*(?:LLC|L\.L\.C\.|Inc|Corp|Corporation|Trust|Company|Co\.?))/i,
+      // Look for MERS patterns (common in assignments)
+      /MERS/i,
+      // Look for bank/lender names
+      /([A-Z][A-Za-z\s&,.']*(?:Bank|Mortgage|Lending|Financial))/i
+    ];
+    
+    for (const pattern of assignorPatterns) {
+      const match = beforeMatch.match(pattern);
+      if (match) {
+        const found = match[1]?.trim();
+        if (found && found.length > 2) { // Avoid single letters
+          return found;
+        }
+      }
+    }
+    
+    return undefined;
+  }
+
+  private extractRecordingInfo(text: string, matchIndex: number): string | undefined {
+    // Look for recording information near the assignment
+    const contextWindow = text.substring(matchIndex, Math.min(text.length, matchIndex + 300));
+    
+    const recordingPatterns = [
+      /recorded[^.]*?(?:book\s+\d+[^.]*?page\s+\d+|instrument\s+#?\s*[\d\-]+|document\s+#?\s*[\d\-]+)/i,
+      /recording\s+(?:date|info)[^.]*?[\d\/\-]+/i,
+      /instrument\s+(?:number|#)[^.]*?[\d\-]+/i
+    ];
+    
+    for (const pattern of recordingPatterns) {
+      const match = contextWindow.match(pattern);
+      if (match) {
+        return match[0].trim();
+      }
+    }
+    
+    return undefined;
+  }
+
   private isCurrentInvestor(endorsee: string): boolean {
     // Define current investor patterns - this could be configurable
     const currentInvestorPatterns = [
+      // ATC Trust patterns
       /ATC\d*\s*TRUST/i,
+      /\bATC\b/i,
+      // SRP LLC patterns  
       /SRP\s*\d*\s*LLC/i,
+      /SRP\s*\d+[\.\d]*\s*LLC/i, // e.g., SRP 20137 LLC, SRP 2013.2 LLC
+      /\bSRP\b/i,
+      // NS LLC patterns
       /NS\d*\s*LLC/i,
-      // Add more patterns as needed
+      /NS\d+\s*LLC/i, // e.g., NS181 LLC, NS182 LLC
+      /\bNS\b/i,
+      // Add more patterns as needed based on actual current investors
     ];
     
     return currentInvestorPatterns.some(pattern => pattern.test(endorsee));
