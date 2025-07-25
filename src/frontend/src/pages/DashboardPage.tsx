@@ -4,8 +4,7 @@ import { InboxKPIs } from '../components/InboxKPIs';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../styles/design-system.css';
-import '../styles/dashboard-warm-theme.css';
+// Using modern SaaS design system from index.css
 
 interface LoanStatusData {
   status: string;
@@ -504,55 +503,43 @@ function DashboardPage() {
     return 'info';
   };
   return (
-    <div className="dashboard-warm-theme" style={{ 
-      padding: '12px', 
-      minHeight: '100vh'
-    }}>
+    <div className="container mx-auto p-4 min-h-screen bg-background">
       {/* Market Data Bar */}
-      <div className="market-data-bar" style={{ 
-        padding: '8px 12px',
-        marginBottom: '12px'
-      }}>
-        <div style={{ 
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>10Y TREASURY</span>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>4.23%</span>
-            <span style={{ fontSize: '11px', color: 'var(--color-success)' }}>+0.02</span>
+      <div className="card mb-6 p-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">10Y TREASURY</span>
+            <span className="text-sm font-semibold text-foreground">4.23%</span>
+            <span className="text-xs text-success">+0.02</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>30Y FIXED</span>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>6.81%</span>
-            <span style={{ fontSize: '11px', color: 'var(--color-success)' }}>+0.05</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">30Y FIXED</span>
+            <span className="text-sm font-semibold text-foreground">6.81%</span>
+            <span className="text-xs text-success">+0.05</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>SOFR</span>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>5.31%</span>
-            <span style={{ fontSize: '11px', color: 'var(--color-danger)' }}>-0.01</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">SOFR</span>
+            <span className="text-sm font-semibold text-foreground">5.31%</span>
+            <span className="text-xs text-danger">-0.01</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>UMBS 5.5</span>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>98.125</span>
-            <span style={{ fontSize: '11px', color: 'var(--color-danger)' }}>-0.0625</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">UMBS 5.5</span>
+            <span className="text-sm font-semibold text-foreground">98.125</span>
+            <span className="text-xs text-danger">-0.0625</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>VIX</span>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>16.82</span>
-            <span style={{ fontSize: '11px', color: 'var(--color-success)' }}>+0.45</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">VIX</span>
+            <span className="text-sm font-semibold text-foreground">16.82</span>
+            <span className="text-xs text-success">+0.45</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>DXY</span>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>104.35</span>
-            <span style={{ fontSize: '11px', color: 'var(--color-success)' }}>+0.12</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">DXY</span>
+            <span className="text-sm font-semibold text-foreground">104.35</span>
+            <span className="text-xs text-success">+0.12</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>HPI YOY</span>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text)' }}>5.2%</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">HPI YOY</span>
+            <span className="text-sm font-semibold text-foreground">5.2%</span>
             <span style={{ fontSize: '11px', color: 'var(--color-danger)' }}>-0.3</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -564,84 +551,63 @@ function DashboardPage() {
       </div>
 
       {/* Quick Stats Header */}
-      <div className="quick-stats" style={{ marginBottom: '16px' }}>
-        <div className="quick-stat">
-          <span className="label">PORTFOLIO</span>
-          <span className="value">NPL-MAIN</span>
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="text-center">
+          <div className="text-xs text-muted-foreground mb-1">PORTFOLIO</div>
+          <div className="text-sm font-semibold text-foreground">NPL-MAIN</div>
         </div>
-        <div className="quick-stat">
-          <span className="label">TOTAL LOANS</span>
-          <span className="value">{loading ? '...' : totalLoans.toLocaleString()}</span>
+        <div className="text-center">
+          <div className="text-xs text-muted-foreground mb-1">TOTAL LOANS</div>
+          <div className="text-sm font-semibold text-foreground">{loading ? '...' : totalLoans.toLocaleString()}</div>
         </div>
-        <div className="quick-stat">
-          <span className="label">SESSION</span>
-          <span className="value">{format(new Date(), 'MMM d, yyyy HH:mm')}</span>
+        <div className="text-center">
+          <div className="text-xs text-muted-foreground mb-1">SESSION</div>
+          <div className="text-sm font-semibold text-foreground">{format(new Date(), 'MMM d, yyyy HH:mm')}</div>
         </div>
-        <div className="quick-stat">
-          <span className="label">STATUS</span>
-          <span className="value data-fresh">LIVE</span>
+        <div className="text-center">
+          <div className="text-xs text-muted-foreground mb-1">STATUS</div>
+          <div className="text-sm font-semibold text-success">LIVE</div>
         </div>
       </div>
 
       {/* Financial KPI Dashboard */}
-      <div className="financial-card" style={{ marginBottom: '16px' }}>
-        <div style={{ 
-          borderBottom: '1px solid var(--color-border)',
-          paddingBottom: '8px',
-          marginBottom: '16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <h2 className="page-title" style={{ margin: 0 }}>
+      <div className="card mb-6">
+        <div className="border-b pb-3 mb-6 flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-foreground m-0">
             Portfolio Metrics
           </h2>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <span className="data-timestamp">Real-time</span>
-            <div style={{ 
-              width: '8px', 
-              height: '8px', 
-              borderRadius: '50%', 
-              backgroundColor: 'var(--color-success)',
-              animation: 'pulse 2s infinite'
-            }}></div>
+          <div className="flex gap-2 items-center">
+            <span className="text-xs text-muted-foreground">Real-time</span>
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
           </div>
         </div>
         <FinancialKPIDashboard />
       </div>
 
       {/* Advanced Analytics Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+      <div className="grid grid-cols-2 gap-6">
         {/* Performance Trends */}
-        <div className="financial-card">
-          <div style={{ 
-            borderBottom: '1px solid var(--color-border)',
-            paddingBottom: '8px',
-            marginBottom: '12px'
-          }}>
-            <h3 className="section-title" style={{ margin: 0 }}>
+        <div className="card">
+          <div className="border-b pb-3 mb-4">
+            <h3 className="text-lg font-semibold text-foreground m-0">
               Performance Trends
             </h3>
-            <span style={{ fontSize: '11px', color: 'var(--dashboard-text-secondary)' }}>(30 Days)</span>
+            <span className="text-xs text-muted-foreground">(30 Days)</span>
           </div>
           <PerformanceTrendChart />
         </div>
 
         {/* Risk Distribution */}
-        <div className="financial-card">
-          <div style={{ 
-            borderBottom: '1px solid var(--color-border)',
-            paddingBottom: '8px',
-            marginBottom: '12px'
-          }}>
-            <h3 className="section-title" style={{ margin: 0 }}>
+        <div className="card">
+          <div className="border-b pb-3 mb-4">
+            <h3 className="text-lg font-semibold text-foreground m-0">
               Risk Distribution
             </h3>
           </div>
-          <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase' }}>CHART COMPONENT</div>
-              <div style={{ fontSize: '10px' }}>Geographic and sector risk breakdown</div>
+          <div className="h-48 flex items-center justify-center">
+            <div className="text-center text-muted-foreground">
+              <div className="text-xs uppercase mb-1">CHART COMPONENT</div>
+              <div className="text-xs">Geographic and sector risk breakdown</div>
             </div>
           </div>
         </div>

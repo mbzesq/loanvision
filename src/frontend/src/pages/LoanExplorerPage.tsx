@@ -11,8 +11,7 @@ import { FilterPanel, FilterValues, initialFilters } from '../components/FilterP
 import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '../lib/states';
-import '../styles/financial-design-system.css';
-import '../styles/global-warm-theme.css';
+// Using modern SaaS design system from index.css
 import {
   createColumnHelper,
   flexRender,
