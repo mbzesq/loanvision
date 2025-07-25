@@ -3,15 +3,28 @@ import { DocumentAnalysisResult } from '../ocr/azureDocumentClient';
 export enum DocumentType {
   NOTE = 'Note',
   SECURITY_INSTRUMENT = 'Security Instrument',
-  ALLONGE = 'Allonge',
   ASSIGNMENT = 'Assignment',
   OTHER = 'Other',
+}
+
+export interface EndorsementChain {
+  sequenceNumber: number;
+  endorser?: string;
+  endorsee?: string;
+  endorsementType: 'specific' | 'blank';
+  endorsementText: string;
 }
 
 export interface ClassificationResult {
   documentType: DocumentType;
   confidence: number;
   scores: Map<DocumentType, number>;
+  // Enhanced endorsement analysis
+  hasEndorsements?: boolean;
+  endorsementCount?: number;
+  endorsementChain?: EndorsementChain[];
+  endsWithCurrentInvestor?: boolean;
+  endsInBlank?: boolean;
 }
 
 interface DocumentPattern {
@@ -25,7 +38,6 @@ const MIN_CONFIDENCE = {
   [DocumentType.NOTE]: 0.6,
   [DocumentType.SECURITY_INSTRUMENT]: 0.6,
   [DocumentType.ASSIGNMENT]: 0.75,
-  [DocumentType.ALLONGE]: 0.75,
   [DocumentType.OTHER]: 0.3,
 };
 
@@ -42,7 +54,7 @@ export class DocumentClassifier {
       mediumWeightKeywords: [
         'borrower', 'lender', 'payment', 'monthly installment', 'due date'
       ],
-      negativeKeywords: ['allonge']
+      negativeKeywords: []
     },
     [DocumentType.SECURITY_INSTRUMENT]: {
       highWeightKeywords: [
@@ -55,17 +67,6 @@ export class DocumentClassifier {
         'trust deed', 'reconveyance', 'trustee sale'
       ],
       negativeKeywords: ['assignment of mortgage']
-    },
-    [DocumentType.ALLONGE]: {
-      highWeightKeywords: [
-        'allonge', 'endorsement', 'indorsement', 'pay to the order of', 
-        'without recourse', 'with recourse', 'blank endorsement', 
-        'special endorsement', 'attached hereto', 'affixed'
-      ],
-      mediumWeightKeywords: [
-        'transfer', 'negotiate', 'bearer', 'holder'
-      ],
-      negativeKeywords: []
     },
     [DocumentType.ASSIGNMENT]: {
       highWeightKeywords: [
@@ -166,10 +167,6 @@ export class DocumentClassifier {
     }
 
     // V3 Structural Analysis: Document length-based scoring
-    // For ALLONGE: Short documents get a bonus
-    if (docType === DocumentType.ALLONGE && wordCount < 350) {
-      score *= 1.5;
-    }
     
     // For NOTE: V3 adjusted - lower threshold and less severe penalty
     if (docType === DocumentType.NOTE && wordCount < 300) {

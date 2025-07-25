@@ -39,7 +39,7 @@ interface MarkdownTable {
 
 // Minimum confidence thresholds per document type
 const MIN_CONFIDENCE = {
-  [DocumentType.NOTE]: 0.6,
+  [DocumentType.NOTE]: 0.4, // Lower threshold for notes - they're common
   [DocumentType.SECURITY_INSTRUMENT]: 0.6,
   [DocumentType.ASSIGNMENT]: 0.75,
   [DocumentType.ALLONGE]: 0.75,
@@ -52,16 +52,28 @@ export class MarkdownDocumentClassifier {
       headerPatterns: [
         /^#+\s*(PROMISSORY NOTE|NOTE)/im,
         /^\*\*(PROMISSORY NOTE|NOTE)\*\*/im,
-        /^(PROMISSORY NOTE|NOTE)$/im
+        /^(PROMISSORY NOTE|NOTE)$/im,
+        // Add more flexible patterns
+        /^#+.*note.*$/im,
+        /^#+.*promissory.*$/im,
+        /^\*\*.*note.*\*\*$/im,
+        /loan.*note/im,
+        /note.*payable/im
       ],
       highWeightKeywords: [
         'promissory note', 'promise to pay', 'principal amount', 'interest rate', 
         'maturity date', 'maker', 'payee', 'default', 'acceleration', 
         'late charges', 'prepayment', 'for value received', 'undersigned promises', 
-        'order of', 'together with interest', 'unpaid balance'
+        'order of', 'together with interest', 'unpaid balance',
+        // Add more modern/common variations
+        'loan amount', 'principal balance', 'note dated', 'note holder',
+        'principal sum', 'annual percentage rate', 'payment due', 'note payable'
       ],
       mediumWeightKeywords: [
-        'borrower', 'lender', 'payment', 'monthly installment', 'due date'
+        'borrower', 'lender', 'payment', 'monthly installment', 'due date',
+        // Add more common terms
+        'payor', 'payee', 'loan', 'debt', 'amount', 'balance', 'rate',
+        'monthly', 'interest', 'term', 'maturity', 'principal'
       ],
       tableHeaders: ['Principal Amount', 'Interest Rate', 'Maturity Date', 'Loan Amount'],
       negativeKeywords: ['allonge', 'assignment of']
@@ -430,12 +442,20 @@ export class MarkdownDocumentClassifier {
       .reduce((max, s) => Math.max(max, s), 0);
     
     const separation = maxScore - secondHighest;
-    const relativeConfidence = separation / maxScore;
+    const relativeConfidence = separation / Math.max(maxScore, 1);
     
-    // Factor in absolute score
-    const absoluteConfidence = Math.min(maxScore / 200, 1); // Adjusted for higher scores
+    // Factor in absolute score - be more generous for lower scores
+    // Scale: 50+ points = good confidence, 100+ points = high confidence
+    const absoluteConfidence = Math.min(maxScore / 100, 1);
     
-    // Weighted average
-    return 0.6 * relativeConfidence + 0.4 * absoluteConfidence;
+    // Weighted average - favor absolute score more for practical use
+    const confidence = 0.3 * relativeConfidence + 0.7 * absoluteConfidence;
+    
+    // Boost confidence if we have a clear winner
+    if (maxScore > secondHighest * 2) {
+      return Math.min(confidence * 1.2, 1.0);
+    }
+    
+    return confidence;
   }
 }

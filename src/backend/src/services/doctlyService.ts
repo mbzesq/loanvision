@@ -313,16 +313,17 @@ export class DoctlyService {
    * Determine if we should retry with Ultra mode based on confidence and document type
    */
   private shouldRetryWithUltra(confidence: number, documentType: string): boolean {
-    // Document-specific thresholds
+    // Document-specific thresholds - more conservative to save money
     const thresholds: Record<string, number> = {
-      'Assignment': 0.80,    // Higher threshold for assignments (name accuracy critical)
-      'Note': 0.70,         // Standard threshold for notes
-      'Security Instrument': 0.70,  // Standard threshold for mortgages
-      'Allonge': 0.75,      // Medium threshold for allonges
-      'Other': 0.60         // Lower threshold for unknown documents
+      'Assignment': 0.70,    // Higher threshold for assignments (name accuracy critical)
+      'Note': 0.50,         // Lower threshold for notes - they're common
+      'Security Instrument': 0.60,  // Standard threshold for mortgages
+      'Allonge': 0.65,      // Medium threshold for allonges
+      'Other': 0.30         // Much lower threshold for unknown documents
     };
 
-    const threshold = thresholds[documentType] || this.config.confidenceThreshold;
+    const threshold = thresholds[documentType] || 0.50;
+    console.log(`[DoctlyAI] Confidence ${confidence.toFixed(3)} vs threshold ${threshold} for ${documentType}`);
     return confidence < threshold;
   }
 
