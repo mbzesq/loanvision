@@ -505,6 +505,9 @@ body {
   cursor: pointer;
   transition: all var(--transition-medium);
   z-index: var(--z-fixed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .premium-fab:hover {

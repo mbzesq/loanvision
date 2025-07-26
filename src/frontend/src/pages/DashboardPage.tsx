@@ -9,7 +9,6 @@ import {
   Calendar,
   ArrowUpRight,
   BarChart3,
-  Plus,
   Scale,
   Target
 } from 'lucide-react';
@@ -549,11 +548,6 @@ const DashboardPage: React.FC = () => {
         </div>
 
       </main>
-
-      {/* Floating Action Button */}
-      <button className="premium-fab">
-        <Plus className="w-6 h-6" />
-      </button>
     </div>
   );
 };
