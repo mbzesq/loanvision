@@ -9,7 +9,7 @@ import { ChatButtonWithUnread } from './chat/ChatButtonWithUnread';
 import { Sheet, SheetContent } from './ui/sheet';
 import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
-import { FloatingActionButton } from './FloatingActionButton';
+import { FloatingActionButtonRadial } from './FloatingActionButtonRadial';
 
 export function MainLayoutContent() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -130,7 +130,7 @@ export function MainLayoutContent() {
       />
       
       {/* Floating Action Button - Persistent across all pages */}
-      <FloatingActionButton />
+      <FloatingActionButtonRadial />
     </div>
   );
 }

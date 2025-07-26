@@ -515,6 +515,19 @@ body {
   box-shadow: var(--shadow-2xl);
 }
 
+/* FAB Animation States */
+.premium-fab:active {
+  transform: scale(0.95);
+}
+
+/* Touch-friendly tap targets */
+@media (hover: none) and (pointer: coarse) {
+  .premium-fab {
+    width: 64px;
+    height: 64px;
+  }
+}
+
 /* Modern Toggle Switch */
 .premium-toggle {
   position: relative;
