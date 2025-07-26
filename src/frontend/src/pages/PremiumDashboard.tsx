@@ -192,7 +192,7 @@ const ActivityItem: React.FC<{
   );
 };
 
-const DashboardPage: React.FC = () => {
+const PremiumDashboard: React.FC = () => {
   const [metrics] = useState<PortfolioMetrics>({
     totalUpb: 64000000,
     avgBalance: 70500,
@@ -409,4 +409,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage;
+export default PremiumDashboard;
