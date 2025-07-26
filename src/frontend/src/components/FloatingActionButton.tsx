@@ -93,23 +93,24 @@ export const FloatingActionButton: React.FC = () => {
 
     try {
       setLoading(true);
-      
-      // For now, create as a task with message formatting
-      // TODO: Implement actual messaging API endpoint
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
       
-      await axios.post(`${apiUrl}/api/inbox/tasks`, {
-        title: `Message: ${messageSubject}`,
-        description: `To: ${messageRecipient}\n\n${messageContent}`,
-        priority: 'medium',
-        due_date: null,
-        source: 'Message',
-        loan_id: null
+      // Create message through inbox API
+      await axios.post(`${apiUrl}/api/inbox`, {
+        type: 'user_message',
+        subject: messageSubject,
+        body: messageContent,
+        priority: 'normal',
+        recipients: [messageRecipient], // The API expects recipients array
+        category: 'communication',
+        metadata: {
+          sent_via: 'floating_action_button'
+        }
       });
       
       toast({
         title: 'Message sent',
-        description: 'Your message has been added to the inbox'
+        description: 'Your message has been delivered'
       });
       
       handleClose();
