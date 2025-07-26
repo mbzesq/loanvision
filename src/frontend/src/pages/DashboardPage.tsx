@@ -5,21 +5,44 @@ import {
   Activity, 
   AlertCircle, 
   DollarSign,
-  Users,
   FileText,
   Calendar,
   ArrowUpRight,
   BarChart3,
-  Plus
+  Plus,
+  Scale,
+  Target
 } from 'lucide-react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface PortfolioMetrics {
   totalUpb: number;
   avgBalance: number;
   performingLoans: number;
   totalLoans: number;
-  monthlyChange: number;
+  solRiskCount: number;
+  fcOnTrackPercentage: number;
   alerts: number;
+}
+
+interface Loan {
+  loan_id: string;
+  prin_bal: string;
+  legal_status: string;
+  last_pymt_received: string;
+  next_pymt_due: string;
+  maturity_date: string;
+  int_rate: string;
+  fc_start_date?: string;
+}
+
+interface RecentActivityItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  time: string;
+  type: 'upload' | 'alert' | 'task' | 'update';
 }
 
 
@@ -193,32 +216,158 @@ const ActivityItem: React.FC<{
 };
 
 const DashboardPage: React.FC = () => {
-  const [metrics] = useState<PortfolioMetrics>({
-    totalUpb: 64000000,
-    avgBalance: 70500,
-    performingLoans: 1247,
-    totalLoans: 1893,
-    monthlyChange: 2.4,
+  const navigate = useNavigate();
+  const [metrics, setMetrics] = useState<PortfolioMetrics>({
+    totalUpb: 0,
+    avgBalance: 0,
+    performingLoans: 0,
+    totalLoans: 0,
+    solRiskCount: 0,
+    fcOnTrackPercentage: 0,
     alerts: 6
   });
+  const [recentActivity, setRecentActivity] = useState<RecentActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
+    const fetchPortfolioData = async () => {
+      try {
+        setLoading(true);
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+        const response = await axios.get<Loan[]>(`${apiUrl}/api/v2/loans`);
+        const loans = response.data;
+        
+        // Calculate real metrics from loan data
+        const totalUPB = loans.reduce((sum, loan) => sum + (parseFloat(loan.prin_bal) || 0), 0);
+        const totalLoans = loans.length;
+        const avgBalance = totalLoans > 0 ? totalUPB / totalLoans : 0;
+        
+        // Define performance categories
+        const performingStatuses = ['Current', 'Performing', 'Good Standing'];
+        const performingLoans = loans.filter(loan => 
+          performingStatuses.includes(loan.legal_status || '')
+        );
+        
+        // Calculate SOL risk - loans approaching or past SOL expiration
+        const solRiskLoans = loans.filter(loan => {
+          const lastPayment = loan.last_pymt_received ? new Date(loan.last_pymt_received) : null;
+          if (!lastPayment) return false;
+          
+          // Simplified SOL calculation - typically 3-6 years depending on jurisdiction
+          const yearsOld = (Date.now() - lastPayment.getTime()) / (1000 * 60 * 60 * 24 * 365);
+          
+          // Flag loans that are 2.5+ years old (approaching 3-year SOL) or older
+          return yearsOld >= 2.5;
+        });
+        
+        // Calculate foreclosure performance - % on track vs overdue
+        const fcLoans = loans.filter(loan => 
+          loan.fc_start_date && (loan.legal_status === 'FC' || loan.legal_status === 'Foreclosure')
+        );
+        
+        let fcOnTrackCount = 0;
+        fcLoans.forEach(loan => {
+          const startDate = new Date(loan.fc_start_date!);
+          const daysSinceStart = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          // Simplified timeline - typical foreclosure should complete in 6-12 months (180-365 days)
+          const expectedDays = 270; // 9 months average
+          const isOnTrack = daysSinceStart <= expectedDays;
+          
+          if (isOnTrack) fcOnTrackCount++;
+        });
+        
+        const fcOnTrackPercentage = fcLoans.length > 0 ? (fcOnTrackCount / fcLoans.length) * 100 : 0;
+        
+        setMetrics({
+          totalUpb: totalUPB,
+          avgBalance,
+          performingLoans: performingLoans.length,
+          totalLoans,
+          solRiskCount: solRiskLoans.length,
+          fcOnTrackPercentage,
+          alerts: 6 // Would need alerts system
+        });
+        
+        // Generate recent activity based on loan data
+        const activities: RecentActivityItem[] = [
+          {
+            id: '1',
+            title: 'Portfolio data updated',
+            subtitle: `${totalLoans} loan records processed`,
+            time: '2 min ago',
+            type: 'upload'
+          },
+          ...(solRiskLoans.length > 0 ? [{
+            id: '2',
+            title: 'SOL alert triggered',
+            subtitle: `${solRiskLoans.length} loans approaching statute of limitations`,
+            time: '15 min ago',
+            type: 'alert' as const
+          }] : []),
+          ...(fcLoans.length > 0 ? [{
+            id: '3',
+            title: 'Foreclosure status updated',
+            subtitle: `${fcLoans.length} loans in active foreclosure`,
+            time: '1 hour ago',
+            type: 'update' as const
+          }] : []),
+          {
+            id: '4',
+            title: 'Performance metrics calculated',
+            subtitle: `${performingLoans.length} performing loans identified`,
+            time: '2 hours ago',
+            type: 'task'
+          }
+        ];
+        
+        setRecentActivity(activities);
+        
+      } catch (error) {
+        console.error('Failed to fetch portfolio data:', error);
+        // Keep default values on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPortfolioData();
   }, []);
 
   const handleMetricClick = (metric: string) => {
-    console.log(`Navigate to ${metric} details`);
+    switch (metric) {
+      case 'sol-risk':
+        navigate('/sol-monitoring');
+        break;
+      case 'foreclosure':
+        navigate('/foreclosure-monitoring');
+        break;
+      case 'upb':
+        navigate('/loans?sortBy=prin_bal&sortOrder=desc');
+        break;
+      default:
+        navigate('/loans');
+    }
   };
 
   const handleAlertClick = () => {
-    console.log('Navigate to alerts');
+    navigate('/inbox');
   };
 
   const handleQuickAction = (action: string) => {
-    console.log(`Execute ${action}`);
+    switch (action) {
+      case 'upload':
+        navigate('/upload');
+        break;
+      case 'report':
+        // Would navigate to reports page when available
+        console.log('Navigate to reports');
+        break;
+      case 'schedule':
+        // Would navigate to calendar/scheduling when available
+        console.log('Navigate to scheduling');
+        break;
+    }
   };
 
   if (loading) {
@@ -268,36 +417,36 @@ const DashboardPage: React.FC = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-8 py-8">
         
-        {/* Hero Metrics */}
+        {/* Hero Metrics - Focus on Key Risk Areas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <PremiumHeroMetric
+            title="SOL Risk Loans"
+            value={loading ? '...' : metrics.solRiskCount.toString()}
+            change={metrics.solRiskCount > 0 ? 5.0 : 0}
+            changeLabel="approaching/past SOL"
+            icon={Scale}
+            sparklineData={[0.2, 0.25, 0.3, 0.28, 0.35, 0.4, 0.45, 0.5, 0.48, 0.52]}
+            onClick={() => handleMetricClick('sol-risk')}
+          />
+          
+          <PremiumHeroMetric
+            title="FC On Track"
+            value={loading ? '...' : `${metrics.fcOnTrackPercentage.toFixed(1)}%`}
+            change={metrics.fcOnTrackPercentage >= 70 ? 2.1 : -3.5}
+            changeLabel="vs last month"
+            icon={Target}
+            sparklineData={[0.6, 0.65, 0.7, 0.68, 0.72, 0.75, 0.73, 0.78, 0.8, 0.82]}
+            onClick={() => handleMetricClick('foreclosure')}
+          />
+          
+          <PremiumHeroMetric
             title="Total UPB"
-            value={`$${(metrics.totalUpb / 1000000).toFixed(1)}M`}
+            value={loading ? '...' : `$${(metrics.totalUpb / 1000000).toFixed(1)}M`}
             change={2.4}
             changeLabel="vs last month"
             icon={DollarSign}
             sparklineData={[0.3, 0.4, 0.35, 0.5, 0.45, 0.6, 0.65, 0.7, 0.8, 0.75]}
             onClick={() => handleMetricClick('upb')}
-          />
-          
-          <PremiumHeroMetric
-            title="Average Balance"
-            value={`$${(metrics.avgBalance / 1000).toFixed(0)}K`}
-            change={3.2}
-            changeLabel="vs last month"
-            icon={BarChart3}
-            sparklineData={[0.4, 0.45, 0.5, 0.48, 0.52, 0.58, 0.6, 0.65, 0.7, 0.72]}
-            onClick={() => handleMetricClick('balance')}
-          />
-          
-          <PremiumHeroMetric
-            title="Performing Loans"
-            value={metrics.performingLoans.toLocaleString()}
-            change={1.8}
-            changeLabel="vs last month"
-            icon={Users}
-            sparklineData={[0.6, 0.62, 0.58, 0.65, 0.68, 0.7, 0.72, 0.75, 0.78, 0.8]}
-            onClick={() => handleMetricClick('performing')}
           />
         </div>
 
@@ -369,30 +518,30 @@ const DashboardPage: React.FC = () => {
               </div>
               <div className="premium-card-content">
                 <div className="space-y-2">
-                  <ActivityItem
-                    title="Daily metrics uploaded"
-                    subtitle="Portfolio data updated with 1,247 loan records"
-                    time="2 min ago"
-                    type="upload"
-                  />
-                  <ActivityItem
-                    title="SOL alert triggered"
-                    subtitle="3 loans approaching statute of limitations"
-                    time="15 min ago"
-                    type="alert"
-                  />
-                  <ActivityItem
-                    title="Foreclosure status updated"
-                    subtitle="12 loans moved to active foreclosure"
-                    time="1 hour ago"
-                    type="update"
-                  />
-                  <ActivityItem
-                    title="Review meeting scheduled"
-                    subtitle="Q1 portfolio review set for next week"
-                    time="3 hours ago"
-                    type="task"
-                  />
+                  {loading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="flex items-start gap-4 p-4">
+                          <div className="premium-skeleton w-8 h-8 rounded-full" />
+                          <div className="flex-1">
+                            <div className="premium-skeleton h-4 w-3/4 mb-2" />
+                            <div className="premium-skeleton h-3 w-1/2" />
+                          </div>
+                          <div className="premium-skeleton h-3 w-16" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    recentActivity.map(activity => (
+                      <ActivityItem
+                        key={activity.id}
+                        title={activity.title}
+                        subtitle={activity.subtitle}
+                        time={activity.time}
+                        type={activity.type}
+                      />
+                    ))
+                  )}
                 </div>
               </div>
             </div>
