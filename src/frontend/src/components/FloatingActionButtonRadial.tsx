@@ -210,7 +210,8 @@ export const FloatingActionButtonRadial: React.FC = () => {
                   ? `translate(${x}px, ${y}px)` 
                   : 'translate(0, 0)',
                 transitionDelay: isOpen ? `${index * 50}ms` : `${(actionButtons.length - index - 1) * 50}ms`,
-                transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)' // Spring effect
+                transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)', // Spring effect
+                zIndex: -1 // Ensure action buttons appear behind main button
               }}
             >
               <button
@@ -241,7 +242,9 @@ export const FloatingActionButtonRadial: React.FC = () => {
           onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? 'Close menu' : 'Open actions menu'}
           style={{
-            transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+            transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+            position: 'relative',
+            zIndex: 1
           }}
         >
           {isOpen ? <X className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
