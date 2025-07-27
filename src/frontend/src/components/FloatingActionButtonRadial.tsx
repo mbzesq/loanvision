@@ -194,7 +194,7 @@ export const FloatingActionButtonRadial: React.FC = () => {
         {/* Secondary Action Buttons */}
         {actionButtons.map((button, index) => {
           // Arrange in arc above and to the left of main button
-          const angle = 180 - (index * 30); // Start at 180° (left) and go counter-clockwise
+          const angle = 135 - (index * 20); // Start at 135° (upper-left) and spread upward
           const distance = 90; // Distance from center
           const x = Math.cos(angle * Math.PI / 180) * distance;
           const y = Math.sin(angle * Math.PI / 180) * distance;
@@ -211,7 +211,7 @@ export const FloatingActionButtonRadial: React.FC = () => {
                   : 'translate(0, 0)',
                 transitionDelay: isOpen ? `${index * 50}ms` : `${(actionButtons.length - index - 1) * 50}ms`,
                 transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)', // Spring effect
-                zIndex: -1 // Ensure action buttons appear behind main button
+                zIndex: 2 // Ensure action buttons appear above main button
               }}
             >
               <button
