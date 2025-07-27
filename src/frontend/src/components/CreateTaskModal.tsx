@@ -64,14 +64,20 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefill
   // Handle prefilled loan ID
   useEffect(() => {
     const loadPrefilledLoan = async () => {
+      console.log('loadPrefilledLoan called:', { isOpen, prefilledLoanId, selectedLoan });
       if (isOpen && prefilledLoanId && !selectedLoan) {
         try {
+          console.log('Searching for loan:', prefilledLoanId);
           // Search for the specific loan to get full details
           const results = await inboxApi.searchLoans(prefilledLoanId);
+          console.log('Search results:', results);
           const matchedLoan = results.find(loan => loan.id === prefilledLoanId);
           if (matchedLoan) {
+            console.log('Found matching loan:', matchedLoan);
             setSelectedLoan(matchedLoan);
-            setLoanSearchQuery(matchedLoan.display_name);
+            setLoanSearchQuery(`${matchedLoan.id} - ${matchedLoan.borrower_name}`);
+          } else {
+            console.log('No matching loan found for ID:', prefilledLoanId);
           }
         } catch (error) {
           console.error('Error loading prefilled loan:', error);
@@ -80,7 +86,7 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefill
     };
 
     loadPrefilledLoan();
-  }, [isOpen, prefilledLoanId, selectedLoan]);
+  }, [isOpen, prefilledLoanId]);
 
   // Handle loan search
   const handleLoanSearch = async (query: string) => {
@@ -111,7 +117,7 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefill
 
   const selectLoan = (loan: any) => {
     setSelectedLoan(loan);
-    setLoanSearchQuery(loan.display_name);
+    setLoanSearchQuery(`${loan.id} - ${loan.borrower_name}`);
     setShowLoanDropdown(false);
   };
 

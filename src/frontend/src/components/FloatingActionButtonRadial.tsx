@@ -36,7 +36,9 @@ export const FloatingActionButtonRadial: React.FC = () => {
   // Get current context (loan ID from URL if on loan detail page)
   const getCurrentLoanId = (): string | null => {
     const pathMatch = location.pathname.match(/\/loans\/([^\/]+)/);
-    return pathMatch ? pathMatch[1] : null;
+    const loanId = pathMatch ? pathMatch[1] : null;
+    console.log('getCurrentLoanId:', { pathname: location.pathname, loanId });
+    return loanId;
   };
 
   // Define action buttons
