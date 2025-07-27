@@ -193,11 +193,17 @@ export const FloatingActionButtonRadial: React.FC = () => {
       <div ref={containerRef} className="fixed bottom-6 right-6 z-50">
         {/* Secondary Action Buttons */}
         {actionButtons.map((button, index) => {
-          // Arrange in arc above and to the left of main button
-          const angle = 135 - (index * 20); // Start at 135° (upper-left) and spread upward
-          const distance = 90; // Distance from center
-          const x = Math.cos(angle * Math.PI / 180) * distance;
-          const y = Math.sin(angle * Math.PI / 180) * distance;
+          // Direct positioning to ensure buttons appear up and left of main FAB
+          // Negative X = left, Negative Y = up (in CSS coordinates)
+          const positions = [
+            { x: -80, y: -20 },  // Far left, slightly up
+            { x: -60, y: -60 },  // Diagonal up-left
+            { x: -20, y: -80 },  // Mostly up, slightly left  
+            { x: 20, y: -80 }    // Mostly up, slightly right
+          ];
+          
+          const x = positions[index].x;
+          const y = positions[index].y;
           
           return (
             <div
