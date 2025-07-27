@@ -191,54 +191,40 @@ export const FloatingActionButtonRadial: React.FC = () => {
 
       {/* FAB Container */}
       <div ref={containerRef} className="fixed bottom-6 right-6 z-50">
-        {/* Secondary Action Buttons */}
-        {actionButtons.map((button, index) => {
-          // Direct positioning to ensure buttons appear up and left of main FAB
-          // Negative X = left, Negative Y = up (in CSS coordinates)
-          const positions = [
-            { x: -80, y: -20 },  // Far left, slightly up
-            { x: -60, y: -60 },  // Diagonal up-left
-            { x: -20, y: -80 },  // Mostly up, slightly left  
-            { x: 20, y: -80 }    // Mostly up, slightly right
-          ];
-          
-          const x = positions[index].x;
-          const y = positions[index].y;
-          
-          return (
-            <div
-              key={button.id}
-              className={`absolute transition-all duration-300 ${
-                isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-0 pointer-events-none'
-              }`}
-              style={{
-                transform: isOpen 
-                  ? `translate(${x}px, ${y}px)` 
-                  : 'translate(0, 0)',
-                transitionDelay: isOpen ? `${index * 50}ms` : `${(actionButtons.length - index - 1) * 50}ms`,
-                transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)', // Spring effect
-                zIndex: 2 // Ensure action buttons appear above main button
-              }}
-            >
-              <button
-                onClick={() => {
-                  button.action();
-                  if (button.id === 'upload') {
-                    setIsOpen(false);
-                  }
+        {/* Secondary Action Buttons - Simple Vertical Stack */}
+        {isOpen && (
+          <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-3">
+            {actionButtons.map((button, index) => (
+              <div
+                key={button.id}
+                className={`transition-all duration-300 ${
+                  isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
+                }`}
+                style={{
+                  transitionDelay: `${index * 75}ms`,
+                  transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
                 }}
-                className="group relative flex flex-col items-center gap-2 p-3 min-w-[60px] transition-transform hover:scale-110"
               >
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${button.color} shadow-lg flex items-center justify-center text-white group-hover:shadow-xl transition-shadow`}>
-                  <button.icon className="w-5 h-5" />
-                </div>
-                <span className="text-xs font-medium text-gray-700 bg-white/90 px-2 py-1 rounded-full shadow-sm whitespace-nowrap absolute -bottom-6 left-1/2 transform -translate-x-1/2">
-                  {button.label}
-                </span>
-              </button>
-            </div>
-          );
-        })}
+                <button
+                  onClick={() => {
+                    button.action();
+                    if (button.id === 'upload') {
+                      setIsOpen(false);
+                    }
+                  }}
+                  className="group flex items-center gap-3 p-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                >
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${button.color} flex items-center justify-center text-white flex-shrink-0`}>
+                    <button.icon className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 pr-2 whitespace-nowrap">
+                    {button.label}
+                  </span>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Main FAB Button */}
         <button 
