@@ -9,9 +9,10 @@ interface CreateTaskModalProps {
   originalItem?: InboxItem; // Made optional for standalone task creation
   onSend: (title: string, description?: string, assigned_to_user_id?: number, due_date?: Date, priority?: 'urgent' | 'high' | 'normal' | 'low', loanId?: string) => Promise<void>;
   prefilledAssignee?: { id: number; name: string; email: string };
+  prefilledLoanId?: string; // Auto-populate loan when known from context
 }
 
-export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefilledAssignee }: CreateTaskModalProps) {
+export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefilledAssignee, prefilledLoanId }: CreateTaskModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [assignedToUserId, setAssignedToUserId] = useState<number | undefined>();
@@ -59,6 +60,27 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefill
       setPriority('normal');
     }
   }, [isOpen, prefilledAssignee]);
+
+  // Handle prefilled loan ID
+  useEffect(() => {
+    const loadPrefilledLoan = async () => {
+      if (isOpen && prefilledLoanId && !selectedLoan) {
+        try {
+          // Search for the specific loan to get full details
+          const results = await inboxApi.searchLoans(prefilledLoanId);
+          const matchedLoan = results.find(loan => loan.id === prefilledLoanId);
+          if (matchedLoan) {
+            setSelectedLoan(matchedLoan);
+            setLoanSearchQuery(matchedLoan.display_name);
+          }
+        } catch (error) {
+          console.error('Error loading prefilled loan:', error);
+        }
+      }
+    };
+
+    loadPrefilledLoan();
+  }, [isOpen, prefilledLoanId, selectedLoan]);
 
   // Handle loan search
   const handleLoanSearch = async (query: string) => {

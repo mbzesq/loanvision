@@ -95,7 +95,7 @@ export const FloatingActionButtonRadial: React.FC = () => {
   // Auto-populate loan ID when on loan detail page
   useEffect(() => {
     const currentLoanId = getCurrentLoanId();
-    if (currentLoanId && (selectedAction === 'upload')) {
+    if (currentLoanId && selectedAction === 'upload') {
       setUploadLoanId(currentLoanId);
     }
   }, [selectedAction, location.pathname]);
@@ -318,6 +318,7 @@ export const FloatingActionButtonRadial: React.FC = () => {
         isOpen={selectedAction === 'task'}
         onClose={handleClose}
         onSend={handleTaskCreate}
+        prefilledLoanId={getCurrentLoanId() || undefined}
       />
 
       {/* Message Creation Modal */}
