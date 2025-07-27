@@ -493,8 +493,8 @@ body {
 /* Floating Action Button */
 .premium-fab {
   position: fixed;
-  bottom: var(--space-8);
-  right: var(--space-8);
+  bottom: 24px;
+  right: 24px;
   width: 56px;
   height: 56px;
   background: var(--gradient-primary);
@@ -805,8 +805,8 @@ body {
   }
   
   .premium-fab {
-    bottom: var(--space-6);
-    right: var(--space-6);
+    bottom: 20px;
+    right: 20px;
   }
 }
 

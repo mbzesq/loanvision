@@ -190,7 +190,7 @@ export const FloatingActionButtonRadial: React.FC = () => {
       )}
 
       {/* FAB Container */}
-      <div ref={containerRef} className="fixed bottom-8 right-8 z-50">
+      <div ref={containerRef} className="fixed bottom-6 right-6 z-50">
         {/* Secondary Action Buttons */}
         {actionButtons.map((button, index) => {
           const angle = -90 - (index * 30); // Arrange in arc above main button
