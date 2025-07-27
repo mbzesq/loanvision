@@ -811,6 +811,55 @@ body {
 }
 
 /* ============================================
+   9. FORM COMPONENTS
+   ============================================ */
+
+/* Premium Input Field */
+.premium-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.premium-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-primary-light);
+}
+
+.premium-input::placeholder {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+/* Premium Floating Label */
+.premium-label {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+  transition: all var(--transition-fast);
+  transform-origin: left center;
+  padding: 0 4px;
+}
+
+/* Form Group Container */
+.premium-form-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+/* ============================================
    10. KEYFRAME ANIMATIONS
    ============================================ */
 @keyframes premium-pulse {
