@@ -193,8 +193,9 @@ export const FloatingActionButtonRadial: React.FC = () => {
       <div ref={containerRef} className="fixed bottom-6 right-6 z-50">
         {/* Secondary Action Buttons */}
         {actionButtons.map((button, index) => {
-          const angle = -90 - (index * 30); // Arrange in arc above main button
-          const distance = 80; // Distance from center
+          // Arrange in arc above and to the left of main button
+          const angle = 180 - (index * 30); // Start at 180° (left) and go counter-clockwise
+          const distance = 90; // Distance from center
           const x = Math.cos(angle * Math.PI / 180) * distance;
           const y = Math.sin(angle * Math.PI / 180) * distance;
           
@@ -219,12 +220,12 @@ export const FloatingActionButtonRadial: React.FC = () => {
                     setIsOpen(false);
                   }
                 }}
-                className="group flex flex-col items-center gap-2 p-3 min-w-[60px] transition-transform hover:scale-110"
+                className="group relative flex flex-col items-center gap-2 p-3 min-w-[60px] transition-transform hover:scale-110"
               >
                 <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${button.color} shadow-lg flex items-center justify-center text-white group-hover:shadow-xl transition-shadow`}>
                   <button.icon className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-medium text-gray-700 bg-white/90 px-2 py-1 rounded-full shadow-sm whitespace-nowrap">
+                <span className="text-xs font-medium text-gray-700 bg-white/90 px-2 py-1 rounded-full shadow-sm whitespace-nowrap absolute -bottom-6 left-1/2 transform -translate-x-1/2">
                   {button.label}
                 </span>
               </button>
