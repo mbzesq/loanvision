@@ -5,7 +5,7 @@ import { solService, SOLCalculation } from '../services/solService';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { ArrowUpDown, ArrowUp, ArrowDown, Filter, FileDown, Search, Users, Scale, Home, DollarSign } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Filter, Search, DollarSign } from 'lucide-react';
 import { LoanDetailModal } from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { DataToolbar } from '../components/DataToolbar';
