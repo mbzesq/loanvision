@@ -10,6 +10,7 @@ import { Sheet, SheetContent } from './ui/sheet';
 import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { FloatingActionButtonRadial } from './FloatingActionButtonRadial';
+import '../styles/premium-saas-design.css';
 
 export function MainLayoutContent() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,28 +38,22 @@ export function MainLayoutContent() {
   const isNavExpanded = !isDesktopNavCollapsed || isHoveringNav;
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: 'var(--warm-cream-bg)' }}>
+    <div className="premium-app-container">
       {/* Desktop Layout: Sidebar + Content + Chat */}
       <div className="hidden lg:flex lg:h-screen relative">
-        {/* Fixed Sidebar - Always takes minimum space but expands on hover */}
+        {/* Premium Sidebar */}
         <div 
-          className="flex-shrink-0 relative z-10"
+          className="premium-sidebar-container"
           style={{ width: isNavExpanded ? '256px' : '64px' }}
         >
           <div 
-            className={`absolute top-0 left-0 h-full transition-all duration-300 ease-in-out ${
-              isNavExpanded ? 'w-64' : 'w-16'
-            } shadow-lg`} 
-            style={{ 
-              backgroundColor: 'var(--warm-cream-tertiary)', 
-              borderRight: '1px solid var(--warm-cream-border)' 
-            }}
+            className={`premium-sidebar ${
+              isNavExpanded ? 'expanded' : 'collapsed'
+            }`}
             onMouseEnter={() => {
-              console.log('Mouse entered nav area');
               setIsHoveringNav(true);
             }}
             onMouseLeave={() => {
-              console.log('Mouse left nav area');
               setIsHoveringNav(false);
             }}
           >
@@ -70,25 +65,21 @@ export function MainLayoutContent() {
         </div>
         
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto flex flex-col">
-          {/* Header */}
-          <header className="h-16 px-6 flex items-center justify-between" style={{ 
-            backgroundColor: 'var(--warm-cream-secondary)', 
-            borderBottom: '1px solid var(--warm-cream-border)' 
-          }}>
-            <div className="flex items-center gap-4">
+        <main className="premium-main-content">
+          {/* Premium Header */}
+          <header className="premium-header">
+            <div className="premium-header-left">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleDesktopNavToggle}
-                className="flex items-center gap-2"
-                style={{ color: 'var(--warm-text-secondary)' }}
+                className="premium-menu-toggle"
               >
                 <Menu className="h-4 w-4" />
                 <span className="text-sm font-medium">Menu</span>
               </Button>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="premium-header-right">
               <InboxNotificationBadge />
               <ChatButtonWithUnread onClick={handleChatToggle} />
               <UserProfile />
@@ -96,7 +87,7 @@ export function MainLayoutContent() {
           </header>
           
           {/* Page Content */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="premium-page-wrapper">
             <Outlet />
           </div>
         </main>

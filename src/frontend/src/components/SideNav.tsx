@@ -4,6 +4,7 @@ import { LayoutDashboard, Table, Upload, Scale, ChevronLeft, ChevronRight, Inbox
 import { Logo } from './Logo';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import '../styles/premium-saas-design.css';
 
 const navLinks = [
   { to: '/inbox', text: 'Inbox', icon: Inbox },
@@ -27,27 +28,13 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
         to={link.to}
         end
         onClick={onLinkClick}
-        className={({ isActive: _ }) =>
-          `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-            isCollapsed ? 'justify-center' : ''
-          }`
+        className={({ isActive }) =>
+          `premium-nav-item ${
+            isCollapsed ? 'collapsed' : ''
+          } ${isActive ? 'active' : ''}`
         }
-        style={({ isActive }) => ({
-          backgroundColor: isActive ? 'rgba(28, 25, 23, 0.1)' : 'transparent',
-          color: isActive ? '#1c1917' : '#57534e'
-        }) as any}
-        onMouseEnter={(e) => {
-          if (!(e.target as HTMLElement).closest('[aria-current="page"]')) {
-            (e.target as HTMLElement).style.color = '#1c1917';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!(e.target as HTMLElement).closest('[aria-current="page"]')) {
-            (e.target as HTMLElement).style.color = '#57534e';
-          }
-        }}
       >
-        <link.icon className="h-5 w-5 flex-shrink-0" />
+        <link.icon className="premium-nav-icon" />
         {!isCollapsed && <span>{link.text}</span>}
       </NavLink>
     );
@@ -71,59 +58,43 @@ export function SideNav({ onLinkClick, isCollapsed = false, onToggleCollapse }: 
   };
 
   return (
-    <aside className="h-full flex flex-col" style={{ 
-      backgroundColor: 'var(--color-sidebar)', 
-      borderRight: '1px solid var(--color-border)' 
-    }}>
-      {/* Logo / App Name */}
-      <div className={`h-16 flex items-center ${
-        isCollapsed ? 'justify-center px-2' : 'px-6'
-      }`} style={{ borderBottom: '1px solid var(--color-border)' }}>
+    <aside className="premium-sidebar-inner">
+      {/* Premium Logo Section */}
+      <div className={`premium-sidebar-logo ${
+        isCollapsed ? 'collapsed' : ''
+      }`}>
         {isCollapsed ? (
-          <div style={{ 
-            width: '32px', 
-            height: '32px', 
-            backgroundColor: 'var(--color-primary)',
-            borderRadius: '6px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>N</span>
+          <div className="premium-logo-collapsed">
+            <span>N</span>
           </div>
         ) : (
-          <div style={{ color: '#1c1917' }}>
-            <Logo className="h-8 w-auto" />
-          </div>
+          <Logo className="h-8 w-auto" />
         )}
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
-        {navLinks.map((link) => (
-          <NavItem key={link.to} link={link} isCollapsed={isCollapsed} />
-        ))}
+      {/* Premium Navigation */}
+      <nav className="premium-sidebar-nav">
+        <div className="premium-nav-section">
+          {navLinks.map((link) => (
+            <NavItem key={link.to} link={link} isCollapsed={isCollapsed} />
+          ))}
+        </div>
       </nav>
 
-      {/* Collapse Toggle Button (Desktop only) */}
+      {/* Premium Collapse Button */}
       {onToggleCollapse && (
-        <div className={`p-4 ${
-          isCollapsed ? 'flex justify-center' : ''
-        }`} style={{ borderTop: '1px solid var(--color-border)' }}>
+        <div className="premium-sidebar-collapse">
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggleCollapse}
-            className={`w-full ${
-              isCollapsed ? 'w-8 h-8 p-0' : 'justify-start'
-            }`}
-            style={{ color: '#57534e', backgroundColor: 'transparent' }}
+            className={`premium-collapse-button ${isCollapsed ? 'collapsed' : ''}`}
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />
             ) : (
               <>
-                <ChevronLeft className="h-4 w-4 mr-2" />
+                <ChevronLeft className="h-4 w-4" />
                 <span>Collapse</span>
               </>
             )}
