@@ -11,6 +11,7 @@ import { doctlyService } from '../services/doctlyService';
 import { s3Service } from '../services/s3Service';
 import { ocrEnhancementService } from '../services/ocrEnhancementService';
 import { collateralAnalysisService } from '../services/collateralAnalysisService';
+import organizationAccessService from '../services/organizationAccessService';
 
 const router = Router();
 
@@ -777,6 +778,129 @@ router.get('/:loanId/note-ownership', authenticateToken, async (req, res) => {
     console.error('Failed to fetch note ownership:', error);
     res.status(500).json({
       error: 'Failed to fetch note ownership',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// DELETE /api/v2/loans/:loanId/documents/:documentId
+// Delete a specific document and clean up related data
+router.delete('/:loanId/documents/:documentId', authenticateToken, organizationAccessService.createLoanAccessMiddleware(), async (req, res) => {
+  const { loanId, documentId } = req.params;
+
+  if (!loanId || !documentId) {
+    return res.status(400).json({ error: 'Loan ID and Document ID are required' });
+  }
+
+  try {
+    console.log(`🗑️ Deleting document ${documentId} for loan ${loanId}`);
+    
+    // Start a transaction to ensure all-or-nothing deletion
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // First, verify the document exists and belongs to this loan
+      const documentCheck = await client.query(
+        'SELECT id, file_name, document_type FROM document_analysis WHERE id = $1 AND loan_id = $2',
+        [documentId, loanId]
+      );
+      
+      if (documentCheck.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Document not found or does not belong to this loan' });
+      }
+      
+      const document = documentCheck.rows[0];
+      console.log(`Found document: ${document.file_name} (${document.document_type})`);
+      
+      // Delete related data in the correct order (due to foreign key constraints)
+      
+      // 1. Delete document classification feedback
+      await client.query('DELETE FROM document_classification_feedback WHERE document_analysis_id = $1', [documentId]);
+      console.log('Deleted classification feedback');
+      
+      // 2. Delete QA flags
+      await client.query('DELETE FROM document_analysis_qa_flags WHERE document_analysis_id = $1', [documentId]);
+      console.log('Deleted QA flags');
+      
+      // 3. Delete from collateral_documents table (if it exists there)
+      const collateralDeleteResult = await client.query(
+        'DELETE FROM collateral_documents WHERE loan_id = $1 AND filename = $2',
+        [loanId, document.file_name]
+      );
+      console.log(`Deleted ${collateralDeleteResult.rowCount} records from collateral_documents`);
+      
+      // 4. Delete allonge chain data if present (ignore if table doesn't exist)
+      try {
+        await client.query('DELETE FROM note_allonge_chains WHERE document_analysis_id = $1', [documentId]);
+        console.log('Deleted allonge chain data');
+      } catch (chainError) {
+        console.log('Note allonge chains table not present or deletion failed (non-critical)');
+      }
+      
+      // 5. Delete chain of title data if present (ignore if table doesn't exist)
+      try {
+        await client.query('DELETE FROM chain_of_title WHERE document_analysis_id = $1', [documentId]);
+        console.log('Deleted chain of title data');
+      } catch (titleError) {
+        console.log('Chain of title table not present or deletion failed (non-critical)');
+      }
+      
+      // 6. Clean up RAG documents related to this file (if they reference the file name)
+      try {
+        const ragDeleteResult = await client.query(
+          "DELETE FROM rag_loan_documents WHERE loan_id = $1 AND metadata->>'source_file' = $2",
+          [loanId, document.file_name]
+        );
+        console.log(`Deleted ${ragDeleteResult.rowCount} RAG document entries`);
+      } catch (ragError) {
+        console.log('RAG documents table not present or deletion failed (non-critical)');
+      }
+      
+      // 7. Delete the main document analysis record
+      const deleteResult = await client.query('DELETE FROM document_analysis WHERE id = $1', [documentId]);
+      
+      if (deleteResult.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Document not found' });
+      }
+      
+      // 8. Update collateral status for the loan (trigger collateral analysis refresh)
+      try {
+        // Get updated collateral status to refresh the cached data
+        await collateralAnalysisService.getCollateralStatus(loanId);
+        console.log('Updated collateral status after document deletion');
+      } catch (analysisError) {
+        console.warn('Failed to update collateral status after deletion (non-critical):', analysisError);
+        // Don't fail the transaction for this
+      }
+      
+      await client.query('COMMIT');
+      console.log(`✅ Successfully deleted document ${documentId} (${document.file_name})`);
+      
+      res.json({
+        success: true,
+        message: `Document "${document.file_name}" deleted successfully`,
+        deletedDocument: {
+          id: documentId,
+          fileName: document.file_name,
+          documentType: document.document_type
+        }
+      });
+      
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+    
+  } catch (error: unknown) {
+    console.error('Failed to delete document:', error);
+    res.status(500).json({
+      error: 'Failed to delete document',
       details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
