@@ -302,7 +302,7 @@ export class CollateralAnalysisService {
     const query = `
       SELECT 
         CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as borrower_name,
-        CONCAT(COALESCE(property_street, ''), ' ', COALESCE(property_city, ''), ' ', COALESCE(state, '')) as property_address,
+        CONCAT(COALESCE(address, ''), ' ', COALESCE(city, ''), ' ', COALESCE(state, '')) as property_address,
         prin_bal as loan_amount,
         -- Try to extract origination date from available date fields
         COALESCE(maturity_date - INTERVAL '30 years', NULL) as estimated_origination_date
