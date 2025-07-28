@@ -965,7 +965,141 @@ body {
 }
 
 /* ============================================
-   14. LOAN EXPLORER PREMIUM STYLES
+   14. PREMIUM PAGE LAYOUT STYLES
+   ============================================ */
+.premium-page-container {
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  padding: var(--space-6);
+}
+
+.premium-page-header {
+  margin-bottom: var(--space-8);
+}
+
+.premium-page-title-section {
+  margin-bottom: var(--space-6);
+}
+
+.premium-page-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  line-height: 1.2;
+}
+
+.premium-page-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* Premium Stats Bar */
+.premium-stats-bar {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.premium-stat-item {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: all var(--transition-medium);
+}
+
+.premium-stat-item:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--accent-primary);
+}
+
+.premium-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-inverse);
+  flex-shrink: 0;
+}
+
+.premium-stat-content {
+  flex: 1;
+}
+
+.premium-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-1);
+}
+
+.premium-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.premium-page-content {
+  /* Content area styling */
+}
+
+/* Premium Loading State */
+.premium-loading {
+  text-align: center;
+}
+
+.premium-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--accent-primary);
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-4);
+  animation: premium-spin 1s linear infinite;
+}
+
+.premium-loading-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Premium Error State */
+.premium-error-container {
+  text-align: center;
+  padding: var(--space-8);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.premium-error-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+}
+
+.premium-error-text {
+  font-size: 1rem;
+  color: var(--accent-danger);
+  font-weight: 500;
+}
+
+/* ============================================
+   15. LOAN EXPLORER PREMIUM STYLES
    ============================================ */
 .premium-loan-explorer-grid {
   display: grid;
