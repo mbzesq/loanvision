@@ -1522,3 +1522,118 @@ body {
 .premium-financial-value.danger {
   color: var(--accent-danger);
 }
+
+/* ============================================
+   18. INBOX PREMIUM STYLES
+   ============================================ */
+.premium-notification {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.premium-notification.success {
+  background: var(--accent-success-light);
+  color: var(--accent-success-dark);
+  border: 1px solid var(--accent-success);
+}
+
+.premium-notification.error {
+  background: var(--accent-danger-light);
+  color: var(--accent-danger-dark);
+  border: 1px solid var(--accent-danger);
+}
+
+.premium-notification-close {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0;
+  margin-left: var(--space-3);
+  transition: opacity var(--transition-fast);
+}
+
+.premium-notification-close:hover {
+  opacity: 0.7;
+}
+
+/* Premium Button */
+.premium-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.premium-button.primary {
+  background: var(--gradient-primary);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+.premium-button.primary:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Inbox Grid Layout */
+.premium-inbox-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-6);
+  height: 100%;
+  overflow: hidden;
+}
+
+.premium-inbox-sidebar {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  overflow-y: auto;
+}
+
+.premium-inbox-content {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Inbox Items */
+.premium-inbox-item {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.premium-inbox-item:hover {
+  background: var(--bg-secondary);
+}
+
+.premium-inbox-item.selected {
+  background: var(--accent-primary-light);
+  border-left: 4px solid var(--accent-primary);
+}
+
+.premium-inbox-item.unread {
+  font-weight: 600;
+  background: var(--bg-secondary);
+}

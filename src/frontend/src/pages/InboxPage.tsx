@@ -14,13 +14,9 @@ import { ForwardModal } from '../components/ForwardModal';
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { NewMessageModal } from '../components/NewMessageModal';
 import { TaskBodyRenderer } from '../components/TaskBodyRenderer';
-import '../styles/design-system.css';
-import '../styles/inbox-light-theme.css';
+import '../styles/premium-saas-design.css';
 
 function InboxPage() {
-  // Debug: Check if new code is loading
-  console.log('InboxPage loading with enhanced task features');
-  console.log('INBOX_QUICK_FILTERS:', Object.keys(INBOX_QUICK_FILTERS));
   
   const location = useLocation();
   const [inboxItems, setInboxItems] = useState<InboxItem[]>([]);
@@ -560,16 +556,16 @@ function InboxPage() {
 
   if (loading) {
     return (
-      <div style={{ 
+      <div className="premium-page-container" style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        height: '100vh',
-        backgroundColor: 'var(--color-background)',
-        color: 'var(--color-text-muted)',
-        fontSize: '12px'
+        minHeight: '100vh'
       }}>
-        LOADING INBOX...
+        <div className="premium-loading">
+          <div className="premium-loading-spinner"></div>
+          <p className="premium-loading-text">Loading inbox...</p>
+        </div>
       </div>
     );
   }
@@ -587,57 +583,80 @@ function InboxPage() {
         flexDirection: 'column',
         gap: '8px'
       }}>
-        <div>Error loading inbox: {error}</div>
-        <button 
-          onClick={fetchInboxData}
-          style={{
-            padding: '8px 16px',
-            fontSize: '11px',
-            backgroundColor: 'var(--color-primary)',
-            color: 'white',
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            cursor: 'pointer'
-          }}
-        >
-          Retry
-        </button>
+        <div className="premium-error-container">
+          <div className="premium-error-icon">⚠️</div>
+          <p className="premium-error-text">Error loading inbox: {error}</p>
+          <button 
+            onClick={fetchInboxData}
+            className="premium-button primary"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="inbox-light-theme" style={{ 
-      display: 'flex',
-      height: '100vh',
-      backgroundColor: 'var(--inbox-bg-primary)',
-      flexDirection: 'column'
-    }}>
+    <div className="premium-page-container">
+      {/* Premium Page Header */}
+      <div className="premium-page-header">
+        <div className="premium-page-title-section">
+          <h1 className="premium-page-title">Inbox</h1>
+          <p className="premium-page-subtitle">Manage tasks, messages, and notifications</p>
+        </div>
+        
+        {/* Premium Stats Bar */}
+        <div className="premium-stats-bar">
+          <div className="premium-stat-item">
+            <div className="premium-stat-icon">
+              <MessageCircle className="w-4 h-4" />
+            </div>
+            <div className="premium-stat-content">
+              <div className="premium-stat-label">Total Items</div>
+              <div className="premium-stat-value">{inboxStats.total}</div>
+            </div>
+          </div>
+          <div className="premium-stat-item">
+            <div className="premium-stat-icon" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
+              <Eye className="w-4 h-4" />
+            </div>
+            <div className="premium-stat-content">
+              <div className="premium-stat-label">Unread</div>
+              <div className="premium-stat-value">{inboxStats.unread}</div>
+            </div>
+          </div>
+          <div className="premium-stat-item">
+            <div className="premium-stat-icon" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}>
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+            <div className="premium-stat-content">
+              <div className="premium-stat-label">Urgent</div>
+              <div className="premium-stat-value">{inboxStats.urgent}</div>
+            </div>
+          </div>
+          <div className="premium-stat-item">
+            <div className="premium-stat-icon" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+              <FileText className="w-4 h-4" />
+            </div>
+            <div className="premium-stat-content">
+              <div className="premium-stat-label">My Tasks</div>
+              <div className="premium-stat-value">{inboxStats.my_tasks}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Success/Error Messages */}
       {(successMessage || error) && (
-        <div style={{
-          padding: '8px 16px',
-          fontSize: '12px',
-          backgroundColor: successMessage ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
-          color: successMessage ? 'var(--color-success)' : 'var(--color-danger)',
-          borderBottom: '1px solid var(--color-border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
+        <div className={`premium-notification ${successMessage ? 'success' : 'error'}`}>
           <span>{successMessage || error}</span>
           <button 
             onClick={() => {
               setSuccessMessage(null);
               setError(null);
             }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'inherit',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
+            className="premium-notification-close"
           >
             ×
           </button>
