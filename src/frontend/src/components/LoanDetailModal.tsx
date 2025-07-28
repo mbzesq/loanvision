@@ -5,7 +5,7 @@ import { Loan } from '../pages/LoanExplorerPage';
 import { useOnClickOutside } from '../hooks/useOnClickOutside';
 import { X } from 'lucide-react';
 import axios from 'axios';
-import '../styles/financial-design-system.css';
+import '../styles/premium-saas-design.css';
 import SOLInfoCard from './SOL/SOLInfoCard';
 import {
   DetailItem,
@@ -76,27 +76,16 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
   };
 
   return (
-    <div style={{ 
-      position: 'fixed', 
-      inset: '0', 
-      backgroundColor: 'rgba(0, 0, 0, 0.7)', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      zIndex: 50, 
-      padding: '16px' 
-    }}>
+    <div className="premium-modal-backdrop">
       <div 
         ref={modalRef} 
-        className="financial-card" 
+        className="premium-modal-container"
         style={{ 
           maxWidth: '1024px', 
           width: '100%', 
           maxHeight: '90vh', 
           display: 'flex', 
-          flexDirection: 'column',
-          backgroundColor: 'var(--color-surface)',
-          borderRadius: 'var(--radius-lg)'
+          flexDirection: 'column'
         }}
       >
         {/* Header */}

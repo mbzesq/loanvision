@@ -663,69 +663,40 @@ function InboxPage() {
         </div>
       )}
       
-      {/* Main Content */}
-      <div style={{ 
-        display: 'flex',
-        flex: 1,
-        overflow: 'hidden'
-      }}>
-        {/* Left Sidebar - Filters */}
-      <div className="inbox-sidebar" style={{ 
-        width: '280px',
-        backgroundColor: 'var(--inbox-bg-secondary)',
-        borderRight: '1px solid var(--inbox-border)',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px'
-      }}>
-        {/* Action Buttons */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-          <button 
-            className="btn-compact btn-primary"
-            onClick={() => setShowCreateTaskModal(true)}
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            <Plus style={{ width: '12px', height: '12px', marginRight: '4px' }} />
-            NEW TASK
-          </button>
-          <button 
-            className="btn-compact btn-primary"
-            onClick={() => setShowNewMessageModal(true)}
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            <MessageCircle style={{ width: '12px', height: '12px', marginRight: '4px' }} />
-            NEW MESSAGE
-          </button>
-        </div>
+      {/* Premium Main Content */}
+      <div className="premium-page-content">
+        <div className="premium-inbox-grid">
+          {/* Premium Left Sidebar - Filters */}
+          <div className="premium-inbox-sidebar">
+            {/* Premium Action Buttons */}
+            <div className="premium-inbox-actions">
+              <button 
+                className="premium-button primary full-width"
+                onClick={() => setShowCreateTaskModal(true)}
+              >
+                <Plus className="w-4 h-4" />
+                New Task
+              </button>
+              <button 
+                className="premium-button primary full-width"
+                onClick={() => setShowNewMessageModal(true)}
+              >
+                <MessageCircle className="w-4 h-4" />
+                New Message
+              </button>
+            </div>
 
-        {/* Search */}
-        <div style={{ position: 'relative', marginBottom: '8px' }}>
-          <Search style={{ 
-            position: 'absolute', 
-            left: '8px', 
-            top: '50%', 
-            transform: 'translateY(-50%)', 
-            width: '12px', 
-            height: '12px',
-            color: 'var(--color-text-muted)' 
-          }} />
-          <input
-            type="text"
-            placeholder="Search inbox..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '6px 6px 6px 24px',
-              fontSize: '11px',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'var(--color-background)',
-              color: 'var(--color-text)'
-            }}
-          />
-        </div>
+            {/* Premium Search */}
+            <div className="premium-search-container">
+              <input
+                type="text"
+                placeholder="Search inbox..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="premium-search-input"
+              />
+              <Search className="premium-search-icon w-4 h-4" />
+            </div>
 
         {/* Filter Buttons */}
         <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
