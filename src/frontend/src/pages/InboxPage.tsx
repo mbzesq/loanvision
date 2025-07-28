@@ -860,7 +860,6 @@ function InboxPage() {
             </span>
           )}
         </button>
-
       </div>
 
       {/* Middle Panel - Message List */}
@@ -1541,7 +1540,8 @@ function InboxPage() {
           </div>
         )}
       </div>
-      </div>
+    </div>
+    </div>
       
       {/* Reply Modal */}
       {selectedItem && (
