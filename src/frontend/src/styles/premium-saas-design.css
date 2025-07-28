@@ -963,3 +963,149 @@ body {
     border: 1px solid var(--border-light);
   }
 }
+
+/* ============================================
+   14. LOAN EXPLORER PREMIUM STYLES
+   ============================================ */
+.premium-loan-explorer-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Premium Filter Sidebar */
+.premium-filter-sidebar {
+  position: sticky;
+  top: var(--space-6);
+}
+
+.premium-filter-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+  transition: all var(--transition-medium);
+}
+
+.premium-filter-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Premium Data Card */
+.premium-data-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.premium-toolbar-section {
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+}
+
+/* Premium Table Styles */
+.premium-table-container {
+  overflow-x: auto;
+  position: relative;
+}
+
+.premium-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.premium-table-header {
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.premium-table-th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.premium-table-sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+.premium-table-sort:hover {
+  color: var(--text-primary);
+}
+
+.premium-sort-icon {
+  opacity: 0.5;
+  transition: opacity var(--transition-fast);
+}
+
+.premium-table-sort:hover .premium-sort-icon {
+  opacity: 1;
+}
+
+.premium-table-body {
+  background: var(--bg-elevated);
+}
+
+.premium-table-row {
+  border-bottom: 1px solid var(--border-light);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.premium-table-row:hover {
+  background: var(--bg-secondary);
+  transform: translateX(2px);
+  box-shadow: inset 3px 0 0 var(--accent-primary);
+}
+
+.premium-table-td {
+  padding: var(--space-4);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+/* Status Badge Styles */
+.premium-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.premium-status-badge.performing {
+  background: var(--accent-success-light);
+  color: var(--accent-success-dark);
+}
+
+.premium-status-badge.non-performing {
+  background: var(--accent-danger-light);
+  color: var(--accent-danger-dark);
+}
+
+.premium-status-badge.foreclosure {
+  background: var(--accent-warning-light);
+  color: var(--accent-warning-dark);
+}

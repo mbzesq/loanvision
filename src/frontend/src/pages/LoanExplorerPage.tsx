@@ -5,13 +5,14 @@ import { solService, SOLCalculation } from '../services/solService';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Filter, FileDown, Search, Users, Scale, Home, DollarSign } from 'lucide-react';
 import { LoanDetailModal } from '../components/LoanDetailModal';
 import { FilterPanel, FilterValues, initialFilters } from '../components/FilterPanel';
 import { DataToolbar } from '../components/DataToolbar';
 import { ExportCustomizerModal } from '../components/ExportCustomizerModal';
 import { states } from '../lib/states';
-// Using modern SaaS design system from index.css
+// Premium SaaS design system
+import '../styles/premium-saas-design.css';
 import {
   createColumnHelper,
   flexRender,
@@ -619,115 +620,127 @@ function LoanExplorerPage() {
 
   if (loading) {
     return (
-      <div className="global-warm-theme" style={{ 
+      <div className="premium-page-container" style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
         minHeight: '100vh'
       }}>
-        <div style={{ 
-          fontSize: '14px', 
-          color: 'var(--color-text-secondary)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>LOADING LOANS...</div>
+        <div className="premium-loading">
+          <div className="premium-loading-spinner"></div>
+          <p className="premium-loading-text">Loading portfolio data...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="global-warm-theme" style={{ 
+      <div className="premium-page-container" style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
         minHeight: '100vh'
       }}>
-        <div style={{ 
-          fontSize: '14px', 
-          color: 'var(--color-danger)' 
-        }}>{error}</div>
+        <div className="premium-error-container">
+          <div className="premium-error-icon">⚠️</div>
+          <p className="premium-error-text">{error}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="global-warm-theme" style={{ 
-      padding: '12px', 
-      minHeight: '100vh'
-    }}>
-      {/* Page Header */}
-      <div className="quick-stats" style={{ marginBottom: '16px' }}>
-        <div className="quick-stat">
-          <span className="label">LOAN EXPLORER</span>
-          <span className="value">PORTFOLIO ANALYSIS</span>
+    <div className="premium-page-container">
+      {/* Premium Page Header */}
+      <div className="premium-page-header">
+        <div className="premium-page-title-section">
+          <h1 className="premium-page-title">Loan Explorer</h1>
+          <p className="premium-page-subtitle">Comprehensive portfolio analysis and management</p>
         </div>
-        <div className="quick-stat">
-          <span className="label">TOTAL LOANS</span>
-          <span className="value">{loans.length}</span>
-        </div>
-        <div className="quick-stat">
-          <span className="label">FILTERED</span>
-          <span className="value">{filteredData.length}</span>
-        </div>
-        {searchParams.toString() && (
-          <div className="quick-stat">
-            <span className="label">DASHBOARD FILTER</span>
-            <span className="value" style={{ color: 'var(--color-info)' }}>ACTIVE</span>
+        
+        {/* Premium Stats Bar */}
+        <div className="premium-stats-bar">
+          <div className="premium-stat-item">
+            <div className="premium-stat-icon">
+              <DollarSign className="w-4 h-4" />
+            </div>
+            <div className="premium-stat-content">
+              <div className="premium-stat-label">Total Loans</div>
+              <div className="premium-stat-value">{loans.length.toLocaleString()}</div>
+            </div>
           </div>
-        )}
+          <div className="premium-stat-item">
+            <div className="premium-stat-icon" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+              <Filter className="w-4 h-4" />
+            </div>
+            <div className="premium-stat-content">
+              <div className="premium-stat-label">Filtered Results</div>
+              <div className="premium-stat-value">{filteredData.length.toLocaleString()}</div>
+            </div>
+          </div>
+          {searchParams.toString() && (
+            <div className="premium-stat-item">
+              <div className="premium-stat-icon" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}>
+                <Search className="w-4 h-4" />
+              </div>
+              <div className="premium-stat-content">
+                <div className="premium-stat-label">Dashboard Filter</div>
+                <div className="premium-stat-value" style={{ color: 'var(--accent-primary)' }}>Active</div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Main Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '12px', alignItems: 'start' }}>
-        {/* Filter Panel (Left) */}
-        <div>
-          <FilterPanel
-            onApplyFilters={handleApplyFilters}
-            onShowAll={handleShowAll}
-            onClearView={handleClearView}
-            availableStates={uniqueStates}
-            availableAssetStatuses={uniqueLegalStatuses}
-            availableInvestors={uniqueInvestors}
-            availableLienPos={uniqueLienPositions}
-          />
-        </div>
-        {/* Main Content (Right) */}
-        <div className="financial-card scroll-container">
-          <div style={{ 
-            borderBottom: '1px solid var(--color-border)',
-            paddingBottom: '8px',
-            marginBottom: '12px'
-          }}>
-            <DataToolbar
-              globalFilter={globalFilter}
-              setGlobalFilter={setGlobalFilter}
-              filteredLoanCount={filteredData.length}
-              totalLoanCount={loans.length}
-              onExport={handleExport}
-              onCustomize={() => setExportModalOpen(true)}
-              exporting={exporting}
-            />
+      {/* Premium Main Grid */}
+      <div className="premium-page-content">
+        <div className="premium-loan-explorer-grid">
+          {/* Premium Filter Panel (Left) */}
+          <div className="premium-filter-sidebar">
+            <div className="premium-filter-card">
+              <FilterPanel
+                onApplyFilters={handleApplyFilters}
+                onShowAll={handleShowAll}
+                onClearView={handleClearView}
+                availableStates={uniqueStates}
+                availableAssetStatuses={uniqueLegalStatuses}
+                availableInvestors={uniqueInvestors}
+                availableLienPos={uniqueLienPositions}
+              />
+            </div>
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="financial-table">
-              <thead>
+          
+          {/* Premium Main Content (Right) */}
+          <div className="premium-data-card">
+            <div className="premium-toolbar-section">
+              <DataToolbar
+                globalFilter={globalFilter}
+                setGlobalFilter={setGlobalFilter}
+                filteredLoanCount={filteredData.length}
+                totalLoanCount={loans.length}
+                onExport={handleExport}
+                onCustomize={() => setExportModalOpen(true)}
+                exporting={exporting}
+              />
+            </div>
+            
+            <div className="premium-table-container">
+              <table className="premium-data-table">
+              <thead className="premium-table-header">
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map(header => (
-                      <th key={header.id}>
+                      <th key={header.id} className="premium-table-th">
                         {header.isPlaceholder ? null : (
                           <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              cursor: header.column.getCanSort() ? 'pointer' : 'default'
-                            }}
+                            className="premium-table-sort"
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                            {getSortIcon(header.column.getIsSorted())}
+                            <span className="premium-sort-icon">
+                              {getSortIcon(header.column.getIsSorted())}
+                            </span>
                           </div>
                         )}
                       </th>
@@ -735,15 +748,15 @@ function LoanExplorerPage() {
                   </tr>
                 ))}
               </thead>
-              <tbody>
+              <tbody className="premium-table-body">
                 {table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
+                    className="premium-table-row"
                     onClick={() => setSelectedLoanId(row.original.loan_id)}
-                    style={{ cursor: 'pointer' }}
                   >
                     {row.getVisibleCells().map(cell => (
-                      <td key={cell.id} className="data-value">
+                      <td key={cell.id} className="premium-table-td">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
