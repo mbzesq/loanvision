@@ -1401,3 +1401,124 @@ body {
   flex: 1;
   overflow-y: auto;
 }
+
+/* ============================================
+   17. LOAN DETAIL PREMIUM STYLES
+   ============================================ */
+.premium-loan-hero-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.premium-loan-hero-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-medium);
+}
+
+.premium-loan-hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  transition: transform var(--transition-medium);
+}
+
+.premium-loan-hero-card.primary::before {
+  background: var(--gradient-primary);
+}
+
+.premium-loan-hero-card.secondary::before {
+  background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent-secondary-dark) 100%);
+}
+
+.premium-loan-hero-card.tertiary::before {
+  background: linear-gradient(135deg, var(--accent-warning) 0%, #f59e0b 100%);
+}
+
+.premium-loan-hero-card.quaternary::before {
+  background: linear-gradient(135deg, var(--accent-success) 0%, var(--accent-success-dark) 100%);
+}
+
+.premium-loan-hero-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.premium-loan-hero-card:hover::before {
+  transform: scaleX(1);
+}
+
+.premium-loan-hero-card .premium-hero-value.positive {
+  color: var(--accent-success);
+}
+
+.premium-loan-hero-card .premium-hero-value.negative {
+  color: var(--accent-danger);
+}
+
+.premium-loan-hero-card .premium-hero-value.unavailable {
+  color: var(--text-tertiary);
+}
+
+.premium-loan-hero-card .premium-hero-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+}
+
+/* Loan Detail Grid */
+.premium-loan-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+/* Financial Detail Items */
+.premium-financial-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.premium-financial-item:last-child {
+  border-bottom: none;
+}
+
+.premium-financial-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+}
+
+.premium-financial-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.premium-financial-value.highlight {
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.premium-financial-value.success {
+  color: var(--accent-success);
+}
+
+.premium-financial-value.danger {
+  color: var(--accent-danger);
+}

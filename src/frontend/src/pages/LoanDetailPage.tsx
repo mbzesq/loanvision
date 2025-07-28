@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../utils/axios';
-// Using modern SaaS design system from index.css
+// Premium SaaS design system
+import '../styles/premium-saas-design.css';
 import { useToast } from '../hooks/use-toast';
 import { Loan } from './LoanExplorerPage';
 import StreetViewPanorama from '../components/StreetViewPanorama';
@@ -181,100 +182,105 @@ const LoanDetailPage = () => {
     : null;
 
   return (
-    <div className="container mx-auto p-4 min-h-screen bg-background">
-      {/* Header Section - Clean & Modern */}
-      <div className="card grid grid-cols-3 gap-4 mb-6 p-6">
-        <div>
-          <h1 className="text-xl font-bold text-foreground mb-1">
-            Loan {loanId}
-          </h1>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{formatValue(loan.first_name)} {formatValue(loan.last_name)}</span>
-            <span>•</span>
-            <span>{formatValue(loan.city)}, {formatValue(loan.state)}</span>
-            <span>•</span>
-            <span>Status: {formatValue(loan.legal_status)}</span>
-          </div>
-        </div>
-        
-        <div className="text-right">
-          <div className="text-2xl font-bold text-foreground">
-            {formatCurrency(loan.prin_bal)}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Principal Balance
-          </div>
-        </div>
-
-        <div className="text-right">
-          <div className={`text-lg font-semibold ${propertyData?.property_data?.price ? 'text-success' : 'text-muted-foreground'}`}>
-            {propertyData?.property_data?.price ? formatCurrency(propertyData.property_data.price) : 'N/A'}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Property Value {ltv && `(LTV: ${ltv}%)`}
-          </div>
+    <div className="premium-page-container">
+      {/* Premium Page Header */}
+      <div className="premium-page-header">
+        <div className="premium-page-title-section">
+          <h1 className="premium-page-title">Loan {loanId}</h1>
+          <p className="premium-page-subtitle">
+            {formatValue(loan.first_name)} {formatValue(loan.last_name)} • 
+            {formatValue(loan.city)}, {formatValue(loan.state)} • 
+            Status: {formatValue(loan.legal_status)}
+          </p>
         </div>
       </div>
 
-      {/* Main Content Grid - Modern Layout */}
-      <div className="grid grid-cols-4 gap-6 mb-6">
+      {/* Premium Hero Metrics */}
+      <div className="premium-loan-hero-section">
+        <div className="premium-loan-hero-card primary">
+          <div className="premium-hero-label">Principal Balance</div>
+          <div className="premium-hero-value">{formatCurrency(loan.prin_bal)}</div>
+          <div className="premium-hero-subtitle">Current UPB</div>
+        </div>
         
-        {/* Column 1: Financial Summary */}
-        <div className="card p-6">
-          <h3 className="text-xs font-semibold uppercase mb-3 pb-2 border-b border-border text-muted-foreground">
-            FINANCIALS
-          </h3>
+        <div className="premium-loan-hero-card secondary">
+          <div className="premium-hero-label">Property Value</div>
+          <div className={`premium-hero-value ${propertyData?.property_data?.price ? 'available' : 'unavailable'}`}>
+            {propertyData?.property_data?.price ? formatCurrency(propertyData.property_data.price) : 'N/A'}
+          </div>
+          <div className="premium-hero-subtitle">
+            {ltv && `LTV: ${ltv}%`}
+          </div>
+        </div>
+
+        <div className="premium-loan-hero-card tertiary">
+          <div className="premium-hero-label">Legal Balance</div>
+          <div className="premium-hero-value">
+            {legalBalance ? formatCurrency(legalBalance) : formatCurrency(loan.prin_bal)}
+          </div>
+          <div className="premium-hero-subtitle">Including accrued interest</div>
+        </div>
+
+        <div className="premium-loan-hero-card quaternary">
+          <div className="premium-hero-label">Estimated Equity</div>
+          <div className={`premium-hero-value ${estimatedEquity && estimatedEquity > 0 ? 'positive' : estimatedEquity && estimatedEquity < 0 ? 'negative' : 'neutral'}`}>
+            {estimatedEquity !== null ? formatCurrency(estimatedEquity) : 'N/A'}
+          </div>
+          <div className="premium-hero-subtitle">Property value - Legal balance</div>
+        </div>
+      </div>
+
+      {/* Premium Content Grid */}
+      <div className="premium-loan-detail-grid">
+        
+        {/* Financial Summary Card */}
+        <div className="premium-data-card">
+          <div className="premium-card-header">
+            <h3 className="premium-card-title">Financial Details</h3>
+            <p className="premium-card-subtitle">Loan financial information</p>
+          </div>
+          <div className="premium-card-content">
           
-          <div className="flex flex-col gap-3">
-            <div className="py-2">
-              <div className="text-xs font-medium text-muted-foreground mb-1">ORIGINAL AMOUNT</div>
-              <div className="text-sm font-semibold text-foreground">
+            <div className="premium-financial-item">
+              <span className="premium-financial-label">Original Amount</span>
+              <span className="premium-financial-value highlight">
                 {formatCurrency(loan.org_amount)}
-              </div>
+              </span>
             </div>
             
-            <div className="py-2">
-              <div className="text-xs font-medium text-muted-foreground mb-1">INTEREST RATE</div>
-              <div className="text-sm text-foreground">
+            <div className="premium-financial-item">
+              <span className="premium-financial-label">Interest Rate</span>
+              <span className="premium-financial-value">
                 {loan.int_rate ? `${parseFloat(loan.int_rate).toFixed(2)}%` : 'N/A'}
-              </div>
+              </span>
             </div>
             
-            <div className="py-2">
-              <div className="text-xs font-medium text-muted-foreground mb-1">MATURITY DATE</div>
-              <div className="text-sm text-foreground">
+            <div className="premium-financial-item">
+              <span className="premium-financial-label">Maturity Date</span>
+              <span className="premium-financial-value">
                 {formatDate(loan.maturity_date)}
-              </div>
+              </span>
             </div>
             
-            <div className="py-2">
-              <div className="text-xs font-medium text-muted-foreground mb-1">LEGAL BALANCE</div>
-              <div className="text-sm font-semibold text-foreground">
-                {legalBalance ? formatCurrency(legalBalance.toString()) : 'N/A'}
-              </div>
+            <div className="premium-financial-item">
+              <span className="premium-financial-label">Last Payment</span>
+              <span className="premium-financial-value">
+                {formatDate(loan.last_pymt_received)}
+              </span>
             </div>
             
-            <div className="py-2">
-              <div className="text-xs font-medium text-muted-foreground mb-1">ESTIMATED EQUITY</div>
-              <div className={`text-sm font-semibold ${
-                estimatedEquity ? (estimatedEquity > 0 ? 'text-success' : 'text-danger') : 'text-foreground'
-              }`}>
-                {estimatedEquity ? formatCurrency(estimatedEquity.toString()) : 'N/A'}
-              </div>
+            <div className="premium-financial-item">
+              <span className="premium-financial-label">Next Due Date</span>
+              <span className="premium-financial-value">
+                {formatDate(loan.next_pymt_due)}
+              </span>
             </div>
             
-            <div className="py-2">
-              <div className="text-xs font-medium text-muted-foreground mb-1">NPV (EST.)</div>
-              <div className="text-sm text-muted-foreground">
-                TBD
-              </div>
-            </div>
-            
-            <div className="py-2">
-              <div className="text-xs font-medium text-muted-foreground mb-1">IRR (EST.)</div>
-              <div className="text-sm text-muted-foreground">
-                TBD
-              </div>
+            <div className="premium-financial-item">
+              <span className="premium-financial-label">Loan Type</span>
+              <span className="premium-financial-value">
+                {formatValue(loan.loan_type)}
+              </span>
             </div>
           </div>
         </div>
