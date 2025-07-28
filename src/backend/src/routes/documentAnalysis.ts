@@ -827,7 +827,7 @@ router.delete('/:loanId/documents/:documentId', authenticateToken, organizationA
       
       // 3. Delete from collateral_documents table (if it exists there)
       const collateralDeleteResult = await client.query(
-        'DELETE FROM collateral_documents WHERE loan_id = $1 AND filename = $2',
+        'DELETE FROM collateral_documents WHERE loan_id = $1 AND file_name = $2',
         [loanId, document.file_name]
       );
       console.log(`Deleted ${collateralDeleteResult.rowCount} records from collateral_documents`);
