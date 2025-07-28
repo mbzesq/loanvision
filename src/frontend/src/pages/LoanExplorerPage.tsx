@@ -764,32 +764,33 @@ function LoanExplorerPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-          {table.getRowModel().rows.length === 0 && (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '48px 24px',
-              color: 'var(--color-text-muted)' 
-            }}>
-              <h3 style={{ 
-                fontSize: '14px', 
-                fontWeight: '600', 
-                color: 'var(--color-text-primary)',
-                textTransform: 'uppercase',
-                marginBottom: '8px'
-              }}>
-                {filteredData.length === 0 ? "NO LOANS FOUND" : "LOADING LOANS..."}
-              </h3>
-              <p style={{ 
-                fontSize: '12px',
-                color: 'var(--color-text-muted)'
-              }}>
-                {filteredData.length === 0
-                  ? "No loans match your current filter criteria. Try adjusting your filters."
-                  : "Loading loan data..."}
-              </p>
             </div>
-          )}
+            {table.getRowModel().rows.length === 0 && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '48px 24px',
+                color: 'var(--color-text-muted)' 
+              }}>
+                <h3 style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '600', 
+                  color: 'var(--color-text-primary)',
+                  textTransform: 'uppercase',
+                  marginBottom: '8px'
+                }}>
+                  {filteredData.length === 0 ? "NO LOANS FOUND" : "LOADING LOANS..."}
+                </h3>
+                <p style={{ 
+                  fontSize: '12px',
+                  color: 'var(--color-text-muted)'
+                }}>
+                  {filteredData.length === 0
+                    ? "No loans match your current filter criteria. Try adjusting your filters."
+                    : "Loading loan data..."}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
