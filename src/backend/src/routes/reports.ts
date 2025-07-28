@@ -2,6 +2,7 @@ import { Router } from 'express';
 import ExcelJS from 'exceljs';
 import pool from '../db';
 import { authenticateToken } from '../middleware/authMiddleware';
+import organizationAccessService from '../services/organizationAccessService';
 
 const router = Router();
 
@@ -427,39 +428,90 @@ router.get('/reports/foreclosure-tracking', authenticateToken, async (req, res) 
 });
 
 // --- EXCEL EXPORT ENDPOINT ---
-router.get('/reports/excel', authenticateToken, async (req, res) => {
+router.get('/reports/excel', authenticateToken, async (req: any, res) => {
     const filter = req.query.filter as string | undefined;
     try {
-        const { whereClause, values } = buildFilter(filter);
-        const query = `SELECT * FROM loans ${whereClause} ORDER BY created_at DESC`;
-        const result = await pool.query(query, values);
+        // Build base query with proper filtering
+        const searchTerm = filter ? `%${filter}%` : null;
+        let baseQuery = 'SELECT * FROM daily_metrics_current';
+        const queryParams: string[] = [];
+        
+        if (searchTerm) {
+            baseQuery += ` WHERE (
+                loan_id ILIKE $1 OR
+                CONCAT(first_name, ' ', last_name) ILIKE $1 OR
+                address ILIKE $1 OR
+                city ILIKE $1 OR
+                state ILIKE $1 OR
+                legal_status ILIKE $1
+            ) {LOAN_FILTER}`;
+            queryParams.push(searchTerm);
+        } else {
+            baseQuery += ' WHERE 1=1 {LOAN_FILTER}';
+        }
+        
+        baseQuery += ' ORDER BY loan_id ASC';
+        
+        // Apply organization-based access filtering
+        const { query, params } = await organizationAccessService.applyLoanFilter(
+            baseQuery,
+            req.user.id,
+            queryParams
+        );
+        
+        const result = await pool.query(query, params);
 
         const workbook = new ExcelJS.Workbook();
-        workbook.creator = 'LoanVision';
+        workbook.creator = 'NPLVision';
         workbook.created = new Date();
         
         const worksheet = workbook.addWorksheet('Loans');
 
+        // Updated column mappings to match daily_metrics_current table
         worksheet.columns = [
-            { header: 'Loan Number', key: 'servicer_loan_id', width: 15 },
+            { header: 'Loan Number', key: 'loan_id', width: 15 },
             { header: 'Borrower Name', key: 'borrower_name', width: 30 },
-            { header: 'Property Address', key: 'property_address', width: 40 },
-            { header: 'UPB', key: 'unpaid_principal_balance', width: 15, style: { numFmt: '$#,##0.00' } },
-            { header: 'Interest Rate', key: 'interest_rate', width: 12, style: { numFmt: '0.00%' } },
-            { header: 'Next Due Date', key: 'next_due_date', width: 15, style: { numFmt: 'yyyy-mm-dd' } },
-            { header: 'Last Paid Date', key: 'last_paid_date', width: 15, style: { numFmt: 'yyyy-mm-dd' } },
+            { header: 'Property Address', key: 'address', width: 40 },
+            { header: 'City', key: 'city', width: 20 },
+            { header: 'State', key: 'state', width: 10 },
+            { header: 'ZIP', key: 'zip', width: 12 },
+            { header: 'UPB', key: 'prin_bal', width: 15, style: { numFmt: '$#,##0.00' } },
+            { header: 'Interest Rate', key: 'int_rate', width: 12, style: { numFmt: '0.00%' } },
+            { header: 'Next Due Date', key: 'next_pymt_due', width: 15, style: { numFmt: 'yyyy-mm-dd' } },
+            { header: 'Last Paid Date', key: 'last_pymt_received', width: 15, style: { numFmt: 'yyyy-mm-dd' } },
             { header: 'Legal Status', key: 'legal_status', width: 15 },
+            { header: 'Loan Type', key: 'loan_type', width: 15 },
+            { header: 'Lien Position', key: 'lien_pos', width: 12 },
+            { header: 'Investor', key: 'investor_name', width: 25 }
         ];
 
+        // Add rows with proper data transformation
         result.rows.forEach(loan => {
             worksheet.addRow({
-                ...loan,
-                unpaid_principal_balance: loan.unpaid_principal_balance ? parseFloat(loan.unpaid_principal_balance) : null,
-                interest_rate: loan.interest_rate ? parseFloat(loan.interest_rate) : null,
-                next_due_date: loan.next_due_date ? new Date(loan.next_due_date) : null,
-                last_paid_date: loan.last_paid_date ? new Date(loan.last_paid_date) : null,
+                loan_id: loan.loan_id,
+                borrower_name: `${loan.first_name || ''} ${loan.last_name || ''}`.trim(),
+                address: loan.address,
+                city: loan.city,
+                state: loan.state,
+                zip: loan.zip,
+                prin_bal: loan.prin_bal ? parseFloat(loan.prin_bal) : null,
+                int_rate: loan.int_rate ? parseFloat(loan.int_rate) : null,
+                next_pymt_due: loan.next_pymt_due ? new Date(loan.next_pymt_due) : null,
+                last_pymt_received: loan.last_pymt_received ? new Date(loan.last_pymt_received) : null,
+                legal_status: loan.legal_status,
+                loan_type: loan.loan_type,
+                lien_pos: loan.lien_pos,
+                investor_name: loan.investor_name
             });
         });
+
+        // Style the header row
+        worksheet.getRow(1).font = { bold: true };
+        worksheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE0E0E0' }
+        };
 
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename=loan-report-${Date.now()}.xlsx`);
