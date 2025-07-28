@@ -75,7 +75,7 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefill
           if (matchedLoan) {
             console.log('Found matching loan:', matchedLoan);
             setSelectedLoan(matchedLoan);
-            setLoanSearchQuery(`${matchedLoan.id} - ${matchedLoan.borrower_name}`);
+            setLoanSearchQuery(matchedLoan.display_name);
           } else {
             console.log('No matching loan found for ID:', prefilledLoanId);
           }
@@ -117,7 +117,7 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefill
 
   const selectLoan = (loan: any) => {
     setSelectedLoan(loan);
-    setLoanSearchQuery(`${loan.id} - ${loan.borrower_name}`);
+    setLoanSearchQuery(loan.display_name);
     setShowLoanDropdown(false);
   };
 
@@ -464,7 +464,7 @@ export function CreateTaskModal({ isOpen, onClose, originalItem, onSend, prefill
                         }}
                       >
                         <div style={{ fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                          {loan.id} - {loan.borrower_name}
+                          {loan.display_name}
                         </div>
                         <div style={{ color: 'var(--color-text-muted)', marginTop: '2px' }}>
                           {loan.property_address}, {loan.property_city}, {loan.property_state}
