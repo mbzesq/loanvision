@@ -313,19 +313,87 @@ export class MarkdownFieldExtractor {
       }
     }
 
-    // Pattern matching for assignment parties
+    // Extract assignor/assignee from markdown structured text (with bold formatting)
+    if (!fields.assignor) {
+      const assignorPatterns = [
+        /\*\*assignor:\*\*\s*([^*\n]+)/i,
+        /assignor:\s*([^*\n]+)/i,
+        /\*\*assignor\*\*[:\s]*([^*\n]+)/i,
+        /assignor[:\s]+([A-Z][^,\n]+?)(?:,|\n|$)/i
+      ];
+      
+      for (const pattern of assignorPatterns) {
+        const match = markdown.match(pattern);
+        if (match) {
+          fields.assignor = this.cleanCompanyName(match[1]);
+          fields.fieldConfidence.set('assignor', 0.9);
+          break;
+        }
+      }
+    }
+
+    if (!fields.assignee) {
+      const assigneePatterns = [
+        /\*\*assignee:\*\*\s*([^*\n]+)/i,
+        /assignee:\s*([^*\n]+)/i,
+        /\*\*assignee\*\*[:\s]*([^*\n]+)/i,
+        /assignee[:\s]+([A-Z][^,\n]+?)(?:,|\n|$)/i
+      ];
+      
+      for (const pattern of assigneePatterns) {
+        const match = markdown.match(pattern);
+        if (match) {
+          fields.assignee = this.cleanCompanyName(match[1]);
+          fields.fieldConfidence.set('assignee', 0.9);
+          break;
+        }
+      }
+    }
+
+    // Pattern matching for assignment transfer language
     if (!fields.assignor || !fields.assignee) {
-      const assignmentPatterns = [
+      // Look for "X hereby assigns and transfers to Y" patterns
+      const transferPatterns = [
+        /([A-Z][A-Za-z\s&,.()]+?)\s+hereby assigns?(?:\s+and transfers?)?\s+to\s+([A-Z][A-Za-z\s&,.()]+?)\s+(?:all|the)/i,
+        /([A-Z][A-Za-z\s&,.()]+?)\s+assigns?\s+to\s+([A-Z][A-Za-z\s&,.()]+?)\s+(?:all|the)/i,
+        /([A-Z][^,\n]+?)\s+hereby assigns\s+and\s+transfers\s+to\s+([A-Z][^,\n]+?)\s+all/i
+      ];
+
+      for (const pattern of transferPatterns) {
+        const match = fullText.match(pattern);
+        if (match) {
+          if (!fields.assignor) {
+            fields.assignor = this.cleanCompanyName(match[1]);
+            fields.fieldConfidence.set('assignor', 0.85);
+          }
+          if (!fields.assignee) {
+            fields.assignee = this.cleanCompanyName(match[2]);
+            fields.fieldConfidence.set('assignee', 0.85);
+          }
+          break;
+        }
+      }
+    }
+
+    // Legacy simple patterns for fallback
+    if (!fields.assignor || !fields.assignee) {
+      const simplePatterns = [
         /assigns?\s+to\s+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n|all)/i,
         /assignor[:\s]+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n)/i,
         /assignee[:\s]+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n)/i
       ];
 
-      for (const pattern of assignmentPatterns) {
+      for (const pattern of simplePatterns) {
         const match = fullText.match(pattern);
         if (match) {
           const company = this.cleanCompanyName(match[1]);
           if (!fields.assignee && pattern.source.includes('assigns? to')) {
+            fields.assignee = company;
+            fields.fieldConfidence.set('assignee', 0.75);
+          } else if (!fields.assignor && pattern.source.includes('assignor')) {
+            fields.assignor = company;
+            fields.fieldConfidence.set('assignor', 0.75);
+          } else if (!fields.assignee && pattern.source.includes('assignee')) {
             fields.assignee = company;
             fields.fieldConfidence.set('assignee', 0.75);
           }
@@ -333,24 +401,37 @@ export class MarkdownFieldExtractor {
       }
     }
 
-    // Extract dates
+    // Extract dates - improved patterns for various document formats
+    // Use original markdown to preserve line breaks and better date context
     const datePatterns = [
-      /assignment date[:\s]+([^\n,]+)/i,
-      /recorded[:\s]+([^\n,]+)/i,
-      /recording date[:\s]+([^\n,]+)/i
+      /recording date[:\s]+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i,
+      /assignment recorded[:\s]+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i,
+      /recorded[:\s]+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i,
+      /document number[:\s]+(\d{4}-\d+)/i,
+      /recording number[:\s]+(\d{4}-\d+)/i,
+      /instrument(?:\s+no\.?|number)[:\s]+([^\n,]+)/i
     ];
 
     for (const pattern of datePatterns) {
-      const match = fullText.match(pattern);
+      const match = markdown.match(pattern);
       if (match) {
-        const date = this.parseDate(match[1]);
+        const value = match[1].trim();
+        
+        // Try to parse as date first
+        const date = this.parseDate(value);
         if (date) {
           if (pattern.source.includes('recording')) {
             fields.recordingDate = date;
             fields.fieldConfidence.set('recordingDate', 0.8);
-          } else {
+          } else if (pattern.source.includes('assignment')) {
             fields.assignmentDate = date;
             fields.fieldConfidence.set('assignmentDate', 0.8);
+          }
+        } else if (pattern.source.includes('number') || pattern.source.includes('instrument')) {
+          // If not a date, might be an instrument number
+          if (value.match(/^\d{4}-\d+$|^\d+$/)) {
+            fields.instrumentNumber = value;
+            fields.fieldConfidence.set('instrumentNumber', 0.8);
           }
         }
       }
@@ -511,7 +592,9 @@ export class MarkdownFieldExtractor {
 
   private cleanCompanyName(name: string): string {
     return name
-      .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc|Corp|Corporation|Company|Co\.?)\s*$/i, '')
+      .replace(/^\s*\*\*|\*\*\s*$/g, '') // Remove markdown bold formatting
+      .replace(/\s*\([^)]+\)\s*/g, ' ') // Remove parenthetical content like "(Mortgage Electronic Registration Systems, Inc.)"
+      .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc\.?|Corp\.?|Corporation|Company|Co\.?|Trust|LP|Ltd\.?)\s*$/i, '')
       .replace(/\s+/g, ' ')
       .trim();
   }

@@ -2,9 +2,9 @@
   {
     "file": "100011939_Recorded_Assignment_to_ATC.pdf",
     "expectedType": "Assignment",
-    "prediction": "Other",
-    "confidence": 0,
-    "correct": false,
+    "prediction": "Assignment",
+    "confidence": 1,
+    "correct": true,
     "hasAssignmentChain": false,
     "assignmentCount": 0,
     "endsWithCurrentInvestor": false,
@@ -13,9 +13,9 @@
   {
     "file": "1004716870_Gately_Recorded_AOM_ETrade_Bank_to_NS182_LLC.PDF",
     "expectedType": "Assignment",
-    "prediction": "Other",
-    "confidence": 0,
-    "correct": false,
+    "prediction": "Assignment",
+    "confidence": 1,
+    "correct": true,
     "hasAssignmentChain": false,
     "assignmentCount": 0,
     "endsWithCurrentInvestor": false,
@@ -24,9 +24,9 @@
   {
     "file": "1005188261_Recorded_Assignment_to_ATC.pdf",
     "expectedType": "Assignment",
-    "prediction": "Other",
-    "confidence": 0,
-    "correct": false,
+    "prediction": "Assignment",
+    "confidence": 1,
+    "correct": true,
     "hasAssignmentChain": false,
     "assignmentCount": 0,
     "endsWithCurrentInvestor": false,
@@ -35,20 +35,27 @@
   {
     "file": "1005345774_Lemieux_AOM_MERS_to_NS181_LLC.pdf",
     "expectedType": "Assignment",
-    "prediction": "Other",
-    "confidence": 0,
-    "correct": false,
-    "hasAssignmentChain": false,
-    "assignmentCount": 0,
+    "prediction": "Assignment",
+    "confidence": 1,
+    "correct": true,
+    "hasAssignmentChain": true,
+    "assignmentCount": 1,
     "endsWithCurrentInvestor": false,
-    "chainDetails": []
+    "chainDetails": [
+      {
+        "sequenceNumber": 1,
+        "assignor": "EAST, IN THE CITY OF FRANKLIN, COUNTY OF MILWAUKEE, STATE OF WISCONSIN. TO HAVE AND TO HOLD the said Mortgage, and all right, title, and interest",
+        "assignee": "forever, subject only to the terms and",
+        "assignmentText": "EAST, IN THE CITY OF FRANKLIN, COUNTY OF MILWAUKEE, STATE OF WISCONSIN. TO HAVE AND TO HOLD the said Mortgage, and all right, title, and interest conveyed by said Mortgage, in and to the lands therein described, to the said Assignee, NS181, LLC, its successors and assigns forever, subject only to the terms and co"
+      }
+    ]
   },
   {
     "file": "1005345774_Recorded_Assignment_to_ATC.pdf",
     "expectedType": "Assignment",
-    "prediction": "Other",
-    "confidence": 0,
-    "correct": false,
+    "prediction": "Assignment",
+    "confidence": 1,
+    "correct": true,
     "hasAssignmentChain": false,
     "assignmentCount": 0,
     "endsWithCurrentInvestor": false,
@@ -57,34 +64,74 @@
   {
     "file": "1006344787_Abernathy_Recorded_AOM_MERS_to_SRP (1).pdf",
     "expectedType": "Assignment",
-    "prediction": "Other",
-    "confidence": 0,
-    "correct": false,
-    "hasAssignmentChain": false,
-    "assignmentCount": 0,
+    "prediction": "Assignment",
+    "confidence": 1,
+    "correct": true,
+    "hasAssignmentChain": true,
+    "assignmentCount": 2,
     "endsWithCurrentInvestor": false,
-    "chainDetails": []
+    "chainDetails": [
+      {
+        "sequenceNumber": 1,
+        "assignor": "hereby grants and conveys unto the said Assignee, the Assignor's beneficial interest under the Deed of Trust. TO HAVE AND TO HOLD the said Deed of Trust",
+        "assignee": "forever, subject to the terms contained in said Deed of Trust",
+        "assignmentText": "Assignor hereby grants and conveys unto the said Assignee, the Assignor's beneficial interest under the Deed of Trust. TO HAVE AND TO HOLD the said Deed of Trust, and also the said property unto the said Assignee forever, subject to the terms contained in said Deed of Trust"
+      },
+      {
+        "sequenceNumber": 2,
+        "assignor": "MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC. AS NOMINEE FOR EQUIFIRST",
+        "assignee": "Date of Deed of Trust",
+        "assignmentText": "MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC. AS NOMINEE FOR EQUIFIRST CORPORATION ITS SUCCESSORS AND ASSIGNS Date of Deed of Trust"
+      }
+    ]
   },
   {
     "file": "1006344787_Abernathy_Recorded_AOM_MERS_to_SRP.pdf",
     "expectedType": "Assignment",
-    "prediction": "Other",
-    "confidence": 0,
-    "correct": false,
-    "hasAssignmentChain": false,
-    "assignmentCount": 0,
+    "prediction": "Assignment",
+    "confidence": 1,
+    "correct": true,
+    "hasAssignmentChain": true,
+    "assignmentCount": 2,
     "endsWithCurrentInvestor": false,
-    "chainDetails": []
+    "chainDetails": [
+      {
+        "sequenceNumber": 1,
+        "assignor": "hereby grants and conveys unto the said Assignee, the Assignor's beneficial interest under the Deed of Trust. TO HAVE AND TO HOLD the said Deed of Trust",
+        "assignee": "forever, subject to the terms contained in said Deed of Trust",
+        "assignmentText": "Assignor hereby grants and conveys unto the said Assignee, the Assignor's beneficial interest under the Deed of Trust. TO HAVE AND TO HOLD the said Deed of Trust, and also the said property unto the said Assignee forever, subject to the terms contained in said Deed of Trust"
+      },
+      {
+        "sequenceNumber": 2,
+        "assignor": "MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC. AS NOMINEE FOR EQUIFIRST",
+        "assignee": "Date of Deed of Trust",
+        "assignmentText": "MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC. AS NOMINEE FOR EQUIFIRST CORPORATION ITS SUCCESSORS AND ASSIGNS Date of Deed of Trust"
+      }
+    ]
   },
   {
     "file": "1006344787_Recorded_Assignment_to_ATC.pdf",
     "expectedType": "Assignment",
-    "prediction": "Other",
-    "confidence": 0,
-    "correct": false,
-    "hasAssignmentChain": false,
-    "assignmentCount": 0,
+    "prediction": "Assignment",
+    "confidence": 1,
+    "correct": true,
+    "hasAssignmentChain": true,
+    "assignmentCount": 2,
     "endsWithCurrentInvestor": false,
-    "chainDetails": []
+    "chainDetails": [
+      {
+        "sequenceNumber": 1,
+        "assignor": "does hereby grant, sell, assign, transfer and",
+        "assignee": "all interest under that certain Deed of Trust",
+        "assignmentText": "Assignor does hereby grant, sell, assign, transfer and convey, unto the above-named Assignee all interest under that certain Deed of Trust"
+      },
+      {
+        "sequenceNumber": 2,
+        "assignor": "executed by JANE ABERNATHY, UNMARRIED to MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC., AS NOMINEE FOR EQUIFIRST",
+        "assignee": "and Re",
+        "assignmentText": "executed by JANE ABERNATHY, UNMARRIED to MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC., AS NOMINEE FOR EQUIFIRST CORPORATION, ITS SUCCESSORS AND ASSIGNS and Reco",
+        "recordingInfo": "Instrument #: 2005015463"
+      }
+    ]
   }
 ]
