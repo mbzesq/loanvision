@@ -709,13 +709,13 @@ router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
       gapReason: row.gap_reason
     }));
 
-    // Determine if assignment chain ends with current investor
+    // Determine if assignment chain ends with current investor (NS194)
     const lastAssignment = transformedAssignmentChain[transformedAssignmentChain.length - 1];
     const assignmentEndsWithCurrentInvestor = transformedAssignmentChain.length > 0 && 
       lastAssignment?.assignee?.toLowerCase().includes('ns194') || false;
     
-    // Only consider complete if we have multiple assignments AND ends with current investor
-    const isChainComplete = transformedAssignmentChain.length >= 2 && assignmentEndsWithCurrentInvestor;
+    // Chain is complete if it ends with the current investor (regardless of number of assignments)
+    const isChainComplete = assignmentEndsWithCurrentInvestor;
     
     const response = {
       success: true,
