@@ -93,13 +93,13 @@ export class SimpleExtractionLearner implements ExtractionLearner {
       
       const query = `
         SELECT 
-          strategy_name,
+          strategy_used as strategy_name,
           COUNT(*) as attempts,
-          COUNT(CASE WHEN is_correct = true THEN 1 END) as successes
+          COUNT(CASE WHEN was_correct = true THEN 1 END) as successes
         FROM extraction_feedback 
         WHERE field_name = $1 
           AND created_at > NOW() - INTERVAL '30 days'
-        GROUP BY strategy_name
+        GROUP BY strategy_used
       `;
       
       const result = await pool.query(query, [fieldName]);
@@ -207,6 +207,7 @@ export class SimpleExtractionLearner implements ExtractionLearner {
 
   // Method to record feedback for learning
   async recordFeedback(
+    documentId: string,
     fieldName: string,
     strategyName: string,
     extractedValue: any,
@@ -216,9 +217,16 @@ export class SimpleExtractionLearner implements ExtractionLearner {
     try {
       await pool.query(`
         INSERT INTO extraction_feedback (
-          field_name, strategy_name, extracted_value, is_correct, correct_value
-        ) VALUES ($1, $2, $3, $4, $5)
+          document_id, field_name, strategy_used, extracted_value, was_correct, correct_value
+        ) VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (document_id, field_name, strategy_used) 
+        DO UPDATE SET 
+          extracted_value = EXCLUDED.extracted_value,
+          was_correct = EXCLUDED.was_correct,
+          correct_value = EXCLUDED.correct_value,
+          created_at = now()
       `, [
+        documentId,
         fieldName,
         strategyName,
         extractedValue?.toString() || null,
