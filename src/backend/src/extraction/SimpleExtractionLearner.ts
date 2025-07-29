@@ -1,7 +1,7 @@
 import { 
   ExtractionLearner, 
   ExtractedCandidate 
-} from './MarkdownFieldExtractor';
+} from './markdownFieldExtractorV2';
 import pool from '../db';
 
 export class SimpleExtractionLearner implements ExtractionLearner {

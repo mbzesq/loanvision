@@ -4,7 +4,7 @@ import {
   ExtractorConfig,
   ExtractionStrategy,
   ExtractedFields
-} from './MarkdownFieldExtractor';
+} from './markdownFieldExtractorV2';
 import { TableStrategy } from './strategies/TableStrategy';
 import { KeyValueStrategy } from './strategies/KeyValueStrategy';
 import { PatternStrategy } from './strategies/PatternStrategy';
@@ -75,7 +75,7 @@ export class ExtractionAdapter {
     return await this.extractor.extractFields(markdown, documentType);
   }
 
-  private getRelevantFields(documentType: DocumentType): any[] {
+  private getRelevantFields(documentType: DocumentType): Array<{name: string, keywords: string[], patterns?: string[], validators?: string[], dependencies?: string[], contextPatterns?: string[]}> {
     if (!this.config) return [];
 
     const allFields = this.config.fields;

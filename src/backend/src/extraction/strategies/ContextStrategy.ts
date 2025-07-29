@@ -2,7 +2,7 @@ import {
   ExtractionStrategy, 
   ExtractedCandidate, 
   ExtractorConfig 
-} from '../MarkdownFieldExtractor';
+} from '../markdownFieldExtractorV2';
 
 export class ContextStrategy implements ExtractionStrategy {
   name = 'Context';

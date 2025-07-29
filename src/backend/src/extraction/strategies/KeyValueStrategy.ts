@@ -2,7 +2,7 @@ import {
   ExtractionStrategy, 
   ExtractedCandidate, 
   ExtractorConfig 
-} from '../MarkdownFieldExtractor';
+} from '../markdownFieldExtractorV2';
 
 export class KeyValueStrategy implements ExtractionStrategy {
   name = 'KeyValue';
