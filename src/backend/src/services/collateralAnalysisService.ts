@@ -290,18 +290,25 @@ export class CollateralAnalysisService {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     `;
 
+    // Truncate fields to fit database constraints
+    const truncateField = (value: any, maxLength: number): string | null => {
+      if (!value) return null;
+      const str = value.toString();
+      return str.length > maxLength ? str.substring(0, maxLength) : str;
+    };
+
     const isGap = this.detectChainGap(existingChain, extractedFields.assignor);
     const gapReason = isGap ? `Missing link between ${existingChain[existingChain.length - 1]?.transferee || 'unknown'} and ${extractedFields.assignor}` : null;
 
     await pool.query(insertQuery, [
       loanId,
       documentAnalysisId,
-      extractedFields.assignor,
-      extractedFields.assignee,
+      truncateField(extractedFields.assignor, 255),
+      truncateField(extractedFields.assignee, 255),
       sanitizeDate(extractedFields.assignmentDate),
       sanitizeDate(extractedFields.recordingDate),
       documentType,
-      extractedFields.instrumentNumber,
+      truncateField(extractedFields.instrumentNumber, 100),
       nextSequence,
       isGap,
       gapReason
