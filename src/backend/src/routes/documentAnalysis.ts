@@ -7,6 +7,7 @@ import { DocumentClassifier } from '../ml/documentClassifier';
 import { FieldExtractor } from '../extraction/fieldExtractor';
 import { MarkdownDocumentClassifier } from '../ml/markdownDocumentClassifier';
 import { MarkdownFieldExtractor } from '../extraction/markdownFieldExtractor';
+import { ExtractionAdapter } from '../extraction/ExtractionAdapter';
 import { doctlyService } from '../services/doctlyService';
 import { s3Service } from '../services/s3Service';
 import { ocrEnhancementService } from '../services/ocrEnhancementService';
@@ -36,6 +37,7 @@ const documentClassifier = new DocumentClassifier();
 const fieldExtractor = new FieldExtractor();
 const markdownDocumentClassifier = new MarkdownDocumentClassifier();
 const markdownFieldExtractor = new MarkdownFieldExtractor();
+const enhancedExtractionAdapter = new ExtractionAdapter();
 
 // Helper to get Azure service with lazy initialization
 const getAzureService = () => {
@@ -136,9 +138,21 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
         console.log(`Detected ${classification.allongeCount} embedded allonges in ${classification.documentType}`);
       }
 
-      // Extract fields from markdown
-      console.log('Step 4: Extracting fields from markdown...');
-      extractedFields = await markdownFieldExtractor.extractFields(doctlyResult.markdown, classification.documentType);
+      // Extract fields from markdown with enhanced system
+      console.log('Step 4: Extracting fields with enhanced extraction system...');
+      
+      if (enhancedExtractionAdapter.isAvailable()) {
+        try {
+          extractedFields = await enhancedExtractionAdapter.extractFields(doctlyResult.markdown, classification.documentType);
+          console.log(`Enhanced extraction completed: ${extractedFields.fieldConfidence.size} fields extracted`);
+        } catch (extractionError) {
+          console.warn('Enhanced extraction failed, falling back to legacy:', extractionError);
+          extractedFields = await markdownFieldExtractor.extractFields(doctlyResult.markdown, classification.documentType);
+        }
+      } else {
+        console.warn('Enhanced extraction not available, using legacy extractor');
+        extractedFields = await markdownFieldExtractor.extractFields(doctlyResult.markdown, classification.documentType);
+      }
 
       // Store processing metadata
       processingMode = doctlyResult.mode;
@@ -256,7 +270,9 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       processingTime,
       processingProvider,
       processingMode,
-      processingCost
+      processingCost,
+      enhancedExtraction: enhancedExtractionAdapter.isAvailable(),
+      extractionVersion: 'enhanced-integrated'
     };
 
     const result = await pool.query(insertQuery, [
