@@ -213,37 +213,55 @@ export class PatternStrategy implements ExtractionStrategy {
     
     // Clean assignor/assignee company names
     if (fieldName === 'assignor' || fieldName === 'assignee') {
-      // Remove common noise text and phrases
-      cleaned = cleaned
-        .replace(/\s+hereby\s+.*$/i, '') // Remove "hereby assigns..." text
-        .replace(/\s+(?:does\s+hereby|hereby)\s+.*$/i, '') // Remove legal language
-        .replace(/\s+(?:assign|assigns|transfer|transfers|convey|conveys).*$/i, '') // Remove action words
-        .replace(/\s+(?:and\s+)?(?:all|the)\s+.*$/i, '') // Remove "and all..." text
-        .replace(/\s*[,;].*$/, '') // Remove everything after first comma/semicolon
-        .replace(/\s+(?:dated|effective|recorded).*$/i, '') // Remove date references
-        .replace(/\s+(?:borough|block|lot|unit|address).*$/i, '') // Remove property data
-        .replace(/\s+(?:property\s+data).*$/i, '') // Remove "PROPERTY DATA" text
-        .replace(/\s+(?:brooklyn?|kings?).*$/i, '') // Remove location references that got mixed in
-        .replace(/\s*\d+.*$/, '') // Remove trailing numbers and text
-        .trim();
+      // First, try to extract just company names from the text
+      const companyPatterns = [
+        /PNC\s+BANK[A-Za-z\s,]*NATIONAL\s+ASSOCIATION/i,
+        /NATIONAL\s+CITY\s+BANK[A-Za-z\s,]*/i,
+        /ETRADE\s+BANK[A-Za-z\s,]*/i,
+        /VERIPRO[A-Za-z\s,]*/i,
+        /NS194[A-Za-z\s,]*LLC/i
+      ];
       
-      // Clean up extra whitespace and ensure proper capitalization
+      for (const pattern of companyPatterns) {
+        const match = cleaned.match(pattern);
+        if (match) {
+          cleaned = match[0].trim();
+          break;
+        }
+      }
+      
+      // If no specific company found, clean up legal text
+      if (cleaned.length > 50 || /\b(?:executed|assignment|hereby|duly)\b/i.test(cleaned)) {
+        // Remove common noise text and phrases
+        cleaned = cleaned
+          .replace(/^.*?(?:executed|duly)\s+.*?(?:assignment|this)\s+.*?(?:day|of)\s+.*?\d{4}\s*/i, '') // Remove date execution text
+          .replace(/\s+hereby\s+.*$/i, '') // Remove "hereby assigns..." text
+          .replace(/\s+(?:does\s+hereby|hereby)\s+.*$/i, '') // Remove legal language
+          .replace(/\s+(?:assign|assigns|transfer|transfers|convey|conveys).*$/i, '') // Remove action words
+          .replace(/\s+(?:and\s+)?(?:all|the)\s+.*$/i, '') // Remove "and all..." text
+          .replace(/\s*[,;].*$/, '') // Remove everything after first comma/semicolon
+          .replace(/\s+(?:dated|effective|recorded).*$/i, '') // Remove date references
+          .replace(/\s*\d+.*$/, '') // Remove trailing numbers and text
+          .trim();
+      }
+      
+      // Clean up and standardize company names
       cleaned = cleaned
         .replace(/\s+/g, ' ') // Normalize whitespace
-        .replace(/\b\w+/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Title case
-        .replace(/\bLlc\b/g, 'LLC') // Fix common abbreviations
-        .replace(/\bInc\b/g, 'Inc.')
-        .replace(/\bCorp\b/g, 'Corp.')
-        .replace(/\bBank\b/g, 'BANK')
-        .replace(/\bNational\b/g, 'NATIONAL')
-        .replace(/\bAssociation\b/g, 'ASSOCIATION');
+        .replace(/\bPnc\b/gi, 'PNC')
+        .replace(/\bEtrade\b/gi, 'ETRADE')
+        .replace(/\bBank\b/gi, 'BANK')
+        .replace(/\bNational\b/gi, 'NATIONAL')
+        .replace(/\bAssociation\b/gi, 'ASSOCIATION')
+        .replace(/\bCity\b/gi, 'CITY')
+        .replace(/\bLlc\b/gi, 'LLC')
+        .trim();
       
-      // If still too long or contains noise, try to extract just the company name
-      if (cleaned.length > 100 || /\b(?:page|instrument|recorded|filed)\b/i.test(cleaned)) {
-        // Try to extract a clean company name from the beginning
-        const companyMatch = cleaned.match(/^([A-Z][A-Za-z\s&]+?(?:\s+(?:BANK|LLC|INC\.?|CORP\.?|COMPANY|ASSOCIATION|NATIONAL|SOLUTIONS?))*)/i);
-        if (companyMatch && companyMatch[1].length < 80) {
-          cleaned = companyMatch[1].trim();
+      // Final cleanup - if still contains legal language, try to extract company name
+      if (/\b(?:executed|assignment|hereby|duly|day|march|serial)\b/i.test(cleaned)) {
+        const finalMatch = cleaned.match(/([A-Z]+\s*(?:BANK|NATIONAL|ASSOCIATION|LLC)[A-Za-z\s]*)/i);
+        if (finalMatch) {
+          cleaned = finalMatch[1].trim();
         }
       }
     }

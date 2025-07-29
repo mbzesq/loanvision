@@ -79,25 +79,26 @@
     },
     {
       "name": "assignor",
-      "keywords": ["assignor", "grantor", "transferor", "from", "pnc bank", "national city", "etrade", "veripro"],
+      "keywords": ["assignor", "grantor", "transferor", "from"],
       "patterns": [
-        "([A-Z][A-Za-z\\s]+BANK[A-Za-z\\s]*)",
-        "([A-Z][A-Za-z\\s]+NATIONAL[A-Za-z\\s]*ASSOCIATION)",
-        "(PNC BANK[A-Za-z\\s]*)",
-        "(NATIONAL CITY BANK[A-Za-z\\s]*)",
-        "(ETRADE BANK[A-Za-z\\s]*)",
-        "(VERIPRO[A-Za-z\\s]*)"
+        "assignor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+hereby|$)",
+        "assignment\\s+from\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+to",
+        "([A-Z][A-Za-z\\s&,.()]+?)\\s+hereby\\s+(?:assigns?|transfers?|conveys?)\\s+",
+        "(PNC BANK[A-Za-z\\s,]*NATIONAL ASSOCIATION)",
+        "(NATIONAL CITY BANK[A-Za-z\\s,]*)",
+        "(ETRADE BANK[A-Za-z\\s,]*)"
       ]
     },
     {
       "name": "assignee", 
-      "keywords": ["assignee", "grantee", "transferee", "to", "etrade", "veripro", "ns194"],
+      "keywords": ["assignee", "grantee", "transferee", "to"],
       "patterns": [
-        "([A-Z][A-Za-z\\s]+BANK[A-Za-z\\s]*)",
-        "([A-Z][A-Za-z\\s]+NATIONAL[A-Za-z\\s]*ASSOCIATION)",
-        "(ETRADE BANK[A-Za-z\\s]*)",
-        "(VERIPRO[A-Za-z\\s]*)",
-        "(NS194[A-Za-z\\s]*LLC)"
+        "assignee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)",
+        "(?:assigns?|transfers?|conveys?)\\s+(?:and\\s+conveys?\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:\\s+all|\\s+the|\\s*,|$)",
+        "assignment\\s+(?:from\\s+[^,]+\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)",
+        "(ETRADE BANK[A-Za-z\\s,]*)",
+        "(VERIPRO[A-Za-z\\s,]*)",
+        "(NS194[A-Za-z\\s,]*LLC)"
       ]
     },
     {
