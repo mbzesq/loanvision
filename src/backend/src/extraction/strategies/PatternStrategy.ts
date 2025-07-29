@@ -227,73 +227,95 @@ export class PatternStrategy implements ExtractionStrategy {
     
     // Clean assignor/assignee company names
     if (fieldName === 'assignor' || fieldName === 'assignee') {
-      // Strategy: Look for capitalized sequences that look like company names
-      // Companies typically have: 
-      // - All caps or title case words
-      // - Common suffixes like LLC, INC, CORP, BANK, etc.
-      // - Multiple capitalized words in sequence
+      cleaned = this.cleanAssignmentText(cleaned, fieldName);
+    }
+    
+    return cleaned;
+  }
+
+  private cleanAssignmentText(text: string, fieldName: string): string {
+    let cleaned = text.trim();
+    
+    console.log(`[CleanAssignment] Before cleaning (${fieldName}): "${cleaned}"`);
+    
+    // Step 1: Remove verbose legal boilerplate patterns
+    const boilerplatePatterns = [
+      // Remove "has duly executed this assignment..." clauses
+      /(?:has\s+)?(?:duly\s+)?executed\s+this\s+assignment[^,]*?(?:\d{1,2}(?:st|nd|rd|th)?\s+day\s+of\s+\w+\s+\d{4})/gi,
       
-      // First, remove obvious legal boilerplate
-      cleaned = cleaned
-        .replace(/(?:has\s+)?(?:duly\s+)?executed\s+this\s+assignment[^,]*\d{4}/i, '')
-        .replace(/\b(?:but\s+)?effective\s+(?:the\s+)?\d+\w*\s+day\s+of\s+\w+\s+\d{4}/i, '')
-        .replace(/Serial\s+no\.?[^,]*/i, '')
-        .replace(/in\s+the\s+office\s+of[^,]*/i, '')
-        .replace(/more\s+particularly\s+described[^,]*/i, '')
-        .trim();
+      // Remove "but effective..." date clauses
+      /\b(?:but\s+)?effective\s+(?:the\s+)?\d{1,2}(?:st|nd|rd|th)?\s+day\s+of\s+\w+\s+\d{4}/gi,
       
-      // Look for company name patterns
-      const companyPatterns = [
-        // Match sequences of capitalized words ending in common business suffixes
-        /([A-Z][A-Z\s&.,'-]+(?:LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO|BANK|NATIONAL\s+ASSOCIATION|N\.A\.|TRUST|LP|LTD|LIMITED|PARTNERS|FINANCIAL|MORTGAGE|SERVICING|HOLDINGS|GROUP|CAPITAL)\b)/i,
-        // Match "Company Name, a Delaware corporation" style
-        /([A-Z][A-Za-z\s&.,'-]+),\s+a\s+\w+\s+(?:corporation|company|limited|partnership)/i,
-        // Match sequences of 2+ capitalized words
-        /([A-Z][A-Z\s&.,'-]{3,}[A-Z])/,
-        // Fallback: first sequence of capitalized words
-        /([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)/
-      ];
+      // Remove property data and location info
+      /(?:PROPERTY\s+DATA|Borough\s+Block\s+Lot|Unit\s+Address|BROOKL|BRONX|QUEEN|MANHATTAN|STATEN)[^,]*/gi,
       
-      for (const pattern of companyPatterns) {
-        const match = cleaned.match(pattern);
-        if (match) {
-          let companyName = match[1].trim();
-          
-          // Clean up the extracted company name
-          companyName = companyName
-            .replace(/\s+/g, ' ') // Normalize whitespace
-            .replace(/[,.]\s*$/, '') // Remove trailing punctuation
-            .replace(/^[,.]\s*/, '') // Remove leading punctuation
-            .trim();
-          
-          // If we found something reasonable, use it
-          if (companyName.length > 2 && companyName.length < 100) {
-            return companyName;
-          }
+      // Remove serial numbers and document references
+      /Serial\s+(?:no\.?|number)[^,]*/gi,
+      /Document\s+(?:no\.?|number)[^,]*/gi,
+      
+      // Remove office/recording references
+      /in\s+the\s+office\s+of[^,]*/gi,
+      /recorded?\s+in[^,]*/gi,
+      
+      // Remove description clauses
+      /more\s+particularly\s+described[^,]*/gi,
+      /as\s+more\s+fully\s+described[^,]*/gi,
+      
+      // Remove common assignment phrases that aren't company names
+      /this\s+assignment\s+of[^,]*/gi,
+      /all\s+right[^,]*/gi
+    ];
+    
+    boilerplatePatterns.forEach(pattern => {
+      cleaned = cleaned.replace(pattern, ' ');
+    });
+    
+    // Step 2: Normalize whitespace
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+    
+    console.log(`[CleanAssignment] After boilerplate removal: "${cleaned}"`);
+    
+    // Step 3: Extract company name using hierarchical patterns
+    const companyExtractionPatterns = [
+      // Pattern 1: Business entity with suffix (highest priority)
+      /([A-Z][A-Z\s&.,'-]*?(?:LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO|BANK|NATIONAL\s+ASSOCIATION|N\.A\.|TRUST|LP|LTD|LIMITED|PARTNERS|FINANCIAL|MORTGAGE|SERVICING|HOLDINGS|GROUP|CAPITAL|CREDIT|UNION)\b)/i,
+      
+      // Pattern 2: "Company Name, a [state] corporation" format
+      /([A-Z][A-Za-z\s&.,'-]{2,50}?),\s+a\s+\w+\s+(?:corporation|company|limited|partnership|bank)/i,
+      
+      // Pattern 3: All caps sequence (common in legal docs)
+      /([A-Z]{2,}(?:\s+[A-Z]{2,}){0,4})/,
+      
+      // Pattern 4: Title case company name (2-6 words)
+      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,5})/,
+      
+      // Pattern 5: Mixed case with &, Inc, etc.
+      /([A-Z][A-Za-z\s&.,'-]{5,40})/
+    ];
+    
+    for (const pattern of companyExtractionPatterns) {
+      const match = cleaned.match(pattern);
+      if (match) {
+        let companyName = match[1].trim();
+        
+        // Clean up the extracted company name
+        companyName = this.enhancedCleanCompanyName(companyName);
+        
+        // Validate it's actually a company name
+        if (this.isValidCompanyName(companyName)) {
+          console.log(`[CleanAssignment] Extracted company (${fieldName}): "${companyName}"`);
+          return companyName;
         }
       }
-      
-      // If no pattern matched, try to clean up what we have
-      cleaned = cleaned
-        .replace(/\s+/g, ' ') // Normalize whitespace
-        .replace(/[,;].*$/, '') // Remove everything after comma/semicolon
-        .trim();
-      
-      // If still too long or contains junk, truncate intelligently
-      if (cleaned.length > 50) {
-        // Try to find the first reasonable endpoint
-        const endPoints = [',', ';', ' hereby', ' does', ' has', ' serial', ' dated', ' effective'];
-        let shortestClean = cleaned;
-        
-        for (const endPoint of endPoints) {
-          const index = cleaned.toLowerCase().indexOf(endPoint);
-          if (index > 0 && index < shortestClean.length) {
-            shortestClean = cleaned.substring(0, index).trim();
-          }
-        }
-        
-        cleaned = shortestClean;
-      }
+    }
+    
+    // Step 4: Fallback - try to find any reasonable text
+    const fallbackPattern = /([A-Z][A-Za-z\s]{3,30})/;
+    const fallbackMatch = cleaned.match(fallbackPattern);
+    if (fallbackMatch) {
+      const fallback = this.enhancedCleanCompanyName(fallbackMatch[1].trim());
+      console.log(`[CleanAssignment] Fallback extraction (${fieldName}): "${fallback}"`);
+      return fallback;
     }
     
     return cleaned;
@@ -305,5 +327,82 @@ export class PatternStrategy implements ExtractionStrategy {
       .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc\.?|Corp\.?|Corporation|Company|Co\.?|Trust|LP|Ltd\.?)?\s*$/i, '')
       .replace(/\s+/g, ' ')
       .trim();
+  }
+
+  private enhancedCleanCompanyName(name: string): string {
+    let cleaned = name.trim();
+    
+    // Remove leading/trailing punctuation
+    cleaned = cleaned.replace(/^[,.\s]+|[,.\s]+$/g, '');
+    
+    // Remove common legal phrases that got captured
+    const unwantedPhrases = [
+      /^(?:and|to|from|between|as|the|a|an)\s+/gi,
+      /\s+(?:as|being|located|situated|in|at|on)$/gi,
+      /\s+hereby\s.*$/gi,
+      /\s+does\s.*$/gi
+    ];
+    
+    unwantedPhrases.forEach(phrase => {
+      cleaned = cleaned.replace(phrase, '');
+    });
+    
+    // Normalize whitespace
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+    
+    // Preserve business suffixes but ensure proper capitalization
+    cleaned = cleaned.replace(/\s+(NATIONAL|ASSOCIATION|NA|CORP|INC|LLC|LTD|LIMITED|COMPANY|CO|BANK|TRUST|LP)$/i, 
+      (match) => match.toUpperCase());
+    
+    return cleaned;
+  }
+
+  private isValidCompanyName(name: string): boolean {
+    // Too short
+    if (name.length < 3) return false;
+    
+    // Too long (likely captured too much)
+    if (name.length > 80) return false;
+    
+    // Contains obvious non-company words
+    const invalidKeywords = [
+      'hereby', 'executed', 'assignment', 'effective', 'property', 'data',
+      'borough', 'block', 'described', 'recorded', 'office', 'day', 'march',
+      'february', 'january', 'april', 'may', 'june', 'july', 'august',
+      'september', 'october', 'november', 'december'
+    ];
+    
+    const lowerName = name.toLowerCase();
+    if (invalidKeywords.some(keyword => lowerName.includes(keyword))) {
+      return false;
+    }
+    
+    // Should contain at least one letter
+    if (!/[a-zA-Z]/.test(name)) return false;
+    
+    // Positive indicators (business suffixes)
+    const businessSuffixes = [
+      'LLC', 'INC', 'CORP', 'CORPORATION', 'COMPANY', 'CO', 'BANK', 
+      'TRUST', 'LP', 'LTD', 'LIMITED', 'NATIONAL', 'ASSOCIATION',
+      'FINANCIAL', 'MORTGAGE', 'SERVICING', 'HOLDINGS', 'GROUP',
+      'CAPITAL', 'CREDIT', 'UNION'
+    ];
+    
+    const upperName = name.toUpperCase();
+    const hasBusinessSuffix = businessSuffixes.some(suffix => 
+      upperName.includes(suffix)
+    );
+    
+    // If it has business suffix, it's likely valid
+    if (hasBusinessSuffix) return true;
+    
+    // Otherwise, check if it looks like a proper company name
+    // (starts with capital, reasonable length, not all caps unless short)
+    if (!/^[A-Z]/.test(name)) return false;
+    
+    // If all caps and long, probably not a clean company name
+    if (name === name.toUpperCase() && name.length > 20) return false;
+    
+    return true;
   }
 }

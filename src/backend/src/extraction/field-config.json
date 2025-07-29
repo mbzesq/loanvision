@@ -81,22 +81,22 @@
       "name": "assignor",
       "keywords": ["assignor", "grantor", "transferor", "from"],
       "patterns": [
-        "between\\s+([A-Z][^,]+?)(?:,\\s*(?:a|an)\\s+\\w+\\s+(?:corporation|company|bank|limited)|,)\\s*(?:as\\s+)?(?:assignor|grantor)",
-        "([A-Z][^,]+?(?:LLC|L\\.L\\.C\\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO|BANK|NATIONAL\\s+ASSOCIATION|N\\.A\\.|TRUST|LP|LTD|LIMITED))(?:,\\s*(?:a|an)\\s+\\w+\\s+(?:corporation|company|bank|limited))?\\s*,?\\s*(?:as\\s+)?(?:assignor|grantor)",
-        "assignor[:\\s]+([^,\\n]+?)(?:,|\\n|$)",
-        "assignment\\s+from\\s+([^,]+?)\\s+(?:to|,)",
-        "([A-Z][^,]+?)\\s+(?:does\\s+)?hereby\\s+(?:assigns?|transfers?|conveys?)"
+        "between\\s+([^,]+?)(?:,\\s*(?:a|an)\\s+\\w+\\s+(?:corporation|company|bank|limited)|\\s+as\\s+assignor)",
+        "([A-Z][^,]*?(?:LLC|L\\.L\\.C\\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO|BANK|NATIONAL\\s+ASSOCIATION|N\\.A\\.|TRUST|LP|LTD|LIMITED))(?:\\s*,\\s*(?:a|an)\\s+\\w+\\s+(?:corporation|company|bank|limited))?\\s*,?\\s*as\\s+assignor",
+        "assignor[:\\s]+([^,\\n]{1,100}?)(?:,|\\n|\\s+(?:and|to|hereby|does))",
+        "assignment\\s+from\\s+([^,]{1,80}?)\\s+(?:to|dated|,)",
+        "([A-Z][^,]{1,80}?)\\s+(?:does\\s+)?hereby\\s+(?:assigns?|transfers?|conveys?)"
       ]
     },
     {
       "name": "assignee", 
       "keywords": ["assignee", "grantee", "transferee", "to"],
       "patterns": [
-        "and\\s+([A-Z][^,]+?)(?:,\\s*(?:a|an)\\s+\\w+\\s+(?:corporation|company|bank|limited)|,)\\s*(?:as\\s+)?(?:assignee|grantee)",
-        "to\\s+([A-Z][^,]+?(?:LLC|L\\.L\\.C\\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO|BANK|NATIONAL\\s+ASSOCIATION|N\\.A\\.|TRUST|LP|LTD|LIMITED))(?:,\\s*(?:a|an)\\s+\\w+\\s+(?:corporation|company|bank|limited))?",
-        "assignee[:\\s]+([^,\\n]+?)(?:,|\\n|$)",
-        "assignment\\s+to\\s+([^,]+?)(?:,|\\s+all|\\s+the|$)",
-        "(?:assigns?|transfers?|conveys?)\\s+to\\s+([^,]+?)(?:,|\\s+all|\\s+the|$)"
+        "and\\s+([^,]+?)(?:,\\s*(?:a|an)\\s+\\w+\\s+(?:corporation|company|bank|limited)|\\s+as\\s+assignee)",
+        "to\\s+([A-Z][^,]*?(?:LLC|L\\.L\\.C\\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO|BANK|NATIONAL\\s+ASSOCIATION|N\\.A\\.|TRUST|LP|LTD|LIMITED))(?:\\s*,\\s*(?:a|an)\\s+\\w+)?",
+        "assignee[:\\s]+([^,\\n]{1,100}?)(?:,|\\n|\\s+(?:all|the|this|hereby))",
+        "assignment\\s+to\\s+([^,]{1,80}?)(?:,|\\s+all|\\s+the|\\s+this|$)",
+        "(?:assigns?|transfers?|conveys?)\\s+to\\s+([^,]{1,80}?)(?:,|\\s+all|\\s+the|\\s+this|$)"
       ]
     },
     {
