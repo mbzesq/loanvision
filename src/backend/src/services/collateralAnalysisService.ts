@@ -261,6 +261,22 @@ export class CollateralAnalysisService {
       return;
     }
 
+    // Date sanitization function (same as in documentAnalysis route)
+    const sanitizeDate = (dateValue: any): Date | null => {
+      if (!dateValue) return null;
+      if (dateValue instanceof Date) return dateValue;
+      
+      // If it's a string, try to extract just the date part
+      const dateStr = dateValue.toString();
+      const dateMatch = dateStr.match(/(\d{1,2}\/\d{1,2}\/\d{4})|(\d{1,2}-\d{1,2}-\d{4})|([A-Za-z]+ \d{1,2}, \d{4})/);
+      if (dateMatch) {
+        const parsedDate = new Date(dateMatch[0]);
+        return isNaN(parsedDate.getTime()) ? null : parsedDate;
+      }
+      
+      return null;
+    };
+
     // Get current chain
     const existingChain = await this.getAssignmentChain(loanId);
     const nextSequence = existingChain.length + 1;
@@ -282,8 +298,8 @@ export class CollateralAnalysisService {
       documentAnalysisId,
       extractedFields.assignor,
       extractedFields.assignee,
-      extractedFields.assignmentDate,
-      extractedFields.recordingDate,
+      sanitizeDate(extractedFields.assignmentDate),
+      sanitizeDate(extractedFields.recordingDate),
       documentType,
       extractedFields.instrumentNumber,
       nextSequence,
