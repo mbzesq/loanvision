@@ -25,431 +25,167 @@ export interface ExtractedFields {
   fieldConfidence: Map<string, number>;
 }
 
+export interface ExtractionStrategy {
+  name: string;
+  priority: number;
+  extract(text: string, config: ExtractorConfig): Map<string, ExtractedCandidate>;
+}
+
+export interface ExtractedCandidate {
+  value: any;
+  confidence: number;
+  strategy: string;
+  justification: string;
+}
+
+export interface FieldDefinition {
+  name: string;
+  keywords: string[];
+  patterns?: string[];
+  validators?: string[];
+  dependencies?: string[];
+  contextPatterns?: string[];
+}
+
+export interface ExtractorConfig {
+  fields: FieldDefinition[];
+  documentType: DocumentType;
+}
+
+export interface ExtractionLearner {
+  improveCandidates(
+    candidates: Map<string, ExtractedCandidate[]>,
+    feedback?: any
+  ): Promise<Map<string, ExtractedCandidate>>;
+}
+
 export class MarkdownFieldExtractor {
-  // Common patterns
-  private readonly addressPattern = /(\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl))\s*,?\s*([A-Za-z\s]+)\s*,?\s*([A-Z]{2})\s*(\d{5}(?:-\d{4})?)/i;
-  private readonly datePattern = /(\d{1,2})[\\/\-](\d{1,2})[\\/\-](\d{2,4})/;
-  private readonly currencyPattern = /\$[\d,]+(?:\.\d{2})?/;
-  private readonly namePattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/;
+  private strategies: ExtractionStrategy[];
+  private config: ExtractorConfig;
+  private learner?: ExtractionLearner;
+
+  constructor(
+    config: ExtractorConfig,
+    strategies: ExtractionStrategy[],
+    learner?: ExtractionLearner
+  ) {
+    this.config = config;
+    this.strategies = strategies.sort((a, b) => b.priority - a.priority);
+    this.learner = learner;
+  }
 
   async extractFields(
-    markdown: string, 
+    markdown: string,
     documentType: DocumentType
   ): Promise<ExtractedFields> {
-    const fields: ExtractedFields = {
-      fieldConfidence: new Map<string, number>(),
-    };
-
-    // Parse markdown into sections and tables
+    // Step 1: Parse document structure
     const sections = this.parseMarkdownSections(markdown);
     const tables = this.extractMarkdownTables(markdown);
     const cleanText = this.stripMarkdown(markdown);
 
-    // Extract common fields
-    this.extractPropertyAddress(markdown, sections, tables, fields);
+    // Step 2: Collect candidates from all strategies
+    const allCandidates = new Map<string, ExtractedCandidate[]>();
 
-    // Extract document-specific fields
-    switch (documentType) {
-      case DocumentType.NOTE:
-      case DocumentType.SECURITY_INSTRUMENT:
-        this.extractLoanFields(markdown, sections, tables, fields);
-        break;
-      case DocumentType.ASSIGNMENT:
-        this.extractAssignmentFields(markdown, sections, tables, fields);
-        break;
-      // NOTE: ALLONGE documents are now classified as Notes with endorsements
+    for (const strategy of this.strategies) {
+      try {
+        const candidates = strategy.extract(cleanText, this.config);
+        
+        candidates.forEach((candidate, fieldName) => {
+          if (!allCandidates.has(fieldName)) {
+            allCandidates.set(fieldName, []);
+          }
+          allCandidates.get(fieldName)!.push(candidate);
+        });
+      } catch (error) {
+        console.warn(`Strategy ${strategy.name} failed:`, error);
+      }
     }
+
+    // Step 3: Use learning system to improve candidates (if available)
+    let finalCandidates: Map<string, ExtractedCandidate>;
+    if (this.learner) {
+      finalCandidates = await this.learner.improveCandidates(allCandidates);
+    } else {
+      // Fallback: select best candidate per field
+      finalCandidates = this.selectBestCandidates(allCandidates);
+    }
+
+    // Step 4: Apply business rules and validation
+    const validatedCandidates = this.applyBusinessRules(finalCandidates, cleanText);
+
+    // Step 5: Convert to ExtractedFields format
+    return this.buildExtractedFields(validatedCandidates);
+  }
+
+  private selectBestCandidates(
+    allCandidates: Map<string, ExtractedCandidate[]>
+  ): Map<string, ExtractedCandidate> {
+    const result = new Map<string, ExtractedCandidate>();
+
+    allCandidates.forEach((candidates, fieldName) => {
+      if (candidates.length === 0) return;
+
+      // Sort by confidence and select the best
+      candidates.sort((a, b) => b.confidence - a.confidence);
+      result.set(fieldName, candidates[0]);
+    });
+
+    return result;
+  }
+
+  private applyBusinessRules(
+    candidates: Map<string, ExtractedCandidate>,
+    text: string
+  ): Map<string, ExtractedCandidate> {
+    const result = new Map(candidates);
+
+    // Example business rule: If we have assignor and assignee, they shouldn't be the same
+    const assignor = result.get('assignor');
+    const assignee = result.get('assignee');
+    
+    if (assignor && assignee && assignor.value === assignee.value) {
+      // Reduce confidence for both
+      assignor.confidence *= 0.5;
+      assignee.confidence *= 0.5;
+    }
+
+    // Example: Validate property address components are consistent
+    const street = result.get('propertyStreet');
+    const city = result.get('propertyCity');
+    const state = result.get('propertyState');
+    
+    if (street && city && state) {
+      // Check if all appear together in text (increases confidence)
+      const fullAddress = `${street.value} ${city.value} ${state.value}`;
+      if (text.toLowerCase().includes(fullAddress.toLowerCase())) {
+        street.confidence = Math.min(0.95, street.confidence + 0.1);
+        city.confidence = Math.min(0.95, city.confidence + 0.1);
+        state.confidence = Math.min(0.95, state.confidence + 0.1);
+      }
+    }
+
+    return result;
+  }
+
+  private buildExtractedFields(
+    candidates: Map<string, ExtractedCandidate>
+  ): ExtractedFields {
+    const fields: ExtractedFields = {
+      fieldConfidence: new Map<string, number>(),
+    };
+
+    candidates.forEach((candidate, fieldName) => {
+      // Set the field value
+      (fields as any)[fieldName] = candidate.value;
+      
+      // Store confidence
+      fields.fieldConfidence.set(fieldName, candidate.confidence);
+    });
 
     return fields;
   }
 
-  private extractPropertyAddress(
-    markdown: string,
-    sections: any[],
-    tables: any[],
-    fields: ExtractedFields
-  ): void {
-    // Try to find address in tables first (most reliable)
-    for (const table of tables) {
-      for (let i = 0; i < table.headers.length; i++) {
-        const header = table.headers[i].toLowerCase();
-        if (['property address', 'address', 'premises', 'property'].some(key => header.includes(key))) {
-          for (const row of table.rows) {
-            if (row[i]) {
-              const parsedAddress = this.parseAddress(row[i]);
-              if (parsedAddress) {
-                Object.assign(fields, parsedAddress);
-                fields.fieldConfidence.set('propertyAddress', 0.95);
-                return;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Try to find address in structured sections
-    const propertySection = sections.find(s => 
-      s.heading.toLowerCase().includes('property') || 
-      s.heading.toLowerCase().includes('real property')
-    );
-    
-    if (propertySection) {
-      const addressMatch = propertySection.content.match(this.addressPattern);
-      if (addressMatch) {
-        fields.propertyStreet = addressMatch[1].trim();
-        fields.propertyCity = addressMatch[2].trim();
-        fields.propertyState = addressMatch[3].trim();
-        fields.propertyZip = addressMatch[4].trim();
-        fields.fieldConfidence.set('propertyAddress', 0.85);
-        return;
-      }
-    }
-
-    // Fallback to full text search
-    const fullText = this.stripMarkdown(markdown);
-    const addressMatch = fullText.match(this.addressPattern);
-    if (addressMatch) {
-      fields.propertyStreet = addressMatch[1].trim();
-      fields.propertyCity = addressMatch[2].trim();
-      fields.propertyState = addressMatch[3].trim();
-      fields.propertyZip = addressMatch[4].trim();
-      fields.fieldConfidence.set('propertyAddress', 0.7);
-    }
-  }
-
-  private extractLoanFields(
-    markdown: string,
-    sections: any[],
-    tables: any[],
-    fields: ExtractedFields
-  ): void {
-    const fullText = this.stripMarkdown(markdown);
-
-    // Extract borrower names
-    this.extractBorrowerNames(markdown, tables, fields);
-
-    // Extract loan amount
-    this.extractLoanAmount(markdown, tables, fields);
-
-    // Extract dates
-    this.extractLoanDates(markdown, tables, fields);
-
-    // Extract lender
-    this.extractLender(markdown, tables, fields);
-  }
-
-  private extractBorrowerNames(markdown: string, tables: any[], fields: ExtractedFields): void {
-    // Check tables first
-    for (const table of tables) {
-      for (let i = 0; i < table.headers.length; i++) {
-        const header = table.headers[i].toLowerCase();
-        if (['borrower', 'mortgagor', 'grantor', 'trustor'].some(key => header.includes(key))) {
-          for (const row of table.rows) {
-            if (row[i]) {
-              const names = this.extractNamesFromValue(row[i]);
-              if (names.length > 0) {
-                fields.borrowerName = names[0];
-                fields.fieldConfidence.set('borrowerName', 0.9);
-                if (names.length > 1) {
-                  fields.coBorrowerName = names[1];
-                  fields.fieldConfidence.set('coBorrowerName', 0.85);
-                }
-                return;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Fallback to pattern matching in full text
-    const fullText = this.stripMarkdown(markdown);
-    const borrowerPatterns = [
-      /(?:borrower|mortgagor|grantor|trustor)[:\s]+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i,
-      /between\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+and\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)?)/i
-    ];
-
-    for (const pattern of borrowerPatterns) {
-      const match = fullText.match(pattern);
-      if (match) {
-        const names = this.extractNamesFromValue(match[1]);
-        if (names.length > 0) {
-          fields.borrowerName = names[0];
-          fields.fieldConfidence.set('borrowerName', 0.7);
-          if (names.length > 1) {
-            fields.coBorrowerName = names[1];
-            fields.fieldConfidence.set('coBorrowerName', 0.7);
-          }
-          break;
-        }
-      }
-    }
-  }
-
-  private extractLoanAmount(markdown: string, tables: any[], fields: ExtractedFields): void {
-    // Check tables first
-    for (const table of tables) {
-      for (let i = 0; i < table.headers.length; i++) {
-        const header = table.headers[i].toLowerCase();
-        if (['amount', 'principal', 'loan amount', 'sum'].some(key => header.includes(key))) {
-          for (const row of table.rows) {
-            if (row[i]) {
-              const amount = this.parseCurrency(row[i]);
-              if (amount) {
-                fields.loanAmount = amount;
-                fields.fieldConfidence.set('loanAmount', 0.95);
-                return;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Pattern matching in full text
-    const fullText = this.stripMarkdown(markdown);
-    const amountPatterns = [
-      /principal amount[\s\w]*\$(\d[\d,]*(?:\.\d{2})?)/i,
-      /loan amount[\s\w]*\$(\d[\d,]*(?:\.\d{2})?)/i,
-      /sum of[\s\w]*\$(\d[\d,]*(?:\.\d{2})?)/i,
-      /maximum principal amount[\s\w]*\$(\d[\d,]*(?:\.\d{2})?)/i
-    ];
-
-    for (const pattern of amountPatterns) {
-      const match = fullText.match(pattern);
-      if (match) {
-        const amount = this.parseCurrency('$' + match[1]);
-        if (amount) {
-          fields.loanAmount = amount;
-          fields.fieldConfidence.set('loanAmount', 0.8);
-          break;
-        }
-      }
-    }
-  }
-
-  private extractLoanDates(markdown: string, tables: any[], fields: ExtractedFields): void {
-    // Check tables first
-    for (const table of tables) {
-      for (let i = 0; i < table.headers.length; i++) {
-        const header = table.headers[i].toLowerCase();
-        if (['date', 'dated', 'origination', 'loan date'].some(key => header.includes(key))) {
-          for (const row of table.rows) {
-            if (row[i]) {
-              const date = this.parseDate(row[i]);
-              if (date) {
-                fields.originationDate = date;
-                fields.fieldConfidence.set('originationDate', 0.9);
-                return;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Pattern matching for common date formats in mortgage documents
-    const fullText = this.stripMarkdown(markdown);
-    const datePatterns = [
-      /this mortgage dated\s+([^,]+)/i,
-      /dated\s+([^,\n]+)/i
-    ];
-
-    for (const pattern of datePatterns) {
-      const match = fullText.match(pattern);
-      if (match) {
-        const date = this.parseDate(match[1]);
-        if (date) {
-          fields.originationDate = date;
-          fields.fieldConfidence.set('originationDate', 0.75);
-          break;
-        }
-      }
-    }
-  }
-
-  private extractLender(markdown: string, tables: any[], fields: ExtractedFields): void {
-    // Pattern matching for lender identification
-    const fullText = this.stripMarkdown(markdown);
-    const lenderPatterns = [
-      /(?:lender|mortgagee|beneficiary)[:\s]+([A-Z][A-Za-z\s&,.]+?)(?:,|\n|whose)/i,
-      /and\s+([A-Z][A-Za-z\s&,.]+?)\s*\(referred to.*as.*lender\)/i
-    ];
-
-    for (const pattern of lenderPatterns) {
-      const match = fullText.match(pattern);
-      if (match) {
-        fields.lenderName = this.cleanCompanyName(match[1]);
-        fields.fieldConfidence.set('lenderName', 0.8);
-        break;
-      }
-    }
-  }
-
-  private extractAssignmentFields(markdown: string, sections: any[], tables: any[], fields: ExtractedFields): void {
-    const fullText = this.stripMarkdown(markdown);
-
-    // Extract assignor/assignee from tables first
-    for (const table of tables) {
-      for (let i = 0; i < table.headers.length; i++) {
-        const header = table.headers[i].toLowerCase();
-        if (header.includes('assignor')) {
-          for (const row of table.rows) {
-            if (row[i]) {
-              fields.assignor = this.cleanCompanyName(row[i]);
-              fields.fieldConfidence.set('assignor', 0.9);
-            }
-          }
-        }
-        if (header.includes('assignee')) {
-          for (const row of table.rows) {
-            if (row[i]) {
-              fields.assignee = this.cleanCompanyName(row[i]);
-              fields.fieldConfidence.set('assignee', 0.9);
-            }
-          }
-        }
-      }
-    }
-
-    // Extract assignor/assignee from markdown structured text (with bold formatting)
-    if (!fields.assignor) {
-      const assignorPatterns = [
-        /\*\*assignor:\*\*\s*([^*\n]+)/i,
-        /assignor:\s*([^*\n]+)/i,
-        /\*\*assignor\*\*[:\s]*([^*\n]+)/i,
-        /assignor[:\s]+([A-Z][^,\n]+?)(?:,|\n|$)/i
-      ];
-      
-      for (const pattern of assignorPatterns) {
-        const match = markdown.match(pattern);
-        if (match) {
-          fields.assignor = this.cleanCompanyName(match[1]);
-          fields.fieldConfidence.set('assignor', 0.9);
-          break;
-        }
-      }
-    }
-
-    if (!fields.assignee) {
-      const assigneePatterns = [
-        /\*\*assignee:\*\*\s*([^*\n]+)/i,
-        /assignee:\s*([^*\n]+)/i,
-        /\*\*assignee\*\*[:\s]*([^*\n]+)/i,
-        /assignee[:\s]+([A-Z][^,\n]+?)(?:,|\n|$)/i
-      ];
-      
-      for (const pattern of assigneePatterns) {
-        const match = markdown.match(pattern);
-        if (match) {
-          fields.assignee = this.cleanCompanyName(match[1]);
-          fields.fieldConfidence.set('assignee', 0.9);
-          break;
-        }
-      }
-    }
-
-    // Pattern matching for assignment transfer language
-    if (!fields.assignor || !fields.assignee) {
-      // Look for "X hereby assigns and transfers to Y" patterns
-      const transferPatterns = [
-        /([A-Z][A-Za-z\s&,.()]+?)\s+hereby assigns?(?:\s+and transfers?)?\s+to\s+([A-Z][A-Za-z\s&,.()]+?)\s+(?:all|the)/i,
-        /([A-Z][A-Za-z\s&,.()]+?)\s+assigns?\s+to\s+([A-Z][A-Za-z\s&,.()]+?)\s+(?:all|the)/i,
-        /([A-Z][^,\n]+?)\s+hereby assigns\s+and\s+transfers\s+to\s+([A-Z][^,\n]+?)\s+all/i
-      ];
-
-      for (const pattern of transferPatterns) {
-        const match = fullText.match(pattern);
-        if (match) {
-          if (!fields.assignor) {
-            fields.assignor = this.cleanCompanyName(match[1]);
-            fields.fieldConfidence.set('assignor', 0.85);
-          }
-          if (!fields.assignee) {
-            fields.assignee = this.cleanCompanyName(match[2]);
-            fields.fieldConfidence.set('assignee', 0.85);
-          }
-          break;
-        }
-      }
-    }
-
-    // Legacy simple patterns for fallback
-    if (!fields.assignor || !fields.assignee) {
-      const simplePatterns = [
-        /assigns?\s+to\s+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n|all)/i,
-        /assignor[:\s]+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n)/i,
-        /assignee[:\s]+([A-Z][A-Za-z\s&,.]+?)\s*(?:,|\n)/i
-      ];
-
-      for (const pattern of simplePatterns) {
-        const match = fullText.match(pattern);
-        if (match) {
-          const company = this.cleanCompanyName(match[1]);
-          if (!fields.assignee && pattern.source.includes('assigns? to')) {
-            fields.assignee = company;
-            fields.fieldConfidence.set('assignee', 0.75);
-          } else if (!fields.assignor && pattern.source.includes('assignor')) {
-            fields.assignor = company;
-            fields.fieldConfidence.set('assignor', 0.75);
-          } else if (!fields.assignee && pattern.source.includes('assignee')) {
-            fields.assignee = company;
-            fields.fieldConfidence.set('assignee', 0.75);
-          }
-        }
-      }
-    }
-
-    // Extract dates - improved patterns for various document formats
-    // Use original markdown to preserve line breaks and better date context
-    const datePatterns = [
-      /recording date[:\s]+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i,
-      /assignment recorded[:\s]+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i,
-      /recorded[:\s]+([A-Za-z]+\s+\d{1,2},?\s+\d{4})/i,
-      /document number[:\s]+(\d{4}-\d+)/i,
-      /recording number[:\s]+(\d{4}-\d+)/i,
-      /instrument(?:\s+no\.?|number)[:\s]+([^\n,]+)/i
-    ];
-
-    for (const pattern of datePatterns) {
-      const match = markdown.match(pattern);
-      if (match) {
-        const value = match[1].trim();
-        
-        // Try to parse as date first
-        const date = this.parseDate(value);
-        if (date) {
-          if (pattern.source.includes('recording')) {
-            fields.recordingDate = date;
-            fields.fieldConfidence.set('recordingDate', 0.8);
-          } else if (pattern.source.includes('assignment')) {
-            fields.assignmentDate = date;
-            fields.fieldConfidence.set('assignmentDate', 0.8);
-          }
-        } else if (pattern.source.includes('number') || pattern.source.includes('instrument')) {
-          // If not a date, might be an instrument number
-          if (value.match(/^\d{4}-\d+$|^\d+$/)) {
-            fields.instrumentNumber = value;
-            fields.fieldConfidence.set('instrumentNumber', 0.8);
-          }
-        }
-      }
-    }
-  }
-
-  private extractEndorsementFields(markdown: string, fields: ExtractedFields): void {
-    const fullText = this.stripMarkdown(markdown);
-    const endorsementPattern = /pay to the order of\s+([A-Za-z\s,.'&]+?)(?:\n|without)/i;
-    const match = fullText.match(endorsementPattern);
-    
-    if (match) {
-      fields.assignee = this.cleanCompanyName(match[1]);
-      fields.fieldConfidence.set('assignee', 0.8);
-    }
-  }
-
-  // Helper methods
+  // Helper methods from original implementation
   private parseMarkdownSections(markdown: string): any[] {
     const sections: any[] = [];
     const lines = markdown.split('\n');
@@ -510,92 +246,6 @@ export class MarkdownFieldExtractor {
       .replace(/\|[^|]+\|/g, ' ') // Remove tables
       .replace(/^[-*_]{3,}$/gm, '') // Remove horizontal rules
       .replace(/\s+/g, ' ') // Clean up whitespace
-      .trim();
-  }
-
-  private parseAddress(addressText: string): Partial<ExtractedFields> | null {
-    const match = addressText.match(this.addressPattern);
-    if (match) {
-      return {
-        propertyStreet: match[1].trim(),
-        propertyCity: match[2].trim(),
-        propertyState: match[3].trim(),
-        propertyZip: match[4].trim(),
-      };
-    }
-    return null;
-  }
-
-  private extractNamesFromValue(value: string): string[] {
-    const names = value.split(/\s+and\s+|\s*,\s*|\s*&\s*/i)
-      .map(n => n.trim())
-      .filter(n => n.length > 0 && this.namePattern.test(n));
-    
-    return names;
-  }
-
-  private parseCurrency(value: string): number | undefined {
-    const cleanValue = value.replace(/[$,]/g, '');
-    const amount = parseFloat(cleanValue);
-    return isNaN(amount) ? undefined : amount;
-  }
-
-  private parseDate(value: string): Date | undefined {
-    // Handle various date formats
-    const cleanValue = value.trim().replace(/[,]/g, '');
-    
-    // Try standard formats
-    const formats = [
-      /^(\d{1,2})[\\/\-](\d{1,2})[\\/\-](\d{2,4})$/, // MM/dd/yyyy
-      /^([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})$/, // Month dd, yyyy
-      /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/ // dd Month yyyy
-    ];
-
-    for (const format of formats) {
-      const match = cleanValue.match(format);
-      if (match) {
-        let month: number, day: number, year: number;
-        
-        if (format === formats[0]) { // MM/dd/yyyy
-          month = parseInt(match[1]);
-          day = parseInt(match[2]);
-          year = parseInt(match[3]);
-          if (year < 100) year += year < 50 ? 2000 : 1900;
-        } else if (format === formats[1]) { // Month dd, yyyy
-          month = this.parseMonthName(match[1]);
-          day = parseInt(match[2]);
-          year = parseInt(match[3]);
-        } else { // dd Month yyyy
-          day = parseInt(match[1]);
-          month = this.parseMonthName(match[2]);
-          year = parseInt(match[3]);
-        }
-        
-        if (month > 0 && month <= 12 && day > 0 && day <= 31) {
-          const date = new Date(year, month - 1, day);
-          return isNaN(date.getTime()) ? undefined : date;
-        }
-      }
-    }
-    
-    return undefined;
-  }
-
-  private parseMonthName(monthName: string): number {
-    const months = [
-      'january', 'february', 'march', 'april', 'may', 'june',
-      'july', 'august', 'september', 'october', 'november', 'december'
-    ];
-    const index = months.findIndex(m => m.startsWith(monthName.toLowerCase()));
-    return index + 1;
-  }
-
-  private cleanCompanyName(name: string): string {
-    return name
-      .replace(/^\s*\*\*|\*\*\s*$/g, '') // Remove markdown bold formatting
-      .replace(/\s*\([^)]+\)\s*/g, ' ') // Remove parenthetical content like "(Mortgage Electronic Registration Systems, Inc.)"
-      .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc\.?|Corp\.?|Corporation|Company|Co\.?|Trust|LP|Ltd\.?)\s*$/i, '')
-      .replace(/\s+/g, ' ')
       .trim();
   }
 }

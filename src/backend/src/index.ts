@@ -119,6 +119,10 @@ app.use('/api/diagnostics', diagnosticsRouter);
 import documentAnalysisRouter from './routes/documentAnalysis';
 app.use('/api/v2/loans', documentAnalysisRouter);
 
+// Enhanced Document Analysis Routes (Strategy-based extraction)
+import documentAnalysisV2Router from './routes/documentAnalysisV2';
+app.use('/api/v2/documents', documentAnalysisV2Router);
+
 // Inbox Routes
 import inboxRouter from './routes/inbox';
 app.use('/api/inbox', inboxRouter);

@@ -1,0 +1,129 @@
+{
+  "fields": [
+    {
+      "name": "propertyStreet",
+      "keywords": ["property address", "address", "street", "premises", "real property"],
+      "patterns": [
+        "(\\d+\\s+[A-Za-z\\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl))"
+      ],
+      "contextPatterns": [
+        "(?:property|premises)\\s+(?:located\\s+)?(?:at\\s+)?(\\d+\\s+[A-Za-z\\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl)[^,\\n]*)"
+      ]
+    },
+    {
+      "name": "propertyCity",
+      "keywords": ["city", "municipality"],
+      "dependencies": ["propertyStreet"]
+    },
+    {
+      "name": "propertyState",
+      "keywords": ["state", "province"],
+      "patterns": ["\\b([A-Z]{2})\\b"],
+      "dependencies": ["propertyStreet"]
+    },
+    {
+      "name": "propertyZip",
+      "keywords": ["zip", "postal code", "zip code"],
+      "patterns": ["\\b(\\d{5}(?:-\\d{4})?)\\b"],
+      "dependencies": ["propertyStreet"]
+    },
+    {
+      "name": "borrowerName",
+      "keywords": ["borrower", "mortgagor", "grantor", "trustor", "maker"],
+      "patterns": [
+        "(?:borrower|mortgagor|grantor|trustor)[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)",
+        "between\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:and|&)"
+      ],
+      "contextPatterns": [
+        "(?:borrower|mortgagor)\\s+(?:is\\s+)?([A-Z][A-Za-z\\s]+?)(?:[,\\n]|whose)"
+      ]
+    },
+    {
+      "name": "coBorrowerName",
+      "keywords": ["co-borrower", "co borrower", "joint borrower"],
+      "dependencies": ["borrowerName"]
+    },
+    {
+      "name": "loanAmount",
+      "keywords": ["loan amount", "principal amount", "amount", "sum", "principal"],
+      "patterns": [
+        "(?:principal|loan)\\s+amount[\\s\\w]*\\$([\\d,]+(?:\\.\\d{2})?)",
+        "sum\\s+of[\\s\\w]*\\$([\\d,]+(?:\\.\\d{2})?)"
+      ],
+      "contextPatterns": [
+        "in\\s+the\\s+(?:principal\\s+)?amount\\s+of\\s+\\$([\\d,]+(?:\\.\\d{2})?)"
+      ]
+    },
+    {
+      "name": "originationDate",
+      "keywords": ["date", "dated", "origination date", "loan date"],
+      "patterns": [
+        "(\\w+\\s+\\d{1,2},?\\s+\\d{4})",
+        "(\\d{1,2}\\/\\d{1,2}\\/\\d{2,4})"
+      ],
+      "contextPatterns": [
+        "(?:this\\s+)?(?:note|mortgage)\\s+dated\\s+([^,\\n]+)",
+        "dated\\s+as\\s+of\\s+([^,\\n]+)"
+      ]
+    },
+    {
+      "name": "lenderName",
+      "keywords": ["lender", "mortgagee", "beneficiary", "payee"],
+      "patterns": [
+        "(?:lender|mortgagee|beneficiary)[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|whose)",
+        "and\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s*\\(.*lender\\)"
+      ],
+      "contextPatterns": [
+        "to\\s+the\\s+order\\s+of\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)"
+      ]
+    },
+    {
+      "name": "assignor",
+      "keywords": ["assignor", "grantor", "transferor", "from"],
+      "patterns": [
+        "^(.+?)\\s+(?:(?:does\\s+)?hereby\\s+)?(?:grant|assign|transfer|convey)s?\\s+",
+        "Assignment\\s+from\\s+(.+?)\\s+to",
+        "assignor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)"
+      ],
+      "contextPatterns": [
+        "([A-Z][A-Za-z\\s&,.()]+?)\\s+hereby\\s+(?:assigns?|transfers?)\\s+(?:and\\s+conveys?\\s+)?to"
+      ]
+    },
+    {
+      "name": "assignee",
+      "keywords": ["assignee", "grantee", "transferee", "to"],
+      "patterns": [
+        "(?:assign|transfer|convey)s?\\s+to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:\\s+all|\\s+the|\\s*[,\\n]|$)",
+        "Assignment\\s+(?:from\\s+[^,]+\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)",
+        "assignee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)"
+      ],
+      "contextPatterns": [
+        "(?:assigns?|transfers?)\\s+(?:and\\s+conveys?\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:all|the)"
+      ]
+    },
+    {
+      "name": "assignmentDate",
+      "keywords": ["assignment date", "date of assignment", "effective date"],
+      "patterns": [
+        "assignment\\s+dated\\s+([^,\\n]+)",
+        "effective\\s+(?:as\\s+of\\s+)?([A-Za-z]+\\s+\\d{1,2},?\\s+\\d{4})"
+      ]
+    },
+    {
+      "name": "recordingDate",
+      "keywords": ["recording date", "recorded", "filed"],
+      "patterns": [
+        "recording\\s+date[:\\s]+([A-Za-z]+\\s+\\d{1,2},?\\s+\\d{4})",
+        "recorded\\s+(?:on\\s+)?([A-Za-z]+\\s+\\d{1,2},?\\s+\\d{4})"
+      ]
+    },
+    {
+      "name": "instrumentNumber",
+      "keywords": ["instrument number", "document number", "recording number"],
+      "patterns": [
+        "(?:instrument|document|recording)\\s+(?:no\\.?|number)[:\\s]+([^\\n,]+)",
+        "document\\s+number[:\\s]+(\\d{4}-\\d+)"
+      ]
+    }
+  ]
+}
