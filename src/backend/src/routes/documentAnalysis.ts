@@ -717,6 +717,13 @@ router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
     // Chain is complete if it ends with the current investor (regardless of number of assignments)
     const isChainComplete = assignmentEndsWithCurrentInvestor;
     
+    // Debug logging
+    console.log(`[ChainAnalysis] Loan ${loanId}: ${transformedAssignmentChain.length} assignments found`);
+    if (transformedAssignmentChain.length > 0) {
+      console.log(`[ChainAnalysis] Chain: ${transformedAssignmentChain.map(a => `${a.assignor} → ${a.assignee}`).join(' → ')}`);
+      console.log(`[ChainAnalysis] Last assignee: "${lastAssignment?.assignee}", Complete: ${isChainComplete}`);
+    }
+    
     const response = {
       success: true,
       loanId,
