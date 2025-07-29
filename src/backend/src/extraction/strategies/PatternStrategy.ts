@@ -182,7 +182,7 @@ export class PatternStrategy implements ExtractionStrategy {
   }
 
   private parseValue(rawValue: string, fieldName: string): any {
-    const cleaned = rawValue.trim();
+    let cleaned = rawValue.trim();
     
     // Parse based on field type
     if (fieldName.includes('Amount') || fieldName.includes('amount')) {
@@ -191,6 +191,22 @@ export class PatternStrategy implements ExtractionStrategy {
     }
     
     if (fieldName.includes('Date') || fieldName.includes('date')) {
+      // Clean up date strings that contain extra text
+      const datePatterns = [
+        /(\d{1,2}\/\d{1,2}\/\d{4})/,  // MM/dd/yyyy
+        /(\d{1,2}-\d{1,2}-\d{4})/,   // MM-dd-yyyy
+        /([A-Za-z]+ \d{1,2}, \d{4})/ // Month dd, yyyy
+      ];
+      
+      for (const pattern of datePatterns) {
+        const match = cleaned.match(pattern);
+        if (match) {
+          const date = new Date(match[1]);
+          return isNaN(date.getTime()) ? cleaned : date;
+        }
+      }
+      
+      // Fallback to original parsing
       const date = new Date(cleaned);
       return isNaN(date.getTime()) ? cleaned : date;
     }

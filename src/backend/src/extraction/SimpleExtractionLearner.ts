@@ -77,6 +77,20 @@ export class SimpleExtractionLearner implements ExtractionLearner {
     const stats = new Map<string, {successes: number, attempts: number}>();
     
     try {
+      // Check if extraction_feedback table exists first
+      const tableCheck = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'extraction_feedback'
+        );
+      `);
+      
+      if (!tableCheck.rows[0].exists) {
+        console.log('extraction_feedback table not found, skipping strategy stats');
+        return stats;
+      }
+      
       const query = `
         SELECT 
           strategy_name,
