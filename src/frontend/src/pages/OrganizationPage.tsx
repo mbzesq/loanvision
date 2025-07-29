@@ -3,9 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Organization } from '../types/auth';
 import organizationService, { OrganizationUser, OrganizationInvitation } from '../services/organizationService';
-import { Users, Mail, Plus, Clock, ArrowRight, BookOpen } from 'lucide-react';
-import '../styles/financial-design-system.css';
-import '../styles/global-warm-theme.css';
+import { Users, Mail, Plus, Clock, ArrowRight, BookOpen, Shield, Building } from 'lucide-react';
 
 export default function OrganizationPage() {
   const { user } = useAuth();
@@ -81,36 +79,29 @@ export default function OrganizationPage() {
     });
   };
 
-  const getRoleBadgeStyle = (role: string) => {
-    const styles = {
-      super_user: { backgroundColor: 'rgba(197, 48, 48, 0.2)', color: 'var(--color-danger)' },
-      admin: { backgroundColor: 'rgba(37, 99, 235, 0.2)', color: 'var(--color-primary)' },
-      manager: { backgroundColor: 'rgba(47, 133, 90, 0.2)', color: 'var(--color-success)' },
-      user: { backgroundColor: 'rgba(148, 163, 184, 0.2)', color: 'var(--color-text-secondary)' }
+  const getRoleBadge = (role: string) => {
+    const roleConfig = {
+      super_user: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: 'Super Admin' },
+      admin: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', label: 'Admin' },
+      manager: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', label: 'Manager' },
+      user: { bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-200', label: 'User' }
     };
-    return styles[role as keyof typeof styles] || styles.user;
+    
+    const config = roleConfig[role as keyof typeof roleConfig] || roleConfig.user;
+    
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text} border ${config.border}`}>
+        {config.label}
+      </span>
+    );
   };
 
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: 'var(--color-background)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            border: '2px solid var(--color-primary)',
-            borderTop: '2px solid transparent',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }}></div>
-          <p style={{ color: 'var(--color-text-secondary)' }}>Loading organization...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading organization...</p>
         </div>
       </div>
     );
@@ -118,25 +109,12 @@ export default function OrganizationPage() {
 
   if (error) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: 'var(--color-background)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-danger)', marginBottom: '16px' }}>{error}</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
           <button 
             onClick={fetchOrganizationData}
-            style={{
-              backgroundColor: 'var(--color-primary)',
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: 'var(--radius-md)',
-              border: 'none',
-              cursor: 'pointer'
-            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Retry
           </button>
@@ -147,15 +125,9 @@ export default function OrganizationPage() {
 
   if (!organization) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: 'var(--color-background)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-text-secondary)' }}>No organization assigned</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">No organization assigned</p>
         </div>
       </div>
     );
@@ -164,349 +136,194 @@ export default function OrganizationPage() {
   const canManageUsers = user && ['admin', 'super_user'].includes(user.role);
 
   return (
-    <div className="global-warm-theme" style={{
-      minHeight: '100vh',
-      backgroundColor: 'var(--color-background)',
-      color: 'var(--color-text-primary)'
-    }}>
-      <div style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '24px 16px'
-      }}>
-        {/* Header */}
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{
-            fontSize: '24px',
-            fontWeight: '600',
-            color: 'var(--color-text-primary)',
-            marginBottom: '8px'
-          }}>{organization.name}</h1>
-          <p style={{ color: 'var(--color-text-secondary)' }}>View and manage your organization details</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                <Building className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{organization.name}</h1>
+                <p className="text-gray-600">Manage your organization and team members</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </header>
 
-        {/* Quick Actions */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '24px',
-          marginBottom: '24px'
-        }}>
-          <div style={{
-            backgroundColor: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '24px'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <div>
-                <h3 style={{
-                  fontSize: '18px',
-                  fontWeight: '500',
-                  color: 'var(--color-text-primary)',
-                  marginBottom: '8px'
-                }}>Organization Directory</h3>
-                <p style={{
-                  color: 'var(--color-text-secondary)',
-                  fontSize: '14px'
-                }}>View all team members, contact info, and org chart</p>
-              </div>
-              <BookOpen style={{ width: '32px', height: '32px', color: 'var(--color-primary)' }} />
-            </div>
-            <button
-              onClick={() => navigate('/organization/directory')}
-              style={{
-                marginTop: '16px',
-                width: '100%',
-                backgroundColor: 'var(--color-primary)',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-md)',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-            >
-              View Directory
-              <ArrowRight style={{ width: '16px', height: '16px' }} />
-            </button>
-          </div>
-          
-          <div style={{
-            backgroundColor: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '24px'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <div>
-                <h3 style={{
-                  fontSize: '18px',
-                  fontWeight: '500',
-                  color: 'var(--color-text-primary)',
-                  marginBottom: '8px'
-                }}>Team Overview</h3>
-                <p style={{
-                  color: 'var(--color-text-secondary)',
-                  fontSize: '14px'
-                }}>{users.length} team members</p>
-              </div>
-              <Users style={{ width: '32px', height: '32px', color: 'var(--color-success)' }} />
-            </div>
-            <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '14px'
-              }}>
-                <span style={{ color: 'var(--color-text-muted)' }}>Active Members</span>
-                <span style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>{users.length}</span>
-              </div>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '14px'
-              }}>
-                <span style={{ color: 'var(--color-text-muted)' }}>Pending Invites</span>
-                <span style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>{invitations.length}</span>
-              </div>
-            </div>
-          </div>
-          
-          {canManageUsers && (
-            <div style={{
-              backgroundColor: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '24px'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-8 py-8">
+        
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Organization Directory Card */}
+          <div className="premium-card hover:shadow-lg transition-all duration-200">
+            <div className="premium-card-content">
+              <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 style={{
-                    fontSize: '18px',
-                    fontWeight: '500',
-                    color: 'var(--color-text-primary)',
-                    marginBottom: '8px'
-                  }}>Quick Actions</h3>
-                  <p style={{
-                    color: 'var(--color-text-secondary)',
-                    fontSize: '14px'
-                  }}>Manage your organization</p>
+                  <h3 className="text-lg font-semibold text-gray-900">Organization Directory</h3>
+                  <p className="text-sm text-gray-600 mt-1">View all team members and org chart</p>
                 </div>
-                <Mail style={{ width: '32px', height: '32px', color: 'var(--color-chart-4)' }} />
+                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-blue-600" />
+                </div>
               </div>
               <button
-                onClick={() => setShowInviteForm(!showInviteForm)}
-                style={{
-                  marginTop: '16px',
-                  width: '100%',
-                  backgroundColor: 'var(--color-chart-4)',
-                  color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: 'var(--radius-md)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
+                onClick={() => navigate('/organization/directory')}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                <Plus style={{ width: '16px', height: '16px' }} />
-                Invite Member
+                View Directory
+                <ArrowRight className="w-4 h-4" />
               </button>
+            </div>
+          </div>
+
+          {/* Team Overview Card */}
+          <div className="premium-card">
+            <div className="premium-card-content">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Team Overview</h3>
+                  <p className="text-sm text-gray-600 mt-1">{users.length} team members</p>
+                </div>
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-emerald-600" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Active Members</span>
+                  <span className="font-medium text-gray-900">{users.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Pending Invites</span>
+                  <span className="font-medium text-gray-900">{invitations.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions Card */}
+          {canManageUsers && (
+            <div className="premium-card">
+              <div className="premium-card-content">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+                    <p className="text-sm text-gray-600 mt-1">Manage your organization</p>
+                  </div>
+                  <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-amber-600" />
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowInviteForm(!showInviteForm)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Invite Member
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Invite Form - Standalone */}
+        {/* Invite Form */}
         {canManageUsers && showInviteForm && (
-          <div style={{
-            backgroundColor: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '24px',
-            marginBottom: '24px'
-          }}>
-            <form onSubmit={handleInviteUser} style={{
-              display: 'flex',
-              gap: '16px',
-              alignItems: 'end'
-            }}>
-              <div style={{ flex: 1 }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: 'var(--color-text-primary)',
-                  marginBottom: '4px'
-                }}>
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={inviteForm.email}
-                  onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                  style={{
-                    width: '100%',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '8px 12px',
-                    backgroundColor: 'var(--color-background)',
-                    color: 'var(--color-text-primary)'
-                  }}
-                  placeholder="user@example.com"
-                  required
-                />
-              </div>
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: 'var(--color-text-primary)',
-                  marginBottom: '4px'
-                }}>
-                  Role
-                </label>
-                <select
-                  value={inviteForm.role}
-                  onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
-                  style={{
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '8px 12px',
-                    backgroundColor: 'var(--color-background)',
-                    color: 'var(--color-text-primary)'
-                  }}
-                >
-                  <option value="user">User</option>
-                  <option value="manager">Manager</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <button
-                type="submit"
-                disabled={inviting}
-                style={{
-                  backgroundColor: 'var(--color-success)',
-                  color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: 'var(--radius-md)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  opacity: inviting ? 0.5 : 1
-                }}
-              >
-                {inviting ? 'Sending...' : 'Send Invite'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowInviteForm(false)}
-                style={{
-                  backgroundColor: 'var(--color-surface-light)',
-                  color: 'var(--color-text-primary)',
-                  padding: '8px 16px',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--color-border)',
-                  cursor: 'pointer'
-                }}
-              >
-                Cancel
-              </button>
-            </form>
+          <div className="premium-card mb-8">
+            <div className="premium-card-header">
+              <h2 className="premium-card-title">Send Invitation</h2>
+              <p className="premium-card-subtitle">Invite a new member to your organization</p>
+            </div>
+            <div className="premium-card-content">
+              <form onSubmit={handleInviteUser} className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={inviteForm.email}
+                    onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="user@example.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Role
+                  </label>
+                  <select
+                    value={inviteForm.role}
+                    onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="user">User</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div className="flex items-end gap-2">
+                  <button
+                    type="submit"
+                    disabled={inviting}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                  >
+                    {inviting ? 'Sending...' : 'Send Invite'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowInviteForm(false)}
+                    className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
-
-        {/* Pending Invitations - Only for admins */}
+        {/* Pending Invitations */}
         {canManageUsers && invitations.length > 0 && (
-          <div style={{
-            backgroundColor: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '24px'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginBottom: '16px'
-            }}>
-              <Mail style={{ width: '20px', height: '20px', color: 'var(--color-text-secondary)' }} />
-              <h2 style={{
-                fontSize: '18px',
-                fontWeight: '500',
-                color: 'var(--color-text-primary)'
-              }}>Pending Invitations</h2>
-              <span style={{
-                backgroundColor: 'var(--color-warning-bg)',
-                color: 'var(--color-warning)',
-                fontSize: '14px',
-                padding: '2px 8px',
-                borderRadius: '12px'
-              }}>
-                {invitations.length}
-              </span>
+          <div className="premium-card">
+            <div className="premium-card-header">
+              <div className="flex items-center gap-2">
+                <Mail className="w-5 h-5 text-gray-500" />
+                <h2 className="premium-card-title">Pending Invitations</h2>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                  {invitations.length}
+                </span>
+              </div>
+              <p className="premium-card-subtitle">Invitations waiting for acceptance</p>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {invitations.map((invitation) => (
-                <div key={invitation.id} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--color-warning-bg)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Clock style={{ width: '20px', height: '20px', color: 'var(--color-warning)' }} />
-                    <div>
-                      <p style={{
-                        fontWeight: '500',
-                        color: 'var(--color-text-primary)'
-                      }}>{invitation.email}</p>
-                      <p style={{
-                        fontSize: '14px',
-                        color: 'var(--color-text-muted)'
-                      }}>
-                        Invited {formatDate(invitation.created_at)} • Expires {formatDate(invitation.expires_at)}
-                      </p>
+            <div className="premium-card-content">
+              <div className="space-y-3">
+                {invitations.map((invitation) => (
+                  <div key={invitation.id} className="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Clock className="w-5 h-5 text-amber-600" />
+                      <div>
+                        <p className="font-medium text-gray-900">{invitation.email}</p>
+                        <p className="text-sm text-gray-600">
+                          Invited {formatDate(invitation.created_at)} • Expires {formatDate(invitation.expires_at)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {getRoleBadge(invitation.role)}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{
-                      padding: '4px 8px',
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      ...getRoleBadgeStyle(invitation.role)
-                    }}>
-                      {invitation.role.replace('_', ' ')}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,11 +1,8 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
-import { UploadCloud, X, FileText, Loader2, Server } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
+import { UploadCloud, X, FileText, Loader2, Server, Database, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import CollateralUploader from '../components/CollateralUploader';
-import '../styles/global-warm-theme.css';
 
 interface UploadResponse {
   status: string;
@@ -151,159 +148,182 @@ function UploadPage() {
   };
 
   return (
-    <div className="global-warm-theme p-6 max-w-6xl mx-auto" style={{ minHeight: '100vh' }}>
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', fontSize: '28px', fontWeight: '700', color: 'var(--warm-text-primary)', marginBottom: '8px' }}>Import Data</h1>
-        <p style={{ fontSize: '16px', color: 'var(--warm-text-secondary)' }}>Upload files or connect to external data sources.</p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-8 py-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Database className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Import Data</h1>
+              <p className="text-gray-600">Upload files or connect to external data sources</p>
+            </div>
+          </div>
+        </div>
+      </header>
 
-      {/* Three Column Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Manual Upload Card */}
-        <Card className="h-fit">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UploadCloud className="h-5 w-5" />
-              Manual File Upload
-            </CardTitle>
-            <CardDescription>
-              Upload .xlsx, .xls, or .csv files directly from your computer.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Drag and Drop Zone */}
-            <div
-              className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-                isDragOver
-                  ? 'border-blue-400 bg-blue-50'
-                  : file
-                  ? 'border-green-300 bg-green-50'
-                  : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50'
-              }`}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                onChange={handleFileChange}
-                accept=".xlsx,.xls,.csv"
-                className="hidden"
-              />
-              
-              {file ? (
-                <div className="space-y-3">
-                  <FileText className="h-12 w-12 text-green-600 mx-auto" />
-                  <div className="space-y-1">
-                    <p className="font-medium text-slate-900">{file.name}</p>
-                    <p className="text-sm text-slate-500">{formatFileSize(file.size)}</p>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-8 py-8">
+        
+        {/* Three Column Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Manual Upload Card */}
+          <div className="premium-card">
+            <div className="premium-card-header">
+              <div className="flex items-center gap-2">
+                <UploadCloud className="w-5 h-5 text-blue-600" />
+                <h2 className="premium-card-title">Manual File Upload</h2>
+              </div>
+              <p className="premium-card-subtitle">Upload .xlsx, .xls, or .csv files directly from your computer</p>
+            </div>
+            
+            <div className="premium-card-content space-y-6">
+              {/* Drag and Drop Zone */}
+              <div
+                className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 cursor-pointer ${
+                  isDragOver
+                    ? 'border-blue-400 bg-blue-50'
+                    : file
+                    ? 'border-emerald-300 bg-emerald-50'
+                    : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                }`}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileChange}
+                  accept=".xlsx,.xls,.csv"
+                  className="hidden"
+                />
+                
+                {file ? (
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
+                      <FileText className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="font-semibold text-gray-900">{file.name}</p>
+                      <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFile();
+                      }}
+                      className="inline-flex items-center gap-2 px-3 py-1 text-sm text-red-600 hover:text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Remove
+                    </button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveFile();
-                    }}
-                    className="flex items-center gap-1"
-                  >
-                    <X className="h-4 w-4" />
-                    Remove
-                  </Button>
+                ) : (
+                  <div className="space-y-4">
+                    <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center transition-colors ${
+                      isDragOver ? 'bg-blue-100' : 'bg-gray-100'
+                    }`}>
+                      <UploadCloud className={`w-8 h-8 ${isDragOver ? 'text-blue-600' : 'text-gray-400'}`} />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-lg font-semibold text-gray-900">
+                        Drag and drop your file here
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        or click to select a file
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Supports .xlsx, .xls, and .csv files up to 50MB
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Error Display */}
+              {error && (
+                <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  <p className="text-sm text-red-700">{error}</p>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <UploadCloud className={`h-12 w-12 mx-auto ${isDragOver ? 'text-slate-400' : 'text-slate-400'}`} style={isDragOver ? { color: '#1e40af' } : {}} />
-                  <div className="space-y-1">
-                    <p className="text-lg font-medium text-slate-900">
-                      Drag and drop your file here
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      or click to select a file
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      Supports .xlsx, .xls, and .csv files up to 50MB
-                    </p>
+              )}
+
+              {/* Success Display */}
+              {uploadResponse && uploadResponse.status === 'success' && (
+                <div className="flex items-center gap-2 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-emerald-800">Upload Successful!</p>
+                    <p className="text-sm text-emerald-700">{uploadResponse.message}</p>
                   </div>
                 </div>
               )}
+
+              {/* Upload Button */}
+              <button
+                onClick={handleUpload}
+                disabled={!file || loading}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <UploadCloud className="w-5 h-5" />
+                    Upload File
+                  </>
+                )}
+              </button>
             </div>
+          </div>
 
-            {/* Error Display */}
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600">{error}</p>
+          {/* Collateral Upload Card */}
+          <CollateralUploader />
+
+          {/* FTP Connection Card (Placeholder) */}
+          <div className="premium-card opacity-60">
+            <div className="premium-card-header">
+              <div className="flex items-center gap-2">
+                <Server className="w-5 h-5 text-gray-400" />
+                <h2 className="premium-card-title text-gray-500">Connect Data Source (FTP)</h2>
               </div>
-            )}
-
-            {/* Success Display */}
-            {uploadResponse && uploadResponse.status === 'success' && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                <p className="text-sm text-green-600">
-                  <strong>Success!</strong> {uploadResponse.message}
+              <p className="premium-card-subtitle">Automate data ingestion by connecting to an FTP server</p>
+            </div>
+            
+            <div className="premium-card-content space-y-6">
+              <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <Server className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="font-semibold text-gray-600 mb-2">FTP Integration</p>
+                <p className="text-sm text-gray-500">
+                  Automatically sync data from your FTP server
                 </p>
               </div>
-            )}
-
-            {/* Upload Button */}
-            <Button
-              onClick={handleUpload}
-              disabled={!file || loading}
-              className="w-full"
-              size="lg"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <UploadCloud className="h-4 w-4 mr-2" />
-                  Upload File
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Collateral Upload Card */}
-        <CollateralUploader />
-
-        {/* FTP Connection Card (Placeholder) */}
-        <Card className="h-fit opacity-60">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-500">
-              <Server className="h-5 w-5" />
-              Connect Data Source (FTP)
-            </CardTitle>
-            <CardDescription>
-              Automate data ingestion by connecting to an FTP server.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-8 text-center border-2 border-dashed border-slate-200 rounded-lg bg-slate-50">
-              <Server className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-              <p className="text-slate-600 font-medium mb-1">FTP Integration</p>
-              <p className="text-sm text-slate-500">
-                Automatically sync data from your FTP server
+              
+              <button
+                disabled
+                className="w-full px-6 py-3 bg-gray-200 text-gray-500 rounded-lg font-medium cursor-not-allowed"
+              >
+                Configure Connection (Coming Soon)
+              </button>
+              
+              <p className="text-xs text-gray-400 text-center">
+                This feature will be available in a future release
               </p>
             </div>
-            
-            <Button disabled className="w-full" size="lg" variant="outline">
-              Configure Connection (Coming Soon)
-            </Button>
-            
-            <p className="text-xs text-slate-400 text-center">
-              This feature will be available in a future release
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

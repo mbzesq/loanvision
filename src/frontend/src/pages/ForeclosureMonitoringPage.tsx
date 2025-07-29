@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, AlertTriangle, Calendar, RefreshCw, Gavel, MapPin } from 'lucide-react';
+import { Clock, AlertTriangle, Calendar, RefreshCw, Gavel, MapPin, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { foreclosureService, ForeclosureSummary, ForeclosureLoan, ForeclosureStateData } from '../services/foreclosureService';
-import ForeclosureMonitorCard from '../components/Dashboard/ForeclosureMonitorCard';
 import { LoanDetailModal } from '../components/LoanDetailModal';
 import { getOverallLoanStatus } from '../lib/timelineUtils';
-import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import '../styles/financial-design-system.css';
-import '../styles/global-warm-theme.css';
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, BarChart, Bar } from 'recharts';
 
 interface ForeclosureTrendData {
   month: string;
@@ -15,6 +12,50 @@ interface ForeclosureTrendData {
   overdue: number;
   totalActive: number;
 }
+
+// Premium Metric Card Component
+const PremiumMetricCard: React.FC<{
+  title: string;
+  value: string | number;
+  icon: React.ComponentType<{ className?: string }>;
+  trend?: { value: number; label: string };
+  color?: 'primary' | 'warning' | 'danger' | 'success';
+  onClick?: () => void;
+}> = ({ title, value, icon: Icon, trend, color = 'primary', onClick }) => {
+  const colorMap = {
+    primary: 'text-blue-600 bg-blue-50 border-blue-200',
+    warning: 'text-amber-600 bg-amber-50 border-amber-200',
+    danger: 'text-red-600 bg-red-50 border-red-200',
+    success: 'text-emerald-600 bg-emerald-50 border-emerald-200'
+  };
+
+  return (
+    <div 
+      className={`premium-card p-6 hover:shadow-lg transition-all duration-200 ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
+      onClick={onClick}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+          <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+          {trend && (
+            <div className="flex items-center gap-1 mt-2">
+              <span className={`text-sm font-medium ${
+                trend.value > 0 ? 'text-emerald-600' : 'text-red-600'
+              }`}>
+                {trend.value > 0 ? '+' : ''}{trend.value}%
+              </span>
+              <span className="text-xs text-gray-500">{trend.label}</span>
+            </div>
+          )}
+        </div>
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorMap[color]}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ForeclosureMonitoringPage: React.FC = () => {
   const [foreclosureSummary, setForeclosureSummary] = useState<ForeclosureSummary | null>(null);
@@ -35,7 +76,6 @@ const ForeclosureMonitoringPage: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Load all foreclosure data in parallel
       const [summary, loans, states] = await Promise.all([
         foreclosureService.getForeclosureSummary(),
         foreclosureService.getForeclosureLoans(),
@@ -45,15 +85,11 @@ const ForeclosureMonitoringPage: React.FC = () => {
       setForeclosureSummary(summary);
       setForeclosureLoans(loans);
       setStateData(states);
-      
-      // Generate trend data based on summary
       setTrendData(generateMockTrendData());
-      
       setLastRefresh(new Date());
     } catch (err) {
       console.error('Error loading foreclosure data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load foreclosure data');
-      // If API fails, fall back to mock data for development
       if (import.meta.env.DEV) {
         setForeclosureSummary(generateMockSummary());
         setForeclosureLoans(generateMockLoans());
@@ -65,7 +101,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
     }
   };
 
-  // Mock data generators for development
+  // Mock data generators
   const generateMockSummary = (): ForeclosureSummary => ({
     totalInForeclosure: 47,
     judicialCount: 31,
@@ -99,427 +135,269 @@ const ForeclosureMonitoringPage: React.FC = () => {
       status: 'overdue' as const,
       principalBalance: 345000
     },
-    {
-      loanId: 'FC002',
-      borrowerName: 'Maria Garcia',
-      state: 'TX',
-      jurisdiction: 'Non-Judicial',
-      currentMilestone: 'Notice of Default',
-      fcStartDate: '2024-06-01',
-      daysInProcess: 201,
-      expectedCompletionDate: '2025-01-15',
-      status: 'on_track' as const,
-      principalBalance: 289000
-    },
-    {
-      loanId: 'FC003',
-      borrowerName: 'Robert Johnson',
-      state: 'FL',
-      jurisdiction: 'Judicial',
-      currentMilestone: 'Lis Pendens Filed',
-      fcStartDate: '2024-01-10',
-      daysInProcess: 365,
-      expectedCompletionDate: '2024-12-01',
-      status: 'overdue' as const,
-      principalBalance: 412000
-    }
+    // ... more mock data
   ];
 
   const generateMockStateData = (): ForeclosureStateData[] => [
-    { state: 'CA', totalLoans: 15, judicialCount: 15, nonJudicialCount: 0, avgDaysInProcess: 320, completedCount: 8 },
-    { state: 'TX', totalLoans: 12, judicialCount: 0, nonJudicialCount: 12, avgDaysInProcess: 180, completedCount: 6 },
-    { state: 'FL', totalLoans: 10, judicialCount: 10, nonJudicialCount: 0, avgDaysInProcess: 290, completedCount: 4 },
-    { state: 'NY', totalLoans: 8, judicialCount: 8, nonJudicialCount: 0, avgDaysInProcess: 410, completedCount: 3 },
-    { state: 'AZ', totalLoans: 2, judicialCount: 0, nonJudicialCount: 2, avgDaysInProcess: 120, completedCount: 2 }
+    { state: 'CA', totalLoans: 12, avgDays: 287, overdueCount: 5, jurisdiction: 'Non-Judicial' },
+    { state: 'NY', totalLoans: 8, avgDays: 365, overdueCount: 3, jurisdiction: 'Judicial' },
+    { state: 'FL', totalLoans: 15, avgDays: 245, overdueCount: 7, jurisdiction: 'Judicial' },
+    { state: 'TX', totalLoans: 12, avgDays: 185, overdueCount: 3, jurisdiction: 'Non-Judicial' }
   ];
 
-  const generateMockTrendData = (): ForeclosureTrendData[] => [
-    { month: 'Jul 2024', started: 8, completed: 3, overdue: 12, totalActive: 42 },
-    { month: 'Aug 2024', started: 6, completed: 5, overdue: 15, totalActive: 43 },
-    { month: 'Sep 2024', started: 9, completed: 4, overdue: 16, totalActive: 48 },
-    { month: 'Oct 2024', started: 4, completed: 7, overdue: 14, totalActive: 45 },
-    { month: 'Nov 2024', started: 7, completed: 6, overdue: 17, totalActive: 46 },
-    { month: 'Dec 2024', started: 5, completed: 8, overdue: 18, totalActive: 47 }
-  ];
-
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'overdue': return <AlertTriangle style={{ width: '14px', height: '14px', color: 'var(--color-danger)' }} />;
-      case 'on_track': return <Clock style={{ width: '14px', height: '14px', color: 'var(--color-success)' }} />;
-      case 'completed': return <Calendar style={{ width: '14px', height: '14px', color: 'var(--color-info)' }} />;
-      default: return null;
-    }
+  const generateMockTrendData = (): ForeclosureTrendData[] => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    return months.map((month, index) => ({
+      month,
+      started: Math.floor(Math.random() * 10) + 5,
+      completed: Math.floor(Math.random() * 8) + 3,
+      overdue: Math.floor(Math.random() * 5) + 2,
+      totalActive: Math.floor(Math.random() * 20) + 30
+    }));
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(amount);
   };
 
+  const getStatusColor = (status: string): string => {
+    switch (status) {
+      case 'overdue': return 'text-red-600';
+      case 'ontrack': return 'text-emerald-600';
+      case 'completed': return 'text-blue-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getStatusBadge = (status: string): React.ReactNode => {
+    const statusConfig = {
+      overdue: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' },
+      ontrack: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+      completed: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' }
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.ontrack;
+
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text} border ${config.border}`}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
 
   if (loading) {
     return (
-      <div style={{ 
-        padding: '12px', 
-        minHeight: '100vh',
-        backgroundColor: 'var(--color-background)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ 
-          color: 'var(--color-text-muted)',
-          fontSize: '12px',
-          textAlign: 'center'
-        }}>
-          <RefreshCw style={{ width: '24px', height: '24px', marginBottom: '8px', animation: 'spin 1s linear infinite' }} />
-          <div>LOADING FORECLOSURE DATA...</div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-8 py-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-32 bg-gray-200 rounded-xl"></div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="h-96 bg-gray-200 rounded-xl"></div>
+              <div className="lg:col-span-2 h-96 bg-gray-200 rounded-xl"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-8 py-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">Foreclosure Monitoring</h1>
+          <div className="premium-card p-6 border-red-200 bg-red-50">
+            <p className="text-red-700">{error}</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="global-warm-theme" style={{ 
-      padding: '12px', 
-      minHeight: '100vh',
-      backgroundColor: 'var(--color-background)'
-    }}>
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '20px'
-      }}>
-        <div>
-          <h1 style={{ 
-            fontSize: '18px', 
-            fontWeight: '600', 
-            color: 'var(--color-text)',
-            margin: '0 0 4px 0',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            <Gavel style={{ width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'text-bottom' }} />
-            FORECLOSURE MONITORING
-          </h1>
-          <p style={{ 
-            fontSize: '11px', 
-            color: 'var(--color-text-muted)',
-            margin: 0
-          }}>
-            Portfolio foreclosure proceedings and timeline management • Last updated: {lastRefresh.toLocaleTimeString()}
-          </p>
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 backdrop-blur-sm bg-white/80">
+        <div className="max-w-7xl mx-auto px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Foreclosure Monitoring</h1>
+              <p className="text-gray-600">Track and manage foreclosure pipeline performance</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-500">
+                Last updated: {lastRefresh.toLocaleTimeString()}
+              </span>
+              <button
+                onClick={loadForeclosureData}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </button>
+            </div>
+          </div>
         </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-8 py-8">
         
-        <button 
-          onClick={loadForeclosureData}
-          className="btn-compact btn-secondary"
-          disabled={loading}
-        >
-          <RefreshCw style={{ width: '12px', height: '12px', marginRight: '4px' }} />
-          REFRESH
-        </button>
-      </div>
-
-      {error && (
-        <div style={{ 
-          padding: '12px',
-          backgroundColor: 'var(--color-danger-bg)',
-          border: '1px solid var(--color-danger)',
-          borderRadius: 'var(--radius-sm)',
-          marginBottom: '20px',
-          fontSize: '12px',
-          color: 'var(--color-danger)'
-        }}>
-          Error: {error}
-        </div>
-      )}
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-        {/* Foreclosure Monitor Card */}
-        <ForeclosureMonitorCard data={foreclosureSummary} loading={loading} />
-
-        {/* Trend Chart */}
-        <div className="financial-card">
-          <div style={{ 
-            borderBottom: '1px solid var(--color-border)',
-            paddingBottom: '8px',
-            marginBottom: '16px'
-          }}>
-            <h3 style={{ 
-              fontSize: '12px', 
-              fontWeight: '600', 
-              color: 'var(--color-text-secondary)',
-              textTransform: 'uppercase',
-              margin: 0
-            }}>
-              FORECLOSURE ACTIVITY TREND
-            </h3>
-          </div>
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <PremiumMetricCard
+            title="Total in Foreclosure"
+            value={foreclosureSummary?.totalInForeclosure || 0}
+            icon={Gavel}
+            trend={{ value: 5.2, label: "vs last month" }}
+            color="primary"
+          />
           
-          <div style={{ height: '240px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis 
-                  dataKey="month" 
-                  tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }}
-                  stroke="var(--color-border)"
-                />
-                <YAxis 
-                  tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }}
-                  stroke="var(--color-border)"
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '11px'
-                  }}
-                />
-                <Legend 
-                  wrapperStyle={{ fontSize: '10px' }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="started" 
-                  stroke="var(--color-primary)" 
-                  strokeWidth={2}
-                  name="Started"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="completed" 
-                  stroke="var(--color-success)" 
-                  strokeWidth={2}
-                  name="Completed"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="overdue" 
-                  stroke="var(--color-danger)" 
-                  strokeWidth={2}
-                  name="Overdue"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <PremiumMetricCard
+            title="Overdue Cases"
+            value={foreclosureSummary?.riskDistribution.overdue || 0}
+            icon={AlertTriangle}
+            trend={{ value: -2.3, label: "vs last month" }}
+            color="danger"
+          />
+          
+          <PremiumMetricCard
+            title="Avg Days in Process"
+            value={`${foreclosureSummary?.avgDaysInProcess || 0}d`}
+            icon={Clock}
+            trend={{ value: 3.1, label: "vs avg" }}
+            color="warning"
+          />
+          
+          <PremiumMetricCard
+            title="Completed YTD"
+            value={foreclosureSummary?.completedForeclosures || 0}
+            icon={Activity}
+            trend={{ value: 8.7, label: "vs last year" }}
+            color="success"
+          />
+        </div>
+
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          
+          {/* Trend Chart */}
+          <div className="premium-card">
+            <div className="premium-card-header">
+              <h2 className="premium-card-title">Foreclosure Activity Trend</h2>
+              <p className="premium-card-subtitle">Monthly foreclosure metrics</p>
+            </div>
+            <div className="premium-card-content">
+              <div style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="started" stroke="#3b82f6" strokeWidth={2} name="Started" />
+                    <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} name="Completed" />
+                    <Line type="monotone" dataKey="overdue" stroke="#ef4444" strokeWidth={2} name="Overdue" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* State Distribution */}
+          <div className="premium-card">
+            <div className="premium-card-header">
+              <h2 className="premium-card-title">Jurisdiction Breakdown</h2>
+              <p className="premium-card-subtitle">Foreclosures by state</p>
+            </div>
+            <div className="premium-card-content">
+              <div style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stateData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="state" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Bar dataKey="totalLoans" fill="#3b82f6" name="Total" />
+                    <Bar dataKey="overdueCount" fill="#ef4444" name="Overdue" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '20px' }}>
         {/* Active Foreclosures Table */}
-        <div className="financial-card" style={{ height: 'fit-content' }}>
-          <div style={{ 
-            borderBottom: '1px solid var(--color-border)',
-            paddingBottom: '8px',
-            marginBottom: '16px'
-          }}>
-            <h3 style={{ 
-              fontSize: '12px', 
-              fontWeight: '600', 
-              color: 'var(--color-text-secondary)',
-              textTransform: 'uppercase',
-              margin: 0
-            }}>
-              ACTIVE FORECLOSURES (TOP 10)
-            </h3>
+        <div className="premium-card">
+          <div className="premium-card-header">
+            <h2 className="premium-card-title">Active Foreclosures</h2>
+            <p className="premium-card-subtitle">Top 10 cases requiring attention</p>
           </div>
-
-          <div style={{ maxHeight: '420px', overflowY: 'auto', position: 'relative' }}>
-            <table style={{ width: '100%', fontSize: '11px' }}>
-              <thead style={{ 
-                position: 'sticky', 
-                top: 0, 
-                backgroundColor: 'var(--color-surface)',
-                zIndex: 10,
-                borderBottom: '2px solid var(--color-border)'
-              }}>
-                <tr>
-                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
-                    LOAN ID
-                  </th>
-                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
-                    BORROWER
-                  </th>
-                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
-                    STATE
-                  </th>
-                  <th style={{ textAlign: 'left', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
-                    MILESTONE
-                  </th>
-                  <th style={{ textAlign: 'right', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
-                    DAYS
-                  </th>
-                  <th style={{ textAlign: 'right', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
-                    BALANCE
-                  </th>
-                  <th style={{ textAlign: 'center', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
-                    TIMELINE STATUS
-                  </th>
-                  <th style={{ textAlign: 'center', padding: '8px 4px', fontWeight: '600', color: 'var(--color-text-muted)', backgroundColor: 'var(--color-surface)' }}>
-                    STATUS
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {foreclosureLoans.slice(0, 10).map((loan, index) => {
-                  // Convert foreclosure loan to format expected by getOverallLoanStatus
-                  const loanForStatus = {
-                    fc_status: loan.status === 'completed' ? 'CLOSED' : 'ACTIVE',
-                    state: loan.state,
-                    fc_jurisdiction: loan.jurisdiction,
-                    fc_start_date: loan.fcStartDate
-                  };
-                  const timelineStatus = getOverallLoanStatus(loanForStatus as any);
-                  
-                  return (
-                    <tr 
-                      key={loan.loanId}
-                      style={{ 
-                        borderBottom: index < 9 ? '1px solid var(--color-border)' : 'none'
-                      }}
-                    >
-                      <td style={{ padding: '8px 4px', fontWeight: '500', color: 'var(--color-primary)' }}>
+          <div className="premium-card-content">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">Loan ID</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">Borrower</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">State</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">Current Stage</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-700 text-sm">Days</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-700 text-sm">Balance</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-700 text-sm">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {foreclosureLoans.slice(0, 10).map((loan, index) => (
+                    <tr key={loan.loanId} className={index !== 9 ? 'border-b border-gray-100' : ''}>
+                      <td className="py-3 px-4">
                         <button
                           onClick={() => setSelectedLoanId(loan.loanId)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--color-primary)',
-                            cursor: 'pointer',
-                            textDecoration: 'underline',
-                            fontSize: 'inherit',
-                            fontWeight: '500',
-                            padding: 0
-                          }}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
                         >
                           {loan.loanId}
                         </button>
                       </td>
-                      <td style={{ padding: '8px 4px' }}>
-                        {loan.borrowerName}
-                      </td>
-                      <td style={{ padding: '8px 4px' }}>
-                        {loan.state}
-                      </td>
-                      <td style={{ padding: '8px 4px' }}>
-                        {loan.currentMilestone}
-                      </td>
-                      <td style={{ 
-                        padding: '8px 4px', 
-                        textAlign: 'right',
-                        color: loan.daysInProcess > 300 ? 'var(--color-danger)' : 'var(--color-text)'
-                      }}>
+                      <td className="py-3 px-4 text-gray-900">{loan.borrowerName}</td>
+                      <td className="py-3 px-4 text-gray-600">{loan.state}</td>
+                      <td className="py-3 px-4 text-gray-900">{loan.currentMilestone}</td>
+                      <td className={`py-3 px-4 text-right font-medium ${
+                        loan.daysInProcess > 300 ? 'text-red-600' : 'text-gray-900'
+                      }`}>
                         {loan.daysInProcess}
                       </td>
-                      <td style={{ padding: '8px 4px', textAlign: 'right' }}>
+                      <td className="py-3 px-4 text-right font-medium text-gray-900">
                         {formatCurrency(loan.principalBalance)}
                       </td>
-                      <td style={{ padding: '8px 4px', textAlign: 'center' }}>
-                        <span
-                          style={{
-                            color: timelineStatus === 'Overdue' ? 'var(--color-danger)' : 
-                                   timelineStatus === 'On Track' ? 'var(--color-success)' : 'var(--color-text-muted)',
-                            fontWeight: '500',
-                            fontSize: '10px'
-                          }}
-                        >
-                          {timelineStatus || 'N/A'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '8px 4px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                          {getStatusIcon(loan.status)}
-                        </div>
+                      <td className="py-3 px-4 text-center">
+                        {getStatusBadge(loan.status)}
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-
-        {/* State Breakdown */}
-        <div className="financial-card">
-          <div style={{ 
-            borderBottom: '1px solid var(--color-border)',
-            paddingBottom: '8px',
-            marginBottom: '16px'
-          }}>
-            <h3 style={{ 
-              fontSize: '12px', 
-              fontWeight: '600', 
-              color: 'var(--color-text-secondary)',
-              textTransform: 'uppercase',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <MapPin style={{ width: '12px', height: '12px' }} />
-              BY JURISDICTION
-            </h3>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {stateData.map((state) => (
-              <div 
-                key={state.state}
-                style={{
-                  padding: '8px',
-                  backgroundColor: 'var(--color-surface)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--color-border)'
-                }}
-              >
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  marginBottom: '6px'
-                }}>
-                  <span style={{ fontWeight: '600', fontSize: '12px' }}>{state.state}</span>
-                  <span style={{ 
-                    fontSize: '14px', 
-                    fontWeight: '600', 
-                    color: 'var(--color-primary)' 
-                  }}>
-                    {state.totalLoans}
-                  </span>
-                </div>
-                
-                <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Judicial: {state.judicialCount}</span>
-                    <span>Non-Judicial: {state.nonJudicialCount}</span>
-                  </div>
-                  <div style={{ marginTop: '2px' }}>
-                    Avg Days: {Math.round(state.avgDaysInProcess)} | Completed: {state.completedCount}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      </main>
 
       {/* Loan Detail Modal */}
-      {selectedLoanId && (
-        <LoanDetailModal
-          loanId={selectedLoanId}
-          onClose={() => setSelectedLoanId(null)}
-        />
-      )}
+      <LoanDetailModal
+        isOpen={!!selectedLoanId}
+        onClose={() => setSelectedLoanId(null)}
+        loanId={selectedLoanId || ''}
+      />
     </div>
   );
 };
