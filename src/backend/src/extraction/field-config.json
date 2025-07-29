@@ -81,24 +81,24 @@
       "name": "assignor",
       "keywords": ["assignor", "grantor", "transferor", "from"],
       "patterns": [
-        "assignor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+hereby|$)",
-        "assignment\\s+from\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+to",
-        "([A-Z][A-Za-z\\s&,.()]+?)\\s+hereby\\s+(?:assigns?|transfers?|conveys?)\\s+",
-        "(PNC BANK[A-Za-z\\s,]*NATIONAL ASSOCIATION)",
-        "(NATIONAL CITY BANK[A-Za-z\\s,]*)",
-        "(ETRADE BANK[A-Za-z\\s,]*)"
+        "\\b(PNC\\s+BANK[\\s\\w]*NATIONAL\\s+ASSOCIATION)\\b",
+        "\\b(NATIONAL\\s+CITY\\s+BANK[\\s\\w]*)\\b",
+        "\\b(ETRADE\\s+BANK[\\s\\w]*)\\b",
+        "assignment\\s+from\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:to|hereby)",
+        "([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:does\\s+)?hereby\\s+(?:assigns?|transfers?|conveys?)",
+        "assignor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+(?:hereby|does)|$)"
       ]
     },
     {
       "name": "assignee", 
       "keywords": ["assignee", "grantee", "transferee", "to"],
       "patterns": [
-        "assignee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)",
-        "(?:assigns?|transfers?|conveys?)\\s+(?:and\\s+conveys?\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:\\s+all|\\s+the|\\s*,|$)",
-        "assignment\\s+(?:from\\s+[^,]+\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)",
-        "(ETRADE BANK[A-Za-z\\s,]*)",
-        "(VERIPRO[A-Za-z\\s,]*)",
-        "(NS194[A-Za-z\\s,]*LLC)"
+        "\\b(NS194[\\s\\w]*LLC)\\b",
+        "\\b(VERIPRO[\\s\\w]*)\\b",
+        "\\b(ETRADE\\s+BANK[\\s\\w]*)\\b",
+        "to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:\\s+(?:all|the|and)|,|$)",
+        "assignee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+all|$)",
+        "assignment\\s+to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+(?:all|the)|$)"
       ]
     },
     {

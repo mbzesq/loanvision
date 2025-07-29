@@ -28,8 +28,30 @@ export class PatternStrategy implements ExtractionStrategy {
         try {
           const pattern = new RegExp(patternStr, 'i');
           const match = text.match(pattern);
-          if (match && match[1]) {
-            const value = this.parseValue(match[1].trim(), fieldDef.name);
+          if (match) {
+            // For assignor/assignee, try to extract clean company names
+            let extractedValue = match[1] || match[0];
+            
+            if (fieldDef.name === 'assignor' || fieldDef.name === 'assignee') {
+              // Look for known company patterns in the matched text
+              const companyPatterns = [
+                /\b(PNC\s+BANK[\s\w]*NATIONAL\s+ASSOCIATION)\b/i,
+                /\b(NATIONAL\s+CITY\s+BANK[\s\w]*)\b/i,
+                /\b(ETRADE\s+BANK[\s\w]*)\b/i,
+                /\b(VERIPRO[\s\w]*)\b/i,
+                /\b(NS194[\s\w]*LLC)\b/i
+              ];
+              
+              for (const companyPattern of companyPatterns) {
+                const companyMatch = extractedValue.match(companyPattern);
+                if (companyMatch) {
+                  extractedValue = companyMatch[1];
+                  break;
+                }
+              }
+            }
+            
+            const value = this.parseValue(extractedValue.trim(), fieldDef.name);
             
             return {
               value,
