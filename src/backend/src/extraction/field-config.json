@@ -81,24 +81,22 @@
       "name": "assignor",
       "keywords": ["assignor", "grantor", "transferor", "from"],
       "patterns": [
-        "\\b(PNC\\s+BANK[\\s\\w]*NATIONAL\\s+ASSOCIATION)\\b",
-        "\\b(NATIONAL\\s+CITY\\s+BANK[\\s\\w]*)\\b",
-        "\\b(ETRADE\\s+BANK[\\s\\w]*)\\b",
-        "assignment\\s+from\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:to|hereby)",
-        "([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:does\\s+)?hereby\\s+(?:assigns?|transfers?|conveys?)",
-        "assignor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+(?:hereby|does)|$)"
+        "([A-Z][A-Za-z\\s&,.'-]+(?:LLC|L\\.L\\.C\\.|INC|CORP|CORPORATION|COMPANY|CO|BANK|N\\.A\\.|TRUST|LP|LTD))\\s+(?:does\\s+)?hereby\\s+(?:assigns?|transfers?|conveys?)",
+        "assignment\\s+from\\s+([A-Z][A-Za-z\\s&,.'-]+?)\\s+to\\s+",
+        "assignor[:\\s]+([A-Z][A-Za-z\\s&,.'-]+?)(?:,|\\s+hereby|\\s+does|$)",
+        "between\\s+([A-Z][A-Za-z\\s&,.'-]+?)(?:,|\\s+as\\s+assignor)",
+        "([A-Z][A-Za-z\\s&,.'-]+?)(?:,\\s*as\\s+assignor|\\s+\\(\"?assignor\"?\\))"
       ]
     },
     {
       "name": "assignee", 
       "keywords": ["assignee", "grantee", "transferee", "to"],
       "patterns": [
-        "\\b(NS194[\\s\\w]*LLC)\\b",
-        "\\b(VERIPRO[\\s\\w]*)\\b",
-        "\\b(ETRADE\\s+BANK[\\s\\w]*)\\b",
-        "to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:\\s+(?:all|the|and)|,|$)",
-        "assignee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+all|$)",
-        "assignment\\s+to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+(?:all|the)|$)"
+        "(?:assigns?|transfers?|conveys?)\\s+to\\s+([A-Z][A-Za-z\\s&,.'-]+?)(?:,|\\s+all|\\s+the|$)",
+        "assignee[:\\s]+([A-Z][A-Za-z\\s&,.'-]+?)(?:,|\\s+all|$)",
+        "assignment\\s+to\\s+([A-Z][A-Za-z\\s&,.'-]+?)(?:,|\\s+all|\\s+the|$)",
+        "and\\s+([A-Z][A-Za-z\\s&,.'-]+?)(?:,\\s*as\\s+assignee|\\s+\\(\"?assignee\"?\\))",
+        "to\\s+([A-Z][A-Za-z\\s&,.'-]+(?:LLC|L\\.L\\.C\\.|INC|CORP|CORPORATION|COMPANY|CO|BANK|N\\.A\\.|TRUST|LP|LTD))(?:\\s+all|\\s+the|,|$)"
       ]
     },
     {

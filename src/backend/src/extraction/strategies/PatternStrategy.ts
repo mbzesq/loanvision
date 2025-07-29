@@ -29,27 +29,8 @@ export class PatternStrategy implements ExtractionStrategy {
           const pattern = new RegExp(patternStr, 'i');
           const match = text.match(pattern);
           if (match) {
-            // For assignor/assignee, try to extract clean company names
+            // Use capture group if available, otherwise full match
             let extractedValue = match[1] || match[0];
-            
-            if (fieldDef.name === 'assignor' || fieldDef.name === 'assignee') {
-              // Look for known company patterns in the matched text
-              const companyPatterns = [
-                /\b(PNC\s+BANK[\s\w]*NATIONAL\s+ASSOCIATION)\b/i,
-                /\b(NATIONAL\s+CITY\s+BANK[\s\w]*)\b/i,
-                /\b(ETRADE\s+BANK[\s\w]*)\b/i,
-                /\b(VERIPRO[\s\w]*)\b/i,
-                /\b(NS194[\s\w]*LLC)\b/i
-              ];
-              
-              for (const companyPattern of companyPatterns) {
-                const companyMatch = extractedValue.match(companyPattern);
-                if (companyMatch) {
-                  extractedValue = companyMatch[1];
-                  break;
-                }
-              }
-            }
             
             const value = this.parseValue(extractedValue.trim(), fieldDef.name);
             
@@ -235,56 +216,72 @@ export class PatternStrategy implements ExtractionStrategy {
     
     // Clean assignor/assignee company names
     if (fieldName === 'assignor' || fieldName === 'assignee') {
-      // First, try to extract just company names from the text
+      // Strategy: Look for capitalized sequences that look like company names
+      // Companies typically have: 
+      // - All caps or title case words
+      // - Common suffixes like LLC, INC, CORP, BANK, etc.
+      // - Multiple capitalized words in sequence
+      
+      // First, remove obvious legal boilerplate
+      cleaned = cleaned
+        .replace(/(?:has\s+)?(?:duly\s+)?executed\s+this\s+assignment[^,]*\d{4}/i, '')
+        .replace(/\b(?:but\s+)?effective\s+(?:the\s+)?\d+\w*\s+day\s+of\s+\w+\s+\d{4}/i, '')
+        .replace(/Serial\s+no\.?[^,]*/i, '')
+        .replace(/in\s+the\s+office\s+of[^,]*/i, '')
+        .replace(/more\s+particularly\s+described[^,]*/i, '')
+        .trim();
+      
+      // Look for company name patterns
       const companyPatterns = [
-        /PNC\s+BANK[A-Za-z\s,]*NATIONAL\s+ASSOCIATION/i,
-        /NATIONAL\s+CITY\s+BANK[A-Za-z\s,]*/i,
-        /ETRADE\s+BANK[A-Za-z\s,]*/i,
-        /VERIPRO[A-Za-z\s,]*/i,
-        /NS194[A-Za-z\s,]*LLC/i
+        // Match sequences of capitalized words ending in common business suffixes
+        /([A-Z][A-Z\s&.,'-]+(?:LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO|BANK|NATIONAL\s+ASSOCIATION|N\.A\.|TRUST|LP|LTD|LIMITED|PARTNERS|FINANCIAL|MORTGAGE|SERVICING|HOLDINGS|GROUP|CAPITAL)\b)/i,
+        // Match "Company Name, a Delaware corporation" style
+        /([A-Z][A-Za-z\s&.,'-]+),\s+a\s+\w+\s+(?:corporation|company|limited|partnership)/i,
+        // Match sequences of 2+ capitalized words
+        /([A-Z][A-Z\s&.,'-]{3,}[A-Z])/,
+        // Fallback: first sequence of capitalized words
+        /([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)/
       ];
       
       for (const pattern of companyPatterns) {
         const match = cleaned.match(pattern);
         if (match) {
-          cleaned = match[0].trim();
-          break;
+          let companyName = match[1].trim();
+          
+          // Clean up the extracted company name
+          companyName = companyName
+            .replace(/\s+/g, ' ') // Normalize whitespace
+            .replace(/[,.]\s*$/, '') // Remove trailing punctuation
+            .replace(/^[,.]\s*/, '') // Remove leading punctuation
+            .trim();
+          
+          // If we found something reasonable, use it
+          if (companyName.length > 2 && companyName.length < 100) {
+            return companyName;
+          }
         }
       }
       
-      // If no specific company found, clean up legal text
-      if (cleaned.length > 50 || /\b(?:executed|assignment|hereby|duly)\b/i.test(cleaned)) {
-        // Remove common noise text and phrases
-        cleaned = cleaned
-          .replace(/^.*?(?:executed|duly)\s+.*?(?:assignment|this)\s+.*?(?:day|of)\s+.*?\d{4}\s*/i, '') // Remove date execution text
-          .replace(/\s+hereby\s+.*$/i, '') // Remove "hereby assigns..." text
-          .replace(/\s+(?:does\s+hereby|hereby)\s+.*$/i, '') // Remove legal language
-          .replace(/\s+(?:assign|assigns|transfer|transfers|convey|conveys).*$/i, '') // Remove action words
-          .replace(/\s+(?:and\s+)?(?:all|the)\s+.*$/i, '') // Remove "and all..." text
-          .replace(/\s*[,;].*$/, '') // Remove everything after first comma/semicolon
-          .replace(/\s+(?:dated|effective|recorded).*$/i, '') // Remove date references
-          .replace(/\s*\d+.*$/, '') // Remove trailing numbers and text
-          .trim();
-      }
-      
-      // Clean up and standardize company names
+      // If no pattern matched, try to clean up what we have
       cleaned = cleaned
         .replace(/\s+/g, ' ') // Normalize whitespace
-        .replace(/\bPnc\b/gi, 'PNC')
-        .replace(/\bEtrade\b/gi, 'ETRADE')
-        .replace(/\bBank\b/gi, 'BANK')
-        .replace(/\bNational\b/gi, 'NATIONAL')
-        .replace(/\bAssociation\b/gi, 'ASSOCIATION')
-        .replace(/\bCity\b/gi, 'CITY')
-        .replace(/\bLlc\b/gi, 'LLC')
+        .replace(/[,;].*$/, '') // Remove everything after comma/semicolon
         .trim();
       
-      // Final cleanup - if still contains legal language, try to extract company name
-      if (/\b(?:executed|assignment|hereby|duly|day|march|serial)\b/i.test(cleaned)) {
-        const finalMatch = cleaned.match(/([A-Z]+\s*(?:BANK|NATIONAL|ASSOCIATION|LLC)[A-Za-z\s]*)/i);
-        if (finalMatch) {
-          cleaned = finalMatch[1].trim();
+      // If still too long or contains junk, truncate intelligently
+      if (cleaned.length > 50) {
+        // Try to find the first reasonable endpoint
+        const endPoints = [',', ';', ' hereby', ' does', ' has', ' serial', ' dated', ' effective'];
+        let shortestClean = cleaned;
+        
+        for (const endPoint of endPoints) {
+          const index = cleaned.toLowerCase().indexOf(endPoint);
+          if (index > 0 && index < shortestClean.length) {
+            shortestClean = cleaned.substring(0, index).trim();
+          }
         }
+        
+        cleaned = shortestClean;
       }
     }
     
