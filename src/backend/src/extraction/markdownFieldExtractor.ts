@@ -316,61 +316,88 @@ export class MarkdownFieldExtractor {
     // Extract assignor/assignee from markdown structured text (with bold formatting)
     if (!fields.assignor) {
       const assignorPatterns = [
-        /\*\*assignor:\*\*\s*([^*\n]+)/i,
-        /assignor:\s*([^*\n]+)/i,
-        /\*\*assignor\*\*[:\s]*([^*\n]+)/i,
-        /assignor[:\s]+([A-Z][^,\n]+?)(?:,|\n|$)/i
+        // Markdown formatted with precise stopping points
+        /\*\*assignor:\*\*\s*([A-Z][A-Za-z\s&]+?)(?=\s*[\n\r]|\*\*|$)/i,
+        // Simple colon format with conservative capture
+        /assignor:\s*([A-Z][A-Za-z\s&]+?)(?=\s*[\n\r]|assignee|hereby|and\s+has|$)/i,
+        // Structured format with stops at common legal phrases
+        /\*\*assignor\*\*[:\s]*([A-Z][A-Za-z\s&]+?)(?=\s*[\n\r]|\*\*|$)/i,
+        // Conservative fallback
+        /assignor[:\s]+([A-Z][A-Za-z\s&]+?)(?=\s*(?:,|and|hereby|known|being|\n))/i
       ];
       
       for (const pattern of assignorPatterns) {
         const match = markdown.match(pattern);
-        if (match) {
-          fields.assignor = this.cleanCompanyName(match[1]);
-          fields.fieldConfidence.set('assignor', 0.9);
-          break;
+        if (match && match[1]) {
+          const cleaned = this.cleanCompanyName(match[1]);
+          if (cleaned && cleaned.length > 2 && cleaned.length < 100) {
+            fields.assignor = cleaned;
+            fields.fieldConfidence.set('assignor', 0.9);
+            break;
+          }
         }
       }
     }
 
     if (!fields.assignee) {
       const assigneePatterns = [
-        /\*\*assignee:\*\*\s*([^*\n]+)/i,
-        /assignee:\s*([^*\n]+)/i,
-        /\*\*assignee\*\*[:\s]*([^*\n]+)/i,
-        /assignee[:\s]+([A-Z][^,\n]+?)(?:,|\n|$)/i
+        // Markdown formatted with precise stopping points
+        /\*\*assignee:\*\*\s*([A-Z][A-Za-z\s&]+?)(?=\s*[\n\r]|\*\*|$)/i,
+        // Simple colon format with conservative capture
+        /assignee:\s*([A-Z][A-Za-z\s&]+?)(?=\s*[\n\r]|all\s+right|hereby|$)/i,
+        // Structured format
+        /\*\*assignee\*\*[:\s]*([A-Z][A-Za-z\s&]+?)(?=\s*[\n\r]|\*\*|$)/i,
+        // Conservative fallback
+        /assignee[:\s]+([A-Z][A-Za-z\s&]+?)(?=\s*(?:all|,|\n|$))/i
       ];
       
       for (const pattern of assigneePatterns) {
         const match = markdown.match(pattern);
-        if (match) {
-          fields.assignee = this.cleanCompanyName(match[1]);
-          fields.fieldConfidence.set('assignee', 0.9);
-          break;
+        if (match && match[1]) {
+          const cleaned = this.cleanCompanyName(match[1]);
+          if (cleaned && cleaned.length > 2 && cleaned.length < 100) {
+            fields.assignee = cleaned;
+            fields.fieldConfidence.set('assignee', 0.9);
+            break;
+          }
         }
       }
     }
 
-    // Pattern matching for assignment transfer language
+    // Pattern matching for assignment transfer language - more conservative
     if (!fields.assignor || !fields.assignee) {
-      // Look for "X hereby assigns and transfers to Y" patterns
+      // Look for "X hereby assigns and transfers to Y" patterns with better boundaries
       const transferPatterns = [
-        /([A-Z][A-Za-z\s&,.()]+?)\s+hereby assigns?(?:\s+and transfers?)?\s+to\s+([A-Z][A-Za-z\s&,.()]+?)\s+(?:all|the)/i,
-        /([A-Z][A-Za-z\s&,.()]+?)\s+assigns?\s+to\s+([A-Z][A-Za-z\s&,.()]+?)\s+(?:all|the)/i,
-        /([A-Z][^,\n]+?)\s+hereby assigns\s+and\s+transfers\s+to\s+([A-Z][^,\n]+?)\s+all/i
+        // Company-to-company with clear entity markers
+        /([A-Z][A-Za-z\s&]+?(?:LLC|Inc|Corp|Trust|Company|Co\.?))\s+hereby assigns?(?:\s+and transfers?)?\s+to\s+([A-Z][A-Za-z\s&]+?(?:LLC|Inc|Corp|Trust|Company|Co\.?))\s+all/i,
+        // Shorter, more conservative patterns
+        /([A-Z][A-Za-z\s&]{3,50}?)\s+assigns?\s+to\s+([A-Z][A-Za-z\s&]{3,50}?)\s+(?:all|the)/i,
+        // Assignment from X to Y format
+        /assignment\s+from\s+([A-Z][A-Za-z\s&]{3,50}?)\s+to\s+([A-Z][A-Za-z\s&]{3,50}?)(?:\s|,|$)/i
       ];
 
       for (const pattern of transferPatterns) {
         const match = fullText.match(pattern);
-        if (match) {
-          if (!fields.assignor) {
-            fields.assignor = this.cleanCompanyName(match[1]);
-            fields.fieldConfidence.set('assignor', 0.85);
+        if (match && match[1] && match[2]) {
+          const cleanedAssignor = this.cleanCompanyName(match[1]);
+          const cleanedAssignee = this.cleanCompanyName(match[2]);
+          
+          // Quality checks for reasonable entity names
+          if (cleanedAssignor && cleanedAssignee && 
+              cleanedAssignor.length > 2 && cleanedAssignor.length < 100 &&
+              cleanedAssignee.length > 2 && cleanedAssignee.length < 100 &&
+              cleanedAssignor !== cleanedAssignee) {
+            
+            if (!fields.assignor) {
+              fields.assignor = cleanedAssignor;
+              fields.fieldConfidence.set('assignor', 0.85);
+            }
+            if (!fields.assignee) {
+              fields.assignee = cleanedAssignee;
+              fields.fieldConfidence.set('assignee', 0.85);
+            }
+            break;
           }
-          if (!fields.assignee) {
-            fields.assignee = this.cleanCompanyName(match[2]);
-            fields.fieldConfidence.set('assignee', 0.85);
-          }
-          break;
         }
       }
     }
@@ -385,17 +412,20 @@ export class MarkdownFieldExtractor {
 
       for (const pattern of simplePatterns) {
         const match = fullText.match(pattern);
-        if (match) {
+        if (match && match[1]) {
           const company = this.cleanCompanyName(match[1]);
-          if (!fields.assignee && pattern.source.includes('assigns? to')) {
-            fields.assignee = company;
-            fields.fieldConfidence.set('assignee', 0.75);
-          } else if (!fields.assignor && pattern.source.includes('assignor')) {
-            fields.assignor = company;
-            fields.fieldConfidence.set('assignor', 0.75);
-          } else if (!fields.assignee && pattern.source.includes('assignee')) {
-            fields.assignee = company;
-            fields.fieldConfidence.set('assignee', 0.75);
+          // Add quality checks for reasonable entity names
+          if (company && company.length > 2 && company.length < 100) {
+            if (!fields.assignee && pattern.source.includes('assigns? to')) {
+              fields.assignee = company;
+              fields.fieldConfidence.set('assignee', 0.75);
+            } else if (!fields.assignor && pattern.source.includes('assignor')) {
+              fields.assignor = company;
+              fields.fieldConfidence.set('assignor', 0.75);
+            } else if (!fields.assignee && pattern.source.includes('assignee')) {
+              fields.assignee = company;
+              fields.fieldConfidence.set('assignee', 0.75);
+            }
           }
         }
       }
@@ -591,10 +621,17 @@ export class MarkdownFieldExtractor {
   }
 
   private cleanCompanyName(name: string): string {
+    if (!name) return '';
+    
     return name
       .replace(/^\s*\*\*|\*\*\s*$/g, '') // Remove markdown bold formatting
       .replace(/\s*\([^)]+\)\s*/g, ' ') // Remove parenthetical content like "(Mortgage Electronic Registration Systems, Inc.)"
-      .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc\.?|Corp\.?|Corporation|Company|Co\.?|Trust|LP|Ltd\.?)\s*$/i, '')
+      // Remove common legal boilerplate phrases that get captured in assignments
+      .replace(/\s*(known\s+as|being\s+the|hereby\s+assigns?|has\s+duly\s+executed|and\s+has\s+duly|on\s+the\s+date|hereinafter\s+written)/gi, '')
+      .replace(/\s*(missing\s+link\s+between|duly\s+executed\s+this\s+assignment|for\s+good\s+and\s+valuable\s+consideration)/gi, '')
+      .replace(/\s*(all\s+right,?\s+title\s+and\s+interest|in\s+the\s+mortgage\s+described\s+herein)/gi, '')
+      // Keep company suffixes but clean them up
+      .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc\.?|Corp\.?|Corporation|Company|Co\.?|Trust|LP|Ltd\.?)\s*$/i, ' $1')
       .replace(/\s+/g, ' ')
       .trim();
   }

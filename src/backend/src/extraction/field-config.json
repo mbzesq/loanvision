@@ -81,11 +81,11 @@
       "name": "assignor",
       "keywords": ["assignor", "grantor", "transferor", "from"],
       "patterns": [
-        "(?i)assignor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|\\s+hereby|$)",
+        "(?i)assignor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\\\n]|\\s+hereby|$)",
         "(?i)assignment\\s+from\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+to",
         "(?i)([A-Z][A-Za-z\\s&,.()]+?)\\s+hereby\\s+(?:assigns?|transfers?|conveys?)\\s+",
-        "(?i)grantor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)",
-        "(?i)transferor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)"
+        "(?i)grantor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\\\n]|$)",
+        "(?i)transferor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\\\n]|$)"
       ],
       "contextPatterns": [
         "(?i)([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:does\\s+)?hereby\\s+(?:assigns?|transfers?)\\s+(?:and\\s+conveys?\\s+)?to"
@@ -95,11 +95,11 @@
       "name": "assignee",
       "keywords": ["assignee", "grantee", "transferee", "to"],
       "patterns": [
-        "(?i)assignee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)",
-        "(?i)assignment\\s+(?:from\\s+[^,]+\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)",
-        "(?i)(?:assigns?|transfers?|conveys?)\\s+(?:and\\s+conveys?\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:\\s+all|\\s+the|\\s*[,\\n]|$)",
-        "(?i)grantee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)",
-        "(?i)transferee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\n]|$)"
+        "(?i)assignee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\\\n]|$)",
+        "(?i)assignment\\s+(?:from\\s+[^,]+\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\\\n]|$)",
+        "(?i)(?:assigns?|transfers?|conveys?)\\s+(?:and\\s+conveys?\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:\\s+all|\\s+the|\\s*[,\\\\n]|$)",
+        "(?i)grantee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\\\n]|$)",
+        "(?i)transferee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:[,\\\\n]|$)"
       ],
       "contextPatterns": [
         "(?i)(?:assigns?|transfers?)\\s+(?:and\\s+conveys?\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:all|the)"
