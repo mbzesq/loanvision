@@ -709,9 +709,13 @@ router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
       gapReason: row.gap_reason
     }));
 
-    // Determine if assignment chain ends with current investor (simplified logic)
+    // Determine if assignment chain ends with current investor
     const lastAssignment = transformedAssignmentChain[transformedAssignmentChain.length - 1];
-    const assignmentEndsWithCurrentInvestor = lastAssignment?.assignee?.toLowerCase().includes('ns194') || false;
+    const assignmentEndsWithCurrentInvestor = transformedAssignmentChain.length > 0 && 
+      lastAssignment?.assignee?.toLowerCase().includes('ns194') || false;
+    
+    // Only consider complete if we have multiple assignments AND ends with current investor
+    const isChainComplete = transformedAssignmentChain.length >= 2 && assignmentEndsWithCurrentInvestor;
     
     const response = {
       success: true,
@@ -745,7 +749,7 @@ router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
         hasAssignmentChain: assignmentChainData.length > 0,
         assignmentCount: assignmentChainData.length,
         assignmentChain: transformedAssignmentChain,
-        assignmentEndsWithCurrentInvestor,
+        assignmentEndsWithCurrentInvestor: isChainComplete,
         sourceDocument: assignmentChainData[0] ? {
           fileName: assignmentChainData[0].file_name,
           confidence: assignmentChainData[0].confidence_score
@@ -754,7 +758,7 @@ router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
       
       // Legacy compatibility
       legacy: {
-        assignmentChainComplete: legacyData?.assignment_chain_complete || false,
+        assignmentChainComplete: isChainComplete,
         chainGaps: assignmentChainData.filter(row => row.is_gap).map(row => row.gap_reason || 'Unknown gap')
       }
     };
