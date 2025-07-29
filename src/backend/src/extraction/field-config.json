@@ -79,30 +79,25 @@
     },
     {
       "name": "assignor",
-      "keywords": ["assignor", "grantor", "transferor", "from"],
+      "keywords": ["assignor", "grantor", "transferor", "from", "pnc bank", "national city", "etrade", "veripro"],
       "patterns": [
-        "assignor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|\\s+hereby|$)",
-        "assignment\\s+from\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+to",
-        "([A-Z][A-Za-z\\s&,.()]+?)\\s+hereby\\s+(?:assigns?|transfers?|conveys?)\\s+",
-        "grantor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)",
-        "transferor[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)"
-      ],
-      "contextPatterns": [
-        "(?i)([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:does\\s+)?hereby\\s+(?:assigns?|transfers?)\\s+(?:and\\s+conveys?\\s+)?to"
+        "([A-Z][A-Za-z\\s]+BANK[A-Za-z\\s]*)",
+        "([A-Z][A-Za-z\\s]+NATIONAL[A-Za-z\\s]*ASSOCIATION)",
+        "(PNC BANK[A-Za-z\\s]*)",
+        "(NATIONAL CITY BANK[A-Za-z\\s]*)",
+        "(ETRADE BANK[A-Za-z\\s]*)",
+        "(VERIPRO[A-Za-z\\s]*)"
       ]
     },
     {
-      "name": "assignee",
-      "keywords": ["assignee", "grantee", "transferee", "to"],
+      "name": "assignee", 
+      "keywords": ["assignee", "grantee", "transferee", "to", "etrade", "veripro", "ns194"],
       "patterns": [
-        "assignee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)",
-        "assignment\\s+(?:from\\s+[^,]+\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)",
-        "(?:assigns?|transfers?|conveys?)\\s+(?:and\\s+conveys?\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)(?:\\s+all|\\s+the|\\s*,|$)",
-        "grantee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)",
-        "transferee[:\\s]+([A-Z][A-Za-z\\s&,.()]+?)(?:,|$)"
-      ],
-      "contextPatterns": [
-        "(?i)(?:assigns?|transfers?)\\s+(?:and\\s+conveys?\\s+)?to\\s+([A-Z][A-Za-z\\s&,.()]+?)\\s+(?:all|the)"
+        "([A-Z][A-Za-z\\s]+BANK[A-Za-z\\s]*)",
+        "([A-Z][A-Za-z\\s]+NATIONAL[A-Za-z\\s]*ASSOCIATION)",
+        "(ETRADE BANK[A-Za-z\\s]*)",
+        "(VERIPRO[A-Za-z\\s]*)",
+        "(NS194[A-Za-z\\s]*LLC)"
       ]
     },
     {
