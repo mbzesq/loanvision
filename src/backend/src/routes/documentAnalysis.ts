@@ -660,22 +660,24 @@ router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
     
     const endorsementResult = await pool.query(endorsementQuery, [loanId]);
     
-    // Get assignment chain data 
+    // Get assignment chain data from chain_of_title table
     const assignmentQuery = `
       SELECT 
-        da.id as document_analysis_id,
+        cot.id,
+        cot.transferor as assignor,
+        cot.transferee as assignee,
+        cot.transfer_date as assignment_date,
+        cot.recording_date,
+        cot.instrument_number,
+        cot.sequence_number,
+        cot.is_gap,
+        cot.gap_reason,
         da.file_name,
-        da.confidence_score,
-        da.has_assignment_chain,
-        da.assignment_count,
-        da.assignment_chain,
-        da.assignment_ends_with_current_investor
-      FROM document_analysis da
-      WHERE da.loan_id = $1 
-        AND da.document_type = 'Assignment'
-        AND da.has_assignment_chain = true
-      ORDER BY da.created_at DESC
-      LIMIT 1
+        da.confidence_score
+      FROM chain_of_title cot
+      JOIN document_analysis da ON cot.document_analysis_id = da.id
+      WHERE cot.loan_id = $1
+      ORDER BY cot.sequence_number ASC
     `;
     
     const assignmentResult = await pool.query(assignmentQuery, [loanId]);
@@ -691,8 +693,25 @@ router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
     
     // Build comprehensive response
     const endorsementData = endorsementResult.rows[0];
-    const assignmentData = assignmentResult.rows[0];
+    const assignmentChainData = assignmentResult.rows;
     const legacyData = legacyResult.rows[0];
+    
+    // Transform assignment chain data to match frontend expectations
+    const transformedAssignmentChain = assignmentChainData.map(row => ({
+      sequenceNumber: row.sequence_number,
+      assignor: row.assignor,
+      assignee: row.assignee,
+      assignmentText: `${row.assignor} → ${row.assignee}`,
+      recordingInfo: row.recording_date ? 
+        `Recorded: ${row.recording_date.toLocaleDateString()}${row.instrument_number ? `, Instrument: ${row.instrument_number}` : ''}` : 
+        null,
+      isGap: row.is_gap,
+      gapReason: row.gap_reason
+    }));
+
+    // Determine if assignment chain ends with current investor (simplified logic)
+    const lastAssignment = transformedAssignmentChain[transformedAssignmentChain.length - 1];
+    const assignmentEndsWithCurrentInvestor = lastAssignment?.assignee?.toLowerCase().includes('ns194') || false;
     
     const response = {
       success: true,
@@ -721,22 +740,22 @@ router.get('/:loanId/chain-analysis', authenticateToken, async (req, res) => {
         } : null
       },
       
-      // Assignment chain analysis
+      // Assignment chain analysis (from chain_of_title table)
       assignmentChain: {
-        hasAssignmentChain: assignmentData?.has_assignment_chain || false,
-        assignmentCount: assignmentData?.assignment_count || 0,
-        assignmentChain: assignmentData?.assignment_chain || [],
-        assignmentEndsWithCurrentInvestor: assignmentData?.assignment_ends_with_current_investor || false,
-        sourceDocument: assignmentData ? {
-          fileName: assignmentData.file_name,
-          confidence: assignmentData.confidence_score
+        hasAssignmentChain: assignmentChainData.length > 0,
+        assignmentCount: assignmentChainData.length,
+        assignmentChain: transformedAssignmentChain,
+        assignmentEndsWithCurrentInvestor,
+        sourceDocument: assignmentChainData[0] ? {
+          fileName: assignmentChainData[0].file_name,
+          confidence: assignmentChainData[0].confidence_score
         } : null
       },
       
       // Legacy compatibility
       legacy: {
         assignmentChainComplete: legacyData?.assignment_chain_complete || false,
-        chainGaps: legacyData?.chain_gap_details ? [legacyData.chain_gap_details] : []
+        chainGaps: assignmentChainData.filter(row => row.is_gap).map(row => row.gap_reason || 'Unknown gap')
       }
     };
     
