@@ -42,11 +42,11 @@ export class ExtractionAdapter {
         new ContextStrategy()
       ];
 
-      // Initialize learner
-      const learner = new SimpleExtractionLearner();
+      // Initialize learner (temporarily disabled until database table exists)
+      // const learner = new SimpleExtractionLearner();
 
       // Create extractor
-      this.extractor = new MarkdownFieldExtractor(this.config, strategies, learner);
+      this.extractor = new MarkdownFieldExtractor(this.config, strategies);
 
       console.log('✅ Enhanced extraction system initialized successfully');
     } catch (error) {

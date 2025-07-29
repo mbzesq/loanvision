@@ -275,6 +275,22 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       extractionVersion: 'enhanced-integrated'
     };
 
+    // Sanitize date fields to prevent database errors
+    const sanitizeDate = (dateValue: any): Date | null => {
+      if (!dateValue) return null;
+      if (dateValue instanceof Date) return dateValue;
+      
+      // If it's a string, try to extract just the date part
+      const dateStr = dateValue.toString();
+      const dateMatch = dateStr.match(/(\d{1,2}\/\d{1,2}\/\d{4})|(\d{1,2}-\d{1,2}-\d{4})|([A-Za-z]+ \d{1,2}, \d{4})/);
+      if (dateMatch) {
+        const parsedDate = new Date(dateMatch[0]);
+        return isNaN(parsedDate.getTime()) ? null : parsedDate;
+      }
+      
+      return null;
+    };
+
     const result = await pool.query(insertQuery, [
       loanId,
       file.originalname,
@@ -287,12 +303,12 @@ router.post('/:loanId/analyze-document', authenticateToken, upload.single('docum
       extractedFields.borrowerName,
       extractedFields.coBorrowerName,
       extractedFields.loanAmount,
-      extractedFields.originationDate,
+      sanitizeDate(extractedFields.originationDate),
       extractedFields.lenderName,
       extractedFields.assignor,
       extractedFields.assignee,
-      extractedFields.assignmentDate,
-      extractedFields.recordingDate,
+      sanitizeDate(extractedFields.assignmentDate),
+      sanitizeDate(extractedFields.recordingDate),
       extractedFields.instrumentNumber,
       processingProvider === 'azure' && ocrResult ? ocrResult.text : '', // Store text for debugging (empty for DoctlyAI to save space)
       JSON.stringify(extractionMetadata),
