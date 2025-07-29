@@ -32,7 +32,18 @@ export class PatternStrategy implements ExtractionStrategy {
             // Use capture group if available, otherwise full match
             let extractedValue = match[1] || match[0];
             
+            // Debug logging for assignor/assignee
+            if (fieldDef.name === 'assignor' || fieldDef.name === 'assignee') {
+              console.log(`[PatternStrategy] Field: ${fieldDef.name}`);
+              console.log(`[PatternStrategy] Pattern: ${patternStr}`);
+              console.log(`[PatternStrategy] Raw match: "${extractedValue}"`);
+            }
+            
             const value = this.parseValue(extractedValue.trim(), fieldDef.name);
+            
+            if (fieldDef.name === 'assignor' || fieldDef.name === 'assignee') {
+              console.log(`[PatternStrategy] Cleaned value: "${value}"`);
+            }
             
             return {
               value,
