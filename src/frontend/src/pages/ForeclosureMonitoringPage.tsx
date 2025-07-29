@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, AlertTriangle, Calendar, RefreshCw, Gavel, MapPin, TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { Clock, AlertTriangle, RefreshCw, Gavel, Activity } from 'lucide-react';
 import { foreclosureService, ForeclosureSummary, ForeclosureLoan, ForeclosureStateData } from '../services/foreclosureService';
 import { LoanDetailModal } from '../components/LoanDetailModal';
-import { getOverallLoanStatus } from '../lib/timelineUtils';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, BarChart, Bar } from 'recharts';
 
 interface ForeclosureTrendData {
@@ -139,15 +138,15 @@ const ForeclosureMonitoringPage: React.FC = () => {
   ];
 
   const generateMockStateData = (): ForeclosureStateData[] => [
-    { state: 'CA', totalLoans: 12, avgDays: 287, overdueCount: 5, jurisdiction: 'Non-Judicial' },
-    { state: 'NY', totalLoans: 8, avgDays: 365, overdueCount: 3, jurisdiction: 'Judicial' },
-    { state: 'FL', totalLoans: 15, avgDays: 245, overdueCount: 7, jurisdiction: 'Judicial' },
-    { state: 'TX', totalLoans: 12, avgDays: 185, overdueCount: 3, jurisdiction: 'Non-Judicial' }
+    { state: 'CA', totalLoans: 12, judicialCount: 0, nonJudicialCount: 12, avgDaysInProcess: 287, completedCount: 5 },
+    { state: 'NY', totalLoans: 8, judicialCount: 8, nonJudicialCount: 0, avgDaysInProcess: 365, completedCount: 3 },
+    { state: 'FL', totalLoans: 15, judicialCount: 15, nonJudicialCount: 0, avgDaysInProcess: 245, completedCount: 7 },
+    { state: 'TX', totalLoans: 12, judicialCount: 0, nonJudicialCount: 12, avgDaysInProcess: 185, completedCount: 3 }
   ];
 
   const generateMockTrendData = (): ForeclosureTrendData[] => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    return months.map((month, index) => ({
+    return months.map((month) => ({
       month,
       started: Math.floor(Math.random() * 10) + 5,
       completed: Math.floor(Math.random() * 8) + 3,
@@ -165,14 +164,6 @@ const ForeclosureMonitoringPage: React.FC = () => {
     }).format(amount);
   };
 
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'overdue': return 'text-red-600';
-      case 'ontrack': return 'text-emerald-600';
-      case 'completed': return 'text-blue-600';
-      default: return 'text-gray-600';
-    }
-  };
 
   const getStatusBadge = (status: string): React.ReactNode => {
     const statusConfig = {
@@ -330,7 +321,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Bar dataKey="totalLoans" fill="#3b82f6" name="Total" />
-                    <Bar dataKey="overdueCount" fill="#ef4444" name="Overdue" />
+                    <Bar dataKey="completedCount" fill="#10b981" name="Completed" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -393,11 +384,12 @@ const ForeclosureMonitoringPage: React.FC = () => {
       </main>
 
       {/* Loan Detail Modal */}
-      <LoanDetailModal
-        isOpen={!!selectedLoanId}
-        onClose={() => setSelectedLoanId(null)}
-        loanId={selectedLoanId || ''}
-      />
+      {selectedLoanId && (
+        <LoanDetailModal
+          onClose={() => setSelectedLoanId(null)}
+          loanId={selectedLoanId}
+        />
+      )}
     </div>
   );
 };
