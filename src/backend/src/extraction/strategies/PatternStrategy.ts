@@ -211,6 +211,43 @@ export class PatternStrategy implements ExtractionStrategy {
       return isNaN(date.getTime()) ? cleaned : date;
     }
     
+    // Clean assignor/assignee company names
+    if (fieldName === 'assignor' || fieldName === 'assignee') {
+      // Remove common noise text and phrases
+      cleaned = cleaned
+        .replace(/\s+hereby\s+.*$/i, '') // Remove "hereby assigns..." text
+        .replace(/\s+(?:does\s+hereby|hereby)\s+.*$/i, '') // Remove legal language
+        .replace(/\s+(?:assign|assigns|transfer|transfers|convey|conveys).*$/i, '') // Remove action words
+        .replace(/\s+(?:and\s+)?(?:all|the)\s+.*$/i, '') // Remove "and all..." text
+        .replace(/\s*[,;].*$/, '') // Remove everything after first comma/semicolon
+        .replace(/\s+(?:dated|effective|recorded).*$/i, '') // Remove date references
+        .replace(/\s+(?:borough|block|lot|unit|address).*$/i, '') // Remove property data
+        .replace(/\s+(?:property\s+data).*$/i, '') // Remove "PROPERTY DATA" text
+        .replace(/\s+(?:brooklyn?|kings?).*$/i, '') // Remove location references that got mixed in
+        .replace(/\s*\d+.*$/, '') // Remove trailing numbers and text
+        .trim();
+      
+      // Clean up extra whitespace and ensure proper capitalization
+      cleaned = cleaned
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .replace(/\b\w+/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Title case
+        .replace(/\bLlc\b/g, 'LLC') // Fix common abbreviations
+        .replace(/\bInc\b/g, 'Inc.')
+        .replace(/\bCorp\b/g, 'Corp.')
+        .replace(/\bBank\b/g, 'BANK')
+        .replace(/\bNational\b/g, 'NATIONAL')
+        .replace(/\bAssociation\b/g, 'ASSOCIATION');
+      
+      // If still too long or contains noise, try to extract just the company name
+      if (cleaned.length > 100 || /\b(?:page|instrument|recorded|filed)\b/i.test(cleaned)) {
+        // Try to extract a clean company name from the beginning
+        const companyMatch = cleaned.match(/^([A-Z][A-Za-z\s&]+?(?:\s+(?:BANK|LLC|INC\.?|CORP\.?|COMPANY|ASSOCIATION|NATIONAL|SOLUTIONS?))*)/i);
+        if (companyMatch && companyMatch[1].length < 80) {
+          cleaned = companyMatch[1].trim();
+        }
+      }
+    }
+    
     return cleaned;
   }
 
