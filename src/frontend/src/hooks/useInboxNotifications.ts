@@ -35,12 +35,12 @@ interface UseInboxNotificationsReturn {
 export function useInboxNotifications(): UseInboxNotificationsReturn {
   const { token, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<InboxNotification[]>([]);
-  // Force reset stats to match database reality
+  // Start with clean state - user deleted everything
   const [stats, setStats] = useState<InboxStats>({
-    unreadCount: 16, // Set to actual database count
-    criticalUnread: 2,
+    unreadCount: 0, // User deleted everything, should be 0
+    criticalUnread: 0,
     highUnread: 0,
-    todayCount: 16,
+    todayCount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +53,10 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
       // Clear current state to show fresh data
       setNotifications([]);
       setStats({
-        unreadCount: 16, // Temporary: use actual database count until WebSocket syncs
-        criticalUnread: 2,
+        unreadCount: 0, // Reset to 0 - user deleted everything
+        criticalUnread: 0,
         highUnread: 0,
-        todayCount: 16,
+        todayCount: 0,
       });
       
       // Force reconnection to get fresh data

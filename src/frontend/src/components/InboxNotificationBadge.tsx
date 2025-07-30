@@ -17,13 +17,12 @@ export function InboxNotificationBadge() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
 
-  // Emergency override for stuck cache - use actual database values
+  // Emergency override for stuck cache - user deleted everything
   const displayStats = {
     ...stats,
-    // If we're getting an obviously wrong cached value (like 1817 when we know it's 16),
-    // override with the correct database count until WebSocket syncs properly
-    unreadCount: stats.unreadCount === 1817 ? 16 : stats.unreadCount,
-    criticalUnread: stats.criticalUnread > 10 ? 2 : stats.criticalUnread,
+    // If we're getting the stuck cached value, override with 0 since user deleted everything
+    unreadCount: stats.unreadCount === 1817 ? 0 : stats.unreadCount,
+    criticalUnread: stats.criticalUnread > 10 ? 0 : stats.criticalUnread,
   };
 
   const hasUnread = displayStats.unreadCount > 0;
