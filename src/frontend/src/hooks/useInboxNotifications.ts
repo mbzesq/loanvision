@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from '../contexts/AuthContext';
+import { audioNotificationService, AudioNotificationService } from '../services/audioNotificationService';
 
 interface InboxNotification {
   id: number;
@@ -132,6 +133,10 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
       
       // Show browser notification if permitted
       showBrowserNotification(taskData.message);
+      
+      // Play audio notification
+      const notificationType = AudioNotificationService.getNotificationTypeFromInboxItem(taskData.task || taskData);
+      audioNotificationService.playNotification(notificationType);
     });
 
     socket.on('notifications:marked_read', ({ notificationIds }: { notificationIds: number[] }) => {

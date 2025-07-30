@@ -8,6 +8,7 @@ import {
 } from '../types/chat';
 import { chatApi } from '../services/chatApi';
 import { useChatWebSocket } from '../hooks/useChatWebSocket';
+import { audioNotificationService } from '../services/audioNotificationService';
 
 // State interface
 interface InternalChatState {
@@ -266,7 +267,21 @@ export function InternalChatProvider({ children, token, currentUser }: InternalC
         payload: { roomId: message.room_id, count: currentCount + 1 } 
       });
     }
-  }, [state.selectedRoomId, state.unreadCounts]);
+
+    // Play audio notification if it's not from the current user
+    if (currentUser && message.user_id !== currentUser.id) {
+      // Check if it's a mention (contains current user's name or @username)
+      const messageText = message.content.toLowerCase();
+      const userName = `${currentUser.first_name} ${currentUser.last_name}`.toLowerCase() || '';
+      const userEmail = currentUser.email?.toLowerCase() || '';
+      const isMention = messageText.includes(`@${userName}`) || 
+                       messageText.includes(`@${userEmail}`) ||
+                       messageText.includes(userName);
+      
+      const notificationType = isMention ? 'mention' : 'message';
+      audioNotificationService.playNotification(notificationType);
+    }
+  }, [state.selectedRoomId, state.unreadCounts, currentUser]);
 
   const handleUserTyping = useCallback((data: { room_id: number; user_id: number; user_email: string }) => {
     const typingUser: TypingIndicator = {

@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import organizationService, { OrganizationService } from "../services/organizationService";
 import { Organization } from "../types/auth";
+import NotificationSettings from "./NotificationSettings";
 
 export function UserProfile() {
   const { user, logout } = useAuth();
@@ -111,6 +112,13 @@ export function UserProfile() {
             </div>
           </>
         )}
+        <DropdownMenuSeparator />
+        
+        {/* Notification Settings */}
+        <div className="px-2 py-1">
+          <NotificationSettings />
+        </div>
+        
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           onClick={() => {

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Bell, BellRing } from 'lucide-react';
 import { useInboxNotifications } from '../hooks/useInboxNotifications';
+import { useState, useEffect } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +14,21 @@ import {
 export function InboxNotificationBadge() {
   const navigate = useNavigate();
   const { notifications, stats, connected } = useInboxNotifications();
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
 
   const hasUnread = stats.unreadCount > 0;
+
+  // Trigger animation when unread count increases
+  useEffect(() => {
+    if (stats.unreadCount > previousUnreadCount && previousUnreadCount >= 0) {
+      setIsAnimating(true);
+      // Reset animation after duration
+      const timer = setTimeout(() => setIsAnimating(false), 1000);
+      return () => clearTimeout(timer);
+    }
+    setPreviousUnreadCount(stats.unreadCount);
+  }, [stats.unreadCount, previousUnreadCount]);
 
   const handleNotificationClick = (inboxItemId: number) => {
     // Navigate to inbox with specific task selected
@@ -61,11 +75,15 @@ export function InboxNotificationBadge() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button 
-          className="relative p-2 rounded-md hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`relative p-2 rounded-md hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            isAnimating ? 'animate-pulse scale-110' : ''
+          }`}
           title={hasUnread ? `${stats.unreadCount} unread notifications` : 'No new notifications'}
         >
           {hasUnread ? (
-            <BellRing className="h-6 w-6 text-gray-700" />
+            <BellRing className={`h-6 w-6 text-gray-700 transition-transform duration-200 ${
+              isAnimating ? 'animate-bounce' : ''
+            }`} />
           ) : (
             <Bell className="h-6 w-6 text-gray-700" />
           )}
@@ -73,7 +91,9 @@ export function InboxNotificationBadge() {
           {/* Badge */}
           {hasUnread && (
             <span 
-              className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] text-xs font-bold text-white rounded-full flex items-center justify-center ${getBadgeColor()}`}
+              className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] text-xs font-bold text-white rounded-full flex items-center justify-center transition-all duration-300 ${getBadgeColor()} ${
+                isAnimating ? 'animate-ping scale-125' : ''
+              }`}
             >
               {stats.unreadCount > 99 ? '99+' : stats.unreadCount}
             </span>
