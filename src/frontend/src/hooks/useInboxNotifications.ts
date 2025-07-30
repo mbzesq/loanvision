@@ -57,8 +57,19 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
         highUnread: 0,
         todayCount: 0,
       });
-      socketRef.current.emit('notifications:fetch');
-      socketRef.current.emit('inbox:fetch_stats');
+      
+      // Force reconnection to get fresh data
+      const currentSocket = socketRef.current;
+      console.log('Forcing socket reconnection for fresh data');
+      currentSocket.disconnect();
+      
+      // Reconnect after a brief delay
+      setTimeout(() => {
+        if (socketRef.current && socketRef.current.connected) {
+          socketRef.current.emit('notifications:fetch');
+          socketRef.current.emit('inbox:fetch_stats');
+        }
+      }, 1000);
     } else {
       console.warn('Socket not connected, cannot refetch');
     }

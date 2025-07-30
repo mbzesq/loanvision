@@ -144,6 +144,18 @@ export function InboxNotificationBadge() {
               >
                 <RefreshCw className="w-3 h-3" />
               </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  // Hard reset: force page reload to clear all caches
+                  window.location.reload();
+                }}
+                className="p-1 hover:bg-gray-100 rounded text-red-400 hover:text-red-600 ml-1"
+                title="Hard refresh (reload page)"
+              >
+                <RefreshCw className="w-3 h-3" />
+              </button>
             </div>
           </div>
           {stats.criticalUnread > 0 && (
@@ -160,6 +172,12 @@ export function InboxNotificationBadge() {
             <div className="flex flex-col items-center text-gray-500">
               <Bell className="h-8 w-8 mb-2 opacity-50" />
               <span>No new notifications</span>
+              {stats.unreadCount > 0 && (
+                <div className="text-xs text-orange-600 mt-2">
+                  Badge shows {stats.unreadCount} but no notifications found.<br/>
+                  This may indicate a backend sync issue.
+                </div>
+              )}
             </div>
           </DropdownMenuItem>
         ) : (
