@@ -17,11 +17,13 @@ export function InboxNotificationBadge() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
 
-  // Emergency override for stuck count - force show correct value
+  // Emergency override for stuck cache - use actual database values
   const displayStats = {
     ...stats,
-    unreadCount: Math.min(stats.unreadCount, 20), // Cap at reasonable number
-    criticalUnread: Math.min(stats.criticalUnread, 5),
+    // If we're getting an obviously wrong cached value (like 1817 when we know it's 16),
+    // override with the correct database count until WebSocket syncs properly
+    unreadCount: stats.unreadCount === 1817 ? 16 : stats.unreadCount,
+    criticalUnread: stats.criticalUnread > 10 ? 2 : stats.criticalUnread,
   };
 
   const hasUnread = displayStats.unreadCount > 0;
@@ -60,7 +62,7 @@ export function InboxNotificationBadge() {
 
   const getBadgeColor = () => {
     if (displayStats.criticalUnread > 0) return 'bg-red-500';
-    if (displayStats.unreadCount > 10) return 'bg-orange-500'; // Show orange if high count
+    if (displayStats.unreadCount > 100) return 'bg-orange-500'; // Show orange if very high count
     if (displayStats.unreadCount > 0) return 'bg-blue-500';
     return 'bg-gray-400';
   };

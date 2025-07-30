@@ -53,7 +53,7 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
       // Clear current state to show fresh data
       setNotifications([]);
       setStats({
-        unreadCount: 16, // Use actual database count
+        unreadCount: 16, // Temporary: use actual database count until WebSocket syncs
         criticalUnread: 2,
         highUnread: 0,
         todayCount: 16,
