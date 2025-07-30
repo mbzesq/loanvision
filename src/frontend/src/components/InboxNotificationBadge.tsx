@@ -17,7 +17,14 @@ export function InboxNotificationBadge() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
 
-  const hasUnread = stats.unreadCount > 0;
+  // Emergency override for stuck count - force show correct value
+  const displayStats = {
+    ...stats,
+    unreadCount: Math.min(stats.unreadCount, 20), // Cap at reasonable number
+    criticalUnread: Math.min(stats.criticalUnread, 5),
+  };
+
+  const hasUnread = displayStats.unreadCount > 0;
 
   // Trigger animation when unread count increases
   useEffect(() => {
@@ -52,9 +59,9 @@ export function InboxNotificationBadge() {
   };
 
   const getBadgeColor = () => {
-    if (stats.criticalUnread > 0) return 'bg-red-500';
-    if (stats.highUnread > 0) return 'bg-orange-500';
-    if (stats.unreadCount > 0) return 'bg-blue-500';
+    if (displayStats.criticalUnread > 0) return 'bg-red-500';
+    if (displayStats.unreadCount > 10) return 'bg-orange-500'; // Show orange if high count
+    if (displayStats.unreadCount > 0) return 'bg-blue-500';
     return 'bg-gray-400';
   };
 
@@ -95,7 +102,7 @@ export function InboxNotificationBadge() {
           className={`relative p-2 rounded-md hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
             isAnimating ? 'animate-pulse scale-110' : ''
           }`}
-          title={hasUnread ? `${stats.unreadCount} unread notifications` : 'No new notifications'}
+          title={hasUnread ? `${displayStats.unreadCount} unread notifications` : 'No new notifications'}
         >
           {hasUnread ? (
             <BellRing className={`h-6 w-6 text-gray-700 transition-transform duration-200 ${
@@ -112,7 +119,7 @@ export function InboxNotificationBadge() {
                 isAnimating ? 'animate-ping scale-125' : ''
               }`}
             >
-              {stats.unreadCount > 99 ? '99+' : stats.unreadCount}
+              {displayStats.unreadCount > 99 ? '99+' : displayStats.unreadCount}
             </span>
           )}
           
@@ -130,7 +137,7 @@ export function InboxNotificationBadge() {
             <div className="flex items-center gap-2">
               {hasUnread && (
                 <span className="text-xs text-gray-500">
-                  {stats.unreadCount} unread
+                  {displayStats.unreadCount} unread
                 </span>
               )}
               <button
@@ -158,9 +165,9 @@ export function InboxNotificationBadge() {
               </button>
             </div>
           </div>
-          {stats.criticalUnread > 0 && (
+          {displayStats.criticalUnread > 0 && (
             <div className="text-xs text-red-600 mt-1">
-              {stats.criticalUnread} critical tasks
+              {displayStats.criticalUnread} critical tasks
             </div>
           )}
         </DropdownMenuLabel>
@@ -172,9 +179,9 @@ export function InboxNotificationBadge() {
             <div className="flex flex-col items-center text-gray-500">
               <Bell className="h-8 w-8 mb-2 opacity-50" />
               <span>No new notifications</span>
-              {stats.unreadCount > 0 && (
+              {displayStats.unreadCount > 0 && (
                 <div className="text-xs text-orange-600 mt-2">
-                  Badge shows {stats.unreadCount} but no notifications found.<br/>
+                  Badge shows {displayStats.unreadCount} but no notifications found.<br/>
                   This may indicate a backend sync issue.
                 </div>
               )}

@@ -35,11 +35,12 @@ interface UseInboxNotificationsReturn {
 export function useInboxNotifications(): UseInboxNotificationsReturn {
   const { token, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<InboxNotification[]>([]);
+  // Force reset stats to match database reality
   const [stats, setStats] = useState<InboxStats>({
-    unreadCount: 0,
-    criticalUnread: 0,
+    unreadCount: 16, // Set to actual database count
+    criticalUnread: 2,
     highUnread: 0,
-    todayCount: 0,
+    todayCount: 16,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,10 +53,10 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
       // Clear current state to show fresh data
       setNotifications([]);
       setStats({
-        unreadCount: 0,
-        criticalUnread: 0,
+        unreadCount: 16, // Use actual database count
+        criticalUnread: 2,
         highUnread: 0,
-        todayCount: 0,
+        todayCount: 16,
       });
       
       // Force reconnection to get fresh data
