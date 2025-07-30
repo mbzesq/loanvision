@@ -32,92 +32,46 @@ export function DataToolbar({
   };
 
   return (
-    <div className="data-toolbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-6">
         {/* Results Summary */}
-        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
-          Viewing <span style={{ fontWeight: '600', color: 'var(--color-text)' }}>{filteredLoanCount.toLocaleString()}</span> of <span style={{ fontWeight: '600', color: 'var(--color-text)' }}>{totalLoanCount.toLocaleString()}</span> loans
+        <span className="text-sm text-gray-500">
+          Viewing <span className="font-semibold text-gray-900">{filteredLoanCount.toLocaleString()}</span> of <span className="font-semibold text-gray-900">{totalLoanCount.toLocaleString()}</span> loans
         </span>
 
         {/* Search Input */}
-        <div style={{ position: 'relative' }}>
-          <Search style={{ 
-            position: 'absolute', 
-            left: '8px', 
-            top: '50%', 
-            transform: 'translateY(-50%)', 
-            width: '12px', 
-            height: '12px', 
-            color: 'var(--color-text-muted)' 
-          }} />
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             placeholder="Search all loans..."
             value={globalFilter ?? ''}
             onChange={(event) => setGlobalFilter(event.target.value)}
-            style={{
-              height: '28px',
-              width: '200px',
-              paddingLeft: '28px',
-              paddingRight: globalFilter ? '28px' : '8px',
-              fontSize: '11px',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'var(--color-background)',
-              color: 'var(--color-text)'
-            }}
+            className="h-8 w-64 pl-8 pr-8 text-sm border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           />
           {globalFilter && globalFilter.length > 0 && (
             <button
               onClick={handleClearSearch}
-              style={{
-                position: 'absolute',
-                right: '8px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--color-text-muted)',
-                padding: '2px'
-              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600"
               type="button"
               aria-label="Clear search"
             >
-              <X style={{ width: '12px', height: '12px' }} />
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="flex items-center gap-2">
         {/* Future Feature Buttons */}
         <button 
           disabled
-          style={{
-            padding: '4px 8px',
-            fontSize: '11px',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'var(--color-surface)',
-            color: 'var(--color-text)',
-            cursor: 'not-allowed',
-            opacity: 0.5
-          }}
+          className="px-3 py-1.5 text-xs border border-gray-200 rounded-md bg-gray-50 text-gray-400 cursor-not-allowed"
         >
           Save View
         </button>
         <button 
           disabled
-          style={{
-            padding: '4px 8px',
-            fontSize: '11px',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'var(--color-surface)',
-            color: 'var(--color-text)',
-            cursor: 'not-allowed',
-            opacity: 0.5
-          }}
+          className="px-3 py-1.5 text-xs border border-gray-200 rounded-md bg-gray-50 text-gray-400 cursor-not-allowed"
         >
           Compare
         </button>

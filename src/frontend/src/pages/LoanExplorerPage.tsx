@@ -710,15 +710,10 @@ function LoanExplorerPage() {
 
   if (loading) {
     return (
-      <div className="premium-page-container" style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        minHeight: '100vh'
-      }}>
-        <div className="premium-loading">
-          <div className="premium-loading-spinner"></div>
-          <p className="premium-loading-text">Loading portfolio data...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading portfolio data...</p>
         </div>
       </div>
     );
@@ -726,69 +721,64 @@ function LoanExplorerPage() {
 
   if (error) {
     return (
-      <div className="premium-page-container" style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        minHeight: '100vh'
-      }}>
-        <div className="premium-error-container">
-          <div className="premium-error-icon">⚠️</div>
-          <p className="premium-error-text">{error}</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⚠️</div>
+          <p className="text-red-600">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="premium-page-container">
-      {/* Premium Page Header */}
-      <div className="premium-page-header">
-        <div className="premium-page-title-section">
-          <h1 className="premium-page-title">Loan Explorer</h1>
-          <p className="premium-page-subtitle">Comprehensive portfolio analysis and management</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200 px-8 py-6">
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-gray-900">Loan Explorer</h1>
+          <p className="text-gray-600">Comprehensive portfolio analysis and management</p>
         </div>
         
-        {/* Premium Stats Bar */}
-        <div className="premium-stats-bar">
-          <div className="premium-stat-item">
-            <div className="premium-stat-icon">
-              <DollarSign className="w-4 h-4" />
+        {/* Stats Bar */}
+        <div className="flex gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-blue-600" />
             </div>
-            <div className="premium-stat-content">
-              <div className="premium-stat-label">Total Loans</div>
-              <div className="premium-stat-value">{loans.length.toLocaleString()}</div>
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase">Total Loans</div>
+              <div className="text-lg font-semibold text-gray-900">{loans.length.toLocaleString()}</div>
             </div>
           </div>
-          <div className="premium-stat-item">
-            <div className="premium-stat-icon" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
-              <Filter className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <Filter className="w-5 h-5 text-emerald-600" />
             </div>
-            <div className="premium-stat-content">
-              <div className="premium-stat-label">Filtered Results</div>
-              <div className="premium-stat-value">{filteredData.length.toLocaleString()}</div>
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase">Filtered Results</div>
+              <div className="text-lg font-semibold text-gray-900">{filteredData.length.toLocaleString()}</div>
             </div>
           </div>
           {searchParams.toString() && (
-            <div className="premium-stat-item">
-              <div className="premium-stat-icon" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}>
-                <Search className="w-4 h-4" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Search className="w-5 h-5 text-blue-600" />
               </div>
-              <div className="premium-stat-content">
-                <div className="premium-stat-label">Dashboard Filter</div>
-                <div className="premium-stat-value text-blue-600">Active</div>
+              <div>
+                <div className="text-xs font-medium text-gray-500 uppercase">Dashboard Filter</div>
+                <div className="text-lg font-semibold text-blue-600">Active</div>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Premium Main Grid */}
-      <div className="premium-page-content">
-        <div className="premium-loan-explorer-grid">
-          {/* Premium Filter Panel (Left) */}
-          <div className="premium-filter-sidebar">
-            <div className="premium-filter-card">
+      {/* Main Grid */}
+      <div className="px-8 py-6">
+        <div className="grid grid-cols-[320px_1fr] gap-6">
+          {/* Filter Panel (Left) */}
+          <div>
+            <div className="sticky top-6">
               <FilterPanel
                 onApplyFilters={handleApplyFilters}
                 onShowAll={handleShowAll}
@@ -802,8 +792,8 @@ function LoanExplorerPage() {
           </div>
           
           {/* Premium Main Content (Right) */}
-          <div className="premium-data-card">
-            <div className="premium-toolbar-section">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-4 border-b border-gray-200">
               <DataToolbar
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
@@ -815,20 +805,20 @@ function LoanExplorerPage() {
               />
             </div>
             
-            <div className="premium-table-container">
-              <table className="premium-data-table">
-              <thead className="premium-table-header">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+              <thead className="bg-gray-50 border-b-2 border-gray-200 sticky top-0 z-10">
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map(header => (
-                      <th key={header.id} className="premium-table-th">
+                      <th key={header.id} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         {header.isPlaceholder ? null : (
                           <div
-                            className="premium-table-sort"
+                            className="flex items-center gap-2 cursor-pointer select-none group"
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                            <span className="premium-sort-icon">
+                            <span className="text-gray-400 group-hover:text-gray-600">
                               {getSortIcon(header.column.getIsSorted())}
                             </span>
                           </div>
@@ -838,15 +828,15 @@ function LoanExplorerPage() {
                   </tr>
                 ))}
               </thead>
-              <tbody className="premium-table-body">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="premium-table-row"
+                    className="hover:bg-gray-50 cursor-pointer transition-colors"
                     onClick={() => setSelectedLoanId(row.original.loan_id)}
                   >
                     {row.getVisibleCells().map(cell => (
-                      <td key={cell.id} className="premium-table-td">
+                      <td key={cell.id} className="px-4 py-3 text-sm text-gray-900">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
