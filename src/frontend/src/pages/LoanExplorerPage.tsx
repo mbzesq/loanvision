@@ -522,7 +522,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('loan_id', {
         header: 'Loan Number',
         cell: info => (
-          <span className="financial-link" style={{ fontWeight: '500' }}>
+          <span className="text-blue-600 font-medium hover:text-blue-800 cursor-pointer">
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -531,7 +531,7 @@ function LoanExplorerPage() {
         id: 'borrower_name',
         header: 'Borrower Name',
         cell: info => (
-          <span style={{ color: 'var(--color-text)', fontWeight: '500' }}>
+          <span className="text-gray-900 font-medium">
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -539,7 +539,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('address', {
         header: 'Property Address',
         cell: info => (
-          <span style={{ color: 'var(--color-text)' }}>
+          <span className="text-gray-700">
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -547,7 +547,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('city', {
         header: 'City',
         cell: info => (
-          <span style={{ color: 'var(--color-text)' }}>
+          <span className="text-gray-700">
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -555,7 +555,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('state', {
         header: 'State',
         cell: info => (
-          <span style={{ color: 'var(--color-text)' }}>
+          <span className="text-gray-700">
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -565,10 +565,7 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span className="financial-mono" style={{ 
-              fontWeight: '600', 
-              color: 'var(--color-text)'
-            }}>
+            <span className="font-mono font-semibold text-gray-900">
               {value 
                 ? parseFloat(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                 : 'N/A'}
@@ -586,9 +583,7 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span style={{ 
-              color: 'var(--color-text)'
-            }}>
+            <span className="text-gray-700">
               {formatDate(value)}
             </span>
           );
@@ -604,9 +599,7 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span style={{ 
-              color: 'var(--color-text)'
-            }}>
+            <span className="text-gray-700">
               {formatDate(value)}
             </span>
           );
@@ -621,7 +614,7 @@ function LoanExplorerPage() {
       columnHelper.accessor('legal_status', {
         header: 'Legal Status',
         cell: info => (
-          <span style={{ fontWeight: '500', color: 'var(--color-text)' }}>
+          <span className="font-medium text-gray-900">
             {info.getValue() || 'N/A'}
           </span>
         ),
@@ -783,7 +776,7 @@ function LoanExplorerPage() {
               </div>
               <div className="premium-stat-content">
                 <div className="premium-stat-label">Dashboard Filter</div>
-                <div className="premium-stat-value" style={{ color: 'var(--accent-primary)' }}>Active</div>
+                <div className="premium-stat-value text-blue-600">Active</div>
               </div>
             </div>
           )}
@@ -863,24 +856,11 @@ function LoanExplorerPage() {
             </table>
             </div>
             {table.getRowModel().rows.length === 0 && (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '48px 24px',
-                color: 'var(--color-text-muted)' 
-              }}>
-                <h3 style={{ 
-                  fontSize: '14px', 
-                  fontWeight: '600', 
-                  color: 'var(--color-text-primary)',
-                  textTransform: 'uppercase',
-                  marginBottom: '8px'
-                }}>
+              <div className="text-center py-12 px-6 text-gray-500">
+                <h3 className="text-sm font-semibold text-gray-900 uppercase mb-2">
                   {filteredData.length === 0 ? "NO LOANS FOUND" : "LOADING LOANS..."}
                 </h3>
-                <p style={{ 
-                  fontSize: '12px',
-                  color: 'var(--color-text-muted)'
-                }}>
+                <p className="text-xs text-gray-500">
                   {filteredData.length === 0
                     ? "No loans match your current filter criteria. Try adjusting your filters."
                     : "Loading loan data..."}

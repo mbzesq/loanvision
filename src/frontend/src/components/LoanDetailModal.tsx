@@ -89,141 +89,72 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
         }}
       >
         {/* Header */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          padding: '16px',
-          borderBottom: '1px solid var(--color-border)' 
-        }}>
-          <h2 style={{ 
-            fontSize: '14px', 
-            fontWeight: '600', 
-            color: 'var(--color-text-primary)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em'
-          }}>
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
+          <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
             {loading ? "LOADING..." : `LOAN DETAILS: ${loan?.loan_id}`}
           </h2>
           <button 
             onClick={onClose}
-            className="btn-compact btn-secondary"
-            style={{ 
-              padding: '4px',
-              minWidth: 'auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
+            className="p-1 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
           >
-            <X style={{ width: '16px', height: '16px' }} />
+            <X className="w-4 h-4" />
           </button>
         </div>
         
         {/* Body */}
-        <div className="scroll-container" style={{ 
-          flexGrow: 1, 
-          padding: '16px',
-          overflowY: 'auto' 
-        }}>
+        <div className="flex-1 p-4 overflow-y-auto">
           {loading && (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '32px',
-              color: 'var(--color-text-secondary)',
-              fontSize: '12px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}>
+            <div className="text-center py-8 text-gray-500 text-xs uppercase tracking-wide">
               LOADING DETAILS...
             </div>
           )}
           {!loading && !loan && (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '32px',
-              color: 'var(--color-danger)',
-              fontSize: '12px'
-            }}>
+            <div className="text-center py-8 text-red-600 text-xs">
               Failed to load loan details.
             </div>
           )}
           {!loading && loan && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="flex flex-col gap-6">
               {/* === Section 1: Borrower & Property === */}
-              <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                <div className="financial-card">
-                  <div style={{ 
-                    borderBottom: '1px solid var(--color-border)',
-                    paddingBottom: '8px',
-                    marginBottom: '12px'
-                  }}>
-                    <h3 style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '600', 
-                      color: 'var(--color-text-secondary)',
-                      textTransform: 'uppercase'
-                    }}>LOAN & BORROWER</h3>
+              <section className="grid grid-cols-2 gap-6">
+                <div className="premium-card">
+                  <div className="border-b border-gray-200 pb-2 mb-3">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase">LOAN & BORROWER</h3>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div className="flex flex-col gap-3">
                     <DetailItem label="Borrower Name">{`${loan.first_name} ${loan.last_name}`}</DetailItem>
                     <DetailItem label="Investor">
                       <button 
                         onClick={() => handleInvestorClick(loan.investor_name)} 
-                        style={{ 
-                          color: 'var(--color-primary)', 
-                          textDecoration: 'none',
-                          fontWeight: '500',
-                          cursor: 'pointer',
-                          border: 'none',
-                          background: 'none',
-                          padding: 0,
-                          textAlign: 'left'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                        onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+                        className="text-blue-600 no-underline font-medium cursor-pointer border-none bg-transparent p-0 text-left hover:text-blue-800"
+                        onMouseOver={(e) => e.currentTarget.classList.add('underline')}
+                        onMouseOut={(e) => e.currentTarget.classList.remove('underline')}
                       >
                         {formatValue(loan.investor_name)}
                       </button>
                     </DetailItem>
                   </div>
                 </div>
-                <div className="financial-card">
-                  <div style={{ 
-                    borderBottom: '1px solid var(--color-border)',
-                    paddingBottom: '8px',
-                    marginBottom: '12px'
-                  }}>
-                    <h3 style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '600', 
-                      color: 'var(--color-text-secondary)',
-                      textTransform: 'uppercase'
-                    }}>PROPERTY & COLLATERAL</h3>
+                <div className="premium-card">
+                  <div className="border-b border-gray-200 pb-2 mb-3">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase">PROPERTY & COLLATERAL</h3>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div className="flex flex-col gap-3">
                     <DetailItem label="Property Address">
                       <a 
                         href={generateZillowUrl(loan)} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        style={{ 
-                          color: 'var(--color-primary)', 
-                          textDecoration: 'none' 
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                        onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+                        className="text-blue-600 no-underline hover:text-blue-800"
+                        onMouseOver={(e) => e.currentTarget.classList.add('underline')}
+                        onMouseOut={(e) => e.currentTarget.classList.remove('underline')}
                       >
                         {`${formatValue(loan.address)}, ${formatValue(loan.city)}, ${formatValue(loan.state)}`}
                       </a>
                     </DetailItem>
                     <DetailItem label="Lien Position">{formatValue(loan.lien_pos)}</DetailItem>
                     <DetailItem label="Collateral Status">
-                      <span style={{ 
-                        fontSize: '11px', 
-                        color: 'var(--color-text-muted)',
-                        fontStyle: 'italic'
-                      }}>
+                      <span className="text-xs text-gray-400 italic">
                         View full details in Loan Detail Page
                       </span>
                     </DetailItem>
@@ -232,26 +163,13 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
               </section>
               
               {/* === Section 2: Financials & Status === */}
-              <section className="financial-card">
-                <div style={{ 
-                  borderBottom: '1px solid var(--color-border)',
-                  paddingBottom: '8px',
-                  marginBottom: '12px'
-                }}>
-                  <h3 style={{ 
-                    fontSize: '12px', 
-                    fontWeight: '600', 
-                    color: 'var(--color-text-secondary)',
-                    textTransform: 'uppercase'
-                  }}>FINANCIALS & STATUS</h3>
+              <section className="premium-card">
+                <div className="border-b border-gray-200 pb-2 mb-3">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase">FINANCIALS & STATUS</h3>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                <div className="grid grid-cols-3 gap-4">
                   <DetailItem label="UPB">
-                    <span className="data-value" style={{ 
-                      fontSize: '18px', 
-                      fontWeight: '600', 
-                      color: 'var(--color-text-primary)' 
-                    }}>
+                    <span className="text-lg font-semibold text-gray-900">
                       {formatCurrency(loan.prin_bal)}
                     </span>
                   </DetailItem>
@@ -264,51 +182,22 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
 
               {/* === Section 3: Foreclosure Timeline === */}
               {timeline && timeline.length > 0 && (
-                <section className="financial-card">
-                  <div style={{ 
-                    borderBottom: '1px solid var(--color-border)',
-                    paddingBottom: '8px',
-                    marginBottom: '12px'
-                  }}>
-                    <h3 style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '600', 
-                      color: 'var(--color-text-secondary)',
-                      textTransform: 'uppercase'
-                    }}>FORECLOSURE TIMELINE</h3>
+                <section className="premium-card">
+                  <div className="border-b border-gray-200 pb-2 mb-3">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase">FORECLOSURE TIMELINE</h3>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div className="flex flex-col gap-2">
                     {timeline.map((milestone, index) => (
                       <div 
                         key={index} 
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '12px', 
-                          padding: '8px',
-                          borderRadius: 'var(--radius-sm)',
-                          transition: 'background-color 0.15s ease'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-surface-light)'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        className="flex items-center gap-3 p-2 rounded-md transition-colors hover:bg-gray-50"
                       >
                         <div>{getStatusIcon(milestone)}</div>
-                        <div style={{ flex: 1 }}>
-                          <p style={{ 
-                            fontWeight: '500', 
-                            color: 'var(--color-text-primary)',
-                            fontSize: '12px',
-                            marginBottom: '4px'
-                          }}>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 text-xs mb-1">
                             {milestone.milestone_name}
                           </p>
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '12px', 
-                            fontSize: '10px', 
-                            color: 'var(--color-text-muted)'
-                          }}>
+                          <div className="flex items-center gap-3 text-[10px] text-gray-400">
                             <span>Actual: {formatDate(milestone.actual_completion_date)}</span>
                             <span>Expected: {formatDate(milestone.expected_completion_date)}</span>
                           </div>
@@ -329,20 +218,18 @@ export function LoanDetailModal({ loanId, onClose }: LoanDetailModalProps) {
         </div>
 
         {/* Footer */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'flex-end', 
-          alignItems: 'center', 
-          padding: '16px',
-          borderTop: '1px solid var(--color-border)',
-          backgroundColor: 'var(--color-surface-light)',
-          gap: '8px'
-        }}>
-          <button className="btn-compact btn-secondary" onClick={onClose}>
-            CLOSE
+        <div className="flex justify-end items-center gap-3 p-4 border-t border-gray-200 bg-gray-50">
+          <button 
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Close
           </button>
-          <button className="btn-compact btn-primary" onClick={handleViewFullPage}>
-            VIEW FULL PAGE
+          <button 
+            onClick={handleViewFullPage}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            View Full Page
           </button>
         </div>
       </div>
