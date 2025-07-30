@@ -13,7 +13,7 @@ import {
 
 export function InboxNotificationBadge() {
   const navigate = useNavigate();
-  const { notifications, stats, connected } = useInboxNotifications();
+  const { notifications, stats, connected, refetch } = useInboxNotifications();
   const [isAnimating, setIsAnimating] = useState(false);
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
 
@@ -30,6 +30,16 @@ export function InboxNotificationBadge() {
     setPreviousUnreadCount(stats.unreadCount);
   }, [stats.unreadCount, previousUnreadCount]);
 
+  // Refresh stats when window gains focus (user returns to tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetch]);
+
   const handleNotificationClick = (inboxItemId: number) => {
     // Navigate to inbox with specific task selected
     navigate(`/inbox?task=${inboxItemId}`);
@@ -37,6 +47,8 @@ export function InboxNotificationBadge() {
 
   const handleViewAllClick = () => {
     navigate('/inbox');
+    // Refresh stats when navigating to inbox
+    setTimeout(() => refetch(), 100);
   };
 
   const getBadgeColor = () => {
@@ -72,7 +84,12 @@ export function InboxNotificationBadge() {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={(open) => {
+      if (open) {
+        // Refresh stats when opening dropdown
+        refetch();
+      }
+    }}>
       <DropdownMenuTrigger asChild>
         <button 
           className={`relative p-2 rounded-md hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
