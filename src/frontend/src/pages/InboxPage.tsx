@@ -663,22 +663,22 @@ function InboxPage() {
         </div>
       )}
       
-      {/* Premium Main Content */}
-      <div className="premium-page-content">
-        <div className="premium-inbox-grid">
-          {/* Premium Left Sidebar - Filters */}
-          <div className="premium-inbox-sidebar">
-            {/* Premium Action Buttons */}
-            <div className="premium-inbox-actions">
+      {/* Main Content */}
+      <div className="px-8 py-6">
+        <div className="grid grid-cols-[320px_420px_1fr] gap-6 h-[calc(100vh-200px)]">
+          {/* Left Sidebar - Filters */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-y-auto">
+            {/* Action Buttons */}
+            <div className="space-y-3 mb-6">
               <button 
-                className="premium-button primary full-width"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                 onClick={() => setShowCreateTaskModal(true)}
               >
                 <Plus className="w-4 h-4" />
                 New Task
               </button>
               <button 
-                className="premium-button primary full-width"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
                 onClick={() => setShowNewMessageModal(true)}
               >
                 <MessageCircle className="w-4 h-4" />
@@ -686,263 +686,180 @@ function InboxPage() {
               </button>
             </div>
 
-            {/* Premium Search */}
-            <div className="premium-search-container">
+            {/* Search */}
+            <div className="relative mb-6">
               <input
                 type="text"
                 placeholder="Search inbox..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="premium-search-input"
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
               />
-              <Search className="premium-search-icon w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             </div>
 
-        {/* Filter Buttons */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
-          <button
-            className={`btn-compact ${showOverdueFilter ? 'btn-danger' : 'btn-tertiary'}`}
-            onClick={() => setShowOverdueFilter(!showOverdueFilter)}
-            style={{ flex: 1, fontSize: '10px' }}
-          >
-            OVERDUE
-          </button>
-          <button
-            className={`btn-compact ${showUrgentFilter ? 'btn-warning' : 'btn-tertiary'}`}
-            onClick={() => setShowUrgentFilter(!showUrgentFilter)}
-            style={{ flex: 1, fontSize: '10px' }}
-          >
-            URGENT
-          </button>
-        </div>
+            {/* Filter Buttons */}
+            <div className="flex gap-2 mb-6">
+              <button
+                className={`flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                  showOverdueFilter 
+                    ? 'bg-red-100 text-red-700 border border-red-200' 
+                    : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                }`}
+                onClick={() => setShowOverdueFilter(!showOverdueFilter)}
+              >
+                OVERDUE
+              </button>
+              <button
+                className={`flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
+                  showUrgentFilter 
+                    ? 'bg-amber-100 text-amber-700 border border-amber-200' 
+                    : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                }`}
+                onClick={() => setShowUrgentFilter(!showUrgentFilter)}
+              >
+                URGENT
+              </button>
+            </div>
 
-        {/* Messages Section */}
-        <div style={{ 
-          color: 'var(--color-text-secondary)', 
-          marginBottom: '8px', 
-          marginTop: '4px',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          fontSize: '12px',
-          fontWeight: '600',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          Messages
-        </div>
+            {/* Messages Section */}
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Messages
+            </div>
         
-        {[
-          { key: 'UNREAD_MESSAGES', label: 'Unread Messages', count: inboxStats.unread_messages },
-          { key: 'SENT_MESSAGES', label: 'Sent Messages', count: inboxStats.sent_messages },
-          { key: 'ALL_MESSAGES', label: 'All Messages', count: inboxStats.messages }
-        ].map(({ key, label, count }) => (
-          <button
-            key={key}
-            onClick={() => setActiveFilter(key)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '6px 8px',
-              fontSize: '11px',
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: activeFilter === key ? 'var(--color-primary)' : 'transparent',
-              color: activeFilter === key ? 'white' : 'var(--color-text)',
-              cursor: 'pointer',
-              textAlign: 'left',
-              marginLeft: '8px'
-            }}
-          >
-            <span>{label}</span>
-            {count > 0 && (
-              <span style={{ 
-                fontSize: '10px',
-                backgroundColor: activeFilter === key ? 'rgba(255,255,255,0.2)' : 'var(--color-surface-light)',
-                padding: '2px 6px',
-                borderRadius: '10px'
-              }}>
-                {count}
-              </span>
-            )}
-          </button>
-        ))}
+            <div className="space-y-1 mb-6">
+              {[
+                { key: 'UNREAD_MESSAGES', label: 'Unread Messages', count: inboxStats.unread_messages },
+                { key: 'SENT_MESSAGES', label: 'Sent Messages', count: inboxStats.sent_messages },
+                { key: 'ALL_MESSAGES', label: 'All Messages', count: inboxStats.messages }
+              ].map(({ key, label, count }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveFilter(key)}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
+                    activeFilter === key 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span>{label}</span>
+                  {count > 0 && (
+                    <span className={`px-2 py-0.5 text-xs rounded-full ${
+                      activeFilter === key 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
 
-        {/* Tasks Section */}
-        <div style={{ 
-          color: 'var(--color-text-secondary)', 
-          marginTop: '20px', 
-          marginBottom: '8px',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          fontSize: '12px',
-          fontWeight: '600',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          Tasks
-        </div>
-        
-        {[
-          { key: 'MY_TASKS', label: 'My Tasks', count: inboxStats.my_tasks },
-          { key: 'SENT_TASKS', label: 'Sent Tasks', count: inboxStats.sent_tasks },
-          { key: 'ALL_TASKS', label: 'All Tasks', count: inboxStats.all_tasks }
-        ].map(({ key, label, count }) => (
-          <button
-            key={key}
-            onClick={() => setActiveFilter(key)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '6px 8px',
-              fontSize: '11px',
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: activeFilter === key ? 'var(--color-primary)' : 'transparent',
-              color: activeFilter === key ? 'white' : 'var(--color-text)',
-              cursor: 'pointer',
-              textAlign: 'left',
-              marginLeft: '8px'
-            }}
-          >
-            <span>{label}</span>
-            {count > 0 && (
-              <span style={{ 
-                fontSize: '10px',
-                backgroundColor: activeFilter === key ? 'rgba(255,255,255,0.2)' : 'var(--color-surface-light)',
-                padding: '2px 6px',
-                borderRadius: '10px'
-              }}>
-                {count}
-              </span>
-            )}
-          </button>
-        ))}
+            {/* Tasks Section */}
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Tasks
+            </div>
+            
+            <div className="space-y-1 mb-6">
+              {[
+                { key: 'MY_TASKS', label: 'My Tasks', count: inboxStats.my_tasks },
+                { key: 'SENT_TASKS', label: 'Sent Tasks', count: inboxStats.sent_tasks },
+                { key: 'ALL_TASKS', label: 'All Tasks', count: inboxStats.all_tasks }
+              ].map(({ key, label, count }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveFilter(key)}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
+                    activeFilter === key 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span>{label}</span>
+                  {count > 0 && (
+                    <span className={`px-2 py-0.5 text-xs rounded-full ${
+                      activeFilter === key 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
 
-        {/* Deleted Section */}
-        <div style={{ 
-          color: 'var(--color-text-secondary)', 
-          marginTop: '20px', 
-          marginBottom: '8px',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          fontSize: '12px',
-          fontWeight: '600',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          Deleted Items
-        </div>
-        
-        <button
-          onClick={() => setActiveFilter('DELETED')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '6px 8px',
-            fontSize: '11px',
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: activeFilter === 'DELETED' ? 'var(--color-primary)' : 'transparent',
-            color: activeFilter === 'DELETED' ? 'white' : 'var(--color-text)',
-            cursor: 'pointer',
-            textAlign: 'left'
-          }}
-        >
-          <span>Deleted Items</span>
-          {inboxStats.deleted > 0 && (
-            <span style={{ 
-              fontSize: '10px',
-              backgroundColor: activeFilter === 'DELETED' ? 'rgba(255,255,255,0.2)' : 'var(--color-surface-light)',
-              padding: '2px 6px',
-              borderRadius: '10px'
-            }}>
-              {inboxStats.deleted}
-            </span>
-          )}
-        </button>
-      </div>
+            {/* Deleted Section */}
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Deleted Items
+            </div>
+            
+            <button
+              onClick={() => setActiveFilter('DELETED')}
+              className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
+                activeFilter === 'DELETED' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <span>Deleted Items</span>
+              {inboxStats.deleted > 0 && (
+                <span className={`px-2 py-0.5 text-xs rounded-full ${
+                  activeFilter === 'DELETED' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {inboxStats.deleted}
+                </span>
+              )}
+            </button>
+          </div>
 
-      {/* Middle Panel - Message List */}
-      <div style={{ 
-        width: '420px',
-        backgroundColor: 'var(--inbox-bg-primary)',
-        borderRight: '1px solid var(--inbox-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        boxShadow: 'var(--inbox-shadow-sm)'
-      }}>
+          {/* Middle Panel - Message List */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
         {/* List Header */}
-        <div style={{ 
-          padding: '20px 16px',
-          borderBottom: '1px solid var(--color-border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
           <div>
-            <h2 className="page-title" style={{ 
-              margin: '0 0 8px 0',
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '28px',
-              fontWeight: '700',
-              color: '#1c1917'
-            }}>
-              Inbox
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">
+              Messages
             </h2>
-            <div style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>
+            <div className="text-sm text-gray-500">
               {filteredItems.length} items • {inboxStats.unread} unread
               {groupByThread && ` • ${groupedItems.length} threads`}
             </div>
           </div>
           
-          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          <div className="flex gap-2 items-center">
             <button 
-              className={`btn-compact ${showSenderFilter ? 'btn-primary' : 'btn-tertiary'}`}
+              className={`p-2 rounded-md text-sm font-medium transition-colors relative ${
+                showSenderFilter 
+                  ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+              }`}
               onClick={() => setShowSenderFilter(!showSenderFilter)}
               title="Filter by sender"
-              style={{ position: 'relative' }}
             >
-              <Users style={{ width: '12px', height: '12px' }} />
+              <Users className="w-4 h-4" />
               {showSenderFilter && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: '0',
-                  marginTop: '4px',
-                  padding: '4px 8px',
-                  backgroundColor: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '10px',
-                  whiteSpace: 'nowrap',
-                  zIndex: 10
-                }}>
+                <div className="absolute top-full left-0 mt-1 px-2 py-1 bg-white border border-gray-200 rounded-md text-xs whitespace-nowrap z-10 shadow-sm">
                   Sender filter (coming soon)
                 </div>
               )}
             </button>
             
             <button 
-              className={`btn-compact ${prioritySort ? 'btn-primary' : 'btn-tertiary'}`}
+              className={`p-2 rounded-md text-sm font-medium transition-colors relative ${
+                prioritySort 
+                  ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                  : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+              }`}
               onClick={() => setPrioritySort(prioritySort === 'desc' ? 'asc' : prioritySort === 'asc' ? null : 'desc')}
               title={`Sort by priority: ${prioritySort === 'desc' ? 'High to Low' : prioritySort === 'asc' ? 'Low to High' : 'No sort'}`}
-              style={{ position: 'relative' }}
             >
-              <ArrowUpDown style={{ width: '12px', height: '12px' }} />
+              <ArrowUpDown className="w-4 h-4" />
               {prioritySort && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: '0',
-                  marginTop: '4px',
-                  padding: '4px 8px',
-                  backgroundColor: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '10px',
-                  whiteSpace: 'nowrap',
-                  zIndex: 10
-                }}>
+                <div className="absolute top-full left-0 mt-1 px-2 py-1 bg-white border border-gray-200 rounded-md text-xs whitespace-nowrap z-10 shadow-sm">
                   {prioritySort === 'desc' ? 'High to Low' : 'Low to High'}
                 </div>
               )}
@@ -951,22 +868,22 @@ function InboxPage() {
             {selectedItems.size > 0 && (
               <>
                 <button 
-                  className="btn-compact btn-secondary"
+                  className="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
                   onClick={() => handleBulkAction('mark_read')}
                 >
-                  READ
+                  Mark Read
                 </button>
                 <button 
-                  className="btn-compact btn-secondary"
+                  className="p-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   onClick={() => handleBulkAction('archive')}
                 >
-                  <Archive style={{ width: '12px', height: '12px' }} />
+                  <Archive className="w-4 h-4" />
                 </button>
                 <button 
-                  className="btn-compact btn-danger"
+                  className="p-2 text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 transition-colors"
                   onClick={() => handleBulkAction('delete')}
                 >
-                  <Trash2 style={{ width: '12px', height: '12px' }} />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </>
             )}
@@ -974,7 +891,7 @@ function InboxPage() {
         </div>
 
         {/* Message List */}
-        <div style={{ flex: 1, overflow: 'auto' }}>
+        <div className="flex-1 overflow-auto bg-gray-50">
           {groupedItems.map((group) => {
             if (group.thread) {
               // Threaded conversation
@@ -996,18 +913,13 @@ function InboxPage() {
                         }
                       }
                     }}
-                    className="inbox-message-item"
-                    style={{
-                      padding: '24px',
-                      margin: '12px 18px 18px 18px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      backgroundColor: selectedItem?.threadId === group.thread ? 'var(--inbox-selected-bg)' : 'var(--inbox-bg-tertiary)',
-                      fontWeight: hasUnread ? '600' : '500',
-                      border: selectedItem?.threadId === group.thread ? '1px solid var(--inbox-selected-border)' : '1px solid var(--inbox-border)'
-                    }}
+                    className={`inbox-message-item p-4 m-3 rounded-lg cursor-pointer transition-colors border ${
+                      selectedItem?.threadId === group.thread 
+                        ? 'bg-blue-50 border-blue-200' 
+                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                    } ${hasUnread ? 'font-semibold' : 'font-medium'}`}
                   >
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <div className="flex items-start gap-3">
                       <input 
                         type="checkbox"
                         checked={group.items.every(item => selectedItems.has(item.id))}
@@ -1015,21 +927,21 @@ function InboxPage() {
                           group.items.forEach(item => handleBulkSelect(item.id));
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        style={{ marginTop: '2px' }}
+                        className="mt-0.5"
                       />
                       
                       {group.items.length > 1 && (
-                        <div style={{ marginTop: '2px' }}>
+                        <div className="mt-0.5">
                           {isExpanded ? 
-                            <ChevronDown style={{ width: '12px', height: '12px', color: 'var(--color-text-muted)' }} /> :
-                            <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--color-text-muted)' }} />
+                            <ChevronDown className="w-4 h-4 text-gray-400" /> :
+                            <ChevronRight className="w-4 h-4 text-gray-400" />
                           }
                         </div>
                       )}
                       
                       {getItemIcon(threadMain)}
                       
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="flex-1 min-w-0">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                           <div 
                             style={{ 
@@ -1250,93 +1162,77 @@ function InboxPage() {
       </div>
 
       {/* Right Panel - Detail View */}
-      <div className="detail-panel" style={{ 
-        flex: 1,
-        backgroundColor: 'var(--inbox-bg-primary)',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
+      <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
         {selectedItem ? (
           <>
             {/* Detail Header */}
-            <div className="detail-header" style={{ 
-              padding: '30px',
-              borderBottom: '1px solid var(--inbox-border)',
-              backgroundColor: 'var(--inbox-bg-secondary)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <div style={{ flex: 1 }}>
-                  <h3 className="section-header" style={{ margin: '0 0 12px 0' }}>
+            <div className="p-6 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
                     {selectedItem.subject}
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '18px', fontSize: '12px', color: 'var(--inbox-text-secondary)', justifyContent: 'space-between' }}>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 justify-between">
                     {selectedItem.from && (
                       <span>From: {selectedItem.from.name}</span>
                     )}
-                    <span style={{ marginLeft: 'auto' }}>{format(selectedItem.created_at || selectedItem.createdAt!, 'MMM d, yyyy HH:mm')}</span>
+                    <span className="ml-auto">{format(selectedItem.created_at || selectedItem.createdAt!, 'MMM d, yyyy HH:mm')}</span>
                     <span className={`status-indicator ${selectedItem.priority}`}>
                       {selectedItem.priority.toUpperCase()}
                     </span>
                   </div>
                 </div>
                 
-                <div style={{ display: 'flex', gap: '4px' }}>
+                <div className="flex gap-2">
                   {selectedItem.status === 'unread' && (
                     <button 
-                      className="btn-compact btn-primary"
+                      className="p-2 text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
                       onClick={() => handleMarkAsRead(selectedItem.id)}
                       title="Mark as Read"
                     >
-                      <Eye style={{ width: '12px', height: '12px' }} />
+                      <Eye className="w-4 h-4" />
                     </button>
                   )}
                   <button 
-                    className="btn-compact btn-tertiary"
+                    className="p-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                     onClick={() => setShowReplyModal(true)}
                   >
-                    <Reply style={{ width: '12px', height: '12px' }} />
+                    <Reply className="w-4 h-4" />
                   </button>
                   <button 
-                    className="btn-compact btn-secondary"
+                    className="p-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                     onClick={() => setShowForwardModal(true)}
                   >
-                    <Forward style={{ width: '12px', height: '12px' }} />
+                    <Forward className="w-4 h-4" />
                   </button>
                   <button 
-                    className="btn-compact btn-tertiary"
+                    className="p-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                     onClick={() => handleArchiveItem(selectedItem.id)}
                   >
-                    <Archive style={{ width: '12px', height: '12px' }} />
+                    <Archive className="w-4 h-4" />
                   </button>
                   <button 
-                    className="btn-compact btn-danger"
+                    className="p-2 text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 transition-colors"
                     onClick={() => handleDeleteItem(selectedItem.id)}
                   >
-                    <Trash2 style={{ width: '12px', height: '12px' }} />
+                    <Trash2 className="w-4 h-4" />
                   </button>
-                  <button className="btn-compact btn-tertiary">
-                    <MoreVertical style={{ width: '12px', height: '12px' }} />
+                  <button className="p-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    <MoreVertical className="w-4 h-4" />
                   </button>
                 </div>
               </div>
               
               {/* Context Info */}
               {((selectedItem.loan_ids || selectedItem.loanIds) || (selectedItem.assigned_to || selectedItem.assignedTo) || selectedItem.due_date) && (
-                <div style={{ 
-                  padding: '12px',
-                  backgroundColor: 'var(--inbox-bg-tertiary)',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                  border: '1px solid var(--inbox-border)',
-                  boxShadow: 'var(--inbox-shadow-xs)'
-                }}>
+                <div className="p-3 bg-gray-100 rounded-lg text-sm border border-gray-200 shadow-sm">
                   {(selectedItem.loan_ids || selectedItem.loanIds) && (
-                    <div style={{ marginBottom: '4px' }}>
+                    <div className="mb-2">
                       <strong>Related Loans:</strong> {(selectedItem.loan_ids || selectedItem.loanIds)!.join(', ')}
                     </div>
                   )}
                   {(selectedItem.assigned_to || selectedItem.assignedTo) && (
-                    <div style={{ marginBottom: '4px' }}>
+                    <div className="mb-2">
                       <strong>Assigned to:</strong> {((selectedItem.assigned_to || selectedItem.assignedTo)!.name || `${(selectedItem.assigned_to || selectedItem.assignedTo)!.first_name || ''} ${(selectedItem.assigned_to || selectedItem.assignedTo)!.last_name || ''}`.trim() || (selectedItem.assigned_to || selectedItem.assignedTo)!.email)}
                     </div>
                   )}
@@ -1355,59 +1251,35 @@ function InboxPage() {
             </div>
 
             {/* Detail Body */}
-            <div style={{ 
-              flex: 1,
-              padding: '30px',
-              overflow: 'auto'
-            }}>
+            <div className="flex-1 p-6 overflow-auto">
               <TaskBodyRenderer body={selectedItem.body} />
               
               {/* Debug info */}
-              <div style={{ 
-                marginTop: '10px',
-                padding: '6px',
-                backgroundColor: 'var(--color-background)',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '10px',
-                color: 'var(--color-text-muted)'
-              }}>
+              <div className="mt-4 p-2 bg-gray-100 rounded text-xs text-gray-500">
                 Type: {selectedItem.type} | Status: {selectedItem.status} | Priority: {selectedItem.priority}
               </div>
               
               {/* Quick Actions - Always show for any selected item */}
-              <div className="quick-actions" style={{ 
-                marginTop: '36px',
-                padding: '24px',
-                backgroundColor: 'var(--inbox-bg-secondary)',
-                borderRadius: '8px',
-                border: '1px solid var(--inbox-border)',
-                boxShadow: 'var(--inbox-shadow-sm)'
-              }}>
-                <div style={{ 
-                  marginBottom: '12px',
-                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  color: 'var(--color-text-primary)'
-                }}>
+              <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
+                <div className="mb-4 text-lg font-semibold text-gray-900">
                   Quick Actions
                 </div>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div className="flex gap-3 flex-wrap">
                   <button 
-                    className="btn-compact btn-primary"
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
                     onClick={() => setShowCreateTaskModal(true)}
                   >
                     Create Task
                   </button>
                   {selectedItem.type === 'system_alert' && (
                     <>
-                      <button className="btn-compact btn-secondary">
+                      <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                         View Loans
                       </button>
-                      <button className="btn-compact btn-secondary">
+                      <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                         Acknowledge
                       </button>
-                      <button className="btn-compact btn-secondary">
+                      <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                         Escalate
                       </button>
                     </>
@@ -1417,27 +1289,14 @@ function InboxPage() {
 
               {/* Task Status Actions */}
               {selectedItem.type === 'task_assignment' && (
-                <div style={{ 
-                  marginTop: '36px',
-                  padding: '24px',
-                  backgroundColor: 'var(--inbox-bg-secondary)',
-                  borderRadius: '8px',
-                  border: '1px solid var(--inbox-border)',
-                  boxShadow: 'var(--inbox-shadow-sm)'
-                }}>
-                  <div style={{ 
-                    marginBottom: '12px',
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: 'var(--color-text-primary)'
-                  }}>
+                <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
+                  <div className="mb-4 text-lg font-semibold text-gray-900">
                     Task Status
                   </div>
-                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  <div className="flex gap-3 flex-wrap">
                     {selectedItem.status === 'unread' && (
                       <button 
-                        className="btn-compact btn-primary"
+                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
                         onClick={() => handleUpdateTaskStatus(selectedItem.id, 'in_progress')}
                       >
                         Start Task
@@ -1445,29 +1304,20 @@ function InboxPage() {
                     )}
                     {selectedItem.status === 'in_progress' && (
                       <button 
-                        className="btn-compact btn-success"
+                        className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
                         onClick={() => handleUpdateTaskStatus(selectedItem.id, 'completed')}
                       >
                         Mark Complete
                       </button>
                     )}
                     {selectedItem.status === 'completed' && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '6px',
-                        padding: '6px 12px',
-                        backgroundColor: 'var(--color-success)',
-                        color: 'white',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '11px'
-                      }}>
+                      <div className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-md text-sm">
                         ✓ Task Completed
                       </div>
                     )}
                     {selectedItem.status === 'in_progress' && (
                       <button 
-                        className="btn-compact btn-secondary"
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                         onClick={() => handleUpdateTaskStatus(selectedItem.id, 'unread')}
                       >
                         Reset to Pending
@@ -1478,46 +1328,23 @@ function InboxPage() {
               )}
               
               {selectedItem.type === 'user_message' && (
-                <div className="reply-section" style={{ 
-                  marginTop: '36px',
-                  padding: '24px',
-                  backgroundColor: 'var(--inbox-bg-secondary)',
-                  borderRadius: '8px',
-                  border: '1px solid var(--inbox-border)',
-                  boxShadow: 'var(--inbox-shadow-sm)'
-                }}>
-                  <div style={{ 
-                    marginBottom: '12px',
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: 'var(--color-text-primary)'
-                  }}>
+                <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
+                  <div className="mb-4 text-lg font-semibold text-gray-900">
                     Reply
                   </div>
                   <textarea
                     placeholder="Type your reply..."
-                    style={{
-                      width: '100%',
-                      height: '80px',
-                      padding: '8px',
-                      fontSize: '11px',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: 'var(--radius-sm)',
-                      backgroundColor: 'var(--color-background)',
-                      color: 'var(--color-text)',
-                      resize: 'vertical'
-                    }}
+                    className="w-full h-20 p-3 text-sm border border-gray-300 rounded-md bg-white text-gray-900 resize-vertical focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                   />
-                  <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                  <div className="flex gap-3 mt-4">
                     <button 
-                      className="btn-compact btn-primary"
+                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
                       onClick={() => setShowReplyModal(true)}
                     >
                       Send Reply
                     </button>
                     <button 
-                      className="btn-compact btn-secondary"
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                       onClick={() => setShowForwardModal(true)}
                     >
                       Forward
@@ -1528,14 +1355,7 @@ function InboxPage() {
             </div>
           </>
         ) : (
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            color: 'var(--color-text-muted)',
-            fontSize: '12px'
-          }}>
+          <div className="flex items-center justify-center h-full text-gray-500 text-sm">
             Select an item to view details
           </div>
         )}
