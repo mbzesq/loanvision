@@ -116,16 +116,31 @@ export function FilterPanel(props: FilterPanelProps) {
     <div className="premium-card h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="premium-card-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <div>
             <h3 className="premium-card-title">Filters</h3>
             <p className="premium-card-subtitle">Refine your loan portfolio view</p>
           </div>
           <button 
             onClick={onShowAll}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
+            className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
           >
             Show All
+          </button>
+        </div>
+        {/* Action buttons */}
+        <div className="flex gap-3">
+          <button 
+            onClick={handleClear}
+            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Clear Filters
+          </button>
+          <button 
+            onClick={handleApply}
+            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Apply
           </button>
         </div>
       </div>
@@ -450,24 +465,6 @@ export function FilterPanel(props: FilterPanelProps) {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </div>
-
-      {/* Footer with buttons */}
-      <div className="premium-card-content border-t border-gray-200 bg-gray-50">
-        <div className="flex gap-3">
-          <button 
-            onClick={handleClear}
-            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Clear Filters
-          </button>
-          <button 
-            onClick={handleApply}
-            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Apply
-          </button>
-        </div>
       </div>
     </div>
   );
