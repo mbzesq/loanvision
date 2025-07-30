@@ -565,7 +565,7 @@ function LoanExplorerPage() {
         cell: info => {
           const value = info.getValue();
           return (
-            <span className="font-mono font-semibold text-gray-900">
+            <span className="font-semibold text-gray-900">
               {value 
                 ? parseFloat(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
                 : 'N/A'}
