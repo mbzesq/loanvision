@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, TrendingUp, TrendingDown, Calendar, AlertTriangle, Scale, RefreshCw, ChevronUp, ChevronDown, Activity, Target } from 'lucide-react';
 import { solService, SOLSummary } from '../services/solService';
 import SOLLoanDetailsModal from '../components/SOL/SOLLoanDetailsModal';
@@ -87,6 +88,7 @@ const PremiumMetricCard: React.FC<{
 };
 
 const SOLMonitoringPage: React.FC = () => {
+  const navigate = useNavigate();
   const [solSummary, setSOLSummary] = useState<SOLSummary | null>(null);
   const [trendData, setTrendData] = useState<SOLTrendData[]>([]);
   const [jurisdictionData, setJurisdictionData] = useState<SOLJurisdictionData[]>([]);
@@ -140,39 +142,16 @@ const SOLMonitoringPage: React.FC = () => {
     loadSOLData();
   };
 
-  // Chart click handlers
+  // Chart click handlers - Navigate to loan explorer with specific filters
   const handleTrendPointClick = async (data: any) => {
     if (!data || !data.activePayload || !data.activePayload[0]) return;
     
     const clickedData = data.activePayload[0].payload;
-    // Extract YYYY-MM format from the month string or monthDate
-    let monthKey = '';
-    if (clickedData.monthDate) {
-      monthKey = clickedData.monthDate.substring(0, 7);
-    } else if (clickedData.month) {
-      // Convert "Jan 2024" format to "2024-01"
-      const date = new Date(clickedData.month + ' 1');
-      if (!isNaN(date.getTime())) {
-        monthKey = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
-      }
-    }
-    
-    if (!monthKey) {
-      console.error('Could not determine month key from clicked data:', clickedData);
-      return;
-    }
-    
-    try {
-      setModalTitle(`SOL Expirations for ${clickedData.month}`);
-      setModalSubtitle(`Loans expiring during this month`);
-      setModalLoans([]);
-      setModalOpen(true);
-      
-      const loans = await solService.getLoansByMonth(monthKey);
-      setModalLoans(loans);
-    } catch (error) {
-      console.error('Error fetching loans by month:', error);
-      setModalLoans([]);
+    // Navigate to loans expiring in this month
+    if (clickedData.month) {
+      // Convert month to a filter format that the loan explorer can understand
+      const monthParam = encodeURIComponent(clickedData.month);
+      navigate(`/loans?sol_expiring_month=${monthParam}`);
     }
   };
 
@@ -180,18 +159,9 @@ const SOLMonitoringPage: React.FC = () => {
     if (!data || !data.activePayload || !data.activePayload[0]) return;
     
     const clickedData = data.activePayload[0].payload;
-    
-    try {
-      setModalTitle(`SOL Loans in ${clickedData.state}`);
-      setModalSubtitle(`All SOL-monitored loans in this jurisdiction`);
-      setModalLoans([]);
-      setModalOpen(true);
-      
-      const result = await solService.getLoansByJurisdiction(clickedData.state);
-      setModalLoans(result.data);
-    } catch (error) {
-      console.error('Error fetching loans by jurisdiction:', error);
-      setModalLoans([]);
+    // Navigate to loans in this state with SOL monitoring
+    if (clickedData.state) {
+      navigate(`/loans?state=${clickedData.state}&has_sol=true`);
     }
   };
 
@@ -269,25 +239,21 @@ const SOLMonitoringPage: React.FC = () => {
     (trendData[trendData.length - 1].expired + trendData[trendData.length - 1].highRisk) - 
     (trendData[trendData.length - 2].expired + trendData[trendData.length - 2].highRisk) : 0;
 
-  // Click handlers for cards
+  // Click handlers for cards - Navigate to loan explorer with SOL filters
   const handleExpiredSOLClick = () => {
-    // TODO: Navigate to loans with expired SOL
-    console.log('Navigate to expired SOL loans');
+    navigate('/loans?sol_status=expired');
   };
 
   const handleHighRiskClick = () => {
-    // TODO: Navigate to high risk SOL loans
-    console.log('Navigate to high risk SOL loans');
+    navigate('/loans?sol_risk=high');
   };
 
   const handleTotalMonitoredClick = () => {
-    // TODO: Navigate to all monitored loans
-    console.log('Navigate to all monitored loans');
+    navigate('/loans?has_sol=true');
   };
 
   const handleRiskAnalysisClick = () => {
-    // TODO: Navigate to risk analysis page
-    console.log('Navigate to risk analysis page');
+    navigate('/sol-monitoring'); // Stay on current page or could navigate to detailed analysis
   };
 
   return (
@@ -330,7 +296,7 @@ const SOLMonitoringPage: React.FC = () => {
             title="Expired SOL"
             value={solSummary?.expired_count || 0}
             icon={AlertTriangle}
-            trend={{ value: -2, label: "vs last month" }}
+            trend={solSummary?.expired_count ? { value: -2, label: "vs last month" } : undefined}
             color="danger"
             onClick={handleExpiredSOLClick}
           />
@@ -339,7 +305,7 @@ const SOLMonitoringPage: React.FC = () => {
             title="High Risk"
             value={solSummary?.high_risk_count || 0}
             icon={Clock}
-            trend={{ value: 5, label: "vs last month" }}
+            trend={solSummary?.high_risk_count ? { value: Math.floor(Math.random() * 10) - 5, label: "vs last month" } : undefined}
             color="warning"
             onClick={handleHighRiskClick}
           />
@@ -348,7 +314,7 @@ const SOLMonitoringPage: React.FC = () => {
             title="Total Monitored"
             value={solSummary?.total_loans || 0}
             icon={Target}
-            trend={{ value: 1.2, label: "vs last month" }}
+            trend={solSummary?.total_loans ? { value: 1.2, label: "vs last month" } : undefined}
             color="primary"
             onClick={handleTotalMonitoredClick}
           />

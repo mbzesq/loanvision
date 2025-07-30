@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, AlertTriangle, RefreshCw, Gavel, Activity } from 'lucide-react';
 import { foreclosureService, ForeclosureSummary, ForeclosureLoan, ForeclosureStateData } from '../services/foreclosureService';
 import { LoanDetailModal } from '../components/LoanDetailModal';
@@ -57,6 +58,7 @@ const PremiumMetricCard: React.FC<{
 };
 
 const ForeclosureMonitoringPage: React.FC = () => {
+  const navigate = useNavigate();
   const [foreclosureSummary, setForeclosureSummary] = useState<ForeclosureSummary | null>(null);
   const [foreclosureLoans, setForeclosureLoans] = useState<ForeclosureLoan[]>([]);
   const [stateData, setStateData] = useState<ForeclosureStateData[]>([]);
@@ -252,6 +254,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
             icon={Gavel}
             trend={{ value: 5.2, label: "vs last month" }}
             color="primary"
+            onClick={() => navigate('/loans?fc_status=active')}
           />
           
           <PremiumMetricCard
@@ -260,6 +263,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
             icon={AlertTriangle}
             trend={{ value: -2.3, label: "vs last month" }}
             color="danger"
+            onClick={() => navigate('/loans?fc_status=overdue')}
           />
           
           <PremiumMetricCard
@@ -268,6 +272,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
             icon={Clock}
             trend={{ value: 3.1, label: "vs avg" }}
             color="warning"
+            onClick={() => navigate('/loans?fc_status=active&sort=fc_days_desc')}
           />
           
           <PremiumMetricCard
@@ -276,6 +281,7 @@ const ForeclosureMonitoringPage: React.FC = () => {
             icon={Activity}
             trend={{ value: 8.7, label: "vs last year" }}
             color="success"
+            onClick={() => navigate('/loans?fc_status=completed&date_range=ytd')}
           />
         </div>
 
@@ -297,9 +303,45 @@ const ForeclosureMonitoringPage: React.FC = () => {
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="started" stroke="#3b82f6" strokeWidth={2} name="Started" />
-                    <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} name="Completed" />
-                    <Line type="monotone" dataKey="overdue" stroke="#ef4444" strokeWidth={2} name="Overdue" />
+                    <Line 
+                      type="monotone" 
+                      dataKey="started" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2} 
+                      name="Started"
+                      dot={{ 
+                        fill: '#3b82f6', 
+                        strokeWidth: 2, 
+                        r: 4, 
+                        cursor: 'pointer'
+                      }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="completed" 
+                      stroke="#10b981" 
+                      strokeWidth={2} 
+                      name="Completed"
+                      dot={{ 
+                        fill: '#10b981', 
+                        strokeWidth: 2, 
+                        r: 4, 
+                        cursor: 'pointer'
+                      }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="overdue" 
+                      stroke="#ef4444" 
+                      strokeWidth={2} 
+                      name="Overdue"
+                      dot={{ 
+                        fill: '#ef4444', 
+                        strokeWidth: 2, 
+                        r: 4, 
+                        cursor: 'pointer'
+                      }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -320,8 +362,28 @@ const ForeclosureMonitoringPage: React.FC = () => {
                     <XAxis dataKey="state" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
-                    <Bar dataKey="totalLoans" fill="#3b82f6" name="Total" />
-                    <Bar dataKey="completedCount" fill="#10b981" name="Completed" />
+                    <Bar 
+                      dataKey="totalLoans" 
+                      fill="#3b82f6" 
+                      name="Total"
+                      cursor="pointer"
+                      onClick={(data: any) => {
+                        if (data && data.state) {
+                          navigate(`/loans?state=${data.state}&fc_status=active`);
+                        }
+                      }}
+                    />
+                    <Bar 
+                      dataKey="completedCount" 
+                      fill="#10b981" 
+                      name="Completed"
+                      cursor="pointer"
+                      onClick={(data: any) => {
+                        if (data && data.state) {
+                          navigate(`/loans?state=${data.state}&fc_status=completed`);
+                        }
+                      }}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
