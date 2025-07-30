@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, TrendingUp, TrendingDown, Calendar, AlertTriangle, Scale, RefreshCw, ChevronUp, ChevronDown, Activity, Target } from 'lucide-react';
+import { Clock, AlertTriangle, Scale, RefreshCw, ChevronUp, ChevronDown, Activity, Target } from 'lucide-react';
 import { solService, SOLSummary } from '../services/solService';
 import SOLLoanDetailsModal from '../components/SOL/SOLLoanDetailsModal';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
@@ -92,7 +92,6 @@ const SOLMonitoringPage: React.FC = () => {
   const [solSummary, setSOLSummary] = useState<SOLSummary | null>(null);
   const [trendData, setTrendData] = useState<SOLTrendData[]>([]);
   const [jurisdictionData, setJurisdictionData] = useState<SOLJurisdictionData[]>([]);
-  const [heatMapData, setHeatMapData] = useState<SOLHeatMapData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
@@ -117,17 +116,15 @@ const SOLMonitoringPage: React.FC = () => {
       setError(null);
       
       // Load all SOL data in parallel
-      const [summary, trendAnalysis, jurisdictionAnalysis, heatMap] = await Promise.all([
+      const [summary, trendAnalysis, jurisdictionAnalysis] = await Promise.all([
         solService.getSOLSummary(),
         solService.getTrendAnalysis(),
-        solService.getJurisdictionAnalysis(),
-        solService.getGeographicHeatMap()
+        solService.getJurisdictionAnalysis()
       ]);
       
       setSOLSummary(summary);
       setTrendData(trendAnalysis);
       setJurisdictionData(jurisdictionAnalysis);
-      setHeatMapData(heatMap);
       
       setLastRefresh(new Date());
     } catch (err) {
@@ -235,9 +232,6 @@ const SOLMonitoringPage: React.FC = () => {
     );
   }
 
-  const riskTrend = trendData.length >= 2 ? 
-    (trendData[trendData.length - 1].expired + trendData[trendData.length - 1].highRisk) - 
-    (trendData[trendData.length - 2].expired + trendData[trendData.length - 2].highRisk) : 0;
 
   // Click handlers for cards - Navigate to loan explorer with SOL filters
   const handleExpiredSOLClick = () => {
