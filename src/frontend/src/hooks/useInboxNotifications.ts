@@ -48,8 +48,19 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
 
   const refetch = useCallback(() => {
     if (socketRef.current) {
+      console.log('Refetching inbox notifications and stats');
+      // Clear current state to show fresh data
+      setNotifications([]);
+      setStats({
+        unreadCount: 0,
+        criticalUnread: 0,
+        highUnread: 0,
+        todayCount: 0,
+      });
       socketRef.current.emit('notifications:fetch');
       socketRef.current.emit('inbox:fetch_stats');
+    } else {
+      console.warn('Socket not connected, cannot refetch');
     }
   }, []);
 
@@ -104,6 +115,7 @@ export function useInboxNotifications(): UseInboxNotificationsReturn {
     });
 
     socket.on('inbox:stats', (newStats: InboxStats) => {
+      console.log('Received inbox stats:', newStats);
       setStats(newStats);
     });
 

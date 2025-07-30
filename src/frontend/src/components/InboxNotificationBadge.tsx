@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Bell, BellRing } from 'lucide-react';
+import { Bell, BellRing, RefreshCw } from 'lucide-react';
 import { useInboxNotifications } from '../hooks/useInboxNotifications';
 import { useState, useEffect } from 'react';
 import {
@@ -127,11 +127,24 @@ export function InboxNotificationBadge() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex justify-between items-center">
             <span>Inbox Notifications</span>
-            {hasUnread && (
-              <span className="text-xs text-gray-500">
-                {stats.unreadCount} unread
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {hasUnread && (
+                <span className="text-xs text-gray-500">
+                  {stats.unreadCount} unread
+                </span>
+              )}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  refetch();
+                }}
+                className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600"
+                title="Refresh notifications"
+              >
+                <RefreshCw className="w-3 h-3" />
+              </button>
+            </div>
           </div>
           {stats.criticalUnread > 0 && (
             <div className="text-xs text-red-600 mt-1">
