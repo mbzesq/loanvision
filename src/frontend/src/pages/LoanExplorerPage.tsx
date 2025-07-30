@@ -94,9 +94,21 @@ function LoanExplorerPage() {
     const solFilter = searchParams.get('sol_filter');
     const timelineStatus = searchParams.get('timeline_status');
     
+    // NEW: Handle parameters from SOL and Foreclosure monitoring pages
+    const solStatus = searchParams.get('sol_status');
+    const solRisk = searchParams.get('sol_risk');
+    const hasSol = searchParams.get('has_sol');
+    const fcStatus = searchParams.get('fc_status');
+    const dateRange = searchParams.get('date_range');
+    const sort = searchParams.get('sort');
+    const solExpiringMonth = searchParams.get('sol_expiring_month');
+    
+    // Handle state filter
     if (state) {
       urlFilters.propertyState = [state];
     }
+    
+    // Handle original status filter
     if (status) {
       // Handle special foreclosure status filter
       if (status === 'ACTIVE') {
@@ -106,6 +118,68 @@ function LoanExplorerPage() {
         urlFilters.assetStatus = [status];
       }
     }
+    
+    // Handle foreclosure status from monitoring pages
+    if (fcStatus) {
+      switch (fcStatus) {
+        case 'active':
+          urlFilters.assetStatus = ['FC']; // Active foreclosure cases
+          break;
+        case 'overdue':
+          urlFilters.assetStatus = ['FC'];
+          urlFilters.timelineStatus = ['Overdue']; // Overdue foreclosure cases
+          break;
+        case 'completed':
+          urlFilters.assetStatus = ['REO', 'SOLD']; // Completed foreclosure cases
+          break;
+      }
+    }
+    
+    // Handle SOL status from monitoring pages
+    if (solStatus) {
+      switch (solStatus) {
+        case 'expired':
+          urlFilters.solExpiration = 'expired';
+          break;
+        case 'high':
+          urlFilters.solRiskLevel = ['HIGH'];
+          break;
+        case 'medium':
+          urlFilters.solRiskLevel = ['MEDIUM'];
+          break;
+        case 'low':
+          urlFilters.solRiskLevel = ['LOW'];
+          break;
+      }
+    }
+    
+    // Handle SOL risk level
+    if (solRisk) {
+      switch (solRisk) {
+        case 'high':
+          urlFilters.solRiskLevel = ['HIGH'];
+          break;
+        case 'medium':
+          urlFilters.solRiskLevel = ['MEDIUM'];
+          break;
+        case 'low':
+          urlFilters.solRiskLevel = ['LOW'];
+          break;
+      }
+    }
+    
+    // Handle loans with SOL monitoring
+    if (hasSol === 'true') {
+      // Filter to loans that have SOL data - this would need backend support
+      console.log('Filtering to loans with SOL monitoring');
+    }
+    
+    // Handle SOL expiring month filter
+    if (solExpiringMonth) {
+      console.log('SOL expiring month filter:', solExpiringMonth);
+      // This would need custom logic to filter by expiration month
+    }
+    
     if (milestone) {
       // For foreclosure milestones: Legal Status = FC + Latest milestone = clicked milestone
       urlFilters.assetStatus = ['FC']; // Must be currently in foreclosure
@@ -122,7 +196,7 @@ function LoanExplorerPage() {
       urlFilters.timelineStatus = [timelineStatus];
     }
     
-    // Handle SOL filter from dashboard navigation
+    // Handle SOL filter from dashboard navigation (legacy)
     if (solFilter) {
       switch (solFilter) {
         case 'expired':
@@ -140,6 +214,18 @@ function LoanExplorerPage() {
       }
     }
     
+    // Handle date range filtering (for YTD completed foreclosures)
+    if (dateRange === 'ytd') {
+      console.log('Filtering to YTD completed foreclosures');
+      // This would need custom logic for year-to-date filtering
+    }
+    
+    // Handle sorting preferences
+    if (sort) {
+      console.log('Sort preference from URL:', sort);
+      // This could be used to set initial sorting state
+    }
+    
     return urlFilters;
   };
 
@@ -147,6 +233,17 @@ function LoanExplorerPage() {
   const [hasAppliedFilter, setHasAppliedFilter] = useState(!!searchParams.toString());
   const [isExportModalOpen, setExportModalOpen] = useState(false);
   const [customExportColumns, setCustomExportColumns] = useState<string[]>(['loan_id', 'prin_bal', 'legal_status']); // Set some defaults
+
+  // Watch for URL parameter changes and automatically apply filters
+  useEffect(() => {
+    const urlHasParams = !!searchParams.toString();
+    if (urlHasParams) {
+      const urlFilters = getInitialFilters();
+      setActiveFilters(urlFilters);
+      setHasAppliedFilter(true);
+      console.log('Applied filters from URL parameters:', urlFilters);
+    }
+  }, [searchParams]);
 
   const handleApplyFilters = (filters: FilterValues) => {
     setActiveFilters(filters);
