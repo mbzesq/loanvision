@@ -26,22 +26,6 @@ interface SOLJurisdictionData {
   jurisdictionRiskLevel: string;
 }
 
-interface SOLHeatMapData {
-  stateCode: string;
-  stateName: string;
-  jurisdictionRiskLevel: string;
-  riskScore: number;
-  lienYears: number;
-  noteYears: number;
-  foreclosureYears: number;
-  lienExtinguished: boolean;
-  foreclosureBarred: boolean;
-  portfolioLoanCount: number;
-  portfolioExpiredCount: number;
-  portfolioHighRiskCount: number;
-  portfolioRiskPercentage: number;
-  hasPortfolioExposure: boolean;
-}
 
 // Premium Metric Card Component
 const PremiumMetricCard: React.FC<{
@@ -98,9 +82,9 @@ const SOLMonitoringPage: React.FC = () => {
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalLoans, setModalLoans] = useState<any[]>([]);
-  const [modalTitle, setModalTitle] = useState('');
-  const [modalSubtitle, setModalSubtitle] = useState('');
+  const [modalLoans] = useState<any[]>([]);
+  const [modalTitle] = useState('');
+  const [modalSubtitle] = useState('');
 
   // Sorting state
   const [sortField, setSortField] = useState<string>('');
