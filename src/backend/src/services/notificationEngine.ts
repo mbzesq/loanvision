@@ -204,7 +204,7 @@ export class NotificationEngine extends EventEmitter {
         UPDATE inbox_items 
         SET status = 'completed',
             updated_at = CURRENT_TIMESTAMP,
-            notes = 'Auto-completed: Required document was uploaded'
+            completion_notes = 'Auto-completed: Required document was uploaded'
         WHERE task_type IN ('document_upload_required', 'title_report_upload_required')
         AND status IN ('unread', 'in_progress')
         AND EXISTS (
@@ -228,7 +228,7 @@ export class NotificationEngine extends EventEmitter {
         UPDATE inbox_items 
         SET status = 'completed',
             updated_at = CURRENT_TIMESTAMP,
-            notes = 'Auto-completed: Foreclosure sale has occurred'
+            completion_notes = 'Auto-completed: Foreclosure sale has occurred'
         WHERE task_type IN ('foreclosure_action_scheduled', 'foreclosure_action_urgent')
         AND status IN ('unread', 'in_progress')
         AND EXISTS (
