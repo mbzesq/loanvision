@@ -7,11 +7,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 interface SOLTrendData {
   month: string;
-  expired: number;
-  highRisk: number;
-  mediumRisk: number;
-  lowRisk: number;
-  totalLoans: number;
+  expiringCount: number;
+  monthDate: string;
 }
 
 interface SOLJurisdictionData {
@@ -312,8 +309,8 @@ const SOLMonitoringPage: React.FC = () => {
           {/* Trend Chart */}
           <div className="premium-card">
             <div className="premium-card-header">
-              <h2 className="premium-card-title">SOL Expiration Forecast</h2>
-              <p className="premium-card-subtitle">Monthly timeline showing SOL expiration dates</p>
+              <h2 className="premium-card-title">SOL Expiration Timeline</h2>
+              <p className="premium-card-subtitle">Actual SOL expiration dates by month</p>
             </div>
             <div className="premium-card-content">
               <div style={{ height: '300px' }}>
@@ -326,10 +323,10 @@ const SOLMonitoringPage: React.FC = () => {
                     <Legend />
                     <Line 
                       type="monotone" 
-                      dataKey="expired" 
+                      dataKey="expiringCount" 
                       stroke="#ef4444" 
                       strokeWidth={2}
-                      name="Expired"
+                      name="SOL Expiring"
                       dot={{ 
                         fill: '#ef4444', 
                         strokeWidth: 2, 
@@ -341,13 +338,6 @@ const SOLMonitoringPage: React.FC = () => {
                           }
                         }
                       }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="highRisk" 
-                      stroke="#f59e0b" 
-                      strokeWidth={2}
-                      name="High Risk"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -468,7 +458,11 @@ const SOLMonitoringPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {getSortedJurisdictionData().map((jurisdiction, index) => (
-                    <tr key={jurisdiction.state} className={index !== getSortedJurisdictionData().length - 1 ? 'border-b border-gray-100' : ''}>
+                    <tr 
+                      key={jurisdiction.state} 
+                      className={`cursor-pointer hover:bg-gray-50 transition-colors ${index !== getSortedJurisdictionData().length - 1 ? 'border-b border-gray-100' : ''}`}
+                      onClick={() => navigate(`/loans?state=${jurisdiction.state}&has_sol=true`)}
+                    >
                       <td className="py-3 px-4 font-medium text-gray-900">{jurisdiction.state}</td>
                       <td className="py-3 px-4 text-right">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

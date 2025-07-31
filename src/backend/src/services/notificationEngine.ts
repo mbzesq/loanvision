@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { EventEmitter } from 'events';
 import logger from '../config/logger';
+import { BusinessRulesEngine } from './businessRulesEngine';
 
 export interface InboxTaskNotification {
   id: number;
@@ -34,6 +35,7 @@ export class NotificationEngine extends EventEmitter {
   constructor(db: Pool) {
     super();
     this.db = db;
+    this.businessRules = new BusinessRulesEngine(db);
   }
 
   /**
@@ -182,9 +184,13 @@ export class NotificationEngine extends EventEmitter {
     logger.info('Running scheduled notification checks...');
     
     try {
-      // Check for missing documents and create tasks
-      await this.db.query('SELECT check_missing_documents_tasks()');
-      logger.info('Missing documents check completed');
+      // Check if document upload tasks are enabled via business rules
+      if (await this.businessRules.shouldCreateDocumentUploadTasks()) {
+        await this.db.query('SELECT check_missing_documents_tasks()');
+        logger.info('Missing documents check completed');
+      } else {
+        logger.info('Document upload task creation is disabled via business rules');
+      }
       
       // Auto-resolve completed tasks (e.g., when documents are uploaded)
       await this.autoResolveCompletedTasks();
