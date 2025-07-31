@@ -23,9 +23,18 @@ export class RobustAssignmentStrategy implements ExtractionStrategy {
       return results;
     }
     
+    console.log('[RobustAssignmentStrategy] =========================');
     console.log('[RobustAssignmentStrategy] Starting robust assignment extraction...');
+    console.log('[RobustAssignmentStrategy] Text preview:', text.substring(0, 200) + '...');
     
     const extraction = this.extractor.extractAssignmentParties(text);
+    
+    console.log('[RobustAssignmentStrategy] Extraction result:', {
+      assignor: extraction.assignor,
+      assignee: extraction.assignee,
+      confidence: extraction.confidence,
+      method: extraction.method
+    });
     
     if (extraction.assignor) {
       results.set('assignor', {
@@ -34,7 +43,7 @@ export class RobustAssignmentStrategy implements ExtractionStrategy {
         strategy: this.name,
         justification: `Robust extraction via ${extraction.method}`
       });
-      console.log('[RobustAssignmentStrategy] Found assignor:', extraction.assignor);
+      console.log('[RobustAssignmentStrategy] Added assignor to results:', extraction.assignor);
     }
     
     if (extraction.assignee) {
@@ -44,12 +53,15 @@ export class RobustAssignmentStrategy implements ExtractionStrategy {
         strategy: this.name,
         justification: `Robust extraction via ${extraction.method}`
       });
-      console.log('[RobustAssignmentStrategy] Found assignee:', extraction.assignee);
+      console.log('[RobustAssignmentStrategy] Added assignee to results:', extraction.assignee);
     }
     
     if (extraction.confidence === 0) {
       console.log('[RobustAssignmentStrategy] No valid assignment parties found');
     }
+    
+    console.log('[RobustAssignmentStrategy] Final results size:', results.size);
+    console.log('[RobustAssignmentStrategy] =========================');
     
     return results;
   }

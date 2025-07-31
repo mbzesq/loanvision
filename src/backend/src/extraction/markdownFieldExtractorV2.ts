@@ -125,9 +125,22 @@ export class MarkdownFieldExtractor {
     allCandidates.forEach((candidates, fieldName) => {
       if (candidates.length === 0) return;
 
+      // Debug logging for assignment fields
+      if (fieldName === 'assignor' || fieldName === 'assignee') {
+        console.log(`[CandidateSelection] Field: ${fieldName}, Candidates:`, 
+          candidates.map(c => ({ value: c.value, confidence: c.confidence, strategy: c.strategy }))
+        );
+      }
+
       // Sort by confidence and select the best
       candidates.sort((a, b) => b.confidence - a.confidence);
       result.set(fieldName, candidates[0]);
+      
+      if (fieldName === 'assignor' || fieldName === 'assignee') {
+        console.log(`[CandidateSelection] Selected best for ${fieldName}:`, 
+          { value: candidates[0].value, confidence: candidates[0].confidence, strategy: candidates[0].strategy }
+        );
+      }
     });
 
     return result;
