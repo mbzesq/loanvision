@@ -79,44 +79,51 @@ export class PatternStrategy implements ExtractionStrategy {
       }
     }
     
-    // Assignment patterns
+    // Assignment patterns with legal description filter
     if (fieldName.includes('assignor')) {
       const patterns = [
-        // Standard assignment language
-        /([A-Z][A-Za-z\s&,.()]+?)\s+(?:does\s+)?hereby\s+(?:grant|assign|transfer|convey)s?\s+/i,
-        /assignment\s+from\s+([A-Z][A-Za-z\s&,.()]+?)\s+to/i,
-        /assignor[:\s]+([A-Z][A-Za-z\s&,.()]+?)(?:[,\n]|$)/i
+        // Standard assignment language - more restrictive
+        /([A-Z][A-Za-z\s&,.()]{5,80}?(?:LLC|Inc|Corp|Trust|Bank|MERS))\s+(?:does\s+)?hereby\s+(?:grant|assign|transfer|convey)s?\s+/i,
+        /assignment\s+from\s+([A-Z][A-Za-z\s&,.()]{5,80}?(?:LLC|Inc|Corp|Trust|Bank|MERS))\s+to/i,
+        /assignor[:\s]+([A-Z][A-Za-z\s&,.()]{5,80}?)(?:[,\n]|$)/i
       ];
       
       for (const pattern of patterns) {
         const match = text.match(pattern);
         if (match && match[1]) {
-          return {
-            value: this.cleanCompanyName(match[1]),
-            confidence: 0.85,
-            strategy: this.name,
-            justification: 'Matched assignor pattern'
-          };
+          const cleanedName = this.cleanCompanyName(match[1]);
+          if (cleanedName && cleanedName.length > 3) {
+            return {
+              value: cleanedName,
+              confidence: 0.85,
+              strategy: this.name,
+              justification: 'Matched assignor pattern'
+            };
+          }
         }
       }
     }
     
     if (fieldName.includes('assignee')) {
       const patterns = [
-        /(?:grant|assign|transfer|convey)s?\s+to\s+([A-Z][A-Za-z\s&,.()]+?)(?:\s+all|\s+the|\s*[,\n]|$)/i,
-        /assignment\s+(?:from\s+[^,]+\s+)?to\s+([A-Z][A-Za-z\s&,.()]+?)(?:[,\n]|$)/i,
-        /assignee[:\s]+([A-Z][A-Za-z\s&,.()]+?)(?:[,\n]|$)/i
+        // More restrictive patterns requiring business entity indicators
+        /(?:grant|assign|transfer|convey)s?\s+to\s+([A-Z][A-Za-z\s&,.()]{5,80}?(?:LLC|Inc|Corp|Trust|Bank|Fund))\s*(?:\s+all|\s+the|\s*[,\n]|$)/i,
+        /assignment\s+(?:from\s+[^,]+\s+)?to\s+([A-Z][A-Za-z\s&,.()]{5,80}?(?:LLC|Inc|Corp|Trust|Bank|Fund))(?:[,\n]|$)/i,
+        /assignee[:\s]+([A-Z][A-Za-z\s&,.()]{5,80}?)(?:[,\n]|$)/i
       ];
       
       for (const pattern of patterns) {
         const match = text.match(pattern);
         if (match && match[1]) {
-          return {
-            value: this.cleanCompanyName(match[1]),
-            confidence: 0.85,
-            strategy: this.name,
-            justification: 'Matched assignee pattern'
-          };
+          const cleanedName = this.cleanCompanyName(match[1]);
+          if (cleanedName && cleanedName.length > 3) {
+            return {
+              value: cleanedName,
+              confidence: 0.85,
+              strategy: this.name,
+              justification: 'Matched assignee pattern'
+            };
+          }
         }
       }
     }
@@ -322,11 +329,37 @@ export class PatternStrategy implements ExtractionStrategy {
   }
 
   private cleanCompanyName(name: string): string {
+    // First check if this looks like legal description text
+    if (this.isLegalDescription(name)) {
+      return ''; // Return empty string for legal descriptions
+    }
+    
     return name
       .replace(/\s*\([^)]+\)\s*/g, ' ') // Remove parenthetical content
       .replace(/[,.]?\s*(LLC|L\.L\.C\.|Inc\.?|Corp\.?|Corporation|Company|Co\.?|Trust|LP|Ltd\.?)?\s*$/i, '')
       .replace(/\s+/g, ' ')
       .trim();
+  }
+  
+  private isLegalDescription(text: string): boolean {
+    if (!text) return false;
+    
+    const legalDescIndicators = [
+      /beginning\s+at\s+a\s+point/i,
+      /thence\s+(north|south|east|west|running)/i,
+      /feet\s+and\s+\d+\s+inches/i,
+      /corner\s+(of|formed\s+by)/i,
+      /intersection\s+of/i,
+      /parallel\s+with/i,
+      /bounded\s+and\s+described/i,
+      /westerly\s+side/i,
+      /northerly\s+side/i,
+      /easterly\s+side/i,
+      /southerly\s+side/i,
+      /running\s+thence/i
+    ];
+    
+    return legalDescIndicators.some(pattern => pattern.test(text.toLowerCase()));
   }
 
   private enhancedCleanCompanyName(name: string): string {

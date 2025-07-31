@@ -11,14 +11,23 @@ export class TableStrategy implements ExtractionStrategy {
   extract(text: string, config: ExtractorConfig): Map<string, ExtractedCandidate> {
     const results = new Map<string, ExtractedCandidate>();
     
-    // Parse potential table structures from text
+    // First, try specialized NYC cover page parsing
+    const nycResults = this.extractFromNYCCoverPage(text, config);
+    nycResults.forEach((candidate, fieldName) => {
+      results.set(fieldName, candidate);
+    });
+    
+    // Then try generic table parsing for other structured data
     const tables = this.extractTables(text);
     
     for (const table of tables) {
       for (const field of config.fields) {
-        const candidate = this.extractFieldFromTable(table, field);
-        if (candidate) {
-          results.set(field.name, candidate);
+        // Only extract if we haven't already found this field from NYC parsing
+        if (!results.has(field.name)) {
+          const candidate = this.extractFieldFromTable(table, field);
+          if (candidate) {
+            results.set(field.name, candidate);
+          }
         }
       }
     }
@@ -146,5 +155,100 @@ export class TableStrategy implements ExtractionStrategy {
     }
     
     return cleaned;
+  }
+
+  private extractFromNYCCoverPage(text: string, config: ExtractorConfig): Map<string, ExtractedCandidate> {
+    const results = new Map<string, ExtractedCandidate>();
+    
+    // Look for NYC-style cover page with "CROSS REFERENCE DATA" section
+    if (!text.includes('CROSS REFERENCE DATA') && !text.includes('ASSIGNOR/OLD LENDER')) {
+      return results;
+    }
+    
+    console.log('[TableStrategy] Detected NYC cover page format');
+    
+    // Extract assignor and assignee from the structured format
+    const lines = text.split('\n');
+    let inCrossRefSection = false;
+    let assignorFound = false;
+    let assigneeFound = false;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      if (line.includes('CROSS REFERENCE DATA') || line.includes('ASSIGNOR/OLD LENDER')) {
+        inCrossRefSection = true;
+        continue;
+      }
+      
+      if (inCrossRefSection) {
+        // Stop if we hit another section
+        if (line.match(/^[A-Z\s]{10,}$/) && !line.includes('ASSIGNOR') && !line.includes('ASSIGNEE') && 
+            !line.includes('MORTGAGE ELECTRONIC') && !line.includes('LLC')) {
+          break;
+        }
+        
+        // Look for assignor (MERS)
+        if (!assignorFound && line.includes('MORTGAGE ELECTRONIC REGISTRATION')) {
+          const assignorField = config.fields.find(f => f.name === 'assignor');
+          if (assignorField) {
+            results.set('assignor', {
+              value: 'MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC.',
+              confidence: 0.98,
+              strategy: this.name,
+              justification: 'Found MERS in NYC cover page CROSS REFERENCE DATA'
+            });
+            assignorFound = true;
+            console.log('[TableStrategy] Found assignor: MERS');
+          }
+        }
+        
+        // Look for assignee (LLC/company names)
+        if (!assigneeFound && line.match(/[A-Z]+\d+.*LLC/i)) {
+          const assigneeMatch = line.match(/([A-Z]+\d+[^,]*LLC)/i);
+          if (assigneeMatch) {
+            const assigneeField = config.fields.find(f => f.name === 'assignee');
+            if (assigneeField) {
+              results.set('assignee', {
+                value: assigneeMatch[1].trim(),
+                confidence: 0.98,
+                strategy: this.name,
+                justification: 'Found LLC entity in NYC cover page CROSS REFERENCE DATA'
+              });
+              assigneeFound = true;
+              console.log('[TableStrategy] Found assignee:', assigneeMatch[1]);
+            }
+          }
+        }
+        
+        // Also check for other LLC patterns
+        if (!assigneeFound && line.match(/LLC/i) && !line.includes('MORTGAGE ELECTRONIC')) {
+          const llcMatch = line.match(/([A-Z][A-Za-z0-9\s,]+LLC[^,]*)/i);
+          if (llcMatch) {
+            const cleaned = llcMatch[1].trim().replace(/,.*$/, ''); // Remove trailing address
+            if (cleaned.length < 50) { // Reasonable company name length
+              const assigneeField = config.fields.find(f => f.name === 'assignee');
+              if (assigneeField) {
+                results.set('assignee', {
+                  value: cleaned,
+                  confidence: 0.95,
+                  strategy: this.name,
+                  justification: 'Found LLC entity in NYC cover page'
+                });
+                assigneeFound = true;
+                console.log('[TableStrategy] Found assignee (fallback):', cleaned);
+              }
+            }
+          }
+        }
+        
+        // Break if we found both
+        if (assignorFound && assigneeFound) {
+          break;
+        }
+      }
+    }
+    
+    return results;
   }
 }
