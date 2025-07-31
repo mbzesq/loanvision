@@ -35,9 +35,8 @@ interface UseInboxNotificationsReturn {
 export function useInboxNotifications(): UseInboxNotificationsReturn {
   const { token, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<InboxNotification[]>([]);
-  // Start with clean state - user deleted everything
   const [stats, setStats] = useState<InboxStats>({
-    unreadCount: 0, // User deleted everything, should be 0
+    unreadCount: 0,
     criticalUnread: 0,
     highUnread: 0,
     todayCount: 0,
