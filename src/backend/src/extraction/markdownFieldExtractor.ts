@@ -1,4 +1,5 @@
 import { DocumentType } from '../ml/documentClassifier';
+import { ImprovedAssignmentExtractor } from './improvedAssignmentExtractor';
 
 export interface ExtractedFields {
   // Common fields
@@ -31,6 +32,9 @@ export class MarkdownFieldExtractor {
   private readonly datePattern = /(\d{1,2})[\\/\-](\d{1,2})[\\/\-](\d{2,4})/;
   private readonly currencyPattern = /\$[\d,]+(?:\.\d{2})?/;
   private readonly namePattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/;
+  
+  // Improved assignment extractor
+  private readonly improvedAssignmentExtractor = new ImprovedAssignmentExtractor();
 
   async extractFields(
     markdown: string, 
@@ -55,7 +59,7 @@ export class MarkdownFieldExtractor {
         this.extractLoanFields(markdown, sections, tables, fields);
         break;
       case DocumentType.ASSIGNMENT:
-        this.extractAssignmentFields(markdown, sections, tables, fields);
+        await this.extractAssignmentFields(markdown, sections, tables, fields);
         break;
       // NOTE: ALLONGE documents are now classified as Notes with endorsements
     }
@@ -287,7 +291,38 @@ export class MarkdownFieldExtractor {
     }
   }
 
-  private extractAssignmentFields(markdown: string, sections: any[], tables: any[], fields: ExtractedFields): void {
+  private async extractAssignmentFields(markdown: string, sections: any[], tables: any[], fields: ExtractedFields): Promise<void> {
+    // Use the improved assignment extractor
+    const improvedResults = await this.improvedAssignmentExtractor.extractAssignmentFields(
+      markdown,
+      tables,
+      sections
+    );
+    
+    // Merge the results into fields
+    if (improvedResults.assignor) {
+      fields.assignor = improvedResults.assignor;
+    }
+    if (improvedResults.assignee) {
+      fields.assignee = improvedResults.assignee;
+    }
+    if (improvedResults.recordingDate) {
+      fields.recordingDate = improvedResults.recordingDate;
+    }
+    if (improvedResults.instrumentNumber) {
+      fields.instrumentNumber = improvedResults.instrumentNumber;
+    }
+    if (improvedResults.fieldConfidence) {
+      improvedResults.fieldConfidence.forEach((confidence, field) => {
+        fields.fieldConfidence.set(field, confidence);
+      });
+    }
+    
+    return;
+  }
+  
+  // Keep the old implementation as a fallback/reference
+  private extractAssignmentFieldsLegacy(markdown: string, sections: any[], tables: any[], fields: ExtractedFields): void {
     const fullText = this.stripMarkdown(markdown);
 
     // Extract assignor/assignee from tables first
