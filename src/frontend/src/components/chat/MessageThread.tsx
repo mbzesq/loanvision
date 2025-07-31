@@ -8,7 +8,7 @@ import { ChatTypingIndicator } from './ChatTypingIndicator';
 import { useAuth } from '../../contexts/AuthContext';
 import { useConversations } from '../../contexts/ConversationContext';
 import { aiAssistantApi } from '../../services/aiAssistantApi';
-import { useToast } from '../ui/use-toast';
+import { useToast } from '../../hooks/use-toast';
 
 interface MessageThreadProps {
   conversationId: string;
