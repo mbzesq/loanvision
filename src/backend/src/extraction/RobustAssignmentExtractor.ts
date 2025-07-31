@@ -78,8 +78,15 @@ export class RobustAssignmentExtractor {
     confidence: number;
     method: string;
   } {
+    console.log('[RobustExtractor] Input text length:', text.length);
+    console.log('[RobustExtractor] First 500 chars:', text.substring(0, 500));
+    console.log('[RobustExtractor] Contains CROSS REFERENCE DATA:', text.includes('CROSS REFERENCE DATA'));
+    console.log('[RobustExtractor] Contains MERS:', text.includes('MORTGAGE ELECTRONIC REGISTRATION'));
+    console.log('[RobustExtractor] Contains STAR201:', text.includes('STAR201'));
+    
     // Step 1: Detect jurisdiction if possible
     const jurisdiction = this.detectJurisdiction(text);
+    console.log('[RobustExtractor] Detected jurisdiction:', jurisdiction);
     
     // Step 2: Try structured extraction first (highest confidence)
     if (jurisdiction) {
