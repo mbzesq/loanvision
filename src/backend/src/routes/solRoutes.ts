@@ -466,48 +466,64 @@ router.get('/jurisdiction-analysis', authenticateToken, async (req: any, res) =>
     
     const placeholders = accessibleLoanIds.map((_, index) => `$${index + 1}`).join(',');
     
+    // Get all SOL jurisdictions with portfolio exposure data
     const jurisdictionQuery = `
       SELECT 
-        lsc.property_state as state,
-        COUNT(*) as total_loans,
-        COUNT(*) FILTER (WHERE lsc.is_expired = true) as expired_count,
-        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH') as high_risk_count,
-        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM') as medium_risk_count,
-        COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'LOW') as low_risk_count,
-        ROUND(AVG(lsc.days_until_expiration)::numeric) as avg_days_to_expiration,
-        -- SOL Risk Concentration (expired + high risk as percentage)
-        ROUND(
-          ((COUNT(*) FILTER (WHERE lsc.is_expired = true OR lsc.sol_risk_level = 'HIGH')::float / COUNT(*)) * 100)::numeric, 
-          1
-        ) as sol_risk_concentration,
-        -- Critical SOL Risk Score (weighted by severity and time proximity)
-        ROUND(
-          ((COUNT(*) FILTER (WHERE lsc.is_expired = true) * 100 +
-           COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH' AND lsc.days_until_expiration <= 90) * 80 +
-           COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH' AND lsc.days_until_expiration > 90) * 60 +
-           COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM' AND lsc.days_until_expiration <= 180) * 40)::float / 
-          (COUNT(*) * 100))::numeric, 4
-        ) as critical_risk_score,
-        -- Jurisdiction inherent risk
-        MAX(sj.risk_level) as jurisdiction_risk_level,
-        -- Count of loans expiring in next 6 months
-        COUNT(*) FILTER (WHERE lsc.days_until_expiration <= 180 AND lsc.is_expired = false) as expiring_soon_count
-      FROM loan_sol_calculations lsc
-      LEFT JOIN sol_jurisdictions sj ON lsc.property_state = sj.state_code
-      WHERE lsc.loan_id IN (${placeholders})
-      AND lsc.property_state IS NOT NULL
-      GROUP BY lsc.property_state
+        sj.state_code as state,
+        sj.state_name,
+        sj.risk_level as jurisdiction_risk_level,
+        COALESCE(portfolio.total_loans, 0) as total_loans,
+        COALESCE(portfolio.expired_count, 0) as expired_count,
+        COALESCE(portfolio.high_risk_count, 0) as high_risk_count,
+        COALESCE(portfolio.medium_risk_count, 0) as medium_risk_count,
+        COALESCE(portfolio.low_risk_count, 0) as low_risk_count,
+        COALESCE(portfolio.avg_days_to_expiration, 0) as avg_days_to_expiration,
+        COALESCE(portfolio.sol_risk_concentration, 0) as sol_risk_concentration,
+        COALESCE(portfolio.critical_risk_score, 0) as critical_risk_score,
+        COALESCE(portfolio.expiring_soon_count, 0) as expiring_soon_count
+      FROM sol_jurisdictions sj
+      LEFT JOIN (
+        SELECT 
+          lsc.property_state,
+          COUNT(*) as total_loans,
+          COUNT(*) FILTER (WHERE lsc.is_expired = true) as expired_count,
+          COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH') as high_risk_count,
+          COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM') as medium_risk_count,
+          COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'LOW') as low_risk_count,
+          ROUND(AVG(lsc.days_until_expiration)::numeric) as avg_days_to_expiration,
+          -- SOL Risk Concentration (expired + high risk as percentage)
+          ROUND(
+            ((COUNT(*) FILTER (WHERE lsc.is_expired = true OR lsc.sol_risk_level = 'HIGH')::float / COUNT(*)) * 100)::numeric, 
+            1
+          ) as sol_risk_concentration,
+          -- Critical SOL Risk Score (weighted by severity and time proximity)
+          ROUND(
+            ((COUNT(*) FILTER (WHERE lsc.is_expired = true) * 100 +
+             COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH' AND lsc.days_until_expiration <= 90) * 80 +
+             COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'HIGH' AND lsc.days_until_expiration > 90) * 60 +
+             COUNT(*) FILTER (WHERE lsc.sol_risk_level = 'MEDIUM' AND lsc.days_until_expiration <= 180) * 40)::float / 
+            (COUNT(*) * 100))::numeric, 4
+          ) as critical_risk_score,
+          -- Count of loans expiring in next 6 months
+          COUNT(*) FILTER (WHERE lsc.days_until_expiration <= 180 AND lsc.is_expired = false) as expiring_soon_count
+        FROM loan_sol_calculations lsc
+        WHERE lsc.loan_id IN (${placeholders})
+        AND lsc.property_state IS NOT NULL
+        GROUP BY lsc.property_state
+      ) portfolio ON sj.state_code = portfolio.property_state
       ORDER BY 
-        critical_risk_score DESC,
-        sol_risk_concentration DESC,
-        expired_count DESC,
-        expiring_soon_count DESC
+        portfolio.critical_risk_score DESC NULLS LAST,
+        portfolio.sol_risk_concentration DESC NULLS LAST,
+        portfolio.expired_count DESC NULLS LAST,
+        portfolio.total_loans DESC NULLS LAST,
+        sj.state_name ASC
     `;
     
     const result = await pool.query(jurisdictionQuery, accessibleLoanIds);
     
     const jurisdictionData = result.rows.map(row => ({
       state: row.state,
+      stateName: row.state_name,
       totalLoans: parseInt(row.total_loans) || 0,
       expiredCount: parseInt(row.expired_count) || 0,
       highRiskCount: parseInt(row.high_risk_count) || 0,
