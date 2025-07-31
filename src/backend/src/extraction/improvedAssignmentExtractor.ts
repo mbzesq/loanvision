@@ -205,8 +205,8 @@ export class ImprovedAssignmentExtractor {
       const headers = table.headers.map((h: string) => h.toLowerCase());
       
       // Special handling for NYC cover page format where data is in a two-column layout
-      if (headers.some(h => h.includes('assignor') && h.includes('old lender')) && 
-          headers.some(h => h.includes('parties'))) {
+      if (headers.some((h: string) => h.includes('assignor') && h.includes('old lender')) && 
+          headers.some((h: string) => h.includes('parties'))) {
         
         // In this format:
         // Column 1: ASSIGNOR/OLD LENDER data
