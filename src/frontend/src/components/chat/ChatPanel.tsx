@@ -52,21 +52,27 @@ export function ChatPanel({ isOpen, onClose, className = '' }: ChatPanelProps) {
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-y-0 right-0 z-50 ${className}`}>
+    <>
       {/* Backdrop for mobile */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity lg:hidden"
-        onClick={onClose}
-      />
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity lg:hidden z-40"
+          onClick={onClose}
+        />
+      )}
       
-      {/* Chat Panel */}
+      {/* Chat Panel - positioned below header */}
       <div 
         className={`
-          relative bg-white shadow-xl transition-all duration-300 ease-in-out
+          fixed right-0 top-16 bottom-0
+          bg-white shadow-xl transition-all duration-300 ease-in-out
           w-full max-w-sm
           lg:w-[400px] lg:max-w-[400px]
-          ${isMinimized ? 'h-16' : 'h-full'}
+          ${isMinimized ? 'h-16 bottom-auto' : ''}
           flex flex-col
+          rounded-tl-xl overflow-hidden
+          z-40
+          ${className}
         `}
         onClick={(e) => e.stopPropagation()}
       >
