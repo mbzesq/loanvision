@@ -168,6 +168,6 @@ export function ChatPanel({ isOpen, onClose, className = '' }: ChatPanelProps) {
           )}
         </ChatErrorBoundary>
       </div>
-    </div>
+    </>
   );
 }
