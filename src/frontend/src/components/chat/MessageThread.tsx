@@ -36,7 +36,7 @@ export function MessageThread({
 }: MessageThreadProps) {
   const { user } = useAuth();
   const { getMessages, addMessage } = useConversations();
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
