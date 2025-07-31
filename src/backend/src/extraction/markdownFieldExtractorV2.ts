@@ -81,23 +81,15 @@ export class MarkdownFieldExtractor {
     // Step 1: Parse document structure
     const sections = this.parseMarkdownSections(markdown);
     const tables = this.extractMarkdownTables(markdown);
-    const cleanText = this.stripMarkdown(markdown);
 
     // Step 2: Collect candidates from all strategies
     const allCandidates = new Map<string, ExtractedCandidate[]>();
 
     for (const strategy of this.strategies) {
       try {
-        // For strategies that can benefit from markdown structure, pass the original
-        // For simple pattern matching, use clean text
-        const useMarkdown = ['RobustAssignment', 'Table'].includes(strategy.name);
-        const textToUse = useMarkdown ? markdown : cleanText;
-        
-        if (useMarkdown) {
-          console.log(`[Extractor] Passing original markdown to ${strategy.name} strategy`);
-        }
-        
-        const candidates = strategy.extract(textToUse, this.config);
+        // Pass markdown to ALL strategies - they can decide how to handle it
+        console.log(`[Extractor] Processing ${strategy.name} strategy with markdown`);
+        const candidates = strategy.extract(markdown, this.config);
         
         candidates.forEach((candidate, fieldName) => {
           if (!allCandidates.has(fieldName)) {
@@ -120,7 +112,7 @@ export class MarkdownFieldExtractor {
     }
 
     // Step 4: Apply business rules and validation
-    const validatedCandidates = this.applyBusinessRules(finalCandidates, cleanText);
+    const validatedCandidates = this.applyBusinessRules(finalCandidates, markdown);
 
     // Step 5: Convert to ExtractedFields format
     return this.buildExtractedFields(validatedCandidates);

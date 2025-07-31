@@ -11,14 +11,32 @@ export class PatternStrategy implements ExtractionStrategy {
   extract(text: string, config: ExtractorConfig): Map<string, ExtractedCandidate> {
     const results = new Map<string, ExtractedCandidate>();
     
+    // Strip markdown for pattern matching
+    const cleanText = this.stripMarkdown(text);
+    
     for (const field of config.fields) {
-      const candidate = this.extractPatternField(text, field);
+      const candidate = this.extractPatternField(cleanText, field);
       if (candidate) {
         results.set(field.name, candidate);
       }
     }
     
     return results;
+  }
+  
+  private stripMarkdown(text: string): string {
+    return text
+      .replace(/^#+\s+/gm, '') // Remove headers
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // Bold
+      .replace(/\*([^*]+)\*/g, '$1') // Italic
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links
+      .replace(/^\s*[-*+]\s+/gm, '') // List items
+      .replace(/^\s*\d+\.\s+/gm, '') // Numbered lists
+      .replace(/```[^`]*```/g, '') // Code blocks
+      .replace(/`([^`]+)`/g, '$1') // Inline code
+      .replace(/^\|.*\|$/gm, '') // Table rows
+      .replace(/^[-|]+$/gm, '') // Table separators
+      .replace(/\n{3,}/g, '\n\n'); // Multiple newlines
   }
 
   private extractPatternField(text: string, fieldDef: any): ExtractedCandidate | null {
