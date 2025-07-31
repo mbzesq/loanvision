@@ -8,7 +8,7 @@ import { ChatRoom, ChatUser } from '../../types/chat';
 
 interface ConversationListProps {
   searchQuery: string;
-  onConversationSelect: (id: string, type: 'ai' | 'user' | 'channel') => void;
+  onConversationSelect: (id: string, type: 'ai' | 'user' | 'channel', name: string) => void;
   selectedConversationId: string | null;
 }
 
@@ -182,7 +182,7 @@ export function ConversationList({
         {aiConversations.map(conversation => (
           <div
             key={conversation.id}
-            onClick={() => onConversationSelect(conversation.id, conversation.type)}
+            onClick={() => onConversationSelect(conversation.id, conversation.type, conversation.name)}
             className={`
               flex items-start space-x-3 p-3 rounded-lg cursor-pointer transition-colors
               ${selectedConversationId === conversation.id 
@@ -234,7 +234,7 @@ export function ConversationList({
         {userConversations.map(conversation => (
           <div
             key={conversation.id}
-            onClick={() => onConversationSelect(conversation.id, conversation.type)}
+            onClick={() => onConversationSelect(conversation.id, conversation.type, conversation.name)}
             className={`
               flex items-start space-x-3 p-3 rounded-lg cursor-pointer transition-colors
               ${selectedConversationId === conversation.id 
@@ -295,7 +295,7 @@ export function ConversationList({
             {channelConversations.map(conversation => (
               <div
                 key={conversation.id}
-                onClick={() => onConversationSelect(conversation.id, conversation.type)}
+                onClick={() => onConversationSelect(conversation.id, conversation.type, conversation.name)}
                 className={`
                   flex items-start space-x-3 p-3 rounded-lg cursor-pointer transition-colors
                   ${selectedConversationId === conversation.id 

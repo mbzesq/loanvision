@@ -262,10 +262,10 @@ export const FloatingActionButtonRadial: React.FC = () => {
       )}
 
       {/* FAB Container */}
-      <div ref={containerRef} className="fixed bottom-6 right-6 z-50">
+      <div ref={containerRef} className="fixed bottom-6 left-6 z-50">
         {/* Secondary Action Buttons - Simple Vertical Stack */}
         {isOpen && (
-          <div className="absolute bottom-16 right-0 flex flex-col-reverse gap-3">
+          <div className="absolute bottom-16 left-0 flex flex-col-reverse gap-3">
             {actionButtons.map((button, index) => (
               <div
                 key={button.id}

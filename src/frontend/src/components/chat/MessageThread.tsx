@@ -9,6 +9,7 @@ import { ChatTypingIndicator } from './ChatTypingIndicator';
 interface MessageThreadProps {
   conversationId: string;
   conversationType: 'ai' | 'user' | 'channel';
+  conversationName: string;
   onBack: () => void;
 }
 
@@ -28,6 +29,7 @@ interface Message {
 export function MessageThread({ 
   conversationId, 
   conversationType, 
+  conversationName,
   onBack 
 }: MessageThreadProps) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -151,9 +153,9 @@ export function MessageThread({
     if (conversationId === 'morgan-ai') {
       return 'Morgan AI';
     } else if (conversationType === 'channel') {
-      return `#${conversationId.replace('channel-', '')}`;
+      return `#${conversationName}`;
     } else {
-      return 'Direct Message';
+      return conversationName || 'Direct Message';
     }
   };
 

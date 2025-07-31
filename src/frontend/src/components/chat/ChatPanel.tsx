@@ -17,6 +17,7 @@ export function ChatPanel({ isOpen, onClose, className = '' }: ChatPanelProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [selectedConversationType, setSelectedConversationType] = useState<'ai' | 'user' | 'channel' | null>(null);
+  const [selectedConversationName, setSelectedConversationName] = useState<string>('');
 
   // Handle keyboard shortcut (Cmd/Ctrl + Y)
   useEffect(() => {
@@ -39,14 +40,16 @@ export function ChatPanel({ isOpen, onClose, className = '' }: ChatPanelProps) {
     setIsMinimized(!isMinimized);
   };
 
-  const handleConversationSelect = (id: string, type: 'ai' | 'user' | 'channel') => {
+  const handleConversationSelect = (id: string, type: 'ai' | 'user' | 'channel', name: string) => {
     setSelectedConversationId(id);
     setSelectedConversationType(type);
+    setSelectedConversationName(name);
   };
 
   const handleBackToList = () => {
     setSelectedConversationId(null);
     setSelectedConversationType(null);
+    setSelectedConversationName('');
   };
 
   if (!isOpen) return null;
@@ -135,6 +138,7 @@ export function ChatPanel({ isOpen, onClose, className = '' }: ChatPanelProps) {
                 <MessageThread
                   conversationId={selectedConversationId}
                   conversationType={selectedConversationType!}
+                  conversationName={selectedConversationName}
                   onBack={handleBackToList}
                 />
               ) : (
