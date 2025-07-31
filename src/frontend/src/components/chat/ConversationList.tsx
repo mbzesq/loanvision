@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Bot, User, Hash, Circle, Clock, MessageCircle, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Bot, User, Hash, Circle, MessageCircle, Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
@@ -30,8 +30,6 @@ export function ConversationList({
 }: ConversationListProps) {
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<ChatUser[]>([]);
-  const [channels, setChannels] = useState<ChatRoom[]>([]);
 
   useEffect(() => {
     loadConversations();
@@ -43,12 +41,9 @@ export function ConversationList({
       
       // Load users and rooms in parallel
       const [usersResponse, roomsResponse] = await Promise.all([
-        chatApi.getUsers(),
-        chatApi.getRooms()
+        chatApi.getOrganizationUsers(),
+        chatApi.getChatRooms()
       ]);
-
-      setUsers(usersResponse.users);
-      setChannels(roomsResponse.rooms);
 
       // Create unified conversation list
       const conversationItems: ConversationItem[] = [];
@@ -65,7 +60,7 @@ export function ConversationList({
       });
 
       // Add direct message conversations (users)
-      usersResponse.users.forEach(user => {
+      usersResponse.users.forEach((user: ChatUser) => {
         conversationItems.push({
           id: `user-${user.id}`,
           type: 'user',
@@ -80,8 +75,8 @@ export function ConversationList({
 
       // Add channels
       roomsResponse.rooms
-        .filter(room => room.type !== 'direct_message')
-        .forEach(room => {
+        .filter((room: ChatRoom) => room.type !== 'direct_message')
+        .forEach((room: ChatRoom) => {
           conversationItems.push({
             id: `channel-${room.id}`,
             type: 'channel',

@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Bot, User, Send, Paperclip, Smile } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Bot, User, Send } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { ChatMessageList } from './ChatMessageList';
-import { ChatMessageInput } from './ChatMessageInput';
 import { ChatTypingIndicator } from './ChatTypingIndicator';
 
 interface MessageThreadProps {
@@ -264,7 +262,7 @@ export function MessageThread({
                     <span className="text-sm font-medium text-gray-900">Morgan AI</span>
                     <Badge className="bg-blue-100 text-blue-700 text-xs">AI</Badge>
                   </div>
-                  <ChatTypingIndicator />
+                  <ChatTypingIndicator typingUsers={[]} />
                 </div>
               </div>
             )}
