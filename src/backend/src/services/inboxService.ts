@@ -203,7 +203,7 @@ export class InboxService {
         COUNT(*) FILTER (WHERE status = 'unread') as unread,
         COUNT(*) FILTER (WHERE priority = 'urgent') as urgent,
         COUNT(*) FILTER (WHERE due_date < NOW() AND status NOT IN ('completed', 'archived')) as overdue,
-        COUNT(*) FILTER (WHERE assigned_to_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('completed', 'archived')) as my_tasks,
+        COUNT(*) FILTER (WHERE assigned_to_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('completed', 'archived', 'deleted')) as my_tasks,
         COUNT(*) FILTER (WHERE status = 'deleted') as deleted,
         COUNT(*) FILTER (WHERE created_by_user_id = $1 AND type = 'task_assignment' AND status NOT IN ('archived', 'deleted')) as sent_tasks,
         COUNT(*) FILTER (WHERE type = 'user_message' AND status NOT IN ('archived', 'deleted')) as messages,
