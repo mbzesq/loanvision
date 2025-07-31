@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { SideNav } from './SideNav';
 import { MobileHeader } from './MobileHeader';
 import { UserProfile } from './UserProfile';
 import { InboxNotificationBadge } from './InboxNotificationBadge';
-import { ChatModal } from './chat/ChatModal';
+import { ChatPanel } from './chat/ChatPanel';
 import { ChatButtonWithUnread } from './chat/ChatButtonWithUnread';
 import { Sheet, SheetContent } from './ui/sheet';
 import { Menu } from 'lucide-react';
@@ -20,6 +20,19 @@ export function MainLayoutContent() {
   });
   const [isHoveringNav, setIsHoveringNav] = useState(false);
   const [isChatOpen, setChatOpen] = useState(false);
+
+  // Handle keyboard shortcut for chat (Cmd/Ctrl + Y)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'y') {
+        event.preventDefault();
+        setChatOpen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleDesktopNavToggle = () => {
     const newState = !isDesktopNavCollapsed;
@@ -81,7 +94,7 @@ export function MainLayoutContent() {
             </div>
             <div className="premium-header-right">
               <InboxNotificationBadge />
-              <ChatButtonWithUnread onClick={handleChatToggle} />
+              <ChatButtonWithUnread onClick={handleChatToggle} isActive={isChatOpen} />
               <UserProfile />
             </div>
           </header>
@@ -114,8 +127,8 @@ export function MainLayoutContent() {
         </main>
       </div>
 
-      {/* Chat Modal */}
-      <ChatModal 
+      {/* Chat Panel */}
+      <ChatPanel 
         isOpen={isChatOpen}
         onClose={handleChatClose}
       />
