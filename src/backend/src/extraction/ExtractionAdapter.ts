@@ -9,6 +9,7 @@ import { TableStrategy } from './strategies/TableStrategy';
 import { KeyValueStrategy } from './strategies/KeyValueStrategy';
 import { PatternStrategy } from './strategies/PatternStrategy';
 import { ContextStrategy } from './strategies/ContextStrategy';
+import { RobustAssignmentStrategy } from './strategies/RobustAssignmentStrategy';
 import { SimpleExtractionLearner } from './SimpleExtractionLearner';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -36,6 +37,7 @@ export class ExtractionAdapter {
 
       // Initialize strategies
       const strategies: ExtractionStrategy[] = [
+        new RobustAssignmentStrategy(), // Highest priority for assignment extraction
         new TableStrategy(),
         new KeyValueStrategy(),
         new PatternStrategy(),
