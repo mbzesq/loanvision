@@ -88,7 +88,16 @@ export class MarkdownFieldExtractor {
 
     for (const strategy of this.strategies) {
       try {
-        const candidates = strategy.extract(cleanText, this.config);
+        // For strategies that can benefit from markdown structure, pass the original
+        // For simple pattern matching, use clean text
+        const useMarkdown = ['RobustAssignment', 'Table'].includes(strategy.name);
+        const textToUse = useMarkdown ? markdown : cleanText;
+        
+        if (useMarkdown) {
+          console.log(`[Extractor] Passing original markdown to ${strategy.name} strategy`);
+        }
+        
+        const candidates = strategy.extract(textToUse, this.config);
         
         candidates.forEach((candidate, fieldName) => {
           if (!allCandidates.has(fieldName)) {

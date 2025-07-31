@@ -146,8 +146,53 @@ export class RobustAssignmentExtractor {
     assignee?: string;
   } {
     console.log('[NYCFormat] Looking for CROSS REFERENCE DATA section...');
+    console.log('[NYCFormat] Text contains pipes (markdown table):', text.includes('|'));
     
-    // Look for CROSS REFERENCE DATA section - more flexible matching for stripped text
+    // First try to find the markdown table with ASSIGNOR/ASSIGNEE headers
+    const tableMatch = text.match(/ASSIGNOR\/OLD LENDER.*?\|.*?PARTIES.*?\n\|[\s\S]*?(?=\n\n|$)/i);
+    if (tableMatch) {
+      console.log('[NYCFormat] Found markdown table with ASSIGNOR/ASSIGNEE headers');
+      const tableText = tableMatch[0];
+      const rows = tableText.split('\n').filter(row => row.includes('|'));
+      
+      let assignor: string | undefined;
+      let assignee: string | undefined;
+      
+      // Process each row of the table
+      for (const row of rows) {
+        const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell);
+        
+        // Look for MERS in any cell
+        if (!assignor && cells.some(cell => cell.includes('MORTGAGE ELECTRONIC REGISTRATION'))) {
+          assignor = 'MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC.';
+          console.log('[NYCFormat] Found MERS in table');
+        }
+        
+        // Look for LLC entities (like STAR201, LLC)
+        if (!assignee) {
+          for (const cell of cells) {
+            if (cell.includes('LLC') && !cell.includes('MORTGAGE')) {
+              // Extract just the company name
+              const llcMatch = cell.match(/([A-Z][A-Za-z0-9\s,]+LLC)/i);
+              if (llcMatch) {
+                assignee = llcMatch[1].trim();
+                console.log('[NYCFormat] Found assignee in table:', assignee);
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      if (assignor && assignee) {
+        console.log('[NYCFormat] Successfully extracted from markdown table');
+        return { assignor, assignee };
+      }
+    }
+    
+    // Fallback to the previous method for non-table formats
+    console.log('[NYCFormat] No markdown table found, trying text-based extraction...');
+    
     const crossRefMatch = text.match(/CROSS\s+REFERENCE\s+DATA([\s\S]*?)(?=\n\s*#|$)/i);
     if (!crossRefMatch) {
       console.log('[NYCFormat] CROSS REFERENCE DATA section not found');
@@ -155,46 +200,27 @@ export class RobustAssignmentExtractor {
     }
     
     const crossRefSection = crossRefMatch[1];
-    console.log('[NYCFormat] Found CROSS REFERENCE DATA section:', crossRefSection.substring(0, 300));
-    
     const lines = crossRefSection.split('\n').map(l => l.trim()).filter(l => l);
-    console.log('[NYCFormat] Processing', lines.length, 'lines from CROSS REFERENCE DATA');
     
     let assignor: string | undefined;
     let assignee: string | undefined;
     
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      console.log(`[NYCFormat] Line ${i}: "${line}"`);
-      
-      // Look for MERS
+    for (const line of lines) {
       if (!assignor && line.includes('MORTGAGE ELECTRONIC REGISTRATION')) {
         assignor = 'MORTGAGE ELECTRONIC REGISTRATION SYSTEMS, INC.';
-        console.log('[NYCFormat] Found MERS assignor');
       }
       
-      // Look for LLC/Corp entities - adapted for stripped text
       if (!assignee && line.includes('LLC') && !line.includes('MORTGAGE')) {
-        console.log('[NYCFormat] Found line with LLC:', line);
-        
-        // Patterns adapted for stripped markdown text (no table pipes)
         const patterns = [
-          /([A-Z][A-Za-z0-9\s,]+LLC[^,\n]*)/i,  // Simple LLC format
-          /(STAR\d+[^,\n]*LLC[^,\n]*)/i,        // Specific pattern for STAR201, LLC
-          /ASSIGNEE[^\n]*?([A-Z][A-Za-z0-9\s,]+LLC[^,\n]*)/i  // After "ASSIGNEE" label
+          /([A-Z][A-Za-z0-9\s,]+LLC)/i,
+          /(STAR\d+[^,\n]*LLC)/i
         ];
         
         for (const pattern of patterns) {
           const match = line.match(pattern);
           if (match) {
-            let candidate = match[1].trim();
-            // Clean up extra text
-            candidate = candidate.replace(/,\s*C\/O.*$/i, '').trim();
-            if (candidate.length > 3 && candidate.length < 50) {
-              assignee = candidate;
-              console.log('[NYCFormat] Extracted assignee:', candidate);
-              break;
-            }
+            assignee = match[1].trim();
+            break;
           }
         }
       }
