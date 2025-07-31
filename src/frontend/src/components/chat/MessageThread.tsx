@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ChatTypingIndicator } from './ChatTypingIndicator';
 import { useAuth } from '../../contexts/AuthContext';
 import { useConversations } from '../../contexts/ConversationContext';
+import { aiAssistantApi } from '../../services/aiAssistantApi';
+import { useToast } from '../ui/use-toast';
 
 interface MessageThreadProps {
   conversationId: string;
@@ -36,9 +38,11 @@ export function MessageThread({
 }: MessageThreadProps) {
   const { user } = useAuth();
   const { getMessages, addMessage } = useConversations();
+  const { toast } = useToast();
   const [loading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [aiConversationId, setAiConversationId] = useState<string | undefined>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Get messages from conversation context
@@ -82,11 +86,22 @@ export function MessageThread({
         // Show typing indicator for AI
         setIsTyping(true);
         
-        // Simulate AI response delay
-        setTimeout(() => {
+        try {
+          // Send query to actual OpenAI service
+          const response = await aiAssistantApi.sendQuery({
+            query: messageContent,
+            conversationId: aiConversationId,
+            includeContext: true
+          });
+
+          // Store the conversation ID for future messages
+          if (!aiConversationId && response.conversationId) {
+            setAiConversationId(response.conversationId);
+          }
+
           const aiResponse: Message = {
-            id: `ai-${Date.now()}`,
-            content: `I understand you said: "${messageContent}". Let me help you with that! This is a demo response - the actual AI integration would process your request and provide detailed portfolio analysis.`,
+            id: response.messageId || `ai-${Date.now()}`,
+            content: response.response,
             sender: {
               id: 'morgan-ai',
               name: 'Morgan AI',
@@ -97,8 +112,41 @@ export function MessageThread({
           };
           
           addMessage(conversationId, aiResponse);
+          
+          // Show rate limit info if getting low
+          if (response.rateLimitStatus.queriesRemaining < 5) {
+            toast({
+              title: "Rate Limit Notice",
+              description: `You have ${response.rateLimitStatus.queriesRemaining} queries remaining today.`,
+              variant: "default"
+            });
+          }
+        } catch (error) {
+          console.error('Error calling AI service:', error);
+          
+          // Fallback to mock response if AI service fails
+          const aiResponse: Message = {
+            id: `ai-${Date.now()}`,
+            content: "I apologize, but I'm having trouble connecting to my AI service right now. Please try again in a moment. If the issue persists, please contact support.",
+            sender: {
+              id: 'morgan-ai',
+              name: 'Morgan AI',
+              type: 'ai'
+            },
+            timestamp: new Date(),
+            isRead: true
+          };
+          
+          addMessage(conversationId, aiResponse);
+          
+          toast({
+            title: "AI Service Error",
+            description: error instanceof Error ? error.message : "Failed to connect to AI service",
+            variant: "destructive"
+          });
+        } finally {
           setIsTyping(false);
-        }, 1500);
+        }
       } else {
         // Handle regular chat message sending
         // TODO: Implement actual chat API integration
