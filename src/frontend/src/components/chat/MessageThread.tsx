@@ -5,6 +5,8 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ChatTypingIndicator } from './ChatTypingIndicator';
+import { useAuth } from '../../contexts/AuthContext';
+import { useConversations } from '../../contexts/ConversationContext';
 
 interface MessageThreadProps {
   conversationId: string;
@@ -32,64 +34,19 @@ export function MessageThread({
   conversationName,
   onBack 
 }: MessageThreadProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { getMessages, addMessage } = useConversations();
+  const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    loadMessages();
-  }, [conversationId, conversationType]);
+  
+  // Get messages from conversation context
+  const messages = getMessages(conversationId);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const loadMessages = async () => {
-    try {
-      setLoading(true);
-      
-      // Mock data for now - replace with actual API calls
-      if (conversationId === 'morgan-ai') {
-        setMessages([
-          {
-            id: '1',
-            content: 'Hello! I\'m Morgan AI, your portfolio analysis assistant. How can I help you today?',
-            sender: {
-              id: 'morgan-ai',
-              name: 'Morgan AI',
-              type: 'ai'
-            },
-            timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-            isRead: true
-          }
-        ]);
-      } else if (conversationType === 'channel') {
-        // Load channel messages
-        setMessages([
-          {
-            id: '1',
-            content: 'Welcome to the channel!',
-            sender: {
-              id: 'system',
-              name: 'System',
-              type: 'user'
-            },
-            timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-            isRead: true
-          }
-        ]);
-      } else {
-        // Load direct messages
-        setMessages([]);
-      }
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -102,19 +59,23 @@ export function MessageThread({
     setNewMessage('');
 
     // Add user message immediately (optimistic update)
+    const userName = user?.firstName && user?.lastName 
+      ? `${user.firstName} ${user.lastName}`
+      : user?.email?.split('@')[0] || 'You';
+      
     const userMessage: Message = {
       id: `temp-${Date.now()}`,
       content: messageContent,
       sender: {
         id: 'current-user',
-        name: 'You',
+        name: userName,
         type: 'user'
       },
       timestamp: new Date(),
       isRead: true
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    addMessage(conversationId, userMessage);
 
     try {
       if (conversationId === 'morgan-ai') {
@@ -135,7 +96,7 @@ export function MessageThread({
             isRead: true
           };
           
-          setMessages(prev => [...prev, aiResponse]);
+          addMessage(conversationId, aiResponse);
           setIsTyping(false);
         }, 1500);
       } else {

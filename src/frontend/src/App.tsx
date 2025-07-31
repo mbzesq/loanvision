@@ -15,12 +15,14 @@ import OrganizationPage from './pages/OrganizationPage';
 import OrganizationDirectoryPage from './pages/OrganizationDirectoryPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import { ConversationProvider } from './contexts/ConversationContext';
 import { Toaster } from './components/ui/toaster';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
+        <ConversationProvider>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
@@ -79,6 +81,7 @@ function App() {
           </Route>
         </Routes>
         <Toaster />
+        </ConversationProvider>
       </AuthProvider>
     </Router>
   );
