@@ -13,7 +13,6 @@ interface SOLTrendData {
 
 interface SOLJurisdictionData {
   state: string;
-  stateName?: string;
   totalLoans: number;
   expiredCount: number;
   highRiskCount: number;
@@ -357,7 +356,14 @@ const SOLMonitoringPage: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={jurisdictionData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="state" tick={{ fontSize: 12 }} />
+                    <XAxis 
+                      dataKey="state" 
+                      tick={{ fontSize: 11 }} 
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                      interval={0}
+                    />
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Legend />
@@ -464,12 +470,7 @@ const SOLMonitoringPage: React.FC = () => {
                       className={`cursor-pointer hover:bg-gray-50 transition-colors ${index !== getSortedJurisdictionData().length - 1 ? 'border-b border-gray-100' : ''}`}
                       onClick={() => navigate(`/loans?state=${jurisdiction.state}&has_sol=true`)}
                     >
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-gray-900">{jurisdiction.state}</div>
-                        {jurisdiction.stateName && (
-                          <div className="text-sm text-gray-500">{jurisdiction.stateName}</div>
-                        )}
-                      </td>
+                      <td className="py-3 px-4 font-medium text-gray-900">{jurisdiction.state}</td>
                       <td className="py-3 px-4 text-right">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           jurisdiction.highRiskPercentage >= 50 ? 'bg-red-50 text-red-700 border border-red-200' : 

@@ -10,17 +10,17 @@
 
 import express from 'express';
 import { BusinessRulesEngine } from '../services/businessRulesEngine';
-import { auth } from '../middleware/auth';
-import db from '../config/database';
+import { authenticateToken } from '../middleware/authMiddleware';
+import pool from '../db';
 
 const router = express.Router();
-const businessRules = new BusinessRulesEngine(db);
+const businessRules = new BusinessRulesEngine(pool);
 
 /**
  * GET /api/business-rules
  * Get all business rule configurations
  */
-router.get('/', auth, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const rules = await businessRules.getAllRuleConfigs();
     res.json({
@@ -40,7 +40,7 @@ router.get('/', auth, async (req, res) => {
  * GET /api/business-rules/:ruleName
  * Get specific business rule configuration
  */
-router.get('/:ruleName', auth, async (req, res) => {
+router.get('/:ruleName', authenticateToken, async (req, res) => {
   try {
     const { ruleName } = req.params;
     const rule = await businessRules.getRuleConfig(ruleName);
@@ -69,7 +69,7 @@ router.get('/:ruleName', auth, async (req, res) => {
  * PUT /api/business-rules/:ruleName
  * Update business rule configuration
  */
-router.put('/:ruleName', auth, async (req, res) => {
+router.put('/:ruleName', authenticateToken, async (req, res) => {
   try {
     const { ruleName } = req.params;
     const { enabled, config_json, description } = req.body;
@@ -105,7 +105,7 @@ router.put('/:ruleName', auth, async (req, res) => {
  * POST /api/business-rules
  * Create new business rule
  */
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { rule_name, enabled, config_json, description } = req.body;
 
@@ -147,7 +147,7 @@ router.post('/', auth, async (req, res) => {
  * POST /api/business-rules/:ruleName/toggle
  * Quick toggle to enable/disable a rule
  */
-router.post('/:ruleName/toggle', auth, async (req, res) => {
+router.post('/:ruleName/toggle', authenticateToken, async (req, res) => {
   try {
     const { ruleName } = req.params;
     const currentRule = await businessRules.getRuleConfig(ruleName);

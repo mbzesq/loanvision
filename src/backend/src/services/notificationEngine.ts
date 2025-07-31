@@ -29,6 +29,7 @@ export interface InboxTask {
 
 export class NotificationEngine extends EventEmitter {
   private db: Pool;
+  private businessRules: BusinessRulesEngine;
   private checkInterval: NodeJS.Timeout | null = null;
   private dbClient: any = null; // Database listener client
 
