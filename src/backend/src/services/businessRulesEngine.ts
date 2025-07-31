@@ -10,9 +10,9 @@
 import { Pool } from 'pg';
 // Simple logger replacement since utils/logger doesn't exist
 const logger = {
-  info: (msg: string) => console.log(`[BusinessRules] ${msg}`),
+  info: (msg: string, ...args: any[]) => console.log(`[BusinessRules] ${msg}`, ...args),
   error: (msg: string, ...args: any[]) => console.error(`[BusinessRules] ${msg}`, ...args),
-  warn: (msg: string) => console.warn(`[BusinessRules] ${msg}`)
+  warn: (msg: string, ...args: any[]) => console.warn(`[BusinessRules] ${msg}`, ...args)
 };
 
 export interface BusinessRuleConfig {
