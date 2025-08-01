@@ -149,7 +149,8 @@ export class RobustAssignmentExtractor {
     console.log('[NYCFormat] Text contains pipes (markdown table):', text.includes('|'));
     
     // First try to find the markdown table with ASSIGNOR/ASSIGNEE headers
-    const tableMatch = text.match(/ASSIGNOR\/OLD LENDER.*?\|.*?PARTIES.*?\n\|[\s\S]*?(?=\n\n|$)/i);
+    // More flexible pattern to match various table formats
+    const tableMatch = text.match(/ASSIGNOR[\/\s]*(?:OLD\s*)?LENDER.*?\|[\s\S]*?ASSIGNEE[\/\s]*(?:NEW\s*)?LENDER/i);
     if (tableMatch) {
       console.log('[NYCFormat] Found markdown table with ASSIGNOR/ASSIGNEE headers');
       const tableText = tableMatch[0];

@@ -3,13 +3,13 @@ import {
   ExtractedCandidate, 
   ExtractorConfig 
 } from '../markdownFieldExtractorV2';
-import { RobustAssignmentExtractor } from '../RobustAssignmentExtractor';
+import { SimpleAssignmentExtractor } from '../SimpleAssignmentExtractor';
 
 export class RobustAssignmentStrategy implements ExtractionStrategy {
   name = 'RobustAssignment';
   priority = 99; // Highest priority - should run before other strategies
   
-  private extractor = new RobustAssignmentExtractor();
+  private extractor = new SimpleAssignmentExtractor();
 
   extract(text: string, config: ExtractorConfig): Map<string, ExtractedCandidate> {
     const results = new Map<string, ExtractedCandidate>();
